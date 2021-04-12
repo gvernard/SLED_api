@@ -5,3 +5,11 @@
 #    user is not supposed to own. Check if fails gracefully when there are no objects owned with the given ids.
 # 3. cedeOwnership confirmation: check the Yes and No replies from a heir.
 # 4. cedeOwnershipAll: 
+
+
+# Lenses
+# - Queries
+# 1. Select lenses for a user without any private access.
+# 2. Select lenses for a user with direct private access.
+# 3. Select lenses for a user with access via his groups.
+# 4. Select lenses for a user with both direct and group access (on different, but also some same lenses).

@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser,Group
 
 objects_with_owner = ["Lenses","Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
@@ -7,8 +7,8 @@ objects_with_owner = ["Lenses","Finders","Scores","ModelMethods","Models","Futur
 
     
 class SingleObject(models.Model):
-    owner_id = models.ForeignKey(Users,db_index=False,on_delete=models.CASCADE)
-    # We need to learn more about the FOreignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
+    owner_id = models.ForeignKey(SledUsers,db_index=False,on_delete=models.CASCADE)
+    # We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     access_level =  EnumField(choices=[
@@ -59,8 +59,10 @@ class SingleObject(models.Model):
 
 # Types of users: anonymous, authenticated, inactive
 # User roles: owner, admin
-class Users(AbstractUser):
+class SledUser(AbstractUser):
     affiliation = models.CharField(max_length=100,help_text("An affiliation, e.g. an academic or research institution etc."))
+    group_ids = list( self.groups.values_list('id',flat=True) ) # Store all the user groups here for convenience
+
     
     def getOwnership(object_types=None):
         # Purpose: to provide all objects from a specific type, or all types, that a user owns.
@@ -85,9 +87,26 @@ class Users(AbstractUser):
     def deactivateUser():
         # The most important task before making a user inactive is to cede the ownership to other users.
         # If the user is an admin, maybe more tasks will need to be performed.
-        
 
-        
+
+class SledUserGroup(Group):
+    owner_id = models.ForeignKey(SledUser,db_index=False,on_delete=models.CASCADE)
+    description = models.TextField(help_text="Group description, member rules, etc.")
+    
+
+
+
+
+
+
+
+class AccessibleLensManager(models.Manager):
+    def all():
+        # This needs a user object as input
+        # return only the juicy lens fields (no metadata like the SingleObject fields)
+        lenses_public = # Query the lens table with access_level set to public
+        lenses_private = # Same query as above JOIN on object id with the access table where object=lens and access_user_id=user_id OR access_user_id IN user.groups
+
         
 # Privileges:
 # - anonymous user can only view (in the web interface, cannot download JSON, etc)
@@ -95,7 +114,7 @@ class Users(AbstractUser):
 # - owner can update
 # - admin can update and delete
 # Notes: we need permissions on a per-object basis (to view and to update)
-class Lenses(SingleObject):
+class Lens(SingleObject):
     class ImageConf(models.TextChoices):
         NONE = '',_('unknown')
         CUSP = 'CUSP', _('Cusp')
@@ -122,28 +141,34 @@ class Lenses(SingleObject):
         GRB = 'GRB',_('Gamma-Ray Burst')
         SN = 'SN',_('Supernova')        
         
-    ra = models.DecimalField(max_digits=7,decimal_places=4,help_text="The RA of the lens [degrees].") # validators or constraints in Meta?
-    dec = models.DecimalField(max_digits=6,decimal_places=4,help_text="The DEC of the lens [degrees].")
-    name = models.CharField(max_length=100,help_text="The official name/code name of the lens.")
+    ra = models.DecimalField(max_digits=7,decimal_places=4,help_text="The RA of the lens [degrees].",validators=[MaxValueValidator(360.0),MinValueValidator(0.0)])
+    dec = models.DecimalField(max_digits=6,decimal_places=4,help_text="The DEC of the lens [degrees].",validators=[MaxValueValidator(90.0),MinValueValidator(-90.0)])
+    name = models.CharField(max_length=100,help_text="The official name/code name of the lens.") # Custom validator for the name?
     alt_name = models.CharField(max_length=100,help_text="A colloquial name with which the lens is know, e.g. 'The Einstein cross', etc.")
-    image_sep = models.DecimalField(max_digits=4,decimal_places=2,help_text="An estimate of the maximum image separation or arc radius [arcsec].")
-    z_source = models.DecimalField(blank=True,max_digits=4,decimal_places=3,help_text="The redshift of the source, if known.")
-    z_lens = models.DecimalField(blank=True,max_digits=4,decimal_places=3,help_text="The redshift of the lens, if known.")
+    image_sep = models.DecimalField(max_digits=4,decimal_places=2,help_text="An estimate of the maximum image separation or arc radius [arcsec].",validators=[MinValueValidator(0.0)]) # DecimalField calls DecimalValidator
+    z_source = models.DecimalField(blank=True,max_digits=4,decimal_places=3,help_text="The redshift of the source, if known.",validators=[MinValueValidator(0.0)])
+    z_lens = models.DecimalField(blank=True,max_digits=4,decimal_places=3,help_text="The redshift of the lens, if known.",validators=[MinValueValidator(0.0)])
     image_conf = models.CharField(blank=True,max_length=10,choices=ImageConf.choices,default=ImageConf.NONE,help_text="Multiple image and extended lensed features configuration.")
     lens_type = models.CharField(blank=True,max_length=10,choices=LensType.choices,default=LensType.NONE,help_text="Lens object type.")
     source_type = models.CharField(blank=True,max_length=10,choices=SourceType.choices,default=SourceType.NONE,help_text="Source object type.")
     flag_confirmed = models.BooleanField(default=False,blank=True,help_text="Set to true if the lens has been confirmed by a publication.") # Do we need to associate a paper directly (ForeignKey) instead of Booelan? We can have both confirmed and contaminant set to true :)
     flag_contaminant = models.BooleanField(default=False,blank=True,help_text="Set to true if the object has been confirmed as not a lens by a publication.")
-    info
     discovered_at = models.DateField(help_text="The date when the lens was discovered, or the discovery paper published.")
+    info = TextField(help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
 
+    objects = models.Manager()
+    accessible_objects = AccessibleLensManager()
+    
     class Meta(SingleObject.Meta):
         db_table = "lenses"
         ordering = ["ra"]
         unique_together = ["ra","dec"]
         constraints = [
-            # Meaningful constraints are needed here or validators on the fields?
-            models.CheckConstraint(check=models.Q(ra__gte=18), name='ra_lte_180'),
+            # Reiterate the validators
+            # z_lens must be > lens_source
         ]
         verbose_name = "lens"
         verbose_name_plural = "lenses"
+
+
+
