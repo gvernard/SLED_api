@@ -24,13 +24,16 @@ import numpy as np
 usernames = ['Cameron', 'Giorgos', 'Fred']
 for username in usernames:
     user = Users.objects.get(username=username)
-    q = Lenses.objects.filter(ra__gte=180)
-    accessible_lenses = get_objects_for_user(user, 'has_access', klass=q)
+    #q = Lenses.objects.filter(ra__gte=180)
+    #accessible_lenses = get_objects_for_user(user, 'has_access', klass=q)
+    accessible_lenses = get_objects_for_user(user, 'lensdb.view_lenses',)
     print(username+' has access to '+str(len(accessible_lenses))+' lenses')
 
 
 lenses = Lenses.objects.all()
 
 N = len(lenses)
-lens = lenses[randrange(N)]
-print('The following have access to this lens:', get_users_with_perms(lens))
+#index = randrange(N)
+index = 43
+lens = lenses[index]
+print('The following have access to this lens:', index, get_users_with_perms(lens))

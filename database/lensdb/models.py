@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group
 
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
@@ -8,9 +8,13 @@ from guardian.mixins import GuardianUserMixin
 class Users(AbstractUser, GuardianUserMixin):
     pass
 
+class Groups(Group):
+    description = models.CharField(max_length=180,null=True, blank=True)
+
+    
 class SingleObject(models.Model):
     owner_id = models.ForeignKey(Users,db_index=False,on_delete=models.CASCADE)
-    # We need to learn more about the FOreignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
+    # We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
 
@@ -87,15 +91,16 @@ class Lenses(SingleObject):
         
     ra = models.DecimalField(max_digits=7, decimal_places=4, help_text="The RA of the lens [degrees].") # validators or constraints in Meta?
     dec = models.DecimalField(max_digits=6, decimal_places=4, help_text="The DEC of the lens [degrees].")
-    name = models.CharField(max_length=100, help_text="The most common name of the lens.")
+    name = models.CharField(max_length=100, help_text="The most common name of the lens.") # This could become a comma separated list of names.
 
     def __str__(self):
-        return self.name
+        return self.name # or return some 'phone-number' if this name is not set
 
-    class Meta:
-        permissions = (
-            ('has_access', 'Has access'),
-        )
+#    class Meta:
+#        # django creates automatically the permissions we want, see the Note in blue here: https://django-guardian.readthedocs.io/en/stable/userguide/assign.html
+#        permissions = (
+#            ('has_access', 'Has access'),
+#        )
 
     '''alt_name = models.CharField(max_length=100,help_text="A colloquial name with which the lens is know, e.g. 'The Einstein cross', etc.")
     image_sep = models.DecimalField(max_digits=4,decimal_places=2,help_text="An estimate of the maximum image separation or arc radius [arcsec].")
