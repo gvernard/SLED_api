@@ -9,16 +9,55 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lensdb.models import Users, Groups, Lenses
+from lensdb.models import Users, SledGroups, Lenses
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import get_objects_for_user
+from guardian.core import ObjectPermissionChecker
 
 
-user1 = Users.objects.get(username='Cameron')
-user2 = Users.objects.get(username='Giorgos')
-group1 = Groups.objects.get(name="Awesome Users")
+def accessible_objects_per_user():
+    users = Users.objects.all()
+    for user in users:
+        lenses = Lenses.accessible_objects.all(user)
+        print(user.username,len(lenses))
 
+
+cameron = Users.objects.get(username='Cameron')
+giorgos = Users.objects.get(username='Giorgos')
+fred    = Users.objects.get(username='Fred')
+groupA  = SledGroups.objects.get(name="Awesome Users")
+
+
+accessible_objects_per_user()
+
+
+# Owner gives access to private lenses
+private_lenses = Lenses.accessible_objects.all(cameron).filter(access_level='private')
+for i in range(0,3):    
+    cameron.giveAccess(private_lenses[i],giorgos)
+
+for i in range(6,10):
+    cameron.giveAccess(private_lenses[i],groupA)
+print()
+accessible_objects_per_user()
+
+
+cameron.revokeAccess(private_lenses[0],giorgos)
+print()
+accessible_objects_per_user()
+
+public_lenses = Lenses.accessible_objects.all(cameron).filter(access_level='public')
+cameron.revokeAccess(public_lenses[0],giorgos)
+print()
+accessible_objects_per_user()
+
+    
+
+
+
+
+'''
 all_lenses = Lenses.objects.all()
 for i, lens in enumerate(all_lenses):
     if i < 20:
@@ -33,4 +72,4 @@ for i, lens in enumerate(all_lenses):
     if 40 < i and i < 45:
         assign_perm('view_lenses', group1, lens)
         print('Giving access to ', lens.name, 'to ', group1.name)
-        
+'''        

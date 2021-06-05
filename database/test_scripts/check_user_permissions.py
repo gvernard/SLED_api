@@ -21,6 +21,7 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
 
+'''
 usernames = ['Cameron', 'Giorgos', 'Fred']
 for username in usernames:
     user = Users.objects.get(username=username)
@@ -37,3 +38,13 @@ N = len(lenses)
 index = 43
 lens = lenses[index]
 print('The following have access to this lens:', index, get_users_with_perms(lens))
+'''
+
+
+print("Accessible objects per user: ")
+lenses = Lenses.accessible_objects.all(cameron)
+print(cameron.username,len(lenses))
+lenses = Lenses.accessible_objects.all(giorgos)
+print(giorgos.username,len(lenses))
+lenses = Lenses.accessible_objects.all(fred)
+print(fred.username,len(lenses))
