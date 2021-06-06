@@ -160,14 +160,17 @@ class SledGroups(Group):
         verbose_name_plural = "sledgroups"
 
     def getAllMembers(self):
+        # We may want to restrict this function to the owner, or to members only
         users = self.user_set.all()
         return users
         
-    def addMember(self,seld_user):
-        self.user_set.add(sled_user)
+    def addMember(self,owner,seld_user):
+        if owner.isOwner(self) and not sled_user.groups.filter(name=self.name):
+            self.user_set.add(sled_user)
         
-    def removeMember(self,sled_user):
-        self.user_set.remove(sled_user)
+    def removeMember(self,owner,sled_user):
+        if owner.isOwner(self) and sled_user.groups.filter(name=self.name):
+            self.user_set.remove(sled_user)
 
 
     
@@ -202,7 +205,6 @@ class Lenses(SingleObject):
     # flag_contaminant = models.BooleanField(default=False,blank=True,help_text="Set to true if the object has been confirmed as not a lens by a publication.")
     # discovered_at = models.DateField(help_text="The date when the lens was discovered, or the discovery paper published.")
     # info = TextField(help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
-
     
     accessible_objects = AccessibleLensManager() # the first manager is the default one
     objects = models.Manager()
@@ -220,10 +222,3 @@ class Lenses(SingleObject):
 
     def __str__(self):
         return self.name # or return some 'phone-number' if this name is not set
-
-#    class Meta:
-#        # django creates automatically the permissions we want, see the Note in blue here: https://django-guardian.readthedocs.io/en/stable/userguide/assign.html
-#        permissions = (
-#            ('has_access', 'Has access'),
-#        )
-
