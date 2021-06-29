@@ -10,7 +10,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lensdb.models import Users, Lenses
+from lensdb.models import Users, SledGroups, Lenses
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 from guardian.shortcuts import assign_perm
@@ -40,6 +40,11 @@ lens = lenses[index]
 print('The following have access to this lens:', index, get_users_with_perms(lens))
 '''
 
+
+cameron = Users.objects.get(username='Cameron')
+giorgos = Users.objects.get(username='Giorgos')
+fred    = Users.objects.get(username='Fred')
+groupA  = SledGroups.objects.get(name="Awesome Users")
 
 print("Accessible objects per user: ")
 lenses = Lenses.accessible_objects.all(cameron)
