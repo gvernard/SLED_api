@@ -40,7 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'guardian',
+    'registration.apps.RegistrationConfig',  
+    'crispy_forms',  
+
 ]
+
+ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend', # this is default
