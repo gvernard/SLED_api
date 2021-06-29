@@ -27,12 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-AUTH_USER_MODEL = 'lensdb.Users'
+AUTH_USER_MODEL = 'lenses.Users'
 GUARDIAN_MONKEY_PATCH = False
 # Application definition
 
 INSTALLED_APPS = [
-    'lensdb.apps.LensdbConfig',
+    'lenses.apps.LensesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

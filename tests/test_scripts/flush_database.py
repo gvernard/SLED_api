@@ -2,7 +2,7 @@ import sys
 import os
 import django
 
-base_dir = '../'
+base_dir = '../../'
 sys.path.append(base_dir)
 
 
@@ -14,7 +14,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lensdb.models import Users, SledGroups, Lenses
+from lenses.models import Users, SledGroups, Lenses
 from django.db.models import Q
 
 users = Users.objects.filter(~Q(username='admin'))

@@ -5,14 +5,14 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
 
-base_dir = '../'
+base_dir = '../../'
 sys.path.append(base_dir)
 
 #Database init
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lensdb.models import Users, SledGroups, Lenses
+from lenses.models import Users, SledGroups, Lenses
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
 
