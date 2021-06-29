@@ -18,8 +18,7 @@ from django.urls import include, path
 from registration import views as v
 
 urlpatterns = [
-    path('lenses/', include('lenses.urls')),
-    path('registration/', include('django_registration.backends.activation.urls')),
-    path('registration/', include('django.contrib.auth.urls')),
-    path("register/", v.register, name="register"),    
+    path('', include('home.urls'), name='home'),
+    path('lenses/', include('lenses.urls'), name='lenses'),
+    path("register/", v.register, name="register"),
 ]
