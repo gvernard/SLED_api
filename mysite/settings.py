@@ -42,8 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'guardian',
     'registration.apps.RegistrationConfig',  
-    'crispy_forms',  
-
+    'crispy_forms',
+    'notifications'
 ]
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window
