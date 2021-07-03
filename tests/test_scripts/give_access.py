@@ -52,10 +52,6 @@ cameron.revokeAccess(public_lenses[0],giorgos)
 print()
 accessible_objects_per_user()
 
-    
-
-
-
 
 '''
 all_lenses = Lenses.objects.all()

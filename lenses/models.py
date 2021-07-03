@@ -115,7 +115,7 @@ class Users(AbstractUser,GuardianUserMixin):
     
 class SingleObject(models.Model):
     # We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
-    owner_id = models.ForeignKey(Users,on_delete=models.CASCADE)
+    owner_id = models.ForeignKey(Users,on_delete=models.CASCADE) #WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     access_level = EnumField(AccessLevel,help_text="Set public or private access to this object.")
@@ -124,8 +124,8 @@ class SingleObject(models.Model):
         abstract = True
         get_latest_by = ["modified_at","created_at"]
         
-    def isOwner(user_id):
-        if user_id == self.owner_id:
+    def isOwner(self, user_id):
+        if user_id == self.owner_id_id:
             return True
         else:
             return False

@@ -88,8 +88,18 @@ class lenses(unittest.TestCase):
         all_lenses = Lenses.objects.all().values_list('name', flat=True)
         self.assertIn(self.name1, all_lenses)
 
+    def test_b_check_len_isOwner(self):
+        """
+        Test to check the isOwner attribute for a lens
+        """ 
+        lens = Lenses.objects.get(name=self.name1)
+        user1 = Users.objects.get(username=self.username1)
+        print('user1 id is:', user1.id)
+        print('lens is:', lens)
+        print('lens owner id is', lens.owner_id_id)
+        self.assertTrue(lens.isOwner(user1.id))
 
-    def test_b_add_private_lens(self):
+    def test_c_add_private_lens(self):
         """
         Test to add a private lens to the database. First create a user and then add the lens.
         """
@@ -106,7 +116,7 @@ class lenses(unittest.TestCase):
         self.assertIn(self.name1, all_lenses)
 
 
-    def test_c_access_to_public_lens(self):
+    def test_d_access_to_public_lens(self):
         """
         Check that user2 has access to public lenses
         """
@@ -120,7 +130,7 @@ class lenses(unittest.TestCase):
         self.assertIn(self.name1, access_lenses)
 
 
-    def test_d_access_to_private_lens(self):
+    def test_e_access_to_private_lens(self):
         """
         Check that user2 has no access to private lens
         """
