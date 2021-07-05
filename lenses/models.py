@@ -57,7 +57,7 @@ class Users(AbstractUser,GuardianUserMixin):
             object_types = objects_with_owner
         objects = {}
         for table in object_types:
-            objects[table] = getattr(lensdb.models,'table').all().filter(owner_id=self.username)
+            objects[table] = getattr(lensdb.models,'table').all().filter(owner=self.username)
         # Purpose: to provide all objects from a specific type, or all types, that a user owns.
         # Input: object_types has to be a sub-array of objects_with_owner. If None then use the latter.
         # Output: a corresponding dictionary of QuerySets selected with owner_id = self.id
@@ -91,7 +91,7 @@ class Users(AbstractUser,GuardianUserMixin):
     def cedeOwnership(self,single_object,heir):
         if self.isOwner(single_object) and heir.is_active():
             # The following will have to be replaced by a confirmation task from the heir
-            single_object.owner_id = heir
+            single_object.owner = heir
             single_object.save()
 
     ####################################################################
@@ -115,7 +115,7 @@ class Users(AbstractUser,GuardianUserMixin):
     
 class SingleObject(models.Model):
     # We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
-    owner_id = models.ForeignKey(Users,on_delete=models.CASCADE) #WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
+    owner = models.ForeignKey(Users,on_delete=models.CASCADE) #WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     access_level = EnumField(AccessLevel,help_text="Set public or private access to this object.")
@@ -125,7 +125,7 @@ class SingleObject(models.Model):
         get_latest_by = ["modified_at","created_at"]
         
     def isOwner(self, user_id):
-        if user_id == self.owner_id_id:
+        if user_id == self.owner_id:
             return True
         else:
             return False

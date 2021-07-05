@@ -21,7 +21,7 @@ class users(unittest.TestCase):
     def setUp(self):
         self.username = 'testuser'
 
-    def test_add_user(self):
+    def test_a_add_user(self):
         """
         Test to add a user and check they are in the database
         """
@@ -30,7 +30,7 @@ class users(unittest.TestCase):
         all_users = Users.objects.all().values_list('username', flat=True)
         self.assertIn(self.username, all_users)
 
-    def test_delete_user(self):
+    def test_b_delete_user(self):
         """
         Test to delete a user and check they are no longer in the database
         """
@@ -82,7 +82,7 @@ class lenses(unittest.TestCase):
             user1.save()
         user1 = Users.objects.get(username=self.username1)
 
-        lens = Lenses(ra=self.ra1, dec=self.dec1, name=self.name1, access_level='public', owner_id=user1)
+        lens = Lenses(ra=self.ra1, dec=self.dec1, name=self.name1, access_level='public', owner=user1)
         lens.save()
         print('added public lens:', self.ra1, self.dec1, self.name1)
         all_lenses = Lenses.objects.all().values_list('name', flat=True)
@@ -96,7 +96,7 @@ class lenses(unittest.TestCase):
         user1 = Users.objects.get(username=self.username1)
         print('user1 id is:', user1.id)
         print('lens is:', lens)
-        print('lens owner id is', lens.owner_id_id)
+        print('lens owner id is', lens.owner_id)
         self.assertTrue(lens.isOwner(user1.id))
 
     def test_c_add_private_lens(self):
@@ -109,7 +109,7 @@ class lenses(unittest.TestCase):
             user1.save()
         user1 = Users.objects.get(username=self.username1)
 
-        lens = Lenses(ra=self.ra2, dec=self.dec2, name=self.name2, access_level='private', owner_id=user1)
+        lens = Lenses(ra=self.ra2, dec=self.dec2, name=self.name2, access_level='private', owner=user1)
         lens.save()
         print('added private lens:', self.ra2, self.dec2, self.name2)
         all_lenses = Lenses.objects.all().values_list('name', flat=True)
@@ -143,6 +143,22 @@ class lenses(unittest.TestCase):
         access_lenses = Lenses.accessible_objects.all(user2).values_list('name', flat=True)
         self.assertNotIn(self.name2, access_lenses)
 
+    def test_f_delete_lenses(self):
+        """
+        Check that lenses can be deleted
+        (HERE WE NEED MORE COMPLEX TESTS ABOUT REQUIRING PERMISSION TO DELETE THE LENS)
+        """
+        #first see if our test user already exists in the database or not
+        lens1 = Lenses.objects.get(name=self.name1)
+        lens1.delete()
+        lens2 = Lenses.objects.get(name=self.name2)
+        lens2.delete()
+
+        all_lenses = Lenses.objects.all().values_list('name', flat=True)
+        lens1_deleted = self.name1 in all_lenses
+        lens2_deleted = self.name2 in all_lenses
+
+        self.assertEqual(lens1_deleted+lens2_deleted, 0)
 
 
     '''def test_delete_public_lens_as_nonowner(self):
