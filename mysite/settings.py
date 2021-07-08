@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 ]
 
-
+SITE_ID = 1
 
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window
 
