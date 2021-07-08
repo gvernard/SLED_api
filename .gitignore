@@ -114,3 +114,6 @@ media/
 **/migrations/**
 # !**/migrations
 !**/migrations/__init__.py
+
+documentation/test_docs/site
+documentation/api_docs/site
