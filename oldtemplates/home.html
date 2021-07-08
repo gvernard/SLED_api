@@ -1,0 +1,24 @@
+{% extends 'lenses/header.html' %}
+
+{% load humanize %}
+{% load static %}
+
+{% block content %}
+
+    <div class="title">
+        <h1>WELCOME TO THE GRAVITATIONAL LENS DATABASE!</h1>
+    </div>
+
+    <div class="content container">
+        <p class="homepage">Please help us keep this database up-to-date by adding new discoveries (<a href="{% url 'lenses:import' %}">Add New Lens Candidates</a>) or updating existing systems with new information. If you have a new search technique and want to associate your systems to these technique, first add the lens-finding method (<a href="{% url 'lenses:post_method' %}">Add New Lens-finding Method</a>)</p>
+    </div>
+    <div style="position: relative;">
+        <img src="{% static 'lenses/images/lenses.png' %}" style="width: 100%; height: auto;">
+        {{mapstring|safe  }}
+    </div>
+    
+
+
+
+{% endblock content %}
+

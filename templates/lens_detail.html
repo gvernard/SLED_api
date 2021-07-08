@@ -1,0 +1,74 @@
+{% extends 'lenses_header.html' %}
+{% block content %}
+    <div class="content container">
+        <p class="centred_name">{{lens.name}}</p>
+        </div>
+
+
+    <div class="content container">
+	<p class="centred_section_title"> SYSTEM INFORMATION </p>
+        <table>
+            <tr>
+                <th class="th-center">Right Ascension </th>
+                <th class="th-center">Declination </th>
+                <th class="th-center">Lens redshift</th>
+                <th class="th-center">Source redshift </th>
+            </tr>
+            <tr>
+                <td class="td-center">{{lens.ra|floatformat:5}}</td>
+                <td class="td-center">{{lens.dec|floatformat:5}}</td>
+                <td class="td-center">{{lens.zlens|floatformat:4}}</td>
+                <td class="td-center">{{lens.zsource|floatformat:4}}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="content-container">
+        <p class="centred_section_title"> IMAGING DATA </p>
+    </div>
+    <div class="content container">
+        <p class="centred_section_title"> SPECTROSCOPIC DATA </p>
+    </div>
+    <div class="content container">
+        <p class="centred_section_title"> CATALOGUE DATA </p>
+    </div>
+
+
+    <div class="content container">
+        <p class="centred_section_title"> EXTERNAL LINKS </p>
+            <table>
+                <tr>
+                <th class="th-center"> <a href=http://skyserver.sdss.org/dr16/en/tools/chart/navi.aspx?ra={{lens.ra}}&dec={{lens.dec}}&SCALE=0.05 target="_blank">SDSS</a> </th>
+
+                <th class="th-center"> <a href=https://www.legacysurvey.org/viewer?ra={{lens.ra}}&dec={{lens.dec}}&layer=dr8&zoom=16&gaia-dr2&spectra target="_blank">Legacy Survey</a> </th>
+
+                <th class="th-center"> <a href=https://www.legacysurvey.org/viewer?ra={{lens.ra}}&dec={{lens.dec}}&layer=des-dr1&zoom=16&gaia-dr2&spectra target="_blank">DES</a> </th>
+
+                <th class="th-center"> <a href=https://www.legacysurvey.org/viewer?ra={{lens.ra}}&dec={{lens.dec}}&layer=hsc-dr2&zoom=16&gaia-dr2&spectra target="_blank">HSC</a> </th>
+
+                <th class="th-center"> <a href=http://ps1images.stsci.edu/cgi-bin/ps1cutouts?pos={{lens.ra}}+{{lens.dec}}&filter=color&filter=g&filter=r&filter=i&filter=z&filter=y&filetypes=stack&auxiliary=data&size=80&output_size=400&verbose=0&autoscale=99.500000&catlist= target="_blank">Pan-STARRS</a> </th>
+
+                <th class="th-center"> <a href=https://www.legacysurvey.org/viewer?ra={{lens.ra}}&dec={{lens.dec}}&layer=vlass&zoom=16&gaia-dr2&spectra target="_blank">VLASS</a> </th>
+                <th class="th-center"> <a href=https://www.legacysurvey.org/viewer?ra={{lens.ra}}&dec={{lens.dec}}&layer=galex&zoom=16&gaia-dr2&spectra target="_blank">GALEX</a> </th>
+                <th class="th-center"> <a href=https://www.legacysurvey.org/viewer?ra={{lens.ra}}&dec={{lens.dec}}&layer=unwise-neo6&zoom=16&gaia-dr2&spectra target="_blank">WISE</a> </th>
+                </tr>
+
+                <tr>
+                <th class="th-center"> <a href=http://vizier.u-strasbg.fr/viz-bin/VizieR-2?-c={{lens.ra}},{{lens.dec}}&-c.r=5&-c.u=arcsec target="_blank">Vizier</a> </th>
+
+                <th class="th-center"> <a href=http://ned.ipac.caltech.edu/cgi-bin/objsearch?search_type=Near+Position+Search&in_csys=Equatorial&in_equinox=J2000.0&lon={{lens.ra}}d&lat={{lens.dec}}d&radius=2.0 target="_blank">NED</a> </th>
+
+                <th class="th-center"> <a href=http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/en/search/?Plane.position.bounds@Shape1Resolver.value=ALL&Plane.position.bounds={{lens.ra}}%2C%20{{lens.dec}}#sortCol=caom2%3APlane.time.bounds.lower&sortDir=dsc&col_1=_checkbox_selector;;;&col_2=caom2%3AObservation.uri;;;&col_3=caom2%3AObservation.collection;;;&col_4=caom2%3APlane.time.bounds.lower;;;&col_5=caom2%3AObservation.instrument.name;;;&col_6=caom2%3APlane.time.exposure;;;&col_7=caom2%3APlane.energy.bandpassName;;;&col_8=caom2%3APlane.position.sampleSize;;;arcsec&col_9=caom2%3APlane.time.bounds.upper;;;&col_10=caom2%3APlane.position.bounds.cval1;;;&col_11=caom2%3APlane.position.bounds.cval2;;;&col_12=caom2%3AObservation.observationID;;; target="_blank">CFHT archive</a> </th>
+
+                <th class="th-center"> <a href=http://vizier.u-strasbg.fr/viz-bin/VizieR-4?-ref=VIZ59df3f2a9003&-to=4&-from=-3&-this=-3&%2F%2Fsource=I%2F345%2Fgaia2&%2F%2Ftables=I%2F345%2Fgaia2&-out.max=50&%2F%2FCDSportal=http%3A%2F%2Fcdsportal.u-strasbg.fr%2FStoreVizierData.html&-out.form=HTML+Table&-out.add=_r&-out.add=_p&-out.add=_x%2C_y&%2F%2Foutaddvalue=default&-oc.form=sexa&-nav=cat%3AI%2F345%26tab%3A%7BI%2F345%2Fgaia2%7D%26key%3Asource%3DI%2F345%2Fgaia2%26pos%3A{{lens.ra}}%09{{lens.dec}}%28+++5+arcsec+J2000%29%26HTTPPRM%3A%26-ref%3DVIZ59df3f2a9003%26-out.src%3DI%2F345%2Fgaia2%26Clear%3D+Clear%26-c%3D{{lens.ra}}%09{{lens.dec}}%26-c.r%3D++5%26-out.orig%3Dorig%26-out%3Dra%26-out%3Ddec%26-out%3Dparallax%26-out%3Dparallax_error%26-out%3Dpmra%26-out%3Dpmra_error%26-out%3Dpmdec%26-out%3Dpmdec_error%26-out%3Dastrometric_excess_noise%26-out%3Dastrometric_excess_noise_sig%26-out%3Dduplicated_source%26-out%3Dphot_g_mean_mag%26-out%3Dbp_rp%26-out%3Dphot_variable_flag%26-out%3Dl%26-out%3Db%26-meta.ucd%3D2%26-meta%3D1%26-meta.foot%3D1%26-usenav%3D1%26-bmark%3DGET%26-out.add%3D_r%26-out.add%3D_p%26-out.add%3D_x%2C_y%26-order%3DI%26-oc.form%3Dsexa%26-c.geom%3Dr%26-out.max%3D50%26-out.form%3DHTML+Table%26undefined%3DCDS%2C+France%26-c.eq%3DJ2000%26-c.u%3Darcsec%26&-c={{lens.ra}}%09{{lens.dec}}&-c.eq=J2000&-c.r=++5&-c.u=arcsec&-c.geom=r&-source=I%2F345%2Fgaia2&-order=I&-out.orig=orig&DR2Name=&-out=ra&RA_ICRS=&e_RA_ICRS=&-out=dec&DE_ICRS=&e_DE_ICRS=&SolID=&Source=&RandomI=&Epoch=&-out=parallax&Plx=&-out=parallax_error&e_Plx=&RPlx=&-out=pmra&pmRA=&-out=pmra_error&e_pmRA=&-out=pmdec&pmDE=&-out=pmdec_error&e_pmDE=&RADEcor=&RAPlxcor=&RApmRAcor=&RApmDEcor=&DEPlxcor=&DEpmRAcor=&DEpmDEcor=&PlxpmRAcor=&PlxpmDEcor=&pmRApmDEcor=&NAL=&NAC=&NgAL=&NbAL=&gofAL=&chi2AL=&-out=astrometric_excess_noise&epsi=&-out=astrometric_excess_noise_sig&sepsi=&Solved=&APF=&WAL=&pscol=&e_pscol=&fvarpi=&MatchObsA=&Nper=&amax=&type=&MatchObs=&-out=duplicated_source&Dup=&o_Gmag=&FG=&e_FG=&RFG=&-out=phot_g_mean_mag&Gmag=&e_Gmag=&o_BPmag=&FBP=&e_FBP=&RFBP=&BPmag=&e_BPmag=&o_RPmag=&FRP=&e_FRP=&RFRP=&RPmag=&e_RPmag=&E%28BR%2FRP%29=&Mode=&-out=bp_rp&BP-RP=&BP-G=&G-RP=&RV=&e_RV=&o_RV=&Tefftemp=&loggtemp=&%5BFe%2FH%5Dtemp=&-out=phot_variable_flag&Var=&GLON=&-out=b&GLAT=&ELON=&ELAT=&fPriam=&Teff=&b_Teff=&B_Teff=&AG=&b_AG=&B_AG=&E%28BP-RP%29=&b_E%28BP-RP%29=&B_E%28BP-RP%29=&fFLAME=&Rad=&b_Rad=&B_Rad=&Lum=&b_Lum=&B_Lum=&RAJ2000=&e_RAJ2000=&DEJ2000=&e_DEJ2000=&%2F%2Fnoneucd1p=on&-file=.&-meta.ucd=2&-meta=1&-meta.foot=1&-usenav=1&-bmark=GET target="_blank">Gaia</a> </th>
+
+                <th class="th-center"> <a href=http://www.cadc-ccda.hia-iha.nrc-cnrc.gc.ca/cadcbin/megapipe/imc.pl?lang=en&object=&ra={{lens.ra}}&dec={{lens.dec}}&size=150&output_size=512 target="_blank">CFHT Megapipe Cutout</a> </th>
+
+                <th class="th-center"> <a href=https://third.ucllnl.org/cgi-bin/firstcutout?RA={{rahours}}&Dec={{lens.dec}}&ImageSize=2&MaxInt=1&ImageType=GIF target="_blank">FIRST</a> </th>
+
+                <th class="th-center"> <a href="http://sky.esa.int/?action=goto&target={{lens.ra}}%20{{lens.dec}}&hips=DSS2%20color&fov=0.15180385513873589&cooframe=J2000&sci=true" target="_blank">ESA Sky</a> </th>
+                </tr>
+            </table>
+    </div>
+
+{% endblock content %}

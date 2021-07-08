@@ -1,0 +1,28 @@
+{% extends 'lenses/header.html' %}
+{% load humanize %}
+
+{% block content %}
+
+    <div class="section">
+        <h1>Lens candidates overview</h1>
+    </div>
+
+
+    <div class="content container">
+	<div id="form_container">
+
+		<form id="form_57257" class="appnitro"  method="get" action="">
+            <div class="form_description">
+			    <p>{{message}}</p>
+		    </div>
+
+		</form>
+	</div>
+    </div>
+
+    <div class="content container">
+        {{table|safe}}
+    </div>
+
+{% endblock content %}
+

@@ -1,0 +1,15 @@
+{% extends 'login_header.html' %}
+{% block content %}
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Login</button>
+  </form>
+
+  {# Assumes you setup the password_reset view in your URLconf #}
+  <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+
+<p>New? Register <a href="{% url 'register' %}">here</a></p>
+
+{% endblock content %}

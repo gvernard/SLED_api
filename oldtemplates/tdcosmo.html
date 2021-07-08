@@ -1,0 +1,112 @@
+{% extends 'lenses/header.html' %}
+{% load humanize %}
+
+{% block content %}
+
+    <div class="section">
+        <h1>TDCOSMO lensed quasar database</h1>
+    </div>
+
+    <div class="content container">
+	<div id="form_container">
+
+		<form id="form_57257" class="appnitro"  method="get" action="">
+            <div class="form_description">
+                <p></p>
+            </div>
+
+            <div>
+                <label class="description" for="ra_min">Ra min </label>
+                <input id="ra_min" name="ra_min" class="element text medium" type="text" maxlength="255" value="{{ formvalues.0 }}" />
+                <label class="description" for="ra_max">Ra max </label>
+                <input id="ra_max" name="ra_max" class="element text medium" type="text" maxlength="255" value="{{ formvalues.1 }}"/>
+                <label class="description" for="dec_min">Dec min </label>
+                <input id="dec_min" name="dec_min" class="element text medium" type="text" maxlength="255" value="{{ formvalues.2 }}"/>
+                <label class="description" for="dec_max">Dec max </label>
+                <input id="dec_max" name="dec_max" class="element text medium" type="text" maxlength="255" value="{{ formvalues.3 }}"/>
+                <br>
+                <label class="description" for="nimg_min">Min number of images </label>
+                <input id="nimg_min" name="nimg_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
+                <label class="description" for="nimg_max">Max number of images </label>
+                <input id="nimg_max" name="nimg_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <br>
+                <label class="description" for="nimg_min">HST string</label>
+                <input id="HST_string" name="HST_string" class="element text medium" type="text" maxlength="10" value="{{ formvalues.6 }}"/>
+                <br>
+                <label class="description" for="nimg_min">AO string </label>
+                <input id="AO_string" name="AO_string" class="element text medium" type="text" maxlength="10" value="{{ formvalues.7 }}"/>
+                <br>
+                <label class="description" for="nimg_min">Field imaging string </label>
+                <input id="Fieldimaging_string" name="Fieldimaging_string" class="element text medium" type="text" maxlength="10" value="{{ formvalues.8 }}"/>
+                <br>
+                <label class="description" for="nimg_min">Spectroscopy string </label>
+                <input id="Spectroscopy_string" name="Spectroscopy_string" class="element text medium" type="text" maxlength="10" value="{{ formvalues.9 }}"/>
+                <br>
+                <label class="description" for="nimg_min">Field Spectroscopy string </label>
+                <input id="Fieldspectroscopy_string" name="Fieldspectroscopy_string" class="element text medium" type="text" maxlength="10" value="{{ formvalues.10 }}"/>
+
+                <input type="hidden" name="form_id" value="57257" />
+                <br>
+                <input id="saveForm" class="button_text" type="submit" name="submit" value="Submit" />
+            </div>
+		</form>
+	</div>
+    </div>
+
+
+    <div class="content container">
+        <p class="comment">Click on the names for detailed information. Click on the headers to sort the table.</p>
+        <a class="btn btn-default" href="{% url 'lenses:add_tdcosmo_lens'%}">Add new lens</a>
+    </div>
+
+    <font size="1">
+    <div class="content container">
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Name</th>
+                <th class="th-center">N</th>
+                <th class="th-center">HST</th>
+                <th class="th-center">AO</th>
+                <th class="th-center">Field Imaging</th>
+                <th class="th-center">Spectroscopy</th>
+                <th class="th-center">Field Spectroscopy</th>
+                <th class="th-center">Time delays</th>
+                <th class="th-center">Lens redshift</th>
+                <th class="th-center">Velocity dispersion</th>
+                <th class="th-center">Source redshift</th>
+                <th class="th-center">R.A. hours</th>
+                <th class="th-center">Dec. hours</th>
+                <th class="th-center">R.A. degrees</th>
+                <th class="th-center">Dec. degrees</th>
+                <th class="th-center">Comment</th>
+
+            </tr>
+        {% for lens in lenses %}
+            <tr>
+                <td class="td-center"><a href="{% url 'lenses:tdcosmo_lens_detail' lens_name=lens.name %}"><small>{{lens.name}}</small></a></td>
+                <td class="td-center">{{lens.nbimgs|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.lensimaging|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.aoimaging|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.fieldimaging|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.spectroscopy|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.fieldspectroscopy|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.timedelays|default_if_none:""   | safe }}</td>
+                <td class="td-center">{{lens.zlens|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.velocitydispersion|default_if_none:"" }}</td>
+                <td class="td-center">{{lens.zsource|floatformat:3}}</td>
+                <td class="td-center">{{lens.ra_HH|floatformat:0}}:{{lens.ra_MM|floatformat:0}}:{{lens.ra_SS|floatformat:2}}</td>
+                
+                <td class="td-center">{{lens.dec_DD|floatformat:0}}:{{lens.dec_MM|floatformat:0}}:{{lens.dec_SS|floatformat:2}}</td>
+                <td class="td-center">{{lens.ra|floatformat:4}}</td>
+                <td class="td-center">{{lens.dec|floatformat:4}}</td>
+                <td class="td-center">{{lens.othercomment|default_if_none:"" }}</td>
+
+            </tr>
+        {% endfor %}
+        </table>
+        </font>
+
+    </div>
+
+{% endblock content %}
+

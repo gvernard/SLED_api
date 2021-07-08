@@ -1,0 +1,14 @@
+{% extends 'lenses/header.html' %}
+{% load humanize %}
+
+{% block content %}
+
+    <h1>Add a New Lens-finding Method</h1>
+    <p class="homepage">{{header }}</p>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+
+{% endblock %}
+

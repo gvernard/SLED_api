@@ -1,0 +1,61 @@
+{% extends 'lenses/header.html' %}
+{% load humanize %}
+
+{% block content %}
+
+    <div class="section">
+        <h1><a href="https://ui.adsabs.harvard.edu/abs/{{paper.bibcode}}/abstract" target="_blank">{{paper.Title}}</a>, {{paper.Authors}} {{paper.Publication_year}}</h1>
+    </div>
+
+
+        <a class="btn btn-default" href="{% url 'lenses:paper_edit' paper_Title=paper.Title %}">Edit parameters</a>
+
+
+
+    <div class="content container">
+        <p class="comment">Click on the names for detailed information. Click on the headers to sort the table.</p>
+    </div>
+
+
+    <div class="content container">
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Name</th>
+                <th class="th-center">Lens redshift</th>
+                <th class="th-center">Source redshift</th>
+                <th class="th-center">Right Ascension J2000</th>
+                <th class="th-center">Declination J2000</th>
+
+            </tr>
+        {% for lens in lenses %}
+            <tr>
+                <td class="td-center"><a href="{% url 'lenses:lens_detail' lens_name=lens.name %}">{{lens.name}}</a></td>
+                <td class="td-center">{{lens.zlens|floatformat:2}}</td>
+                <td class="td-center">{{lens.zsource|floatformat:2}}</td>
+                <!-- <td class="td-center">{{lens.ra_HH|floatformat:0}}:{{lens.ra_MM|floatformat:0}}:{{lens.ra_SS|floatformat:2}}</td> -->
+                <td class="td-center">{{lens.ra|floatformat:5}}</td>
+                <!--<td class="td-center">{{lens.dec_DD|floatformat:0}}:{{lens.dec_MM|floatformat:0}}:{{lens.dec_SS|floatformat:2}}</td> -->
+                <td class="td-center">{{lens.dec|floatformat:5}}</td>
+
+            </tr>
+        {% endfor %}
+        </table>
+
+
+    </div>
+
+    <br>
+    <div class="content container">
+        <p class="left_section_title"> COMMENTS: </p>
+        <p> {{commentstring|safe}} </p>
+    </div>
+
+        <a class="btn btn-default" href="{% url 'lenses:paper_comment' paper_Title=paper.Title %}">Add comment</a>
+
+    <br><br>
+    <div class="content container">
+        <p class="centred_section_title"> EDIT HISTORY </p>
+        <p> {{edithistory|safe}} </p>
+    </div>
+
+{% endblock content %}

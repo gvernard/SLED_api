@@ -1,0 +1,37 @@
+{% extends 'lenses/header.html' %}
+{% load humanize %}
+
+{% block content %}
+
+    <div class="section">
+        <h1>Lens candidates overview</h1>
+    </div>
+
+    <div class="content container">
+        <p class="comment">Click on the names for detailed information. Click on the headers to sort the table.</p>
+    </div>
+
+
+    <div class="content container">
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Name</th>
+                <th class="th-center">Description</th>
+                <th class="th-center"># Lenses candidates found by</th>
+
+            </tr>
+        {% for method in methods %}
+            <tr>
+                <td class="td-center"><a href="{% url 'lenses:method_detail' method_name=method.name %}">{{method.name}}</a></td>
+                <td class="td-center">{{method.method_comment}}</td>
+                <td class="td-center">{{method.Nlenses}}</td>
+
+            </tr>
+        {% endfor %}
+        </table>
+
+
+    </div>
+
+{% endblock content %}
+

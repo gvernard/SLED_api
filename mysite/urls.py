@@ -15,13 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from registration import views as v
+from registration import views as vregistration
+from home import views as vhome
 import notifications.urls
 
 
 urlpatterns = [
     path('', include('home.urls'), name='home'),
     path('lenses/', include('lenses.urls'), name='lenses'),
-    path('register/', v.register, name='register'),
+    path('register/', vregistration.register, name='register'),
+    path('accounts/', include('django.contrib.auth.urls')),
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
 ]

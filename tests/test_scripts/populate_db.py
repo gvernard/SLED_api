@@ -72,7 +72,7 @@ for i in range(N):
     else:
         access_level = 'private'
     
-    lens = Lenses(ra=ra, dec=dec, name=Jname, access_level=access_level, owner_id=user1)
+    lens = Lenses(ra=ra, dec=dec, name=Jname, access_level=access_level, owner=user1)
     lens.save() # first save, then assign permission
     assign_perm('view_lenses',user1,lens)
 

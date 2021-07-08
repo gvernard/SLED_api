@@ -1,5 +1,6 @@
 # views.py
 from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
 from .forms import RegisterForm
 
 
@@ -15,4 +16,4 @@ def register(response):
     else:
         form = RegisterForm()
 
-    return render(response, "registration/register.html", {"form":form}) 
+    return render(response, "register.html", {"form":form}) 

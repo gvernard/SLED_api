@@ -1,0 +1,13 @@
+{% extends 'targets/header.html' %}
+{% load humanize %}
+
+{% block content %}
+
+    <h1>New target</h1>
+    <form method="POST" class="post-form">{% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="save btn btn-default">Save</button>
+    </form>
+
+{% endblock %}
+

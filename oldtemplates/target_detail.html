@@ -1,0 +1,144 @@
+{% extends 'targets/header.html' %}
+{% load humanize %}
+
+{% block content %}
+
+    <div class="section">
+        <h1>{{target.name}}</h1>
+    </div>
+
+
+    <div class="content container">
+        <a class="btn btn-default" href="{% url 'targets:target_edit' target_name=target.name %}">Edit</a>
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Right Ascension (HH.MM.SS:ss)</th>
+                <th class="th-center">Declination (DD:MM:SS.ss)</th>
+                <th class="th-center"># of images</th>
+                <th class="th-center">Angular separation (")</th>
+            </tr>
+            <tr>
+                <td class="td-center">{{target.ra}}</td>
+                <td class="td-center">{{target.dec}}</td>
+                <td class="td-center">{{target.nbimgs|floatformat:0}}</td>
+                <td class="td-center">{{target.size|floatformat:2}}</td>
+            </tr>
+        </table>
+    </div>
+
+
+    <div class="content container">
+        {% if target.lenscomment or target.discopaperlink %}
+            <table class="sortable">
+                 <tr>
+                    <td class="td-center">{{target.lenscomment}}</td>
+                    <td class="td-center">Discovery paper:<br><a href="{{target.discopaperlink}}">{{target.discopaperlink}}</a></td>
+                </tr>
+            </table>
+        {% endif %}
+    </div>
+
+
+    <div class="content container">
+        <table>
+            <tr>
+                <th class="th-center">Lens redshift</th>
+                <th class="th-center">Source redshift</th>
+            </tr>
+
+
+            <tr>
+                {% if target.zlens or target.zlenssource %}
+                    {% if target.zlenssource %}
+                        <td class="td-center">{{target.zlens}}<br>@ {{target.zlenssource}}</td>
+                    {% else %}
+                        <td class="td-center">{{target.zlens}}<br>source unknown</td>
+                    {% endif %}
+                {% else %}
+                    <td class="td-center"> - </td>
+                {% endif %}
+
+
+                {% if target.zsource or target.zsourcesource %}
+                    {% if target.zsourcesource %}
+                        <td class="td-center">{{target.zsource}}<br>@ {{target.zsourcesource}}</td>
+                    {% else %}
+                        <td class="td-center">{{target.zsource}}<br>source unknown</td>
+                    {% endif %}
+                {% else %}
+                    <td class="td-center"> - </td>
+                {% endif %}
+            </tr>
+        </table>
+    </div>
+
+
+    {% if target.cosmograil %}
+        <div class="content container">
+            <p class="subsection">Monitoring status: {{target.monicomment}}</p>
+
+            {% for m in monitored %}
+                {% if m.status %}
+            <p>Currently monitored by <a href="{% url 'targets:telescope_detail' telescope_name=m.telname %}">{{m.telname}}</a></p>
+                {% else %}
+                    <p>Monitored in the past by <a href="{% url 'targets:telescope_detail' telescope_name=m.telname %}">{{m.telname}}</a></p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+
+    {% if target.tdmodel or target.tdmeas or target.tdpubli or target.tdcomment %}
+        <div class="content container">
+            <table class="sortable">
+                <tr>
+                    <th class="th-center">Modeled delays</th>
+                    <th class="th-center">Measured delays</th>
+                    <th class="th-center">Publication link</th>
+                    <th class="th-center">Comment</th>
+                </tr>
+                <tr>
+                    <td class="td-center">{{target.tdmodel}}</td>
+                    <td class="td-center">{{target.tdmeas}}</td>
+                    <td class="td-center">{{target.tdpubli}}</td>
+                    <td class="td-center">{{target.tdcomment}}</td>
+                </tr>
+            </table>
+        </div>
+    {% endif %}
+
+
+    {% if target.reducomment %}
+        <div class="content container">
+            <table>
+                <tr>
+                    <td>Reduction: {{target.reducomment}}</td>
+                </tr>
+            </table>
+        </div>
+    {% endif %}
+
+
+
+    {% for image in images %}
+    <div class="content container">
+        <p class="section">{{image.gender}}</p>
+    </div>
+
+    <div class="content container">
+        <p>{{image.comment}}</p>
+    </div>
+
+    <div class="content container">
+        <img src="{{image.image.url}}" width='650px'>
+        <a class="btn btn-default" href="{% url 'targets:image_edit' pk=image.pk %}">Edit</a>
+        <a class="btn btn-danger" href="{% url 'targets:image_delete' pk=image.pk %}">Delete</a>
+    </div>
+
+    {% endfor %}
+
+
+    <div class="content container">
+        <a class="btn btn-danger" href="{% url 'targets:target_delete' target_name=target.name %}">Delete target</a>
+    </div>
+{% endblock content %}
