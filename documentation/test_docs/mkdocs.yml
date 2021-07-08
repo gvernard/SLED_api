@@ -1,0 +1,4 @@
+site_name: SLED API
+site_url: https://example.com/
+theme: readthedocs
+dev_addr: 127.0.0.1:8001
