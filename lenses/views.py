@@ -9,7 +9,9 @@ from lenses.models import Users, SledGroups, Lenses
 #@user_passes_test(check_authenticated)
 @login_required
 def index(request):
-    lenses = Lenses.objects.all().order_by('ra')
+    user = request.user
+    lenses = Lenses.accessible_objects.all(user).order_by('ra')
+    
     return render(request, 'lenses_index.html', context={'lenses':lenses})
 
 @login_required
