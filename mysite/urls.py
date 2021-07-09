@@ -21,6 +21,7 @@ import notifications.urls
 
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('', include('home.urls'), name='home'),
     path('lenses/', include('lenses.urls'), name='lenses'),
     path('users/', include('users.urls'), name='users'),

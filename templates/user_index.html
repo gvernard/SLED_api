@@ -45,6 +45,50 @@
             </tr>
         </table>
 
+    <div class="section">
+        <h1>My lenses ({{ user.getOwnedLenses|length }}) </h1>
+    </div>
+    <div class="content container">
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Name</th>
+                <th class="th-center">Lens redshift</th>
+                <th class="th-center">Source redshift</th>
+                <th class="th-center">Right Ascension J2000</th>
+                <th class="th-center">Declination J2000</th>
+
+            </tr>
+        {% for lens in user.getOwnedLenses %}
+            <tr>
+                <td class="td-center">{{lens.name}}</td>
+                <td class="td-center">{{lens.zlens|floatformat:2}}</td>
+                <td class="td-center">{{lens.zsource|floatformat:2}}</td>
+                <td class="td-center">{{lens.ra|floatformat:5}}</td>
+                <td class="td-center">{{lens.dec|floatformat:5}}</td>
+
+            </tr>
+        {% endfor %}
+        </table>
+    <div class="section">
+        <h1>My groups ({{ user.getGroups|length }}) </h1>
+    </div>
+    
+    <div class="content container">
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Name</th>
+                <th class="th-center">Description</th>
+
+            </tr>
+        {% for group in user.getGroups %}
+            <tr>
+                <td class="td-center">{{group.name}}</td>
+                <td class="td-center">{{group.description}}</td>
+
+            </tr>
+        {% endfor %}
+        </table>
+
      <a href="{% url 'logout'%}">LOGOUT</a>
     </div>
 

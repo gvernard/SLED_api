@@ -18,10 +18,12 @@ from guardian.shortcuts import assign_perm
 
 names = ['Cameron', 'Giorgos', 'Fred']
 print('Populating the database with the following users:', names)
+password = '1234'
+
 for name in names:
     print(name)
-    user = Users(username=name)
-    user.save()
+    user = Users.objects.create_user(username=name, password=password, affiliation='EPFL')
+
 
 
 
@@ -31,12 +33,12 @@ for name in names:
 #    print(model_to_dict(user))
 
 
-groups = ['Awesome Users']
+groups = ['Awesome Users', 'TDCOSMO']
+descriptions = ['A group for awesome users', 'Time delay cosmography with lensed quasars']
 print('Populating the database with the following groups:', groups)
-for name in groups:
-    group = SledGroups(name=name)
+for i, name in enumerate(groups):
+    group = SledGroups(name=name, description=descriptions[i])
     group.save()
-
 
 
 
@@ -47,6 +49,12 @@ user2 = Users.objects.get(username='Giorgos')
 user3 = Users.objects.get(username='Fred')
 user2.groups.add(my_group)
 user3.groups.add(my_group)
+
+my_group = SledGroups.objects.get(name='TDCOSMO') 
+user1.groups.add(my_group)
+user2.groups.add(my_group)
+user3.groups.add(my_group)
+
 #my_group.user_set.add(user1)
 #my_group.user_set.add(user2)
 

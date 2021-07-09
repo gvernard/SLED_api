@@ -7,7 +7,9 @@ from enumfields import EnumField
 from guardian.mixins import GuardianUserMixin
 from guardian.shortcuts import get_objects_for_user
 from guardian.shortcuts import assign_perm, remove_perm
-
+import sys
+sys.path.append('..')
+import lenses
 objects_with_owner = ["Lenses"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 class AccessLevel(Enum):
@@ -46,21 +48,37 @@ class Users(AbstractUser,GuardianUserMixin):
     # Affiliation is the only field we need to provide ourselves, the rest, including Groups, is taken care of by the existing django modules.
     affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
 
-    def isOwner(self,single_object):
+    def isOwner(self, single_object):
         if str(single_object.owner_id) == str(self.username):
             return True
         else:
             return False
     
-    def getOwnerInfo(object_types=None):
+    def getOwnerInfo(self, object_types=None):
         if object_types == None:
             object_types = objects_with_owner
         objects = {}
         for table in object_types:
-            objects[table] = getattr(lensdb.models,'table').all().filter(owner=self.username)
+            objects[table] = getattr(lenses.models,table).objects.filter(owner__username=self.username)
+        return objects
         # Purpose: to provide all objects from a specific type, or all types, that a user owns.
         # Input: object_types has to be a sub-array of objects_with_owner. If None then use the latter.
         # Output: a corresponding dictionary of QuerySets selected with owner_id = self.id
+
+    def getOwnedLenses(self):
+        '''
+        This function is for simplicity of accessing in a django template, where returning a query set is best
+        '''
+        objects = getattr(lenses.models,'Lenses').objects.filter(owner__username=self.username)
+        return objects
+
+    def getGroups(self):
+        '''
+        This function is for simplicity of accessing in a django template, where returning a query set is best
+        '''
+        user = Users.objects.get(username=self.username)
+        groups = SledGroups.objects.filter(user=user)
+        return groups
 
     def giveAccess(self,single_object,target):
         # 'target' is either another user or group
