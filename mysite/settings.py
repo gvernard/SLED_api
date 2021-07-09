@@ -34,6 +34,7 @@ GUARDIAN_MONKEY_PATCH = False
 INSTALLED_APPS = [
     'lenses.apps.LensesConfig',
     'home.apps.HomeConfig',
+    'users.apps.UsersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

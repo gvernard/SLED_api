@@ -1,0 +1,51 @@
+{% extends 'user_header.html' %}
+{% block content %}
+
+    <div class="section">
+        <h1>User Profile page</h1>
+    </div>
+
+    <!--<div class="content container">
+    <div id="form_container">
+
+        <form id="form_57258" class="appnitro"  method="get" action="">
+            <div class="form_description">
+                <p>Input Ra and Dec coordinates for more detailed search</p>
+            </div>
+
+            <div>
+                <label class="description" for="ra_min">Ra min </label>
+                <input id="ra_min" name="ra_min" class="element text medium" type="text" maxlength="255" value=""/>
+                <label class="description" for="ra_max">Ra max </label>
+                <input id="ra_max" name="ra_max" class="element text medium" type="text" maxlength="255" value=""/>
+                <label class="description" for="dec_min">Dec min </label>
+                <input id="dec_min" name="dec_min" class="element text medium" type="text" maxlength="255" value=""/>
+                <label class="description" for="dec_max">Dec max </label>
+                <input id="dec_max" name="dec_max" class="element text medium" type="text" maxlength="255" value=""/>
+
+                <input type="hidden" name="form_id" value="57257" />
+                <input id="saveForm" class="button_text" type="submit" name="submit" value="Submit" />
+                <input id="saveForm" class="button_text" type="submit" name="download" value="Download" />
+            </div>
+        </form>
+    </div>
+    </div>-->
+
+    <div class="content container">
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Name</th>
+                 <th class="th-center">Affiliation</th>
+
+            </tr>
+            <tr>
+                <td class="td-center">{{user.username}}</td>
+                <td class="td-center">{{user.affiliation}}</td>
+
+            </tr>
+        </table>
+
+     <a href="{% url 'logout'%}">LOGOUT</a>
+    </div>
+
+{% endblock content %}
