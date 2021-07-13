@@ -1,0 +1,24 @@
+{% extends 'groups_header.html' %}
+{% block content %}
+    <div class="content container">
+        <p class="centred_name">{{group.name}}</p>
+    </div>
+
+    <p> Description: {{group.description}}</p>
+
+    <p class="centred_name">List of group members</p>
+    <div class="content container">
+        <table class="sortable">
+            <tr>
+                <th class="th-center">Name</th>
+                <th class="th-center">Affiliation</th>
+            </tr>
+        {% for user in group.getAllMembers %}
+            <tr>
+                <td class="td-center">{{user.username}}</a></td>
+                <td class="td-center">{{user.affiliation}}</a></td>
+            </tr>
+        {% endfor %}
+        </table>
+
+{% endblock content %}

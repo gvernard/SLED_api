@@ -1,8 +1,8 @@
-{% extends 'user_header.html' %}
+{% extends 'groups_header.html' %}
 {% block content %}
 
     <div class="section">
-        <h1>User Profile page</h1>
+        <h1>List of User Groups</h1>
     </div>
 
     <!--<div class="content container">
@@ -31,48 +31,7 @@
     </div>
     </div>-->
 
-    <div class="content container">
-        <table class="sortable">
-            <tr>
-                <th class="th-center">Name</th>
-                 <th class="th-center">Affiliation</th>
 
-            </tr>
-            <tr>
-                <td class="td-center">{{user.username}}</td>
-                <td class="td-center">{{user.affiliation}}</td>
-
-            </tr>
-        </table>
-
-    <div class="section">
-        <h1>My lenses ({{ user.getOwnedLenses|length }}) </h1>
-    </div>
-    <div class="content container">
-        <table class="sortable">
-            <tr>
-                <th class="th-center">Name</th>
-                <th class="th-center">Lens redshift</th>
-                <th class="th-center">Source redshift</th>
-                <th class="th-center">Right Ascension J2000</th>
-                <th class="th-center">Declination J2000</th>
-
-            </tr>
-        {% for lens in user.getOwnedLenses %}
-            <tr>
-                <td class="td-center"><a href="{% url 'lenses:lens_detail' lens_name=lens.name %}">{{lens.name}}</td>
-                <td class="td-center">{{lens.zlens|floatformat:2}}</td>
-                <td class="td-center">{{lens.zsource|floatformat:2}}</td>
-                <td class="td-center">{{lens.ra|floatformat:5}}</td>
-                <td class="td-center">{{lens.dec|floatformat:5}}</td>
-
-            </tr>
-        {% endfor %}
-        </table>
-    <div class="section">
-        <h1>My groups ({{ user.getGroups|length }}) </h1>
-    </div>
-    
     <div class="content container">
         <table class="sortable">
             <tr>
@@ -80,7 +39,7 @@
                 <th class="th-center">Description</th>
 
             </tr>
-        {% for group in user.getGroups %}
+        {% for group in groups %}
             <tr>
                 <td class="td-center"><a href="{% url 'groups:group_detail' group_name=group.name %}">{{group.name}}</td>
                 <td class="td-center">{{group.description}}</td>
@@ -89,7 +48,7 @@
         {% endfor %}
         </table>
 
-     <a href="{% url 'logout'%}">LOGOUT</a>
+
     </div>
 
 {% endblock content %}

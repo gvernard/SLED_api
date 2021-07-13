@@ -25,6 +25,7 @@ urlpatterns = [
     path('', include('home.urls'), name='home'),
     path('lenses/', include('lenses.urls'), name='lenses'),
     path('users/', include('users.urls'), name='users'),
+    path('groups/', include('groups.urls'), name='users'),
     path('register/', vregistration.register, name='register'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
