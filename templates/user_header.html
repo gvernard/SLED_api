@@ -22,7 +22,7 @@
             <td class="td-center1"><a href="{% url 'home:homepage' %}">Home</a></td>
             <td class="td-center1"><a href="{% url 'lenses:index' %}">Lenses</a></td>
             <td class="td-center1selected"><a {% if user.is_authenticated %}
-                                          <li><a href="{% url 'users:index'%}">User</a></li>
+                                          <li><a href="{% url 'users:index'%}">{{user.username}}</a></li>
                                       {% else %}
                                           <li><a href="{% url 'login'%}">Login</a></li>
                                       {% endif %}</a> </td>
