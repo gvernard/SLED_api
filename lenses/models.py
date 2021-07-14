@@ -48,6 +48,9 @@ class Users(AbstractUser,GuardianUserMixin):
     # Affiliation is the only field we need to provide ourselves, the rest, including Groups, is taken care of by the existing django modules.
     affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
 
+    def __init__():
+        print("dummy")
+    
     def isOwner(self, single_object):
         if str(single_object.owner_id) == str(self.username):
             return True
@@ -132,17 +135,37 @@ class Users(AbstractUser,GuardianUserMixin):
 
     
 class SingleObject(models.Model):
+    """
+    Attributes:
+        owner (User): Description of `owner`.
+        created_at (`int`): Description of `attr2`.
+        modified_at (`int`): Description of `attr2`.
+        access_level (`int`): Description of `attr2`.
+    """
     # We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
     owner = models.ForeignKey(Users,on_delete=models.CASCADE) #WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     access_level = EnumField(AccessLevel,help_text="Set public or private access to this object.")
 
+    def __init__(self):
+        pass
+    
     class Meta:
         abstract = True
         get_latest_by = ["modified_at","created_at"]
         
     def isOwner(self, user_id):
+        """
+        Example function with PEP 484 type annotations.
+        
+        Args:
+            user_id (int): The first parameter.
+
+        Returns:
+            bool: True for success, False otherwise.
+        """
+        
         if user_id == self.owner_id:
             return True
         else:
@@ -171,6 +194,9 @@ class SledGroups(Group):
     # Hence, from the SingleObject base class we will neither use the access related functions, e.g. setAccessLevel or setAccess, nor the addToCollection function.
     #owner_id = models.ForeignKey(Users,db_index=False,on_delete=models.CASCADE)
     description = models.CharField(max_length=180,null=True, blank=True)
+
+    def __init__():
+        print("dummy")
 
     class Meta():
         db_table = "sledgroups"

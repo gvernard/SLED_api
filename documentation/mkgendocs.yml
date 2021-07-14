@@ -1,0 +1,12 @@
+sources_dir: docs/sources
+templates_dir: docs/templates
+repo: https://github.com/davidenunes/tensorx  #link to sources on github
+version: master                               #link to sources on github
+
+pages:
+  - page: "api/single_object.md"
+    source: "../../lenses/models.py"
+    classes:
+      - SingleObject
+
+  
