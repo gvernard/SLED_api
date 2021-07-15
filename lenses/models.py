@@ -48,9 +48,6 @@ class Users(AbstractUser,GuardianUserMixin):
     # Affiliation is the only field we need to provide ourselves, the rest, including Groups, is taken care of by the existing django modules.
     affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
 
-    def __init__():
-        print("dummy")
-    
     def isOwner(self, single_object):
         if str(single_object.owner_id) == str(self.username):
             return True
@@ -132,50 +129,61 @@ class Users(AbstractUser,GuardianUserMixin):
     pass
 
 
-
+    
     
 class SingleObject(models.Model):
     """
+    This is a **base** class that encapsulates all the variables and functionality that is common across all the primary models with which we populate our database.
+
     Attributes:
-        owner (User): Description of `owner`.
-        created_at (`int`): Description of `attr2`.
-        modified_at (`int`): Description of `attr2`.
-        access_level (`int`): Description of `attr2`.
+        owner (`User`): Every instance of a primary model must have an owner. This attribute is an instance of a `User` model that corresponds to the owner of the `SingleObject` instance.
+        created_at (`datetime`): The time when this object instance was created.
+        modified_at (`datetime`): The time of the most recent modification/update to this object instance.
+        access_level (`enum`): Determines if the object is public ('pub') or private ('pri').
+
+    Todo:
+        - We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
+        - WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
     """
-    # We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
-    owner = models.ForeignKey(Users,on_delete=models.CASCADE) #WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
+
+    owner = models.ForeignKey(Users,on_delete=models.CASCADE) 
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
     access_level = EnumField(AccessLevel,help_text="Set public or private access to this object.")
-
-    def __init__(self):
-        pass
     
     class Meta:
         abstract = True
         get_latest_by = ["modified_at","created_at"]
         
-    def isOwner(self, user_id):
+    def isOwner(self, user):
         """
-        Example function with PEP 484 type annotations.
-        
+        Checks if the provided `User` is the owner.
+
         Args:
-            user_id (int): The first parameter.
+            user (`User`): An instance of a `User` object.
 
         Returns:
-            bool: True for success, False otherwise.
+            bool: True if the given user is the owner, False otherwise.
         """
-        
-        if user_id == self.owner_id:
+        if user.id == self.owner_id:
             return True
         else:
             return False
 
+    def getCreatedAt():
+        """
+        Return:
+           datetime: A formatted datetime string of the `created_at` attribute.
+        """
+        return self.created_at
+
     def getModifiedAt():
+        """
+        Return:
+           datetime: A formatted datetime string of the `modified_at` attribute.
+        """
         return self.modified_at
 
-    def getCreatedAt():
-        return self.created_at
 
     # def getOwnerInfo():
 
@@ -189,22 +197,29 @@ class SingleObject(models.Model):
     
 
 class SledGroups(Group):
-    # The group name field is inherited from the Group object.
-    # The access_level should always be set to public.
-    # Hence, from the SingleObject base class we will neither use the access related functions, e.g. setAccessLevel or setAccess, nor the addToCollection function.
-    #owner_id = models.ForeignKey(Users,db_index=False,on_delete=models.CASCADE)
+    """
+    The custom SLED model for a group of users, inheriting from the django `Group`.
+
+    Attributes:
+        description(`str`): A short description of the group's purpose.
+
+    Todo:
+        - Should this be a SingleObject? If so then the access_level should always be set to public and we will not be using access related functions.
+        - Related to the above, it doesn't make sense to have collections of groups, so no need to use the addToCollection, etc, functions.
+
+    """
     description = models.CharField(max_length=180,null=True, blank=True)
-
-    def __init__():
-        print("dummy")
-
+    
     class Meta():
         db_table = "sledgroups"
         verbose_name = "sledgroup"
         verbose_name_plural = "sledgroups"
 
     def getAllMembers(self):
-        # We may want to restrict this function to the owner, or to members only
+        """
+        Note:
+            We may want to restrict this function to the owner, or to members only
+        """
         users = self.user_set.all()
         return users
         

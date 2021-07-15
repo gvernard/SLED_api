@@ -5,8 +5,10 @@ version: master                               #link to sources on github
 
 pages:
   - page: "api/single_object.md"
-    source: "../../lenses/models.py"
+    source: "../lenses/models.py"
     classes:
+      - Users
       - SingleObject
+      - SledGroups
 
   
