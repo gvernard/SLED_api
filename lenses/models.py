@@ -4,13 +4,24 @@ from enum import Enum
 from enumfields import EnumField
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
+from guardian.core import ObjectPermissionChecker
 from guardian.mixins import GuardianUserMixin
-from guardian.shortcuts import get_objects_for_user
-from guardian.shortcuts import assign_perm, remove_perm
+from guardian.shortcuts import get_objects_for_user, assign_perm, remove_perm
 import sys
 sys.path.append('..')
 import lenses
+
+# Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+
+### Dummy function to create a notification. The proper one should be called from the notifications module.
+def create_notification(user,objects):
+    object_names = [x.name for x in objects]
+    if isinstance(user,Users):
+        return user.username+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
+    elif isinstance(user,SledGroups):
+        return user.name+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
+
 
 class AccessLevel(Enum):
     pub = "public"
@@ -45,54 +56,179 @@ class LensType(Enum):
 
 
 class Users(AbstractUser,GuardianUserMixin):
-    # Affiliation is the only field we need to provide ourselves, the rest, including Groups, is taken care of by the existing django modules.
+    """ The class to represent registered users within SLED.
+
+    A SLED user can own objects with which they can interact, e.g. give access to other users, cede ownership, add/remove objects from owned collections, etc.
+
+    SLED users can also be added into groups, none or several, or be the owners of groups (of which they are members).
+    
+    Attributes:
+        affiliation (`CharField`): Affiliation is the only field in addition to the standard django `User` fields. User groups (see ~SledGroups) are taken care of by the existing django modules.
+    """
     affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
 
-    def isOwner(self, single_object):
-        if str(single_object.owner_id) == str(self.username):
-            return True
+    def getOwnedObjects(self, user_object_types=None):
+        """
+        Provides access to all the objects that the user owns, arranged by type.
+
+        Args:
+            user_object_types (optional[List[str]]): A list of strings matching the names of the primary model database tables.
+            The list is filtered to keep only those provided names that indeed correspond to primary models.
+            If `None` then all the primary models are used.
+
+        Returns:
+            dict: The keys are the same as the filtered input object_types, or the entire list of `objects_with_owner`.
+            The values are QuerySets corresponding to a query in each primary model table with the owner_id set to this user.
+        """
+        if user_object_types == None:
+            filtered_object_types = objects_with_owner
         else:
-            return False
-    
-    def getOwnerInfo(self, object_types=None):
-        if object_types == None:
-            object_types = objects_with_owner
+            filtered_object_types = [x for x in user_object_types if x in objects_with_owner]
         objects = {}
-        for table in object_types:
+        for table in filtered_object_types:
             objects[table] = getattr(lenses.models,table).objects.filter(owner__username=self.username)
         return objects
-        # Purpose: to provide all objects from a specific type, or all types, that a user owns.
-        # Input: object_types has to be a sub-array of objects_with_owner. If None then use the latter.
-        # Output: a corresponding dictionary of QuerySets selected with owner_id = self.id
 
-    def getOwnedLenses(self):
-        '''
-        This function is for simplicity of accessing in a django template, where returning a query set is best
-        '''
-        objects = getattr(lenses.models,'Lenses').objects.filter(owner__username=self.username)
-        return objects
+    ### This function is superceded by the one above (getOwnedObjects)
+    # def getOwnedLenses(self):
+    #     '''
+    #     This function is for simplicity of accessing in a django template, where returning a query set is best
+    #     '''
+    #     objects = getattr(lenses.models,'Lenses').objects.filter(owner__username=self.username)
+    #     return objects
 
-    def getGroups(self):
-        '''
-        This function is for simplicity of accessing in a django template, where returning a query set is best
-        '''
+    def getGroupsIsMember(self):
+        """
+        Provides access to all the SledGroups that the user is a member of.
+
+        Returns:
+            A QuerySet to match the groups the user is a member of.
+        """
         user = Users.objects.get(username=self.username)
         groups = SledGroups.objects.filter(user=user)
         return groups
 
-    def giveAccess(self,single_object,target):
-        # 'target' is either another user or group
-        # Instead of looping, we can also pass a query set or a list of model instances to asign_perm.
-        perm = "view_"+single_object._meta.db_table
-        if self.isOwner(single_object):
-            assign_perm(perm,target,single_object)
-            # Here notify the user/group that they now have access to this lens
+
+    
+    def giveAccess(self,objects,target_users):
+        """
+        Gives access to the primary object(s) that are owned by the user to a list of users or groups.
+
+        First, this function performs a check that the user is indeed the owner of all the provided objects and raises an exception if not.
+        Then, a cross match is performed between users/groups and objects to find to how many new objects each user will be given access to.
+        This involves 2 queries to the database per user: 1 to get any permissions for the objects, and one to update the new permissions.
+        But if the user already has permissions to all the objects then the second query is not performed.
+
+        Note:
+            A given user can also be a member of a given group. In this case the user will have a 'double permission' to view the object.
+            Both the individual and group permissions will have to be revoked to forbid any access.
+
+        Args:
+            single_objects (List[SingleObject]): A list of primary objects of a specific type.
+            A check is performed to ensure that the user is the owner of all the objects in the list.
+            target_users (List[Users or Groups]): A list of users, groups, or both.
+
+        Returns:
+            A list of notifications only to those users/groups that were just given access (i.e. didn't already have access to the objects), containing only those objects for which they were given access. If a user is also member of a group, they will be notified twice.
+
+        Raises:
+            An exception of some type when the user is not the owner of all the objects.
+
+        Todo:
+            Implement the exception and the notifications.
+        """
+
+        # If input arguments are single values, convert to lists
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+        if isinstance(target_users,Users) or isinstance(target_users,SledGroups):
+            target_users = [target_users]
+        #print(len(single_objects),len(target_users))
+
+        
+        # Check that user is the owner
+        not_owned = []
+        for obj in objects:
+            if not obj.isOwner(self):
+                not_owned.append(obj)
+        if len(not_owned) == 0:
+            # User owns all objects, proceed with giving access
+            perm = "view_"+objects[0]._meta.db_table
+
+            # first loop over the target_users
+            notifications = []
+            for user in target_users:
+                # fetch permissions for all the objects for the given user (just 1 query)
+                new_objects_per_user = []
+                checker = ObjectPermissionChecker(user)
+                checker.prefetch_perms(objects)            
+                for obj in objects:
+                    if not checker.has_perm(perm,obj):
+                        new_objects_per_user.append(obj)
+                # if there are objects for which this user was just granted new permission, create a notification
+                print(new_objects_per_user)
+                print(objects)
+                if len(new_objects_per_user) > 0:
+                    assign_perm(perm,user,new_objects_per_user) # (just 1 query)
+                    notifications.append( create_notification(user,new_objects_per_user) )
+
+            return notifications
+        else:
+            # User does NOT own all the objects, raise exception with useful information
+            print('user is NOT the owner of '+str(len(not_owned))+' objects the operation should not proceed')
             
-    def revokeAccess(self,single_object,target):
-        perm = "view_"+single_object._meta.db_table
-        if self.isOwner(single_object) and target.has_perm(perm,single_object):
-            remove_perm(perm,target,single_object)
-            # Here notify the user/group that they do not have access to this lens anymore
+
+
+
+            
+    def revokeAccess(self,objects,target_users):
+        # If input arguments are single values, convert to lists
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+        if isinstance(target_users,Users) or isinstance(target_users,SledGroups):
+            target_users = [target_users]
+        #print(len(single_objects),len(target_users))
+    
+        # Check that user is the owner
+        not_owned = []
+        for obj in objects:
+            if not obj.isOwner(self):
+                not_owned.append(obj)
+        if len(not_owned) == 0:
+            # User owns all objects, proceed with revoking access
+            perm = "view_"+objects[0]._meta.db_table
+
+            # first loop over the target_users
+            notifications = []
+            for user in target_users:
+                # fetch permissions for all the objects for the given user (just 1 query)
+                checker = ObjectPermissionChecker(user)
+                checker.prefetch_perms(objects)            
+
+                revoked_objects_per_user = []
+                for obj in objects:
+                    if checker.has_perm(perm,obj):
+                        revoked_objects_per_user.append(obj)
+                # if there are objects for which this user had permissions just revoked, create a notification
+                print(revoked_objects_per_user)
+                print(objects)
+                if len(revoked_objects_per_user) > 0:
+                    print(perm)
+                    print(user)
+                    remove_perm(perm,user,revoked_objects_per_user) # (just 1 query)
+                    #remove_perm(perm,user,objects) # (just 1 query)
+                    notifications.append( create_notification(user,revoked_objects_per_user) )
+               
+            return notifications
+        else:
+            # User does NOT own all the objects, raise exception with useful information
+            print('user is NOT the owner of '+str(len(not_owned))+' objects, the operation should not proceed')
+            
+
+        
+
+
+
             
     def makePublic(self,single_object):
         if self.isOwner(single_object) and single_object.access_level == 'private':
@@ -231,7 +367,8 @@ class SledGroups(Group):
         if owner.isOwner(self) and sled_user.groups.filter(name=self.name):
             self.user_set.remove(sled_user)
 
-
+    def __str__(self):
+        return self.name
     
     
 
