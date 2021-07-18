@@ -12,7 +12,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroups, Lenses
+from lenses.models import Users, SledGroups, Lenses, SingleObject
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
 
@@ -76,9 +76,9 @@ for i in range(N):
     Jname = 'J'+c.to_string('hmsdms')
 
     if i < 50:
-        access_level = 'public'
+        access_level = SingleObject.AccessLevel.PUBLIC
     else:
-        access_level = 'private'
+        access_level = SingleObject.AccessLevel.PRIVATE
     
     lens = Lenses(ra=ra, dec=dec, name=Jname, access_level=access_level, owner=user1)
     lens.save() # first save, then assign permission

@@ -1,32 +1,37 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
-from enum import Enum
-from enumfields import EnumField
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
 from guardian.mixins import GuardianUserMixin
-from guardian.shortcuts import get_objects_for_user, assign_perm, remove_perm
+from guardian.shortcuts import *
+
+from operator import itemgetter
 import sys
 sys.path.append('..')
 import lenses
+import inspect
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 ### Dummy function to create a notification. The proper one should be called from the notifications module.
-def create_notification(user,objects):
-    object_names = [x.name for x in objects]
-    if isinstance(user,Users):
-        return user.username+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
-    elif isinstance(user,SledGroups):
-        return user.name+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
+def create_notification(user,objects,note_type):
+    if note_type == 'give_access':
+        # User - number of objects - comma separated list of object names
+        object_names = [x.name for x in objects]
+        if isinstance(user,Users):
+            return user.username+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
+        elif isinstance(user,SledGroups):
+            return user.name+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
+    elif note_type == 'make_public':
+        # User - number of objects - comma separated list of object ids
+        if isinstance(user,Users):
+            return user.username+' - '+str(len(objects))+ ' - ' + ','.join(objects)
+        elif isinstance(user,SledGroups):
+            return user.name+' - '+str(len(objects))+ ' - ' + ','.join(objects)
 
-
-class AccessLevel(Enum):
-    pub = "public"
-    pri = "private"
-
+'''
 class ImageConf(Enum):
     NONE = ''
     CUSP = 'CUSP'
@@ -52,6 +57,9 @@ class LensType(Enum):
     FRB = 'FRB'
     GRB = 'GRB'
     SN = 'SN'
+'''
+    
+
 
 
 
@@ -78,7 +86,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
         Returns:
             dict: The keys are the same as the filtered input object_types, or the entire list of `objects_with_owner`.
-            The values are QuerySets corresponding to a query in each primary model table with the owner_id set to this user.
+            The values are `QuerySets` corresponding to a query in each primary model table with the owner_id set to this user.
         """
         if user_object_types == None:
             filtered_object_types = objects_with_owner
@@ -108,6 +116,26 @@ class Users(AbstractUser,GuardianUserMixin):
         groups = SledGroups.objects.filter(user=user)
         return groups
 
+    def checkOwnsList(self,objects):
+        """
+        Finds any objects in the given list that are not owned by the user.
+
+        Args:
+            objects(List[SingleObject]): A list of primary objects of a specific type.
+
+        Raises:
+            AssertionError: If the provided list contains objects that the user does not own.
+        """
+        not_owned = []
+        for obj in objects:
+            if not obj.isOwner(self):
+                not_owned.append(obj)
+        try:
+            assert (len(not_owned) == 0), "User "+self.username+" is NOT the owner of "+str(len(not_owned))+" objects in the list."
+        except AssertionError as error:
+            print(error)
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
 
     
     def giveAccess(self,objects,target_users):
@@ -124,18 +152,15 @@ class Users(AbstractUser,GuardianUserMixin):
             Both the individual and group permissions will have to be revoked to forbid any access.
 
         Args:
-            single_objects (List[SingleObject]): A list of primary objects of a specific type.
+            objects (List[SingleObject]): A list of primary objects of a specific type.
             A check is performed to ensure that the user is the owner of all the objects in the list.
             target_users (List[Users or Groups]): A list of users, groups, or both.
 
         Returns:
             A list of notifications only to those users/groups that were just given access (i.e. didn't already have access to the objects), containing only those objects for which they were given access. If a user is also member of a group, they will be notified twice.
 
-        Raises:
-            An exception of some type when the user is not the owner of all the objects.
-
         Todo:
-            Implement the exception and the notifications.
+            Implement the notifications.
         """
 
         # If input arguments are single values, convert to lists
@@ -143,44 +168,34 @@ class Users(AbstractUser,GuardianUserMixin):
             objects = [objects]
         if isinstance(target_users,Users) or isinstance(target_users,SledGroups):
             target_users = [target_users]
-        #print(len(single_objects),len(target_users))
-
-        
         # Check that user is the owner
-        not_owned = []
-        for obj in objects:
-            if not obj.isOwner(self):
-                not_owned.append(obj)
-        if len(not_owned) == 0:
-            # User owns all objects, proceed with giving access
-            perm = "view_"+objects[0]._meta.db_table
+        self.checkOwnsList(objects)
 
-            # first loop over the target_users
-            notifications = []
-            for user in target_users:
-                # fetch permissions for all the objects for the given user (just 1 query)
-                new_objects_per_user = []
-                checker = ObjectPermissionChecker(user)
-                checker.prefetch_perms(objects)            
-                for obj in objects:
-                    if not checker.has_perm(perm,obj):
-                        new_objects_per_user.append(obj)
-                # if there are objects for which this user was just granted new permission, create a notification
-                print(new_objects_per_user)
-                print(objects)
-                if len(new_objects_per_user) > 0:
-                    assign_perm(perm,user,new_objects_per_user) # (just 1 query)
-                    notifications.append( create_notification(user,new_objects_per_user) )
+        # User owns all objects, proceed with giving access
+        perm = "view_"+objects[0]._meta.db_table
 
-            return notifications
-        else:
-            # User does NOT own all the objects, raise exception with useful information
-            print('user is NOT the owner of '+str(len(not_owned))+' objects the operation should not proceed')
-            
-
-
+        # first loop over the target_users
+        notifications_per_user = []
+        for user in target_users:
+            # fetch permissions for all the objects for the given user (just 1 query)
+            new_objects_per_user = []
+            checker = ObjectPermissionChecker(user)
+            checker.prefetch_perms(objects)            
+            for obj in objects:
+                if not checker.has_perm(perm,obj):
+                    new_objects_per_user.append(obj)
+            # if there are objects for which this user was just granted new permission, create a notification
+            if len(new_objects_per_user) > 0:
+                assign_perm(perm,user,new_objects_per_user) # (just 1 query)
+                notifications_per_user.append( create_notification(user,new_objects_per_user,'give_access') )
+                
+        return notifications_per_user
 
             
+
+
+    '''
+    ### Needs a small modification in the remove_perm of the django guardian package
     def revokeAccess(self,objects,target_users):
         # If input arguments are single values, convert to lists
         if isinstance(objects,SingleObject):
@@ -190,6 +205,8 @@ class Users(AbstractUser,GuardianUserMixin):
         #print(len(single_objects),len(target_users))
     
         # Check that user is the owner
+        self.checkOwnsList(objects)
+
         not_owned = []
         for obj in objects:
             if not obj.isOwner(self):
@@ -223,18 +240,79 @@ class Users(AbstractUser,GuardianUserMixin):
         else:
             # User does NOT own all the objects, raise exception with useful information
             print('user is NOT the owner of '+str(len(not_owned))+' objects, the operation should not proceed')
-            
-
-        
-
+    '''            
 
 
             
-    def makePublic(self,single_object):
-        if self.isOwner(single_object) and single_object.access_level == 'private':
-            single_object.access_level = 'public'
-            singleObject.save()
-            # Here remove any permissions to users/groups and notify them
+    def makePublic(self,objects):
+        """
+        Changes the access_level of the given objects to private.
+
+        First makes sure that the user owns all the objects, then updates only those objects that are private with a single query to the database.
+
+        Args:
+            objects(List[SingleObject]): A list of primary objects of a specific type.
+        """
+        # If input argument is a single values, convert to lists
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+        # Check that user is the owner
+        self.checkOwnsList(objects)
+
+        # Loop over the list, act only on those objects that are private
+        objs_to_update = []
+        for obj in objects:
+            if obj.access_level == 'PRI':
+                obj.access_level = 'PUB'
+                objs_to_update.append(obj)
+        #print(objs_to_update)
+
+        try:
+            assert (len(objs_to_update)>0),"All objects are already public"
+        except AssertionError as error:
+            print(error)
+            print("Execution of 'makePublic' stops.")
+        else:
+            # Before updating the access, find all users with private access to each object. Should do so in 1 query.
+            user_obj_pairs = []
+            perm = "view_"+objs_to_update[0]._meta.db_table
+            for i in range(0,len(objs_to_update)):
+                obj = objs_to_update[i]
+                #print("Lens object:   ",obj)
+                users = get_users_with_perms(obj,with_group_users=False,only_with_perms_in=[perm])
+                for user in users:
+                    user_obj_pairs.append((user.username,i))
+                    #print(user.username,obj)
+            #print(user_obj_pairs)
+                    
+            # Aggregate the objects that were changed for each user.
+            all_objs_per_user = {key: list(map(itemgetter(1), ele)) for key, ele in groupby(sorted(user_obj_pairs,key=itemgetter(0)), key = itemgetter(0))}
+            print(all_objs_per_user)
+
+
+            # Create the notifications per user and remove permissions
+            affected_users = Users.objects.filter(username__in=all_objs_per_user.keys())
+            notifications_per_user = []
+            for user in affected_users:
+                username = user.username
+                ids = [objs_to_update[i].id for i in all_objs_per_user[username]]
+                objs_per_user = getattr(lenses.models,'Lenses').objects.filter(pk__in=ids)
+                # Remove all the view permissions for these objects that are to be updated.
+                remove_perm(perm,user,objs_per_user) # (just 1 query)                
+                # exclude the owner from the notifications
+                if username != self.username:
+                    notifications_per_user.append( create_notification(user,objs_per_user,'give_access') )
+
+            # Update only those objects that need to be updated in a single query
+            getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
+
+            
+            # Now do the same for groups
+            
+            return notifications_per_user
+
+
+            
             
     def makePrivate(self,single_object):
         if self.isOwner(single_object) and single_object.acces_level == 'public':
@@ -285,8 +363,12 @@ class SingleObject(models.Model):
     owner = models.ForeignKey(Users,on_delete=models.CASCADE) 
     created_at = models.DateField(auto_now_add=True)
     modified_at = models.DateField(auto_now=True)
-    access_level = EnumField(AccessLevel,help_text="Set public or private access to this object.")
-    
+
+    class AccessLevel(models.TextChoices):
+        PUBLIC = "PUB"
+        PRIVATE = "PRI"
+    access_level = CharField(max_length=3,choices=AccessLevel.choices,default=AccessLevel.PUBLIC,help_text="Set public or private access to this object.")
+
     class Meta:
         abstract = True
         get_latest_by = ["modified_at","created_at"]
@@ -370,13 +452,15 @@ class SledGroups(Group):
     def __str__(self):
         return self.name
     
+
+
     
 
 class AccessibleLensManager(models.Manager):
     def all(self,user):
         # Attention: this is inefficient because it makes two queries to the database, one for the public and one for the private lenses. We need to replace this with one.
-        lenses_public  = super().get_queryset().filter(access_level='public')
-        lenses_private = super().get_queryset().filter(access_level='private')
+        lenses_public  = super().get_queryset().filter(access_level='PUB')
+        lenses_private = super().get_queryset().filter(access_level='PRI')
         accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
         return lenses_public | accessible_private_lenses # merge and return querysets
 
