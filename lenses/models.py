@@ -253,7 +253,7 @@ class Users(AbstractUser,GuardianUserMixin):
         Args:
             objects(List[SingleObject]): A list of primary objects of a specific type.
         """
-        # If input argument is a single values, convert to lists
+        # If input argument is a single value, convert to list
         if isinstance(objects,SingleObject):
             objects = [objects]
         # Check that user is the owner
@@ -273,22 +273,25 @@ class Users(AbstractUser,GuardianUserMixin):
             print(error)
             print("Execution of 'makePublic' stops.")
         else:
-            # Before updating the access, find all users with private access to each object. Should do so in 1 query.
-            user_obj_pairs = []
             perm = "view_"+objs_to_update[0]._meta.db_table
+
+            ### First, find the Users with access to the objects.
+            #####################################################            
+            # Before updating the access, find all users with private access to each object.
+            user_obj_pairs = []
             for i in range(0,len(objs_to_update)):
                 obj = objs_to_update[i]
                 #print("Lens object:   ",obj)
                 users = get_users_with_perms(obj,with_group_users=False,only_with_perms_in=[perm])
-                for user in users:
-                    user_obj_pairs.append((user.username,i))
-                    #print(user.username,obj)
+                if len(users) > 0:
+                    for user in users:
+                        user_obj_pairs.append((user.username,i))
+                        #print(user.username,obj)
             #print(user_obj_pairs)
                     
-            # Aggregate the objects that were changed for each user.
+            # Aggregate the objects that were changed for each user in a dcitionary with username:list of indices to objs_to_update
             all_objs_per_user = {key: list(map(itemgetter(1), ele)) for key, ele in groupby(sorted(user_obj_pairs,key=itemgetter(0)), key = itemgetter(0))}
-            print(all_objs_per_user)
-
+            #print(all_objs_per_user)
 
             # Create the notifications per user and remove permissions
             affected_users = Users.objects.filter(username__in=all_objs_per_user.keys())
@@ -301,15 +304,48 @@ class Users(AbstractUser,GuardianUserMixin):
                 remove_perm(perm,user,objs_per_user) # (just 1 query)                
                 # exclude the owner from the notifications
                 if username != self.username:
-                    notifications_per_user.append( create_notification(user,objs_per_user,'give_access') )
+                    obj_names = list(map(str,objs_per_user))
+                    #print(username,list(names))
+                    notifications_per_user.append( create_notification(user,obj_names,'make_public') )
 
-            # Update only those objects that need to be updated in a single query
+
+            ### Second, find the Groups with access to the objects.
+            #####################################################
+            group_obj_pairs = []
+            perm = "view_"+objs_to_update[0]._meta.db_table
+            for i in range(0,len(objs_to_update)):
+                obj = objs_to_update[i]
+                #print("Lens object:   ",obj)
+                groups = get_groups_with_perms(obj,attach_perms=True) # returns dictionary
+                #print(groups)
+                if len(groups) > 0:
+                    for group,perm_list in groups.items():
+                        if perm in perm_list:
+                            group_obj_pairs.append((group.name,i))
+            print(group_obj_pairs)
+
+            # Aggregate the objects that were changed for each group in a dcitionary with username:list of indices to objs_to_update
+            all_objs_per_group = {key: list(map(itemgetter(1), ele)) for key, ele in groupby(sorted(group_obj_pairs,key=itemgetter(0)), key = itemgetter(0))}
+            print(all_objs_per_group)
+
+            # Create the notifications per group and remove permissions
+            affected_groups = SledGroups.objects.filter(name__in=all_objs_per_group.keys())
+            notifications_per_group = []
+            for group in affected_groups:
+                groupname = group.name
+                ids = [objs_to_update[i].id for i in all_objs_per_group[groupname]]
+                objs_per_group = getattr(lenses.models,'Lenses').objects.filter(pk__in=ids)
+                # Remove all the view permissions for these objects that are to be updated.
+                remove_perm(perm,group,objs_per_group) # (just 1 query)                
+                obj_names = list(map(str,objs_per_group))
+                print(groupname,list(obj_names))
+                notifications_per_user.append( create_notification(group,obj_names,'make_public') )
+                    
+            # Finally, update only those objects that need to be updated in a single query
+            #####################################################
             getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
-
             
-            # Now do the same for groups
-            
-            return notifications_per_user
+            return (notifications_per_user+notifications_per_group)
 
 
             

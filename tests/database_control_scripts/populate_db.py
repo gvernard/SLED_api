@@ -70,19 +70,25 @@ N = 100
 print('Populating the database with '+str(N)+' random lenses')
 ras = np.random.uniform(0, 360, N)
 decs = np.random.uniform(-90, 90, N) #NOT UNIFORMLY DISTRIBUTED ON A SPHERE!
+mylenses = []
 for i in range(N):
     ra, dec = ras[i], decs[i]
     c = SkyCoord(ra=ra*u.degree, dec=dec*u.degree, frame='icrs')
     Jname = 'J'+c.to_string('hmsdms')
-
+    #Jname = 'J'+str(ra)+str(dec)
+    
     if i < 50:
         access_level = SingleObject.AccessLevel.PUBLIC
     else:
         access_level = SingleObject.AccessLevel.PRIVATE
     
-    lens = Lenses(ra=ra, dec=dec, name=Jname, access_level=access_level, owner=user1)
-    lens.save() # first save, then assign permission
-    assign_perm('view_lenses',user1,lens)
+    mylenses.append( Lenses(ra=ra, dec=dec, name=Jname, access_level=access_level, owner=user1) )
+    #lens.save() # first save, then assign permission
+    #assign_perm('view_lenses',user1,lens)
+
+Lenses.objects.bulk_create(mylenses)
+mylenses = Lenses.objects.all()
+assign_perm('view_lenses',user1,mylenses)
 
 #lenses = Lenses.objects.all()
 

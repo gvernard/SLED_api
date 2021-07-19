@@ -77,6 +77,7 @@ owner       = users.get(username='Cameron')
 other_user  = users.get(username='Giorgos')
 other_user2 = users.get(username='Fred')
 some_group  = SledGroups.objects.get(name="Awesome Users")
+other_group = SledGroups.objects.get(name="TDCOSMO")
 print(owner,other_user,some_group)
 
 private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
@@ -98,6 +99,7 @@ private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
 notifications = owner.giveAccess(private_lenses[0:3],[other_user,other_user2])
 notifications = owner.giveAccess(private_lenses[4],[other_user])
 notifications = owner.giveAccess(private_lenses[6:10],[some_group])
+notifications = owner.giveAccess(private_lenses[8:10],[other_group])
 for note in notifications:
     print(note)
 accessible_objects_per_user()
@@ -117,32 +119,39 @@ print()
 print("Owner makes some private lenses public")
 #public_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PUB')
 
+
+#### Test for user access and permissions
 check_private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
 print("User ",owner," has ",len(check_private)," private objects")
 
 
-ids = [private_lenses[i].id for i in range(0,5)]
+ids = [private_lenses[i].id for i in range(0,10)]
 print(ids)
 check_2 = Lenses.objects.filter(pk__in=ids)
-for i in range(0,5):
+for i in range(0,10):
     print(check_2[i],get_users_with_perms(check_2[i],only_with_perms_in=['view_lenses']))
     
-
-
-owner.makePublic(list(private_lenses[0:5]))
-
+notes = owner.makePublic(list(private_lenses[0:10]))
 
 check_private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
 print("User ",owner," has ",len(check_private)," private objects")
-for i in range(0,5):
+for i in range(0,10):
     print(check_2[i],get_users_with_perms(check_2[i],only_with_perms_in=['view_lenses']))
 
 accessible_objects_per_user()
-
-
-
-
 print()
+
+
+for i in range(0,len(notes)):
+    print(notes[i])
+
+
+
+
+
+
+
+
 
 
 # print("Owner revokes access to public lenses")
