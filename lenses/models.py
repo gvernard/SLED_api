@@ -59,6 +59,8 @@ class LensType(Enum):
     SN = 'SN'
 '''
     
+class Papari(models.Model):
+    affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
 
 
 
@@ -538,3 +540,77 @@ class Lenses(SingleObject):
 
     def __str__(self):
         return self.name # or return some 'phone-number' if this name is not set
+
+
+
+    
+class ConfirmationTasks(SingleObject):
+    """
+    The Confirmation task object.
+
+    Attributes:
+        task_name (str): the name of the task to perform.
+        status (`enum`): completed if all the users have responded, otherwise pending.
+        cargo (json): a JSON object that carries information necessary to complete the task once all responses have been received.
+        receivers (`QuerySet`): A set of Users.
+
+    Todo:
+        - Associate the task name to a class (classes of confirmation task types will need to be implemented first). 
+    """
+
+    task_name = models.CharField(max_length=100, help_text="The name of the task to perform.") 
+    class StatusType(models.TextChoices):
+        Pending = "P"
+        Completed = "C"
+    status = CharField(max_length=1,choices=StatusType.choices,default=StatusType.Pending,help_text="Status of the task: 'Pending' (P) or 'Completed' (C).")
+    cargo = models.JSONField(help_text="A json object holding any variables that will be executed upon completion of the task.")
+    receivers = models.ManyToManyField(
+        Users,
+        related_name='receivers',
+        through='ReceiversResponse',
+        through_fields=('confirmation_task','user'),
+        help_text="A many-to-many relationship between ConfirmationTasks and Users that will need to respond."
+    )
+    
+    def create_task(sender,receivers,task_name,cargo):
+        """
+        Creates a task and assigns the receivers (list of users) to it via a many-to-many relation.
+
+        Args:
+            sender (`User`): An instance of a `User` object.
+            receivers (`QuerySet`): A queryset of User objects.
+            task_name (str): The name of the task to perform once all users have responded.
+            cargo (JSON): a JSON object with information required to complete the task.
+
+        Returns:
+            bool: True if the given user is the owner, False otherwise.
+        """
+        task = ConfirmationTasks(owner=sender,task_name=task_name,cargo=cargo)
+        task.save()
+        task.receivers.add(receivers)
+        task.save()
+        return task
+        
+    def not_heard_from(self):
+         """
+         Checks which receivers have not responded yet. 
+         
+         Returns:
+            A QuerySet with the users that have not responded yet.
+         """
+         return self.receivers.through.objects.filter(confirmation_task__exact=self.id,response__exact='')
+
+    def heard_from(self):
+         """
+         Checks which receivers have already responded. 
+         
+         Returns:
+            A QuerySet with the users that have already responded.
+            A list of the corresponding responses.
+         """
+         return self.receivers.through.objects.exclude(response__exact='')
+        
+class ReceiversResponse(models.Model):
+    confirmation_task = models.ForeignKey(ConfirmationTasks, on_delete=models.CASCADE)
+    user = models.ForeignKey(Users,on_delete=models.CASCADE)
+    response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.") 

@@ -2,7 +2,8 @@ import os
 import sys
 import django
 
-base_dir = '../../'
+dirname = os.path.dirname(__file__)
+base_dir = os.path.join(dirname,'../../')
 sys.path.append(base_dir)
 
 #Database init

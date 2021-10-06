@@ -5,8 +5,8 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
 
-#base_dir = '../../'
-base_dir = '.'
+dirname = os.path.dirname(__file__)
+base_dir = os.path.join(dirname,'../../')
 sys.path.append(base_dir)
 
 #Database init
