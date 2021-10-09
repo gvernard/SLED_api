@@ -23,6 +23,7 @@ import notifications.urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls'), name='home'),
+    path('confirmation/', include('confirmation.urls'), name='confirmation'),
     path('lenses/', include('lenses.urls'), name='lenses'),
     path('users/', include('users.urls'), name='users'),
     path('groups/', include('groups.urls'), name='users'),

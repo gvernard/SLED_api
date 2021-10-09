@@ -1,4 +1,5 @@
 from django.db import models
+from django import forms
 from django.contrib.auth.models import AbstractUser, Group
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
@@ -11,9 +12,11 @@ import sys
 sys.path.append('..')
 import lenses
 import inspect
+import json
+from django.utils import timezone
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
-objects_with_owner = ["Lenses"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 ### Dummy function to create a notification. The proper one should be called from the notifications module.
 def create_notification(user,objects,note_type):
@@ -58,9 +61,6 @@ class LensType(Enum):
     GRB = 'GRB'
     SN = 'SN'
 '''
-    
-class Papari(models.Model):
-    affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
 
 
 
@@ -358,12 +358,40 @@ class Users(AbstractUser,GuardianUserMixin):
             single_object.access_level = 'private'
             singleObject.save()
             
-    def cedeOwnership(self,single_object,heir):
-        if self.isOwner(single_object) and heir.is_active():
-            # The following will have to be replaced by a confirmation task from the heir
-            single_object.owner = heir
-            single_object.save()
+    def cedeOwnership(self,objects,heir):
+        """
+        Changes the owner of the given objects to the heir.
+        
+        First makes sure that the user owns all the objects, then creates a confirmation task for the heir.
 
+        Args:
+            objects(List[SingleObject]): A list of primary objects of a specific type.
+        """
+        # If input argument is a single value, convert to list
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+        # Check that user is the owner
+        self.checkOwnsList(objects)
+
+        try:
+            assert (heir.is_active() == True), "User "+self.username+" is NOT active and therefore cannot become the new owner of the objects in the list."
+        except AssertionError as error:
+            print(error)
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
+
+        cargo = {}
+        cargo["object_table"] = objects[0]._meta.db_table
+        ids = []
+        for obj in objects:
+            ids.append(obj.id)
+        cargo["ids"] = ids
+        json_cargo = json.dumps(cargo)
+        mytask = ConfirmationTask.create(self,heir,'CedeOwnership',json_cargo)
+
+    def send_email(self,message):
+        pass
+        
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
     def deactivateUser(self,user):
@@ -399,8 +427,8 @@ class SingleObject(models.Model):
     """
 
     owner = models.ForeignKey(Users,on_delete=models.CASCADE) 
-    created_at = models.DateField(auto_now_add=True)
-    modified_at = models.DateField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
     class AccessLevel(models.TextChoices):
         PUBLIC = "PUB"
@@ -543,8 +571,11 @@ class Lenses(SingleObject):
 
 
 
-    
-class ConfirmationTasks(SingleObject):
+
+################################################################################################################################################
+### BEGIN: Confirmation task specific code
+
+class ConfirmationTask(SingleObject):
     """
     The Confirmation task object.
 
@@ -558,7 +589,11 @@ class ConfirmationTasks(SingleObject):
         - Associate the task name to a class (classes of confirmation task types will need to be implemented first). 
     """
 
-    task_name = models.CharField(max_length=100, help_text="The name of the task to perform.") 
+    # The task types MUST match 1-to-1 the proxy models below
+    class TaskType(models.TextChoices):
+        CedeOwnership = 'CedeOwnership'
+        MakePrivate = 'MakePrivate'
+    task_type = models.CharField(max_length=100,choices=TaskType.choices,help_text="The name of the task to perform.") 
     class StatusType(models.TextChoices):
         Pending = "P"
         Completed = "C"
@@ -568,35 +603,80 @@ class ConfirmationTasks(SingleObject):
         Users,
         related_name='receivers',
         through='ReceiversResponse',
-        through_fields=('confirmation_task','user'),
-        help_text="A many-to-many relationship between ConfirmationTasks and Users that will need to respond."
+        through_fields=('confirmation_task','receiver'),
+        help_text="A many-to-many relationship between ConfirmationTask and Users that will need to respond."
     )
+    receiver_names = []
     
-    def create_task(sender,receivers,task_name,cargo):
+    class Meta():
+        db_table = "confirmation_tasks"
+        verbose_name = "confirmation_task"
+        verbose_name_plural = "confirmation_tasks"
+
+    def __init__(self, *args, **kwargs):
+        super(ConfirmationTask,self).__init__(*args, **kwargs)
+
+        subclass_found = False
+        for _class in ConfirmationTask.__subclasses__():
+            if self.task_type == _class.__name__:
+                self.__class__ = _class
+                subclass_found = True
+                break
+        if not subclass_found:
+            raise ValueError(task_type)
+        
+    def create_task(sender,receivers,task_type,cargo):
         """
         Creates a task and assigns the receivers (list of users) to it via a many-to-many relation.
+
+        It also invites the receivers by sending them a link via email.
 
         Args:
             sender (`User`): An instance of a `User` object.
             receivers (`QuerySet`): A queryset of User objects.
-            task_name (str): The name of the task to perform once all users have responded.
+            task_type (str): The name of the task to perform once all users have responded.
             cargo (JSON): a JSON object with information required to complete the task.
 
         Returns:
             bool: True if the given user is the owner, False otherwise.
         """
-        task = ConfirmationTasks(owner=sender,task_name=task_name,cargo=cargo)
+        task = ConfirmationTask(owner=sender,task_type=task_type,cargo=cargo)
         task.save()
-        task.receivers.add(receivers)
+        task.receivers.set(receivers)
         task.save()
+        task.receiver_names = list(receivers.values_list('username',flat=True))
+        # We should email the receivers with the link here
         return task
-        
+
+    def load_task(task_id):
+        task = ConfirmationTask.objects.get(pk=task_id)
+        task.receiver_names = list(task.receivers.values_list('username',flat=True))
+        return task
+
+    def get_all_receivers(self):
+        """
+        Gets all the receivers of the confirmation task. 
+         
+        Returns:
+           A QuerySet with User objects.
+        """
+        return self.receivers.all()
+
+    def get_allowed_responses(self):
+        """
+        Get all the allowed responses to the task.
+         
+        Returns:
+           A list with all the allowed responses. 
+        """
+        return self._allowed_responses
+    
     def not_heard_from(self):
          """
          Checks which receivers have not responded yet. 
          
          Returns:
-            A QuerySet with the users that have not responded yet.
+            A QuerySet with ReceiversResponse objects.
          """
          return self.receivers.through.objects.filter(confirmation_task__exact=self.id,response__exact='')
 
@@ -605,12 +685,112 @@ class ConfirmationTasks(SingleObject):
          Checks which receivers have already responded. 
          
          Returns:
-            A QuerySet with the users that have already responded.
-            A list of the corresponding responses.
+            A QuerySet with ReceiversResponse objects.
          """
-         return self.receivers.through.objects.exclude(response__exact='')
+         return self.receivers.through.objects.filter(confirmation_task__exact=self.id).exclude(response__exact='')
+
+    def registerResponse(self,receiver,response,comment):
+        """
+        Registers the given users response to the confirmation task
+        """
+        if receiver.username not in self.receiver_names:
+            raise ValueError(self.receiver_names,receiver.username) # Need custom exception here
+        if response not in self._allowed_responses: 
+            raise ValueError(response) # Need custom exception here
+        self.receivers.through.objects.filter(confirmation_task=self,receiver=receiver).update(response=response,response_comment=comment,created_at=timezone.now())
         
+
+    def registerAndCheck(self,receiver,response,comment):
+        """
+        Registers the given receivers response and checks if all receivers have replied. If yes, calls finalizeTask and updates the status to completed.
+        """
+        self.registerResponse(receiver,response,comment)
+        nhf = self.not_heard_from()
+        if nhf.count() == 0:
+            self.finalizeTask()
+            self.status = self.StatusType.Completed
+            self.save()
+
+            
+    # To be overwritten by the proxy models
+    _allowed_responses = {}
+
+    # To be overwritten by the proxy models
+    def createAnswerSelection(self):
+        pass
+    # To be overwritten by the proxy models
+    def validateResponse(self):
+        pass
+    # To be overwritten by the proxy models
+    def finalizeTask(self):
+        pass
+        
+     
 class ReceiversResponse(models.Model):
-    confirmation_task = models.ForeignKey(ConfirmationTasks, on_delete=models.CASCADE)
-    user = models.ForeignKey(Users,on_delete=models.CASCADE)
+    confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
+    receiver = models.ForeignKey(Users,on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now=True)
     response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.") 
+    response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the receiver on the given response.") 
+
+    
+class CedeOwnership(ConfirmationTask):
+    class Meta:
+        proxy = True
+
+    _allowed_responses = ['yes','no']
+
+    class myForm(forms.Form):
+        mychoices = [('yes','Yes'),('no','No')]
+        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
+        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
+
+    def getForm(self):
+        return self.myForm()
+
+    def validateResponse(self):
+        pass
+
+    def finalizeTask(self,**kwargs):
+        pass
+        # qset = self.heard_from()
+        # responses = list(qset.values_list('responses'))
+        # if respones[0] == 'yes':
+        #     pass
+        #     # Get list of single objects from cargo
+        #     #single_object.owner = heir
+        #     #single_object.save()
+        #     # Send notification to previous owner and heir, and whoever else needs to be notified of the change of owner
+        # else:
+        #     comment = kwargs.get('comment','')
+        #     if len(comment) != 0:
+        #         pass
+        #         # Add comment to notification.
+        #     # Send notification to the owner that the heir has refused.  
+
+        
+class MakePrivate(ConfirmationTask):
+    class Meta:
+        proxy = True
+
+    _allowed_responses = ['yes','no']
+        
+    class myForm(forms.Form):
+        your_name = forms.CharField(label='Your name', max_length=100)
+
+    def getForm(self):
+        return self.myForm()
+
+    def createAnswerSelection(self):
+        pass
+
+    def validateResponse(self):
+        pass
+
+    def finalizeTask(self):
+        print("Decide based on admin's response whether to make private or not")
+        
+
+
+### END: Confirmation task specific code
+################################################################################################################################################

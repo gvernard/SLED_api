@@ -19,7 +19,7 @@ from guardian.shortcuts import assign_perm
 
 names = ['Cameron', 'Giorgos', 'Fred']
 print('Populating the database with the following users:', names)
-password = '1234'
+password = '123'
 
 for name in names:
     print(name)

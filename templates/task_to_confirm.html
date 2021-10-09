@@ -1,0 +1,55 @@
+{% block content %}
+<div class="content container">
+  <p class="title">Task type: <span class="highlight">{{task.task_type}}</span></p>
+
+
+  {% if db_response.response %}
+  <p style="font-weight:bold">
+    You have responded to this task at: {{ db_response.created_at }}
+  </p>
+  {% endif %}
+  
+  <div class="task_description">
+    
+    {% if comment %}
+    <p>
+      User <span style="font-weight:bold">{{task.owner.username}}</span> is saying:
+    </p>
+    <div class="sender_comment">
+      &ldquo;{{ comment }}&rdquo;
+    </div>
+    <p>
+      and would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:
+    </p>
+    {% else %}
+    <p>
+      User <span style="font-weight:bold">{{task.owner.username}}</span> would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:
+    </p>
+    {% endif %}
+    
+  </div>
+
+  
+  <table>
+    {% for obj in objects %}
+    <tr>
+      <td><a href="{{ obj.link }}" target="_blank">{{ obj.name }}</a></td>
+    </tr>
+    {% endfor %}    
+  </table>
+
+  <p>
+    Would you like to accept or refuse taking up the ownership?
+  </p>
+  
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% if not db_response.response %}
+    <input type="submit" value="Submit">
+    {% endif %}
+  </form>
+  
+</div>
+
+{% endblock content %}

@@ -1,0 +1,82 @@
+{% block content %}
+<div class="content container">
+  <p class="title">My Confirmation Tasks</p>
+  
+  
+  <div class="tasks_by_me">
+    <p>
+      Tasks initiated by me:
+    </p>
+    {% if by_me %}
+    <table>
+      {% for receiver_names,task in by_me %}
+      <tr>
+	<td>{{ task.task_type }}</td>
+	<td>{{ task.owner }}</td>
+	<td>{{ task.created_at }}</td>
+	<td>{{ task.status }}</td>
+	<td>{{ receiver_names }}</td>
+	<td><a href="{% url 'owned_task' task_id=task.id %}">go</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>
+      No tasks
+    </p>
+    {% endif %}
+  </div>
+
+  
+  <div class="tasks_to_me_only">
+    <p>
+      Tasks addressed to me only:
+    </p>
+    {% if to_me %}
+    <table>
+      {% for receiver_names,task in to_me %}
+      <tr>
+	<td>{{ task.task_type }}</td>
+	<td>{{ task.owner }}</td>
+	<td>{{ task.created_at }}</td>
+	<td>{{ task.status }}</td>
+	<td>{{ receiver_names }}</td>
+	<td><a href="{% url 'task_to_confirm' task_id=task.id %}">go</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>
+      No tasks
+    </p>
+    {% endif %}
+  </div>
+
+  
+  <div class="tasks_to_me_and_others">
+    <p>
+      Tasks addressed to me and others:
+    </p>
+    {% if not_just_to_me %}
+    <table>
+      {% for receiver_names,task in not_just_to_me %}
+      <tr>
+	<td>{{ task.task_type }}</td>
+	<td>{{ task.owner }}</td>
+	<td>{{ task.created_at }}</td>
+	<td>{{ task.status }}</td>
+	<td>{{ receiver_names }}</td>
+	<td><a href="{% url 'task_to_confirm' task_id=task.id %}">go</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>
+      No tasks
+    </p>
+    {% endif %}
+  </div>
+  
+</div>
+{% endblock content %}
+
