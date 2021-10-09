@@ -11,7 +11,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroups, Lenses, SingleObject
+from lenses.models import Users, SledGroups, Lenses, SingleObject, ConfirmationTask
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User
 from guardian.shortcuts import assign_perm
@@ -46,29 +46,35 @@ print('The following have access to this lens:', index, get_users_with_perms(len
 users = Users.objects.all()
 
 def accessible_objects_per_user():
+    print("Accessible objects per user: ")
     users = Users.objects.all()
     for user in users:
         lenses = Lenses.accessible_objects.all(user)
         print(user.username,len(lenses))
+    print()
 
+    
+def owned_objects_per_user():
+    print("Owned objects per user: ")
+    users = Users.objects.all()
+    for user in users:
+        owned_objects = user.getOwnedObjects(["Lenses","dummy"])
+        for key in owned_objects:
+            print(user.username,key,len(owned_objects[key]))
+    print()
 
+def groups_per_user():
+    print("Groups that user belongs to: ")
+    users = Users.objects.all()
+    for user in users:
+        groups = user.getGroupsIsMember()
+        print(user.username,groups.values_list('name',flat=True))
+    print()
+    
 
-print("Owned objects per user: ")
-for user in users:
-    owned_objects = user.getOwnedObjects(["Lenses","dummy"])
-    for key in owned_objects:
-        print(user.username,key,len(owned_objects[key]))
-print()
-
-print("Groups that user belongs to: ")
-for user in users:
-    groups = user.getGroupsIsMember()
-    print(user.username,groups.values_list('name',flat=True))
-print()
-
-print("Accessible objects per user: ")
+owned_objects_per_user()
+groups_per_user()
 accessible_objects_per_user()
-print()
 
 
 
@@ -117,9 +123,10 @@ print()
 '''
 
 
+
+
 print("Owner makes some private lenses public")
 #public_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PUB')
-
 
 #### Test for user access and permissions
 check_private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
@@ -160,3 +167,26 @@ for i in range(0,len(notes)):
 # owner.revokeAccess(public_lenses[0],other_user)
 # accessible_objects_per_user()
 # print()
+
+
+
+print("Owner cedes ownesrhip to another user")
+
+# Test for user ownership
+owned_objects_per_user()
+
+# Owner selects some objects to cede to another user (receiver)
+sender = users.get(username='Cameron')
+receiver = users.filter(username='Fred')
+owned_lenses = sender.getOwnedObjects(["Lenses","dummy"])
+lenses_to_cede = owned_lenses["Lenses"][3:6]
+print("Lenses to cede from ",sender," to ",receiver,":",lenses_to_cede)
+Print()
+mytask = sender.cedeOwnership(lenses_to_cede,receiver)
+
+# Receiver accepts
+target_receiver = users.get(username='Fred')
+mytask.registerAndCheck(target_receiver,'yes','I will happily take over.')
+
+# Test for user ownership
+owned_objects_per_user()

@@ -366,6 +366,10 @@ class Users(AbstractUser,GuardianUserMixin):
 
         Args:
             objects(List[SingleObject]): A list of primary objects of a specific type.
+            heir (`Queryset`): A Queryset consisting of only one user
+
+        Returns:
+            task: A confirmation task
         """
         # If input argument is a single value, convert to list
         if isinstance(objects,SingleObject):
@@ -373,21 +377,22 @@ class Users(AbstractUser,GuardianUserMixin):
         # Check that user is the owner
         self.checkOwnsList(objects)
 
-        try:
-            assert (heir.is_active() == True), "User "+self.username+" is NOT active and therefore cannot become the new owner of the objects in the list."
-        except AssertionError as error:
-            print(error)
-            caller = inspect.getouterframes(inspect.currentframe(),2)
-            print("The operation of '"+caller[1][3]+"' should not proceed")
+        # try:
+        #     assert (heir[0].is_active() == True), "User "+self.username+" is NOT active and therefore cannot become the new owner of the objects in the list."
+        # except AssertionError as error:
+        #     print(error)
+        #     caller = inspect.getouterframes(inspect.currentframe(),2)
+        #     print("The operation of '"+caller[1][3]+"' should not proceed")
 
         cargo = {}
-        cargo["object_table"] = objects[0]._meta.db_table
+        cargo["object_type"] = objects[0]._meta.model.__name__
         ids = []
         for obj in objects:
             ids.append(obj.id)
-        cargo["ids"] = ids
+        cargo["object_ids"] = ids
         json_cargo = json.dumps(cargo)
-        mytask = ConfirmationTask.create(self,heir,'CedeOwnership',json_cargo)
+        mytask = ConfirmationTask.create_task(self,heir,'CedeOwnership',json_cargo)
+        return mytask
 
     def send_email(self,message):
         pass
@@ -718,9 +723,7 @@ class ConfirmationTask(SingleObject):
     # To be overwritten by the proxy models
     def createAnswerSelection(self):
         pass
-    # To be overwritten by the proxy models
-    def validateResponse(self):
-        pass
+
     # To be overwritten by the proxy models
     def finalizeTask(self):
         pass
@@ -748,25 +751,24 @@ class CedeOwnership(ConfirmationTask):
     def getForm(self):
         return self.myForm()
 
-    def validateResponse(self):
-        pass
-
     def finalizeTask(self,**kwargs):
-        pass
-        # qset = self.heard_from()
-        # responses = list(qset.values_list('responses'))
-        # if respones[0] == 'yes':
-        #     pass
-        #     # Get list of single objects from cargo
-        #     #single_object.owner = heir
-        #     #single_object.save()
-        #     # Send notification to previous owner and heir, and whoever else needs to be notified of the change of owner
-        # else:
-        #     comment = kwargs.get('comment','')
-        #     if len(comment) != 0:
-        #         pass
-        #         # Add comment to notification.
-        #     # Send notification to the owner that the heir has refused.  
+        # Only one receiver to get a response from here
+        response = self.heard_from().get().response
+        if response == 'yes':
+            # Get receiver
+            heir = self.get_all_receivers()[0]
+            # Process cargo
+            cargo = json.loads(self.cargo)
+            obj_ids = cargo['object_ids']
+            obj_type = cargo['object_type']
+            getattr(lenses.models,obj_type).objects.filter(pk__in=obj_ids).update(owner=heir)
+            # Send notification to previous owner and heir, and whoever else needs to be notified of the change of owner
+        else:
+            comment = kwargs.get('comment','')
+            if len(comment) != 0:
+                pass
+                # Add comment to notification.
+            # Send notification to the owner that the heir has refused.  
 
         
 class MakePrivate(ConfirmationTask):
@@ -782,9 +784,6 @@ class MakePrivate(ConfirmationTask):
         return self.myForm()
 
     def createAnswerSelection(self):
-        pass
-
-    def validateResponse(self):
         pass
 
     def finalizeTask(self):

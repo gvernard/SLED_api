@@ -36,10 +36,11 @@ sender = users.get(username='Giorgos')
 receivers = users.filter(username='Fred')
 task_type = 'CedeOwnership'
 cargo = {"object_type": "Lenses",
-         "object_ids": [4],
-         "comment": "Oops, I forgot to add one more :)"
-         }
+        "object_ids": [4],
+        "comment": "Oops, I forgot to add one more :)"
+        }
 mytask = ConfirmationTask.create_task(sender,receivers,task_type,cargo)
+
 
 target_receiver = users.get(username='Fred')
 mytask.registerAndCheck(target_receiver,'yes','I will happily take over.')
