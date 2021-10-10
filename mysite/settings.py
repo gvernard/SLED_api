@@ -29,6 +29,10 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'lenses.Users'
 GUARDIAN_MONKEY_PATCH = False
+DJANGO_NOTIFICATIONS_CONFIG = { 'USE_JSONFIELD': True}
+EMAIL_HOST = 'localhost'
+EMAIL_PORT = 1025
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Application definition
 
 INSTALLED_APPS = [

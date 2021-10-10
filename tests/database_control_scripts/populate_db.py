@@ -23,7 +23,7 @@ password = '123'
 
 for name in names:
     print(name)
-    user = Users.objects.create_user(username=name, password=password, affiliation='EPFL')
+    user = Users.objects.create_user(username=name, password=password, affiliation='EPFL', email=name+'@epfl.ch')
 
 
 

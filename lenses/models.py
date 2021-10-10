@@ -1,11 +1,16 @@
 from django.db import models
 from django import forms
 from django.contrib.auth.models import AbstractUser, Group
+from django.utils import timezone
+from django.contrib.sites.models import Site
+from django.core.mail import send_mail
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
 from guardian.mixins import GuardianUserMixin
 from guardian.shortcuts import *
+
+from notifications.signals import notify
 
 from operator import itemgetter
 import sys
@@ -13,7 +18,6 @@ sys.path.append('..')
 import lenses
 import inspect
 import json
-from django.utils import timezone
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
@@ -98,14 +102,6 @@ class Users(AbstractUser,GuardianUserMixin):
         for table in filtered_object_types:
             objects[table] = getattr(lenses.models,table).objects.filter(owner__username=self.username)
         return objects
-
-    ### This function is superceded by the one above (getOwnedObjects)
-    # def getOwnedLenses(self):
-    #     '''
-    #     This function is for simplicity of accessing in a django template, where returning a query set is best
-    #     '''
-    #     objects = getattr(lenses.models,'Lenses').objects.filter(owner__username=self.username)
-    #     return objects
 
     def getGroupsIsMember(self):
         """
@@ -348,16 +344,37 @@ class Users(AbstractUser,GuardianUserMixin):
             getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
             
             return (notifications_per_user+notifications_per_group)
+   
+    def makePrivate(self,objects):
+        """
+        Changes the AccessLevel of the given objects to 'private'.
+        
+        First makes sure that the user owns all the objects, then creates a confirmation task for the database admin.
 
+        Args:
+            objects(List[SingleObject]): A list of primary objects of a specific type.
 
-            
-            
-    def makePrivate(self,single_object):
-        if self.isOwner(single_object) and single_object.acces_level == 'public':
-            # The following will have to be replaced by a confirmation task from the DB admins
-            single_object.access_level = 'private'
-            singleObject.save()
-            
+        Returns:
+            task: A confirmation task
+        """
+        # If input argument is a single value, convert to list
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+        # Check that user is the owner
+        self.checkOwnsList(objects)
+
+        cargo = {}
+        cargo["object_type"] = objects[0]._meta.model.__name__
+        ids = []
+        for obj in objects:
+            ids.append(obj.id)
+        cargo["object_ids"] = ids
+
+        # This line needs to be replaced with the DB admin
+        admin = Users.objects.filter(username='admin')
+        mytask = ConfirmationTask.create_task(self,admin,'MakePrivate',cargo)
+        return mytask 
+      
     def cedeOwnership(self,objects,heir):
         """
         Changes the owner of the given objects to the heir.
@@ -377,12 +394,12 @@ class Users(AbstractUser,GuardianUserMixin):
         # Check that user is the owner
         self.checkOwnsList(objects)
 
-        # try:
-        #     assert (heir[0].is_active() == True), "User "+self.username+" is NOT active and therefore cannot become the new owner of the objects in the list."
-        # except AssertionError as error:
-        #     print(error)
-        #     caller = inspect.getouterframes(inspect.currentframe(),2)
-        #     print("The operation of '"+caller[1][3]+"' should not proceed")
+        try:
+            assert (heir[0].is_active == True), "User "+user.username+" is NOT active and therefore cannot become the new owner of the objects in the list."
+        except AssertionError as error:
+            print(error)
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
 
         cargo = {}
         cargo["object_type"] = objects[0]._meta.model.__name__
@@ -390,8 +407,7 @@ class Users(AbstractUser,GuardianUserMixin):
         for obj in objects:
             ids.append(obj.id)
         cargo["object_ids"] = ids
-        json_cargo = json.dumps(cargo)
-        mytask = ConfirmationTask.create_task(self,heir,'CedeOwnership',json_cargo)
+        mytask = ConfirmationTask.create_task(self,heir,'CedeOwnership',cargo)
         return mytask
 
     def send_email(self,message):
@@ -401,13 +417,13 @@ class Users(AbstractUser,GuardianUserMixin):
     # Below this point lets put actions relevant only to the admin users
     def deactivateUser(self,user):
         # See django documentation for is_active for login and permissions
-        if self.is_staff() and user.is_active():
+        if self.is_staff and user.is_active:
             user.is_active = False
             user.save()
 
     def activateUser(self,user):
         # See django documentation for is_active for login and permissions
-        if self.is_staff() and not user.is_active():
+        if self.is_staff and not user.is_active:
             user.is_active = True
             user.save()
     
@@ -650,13 +666,28 @@ class ConfirmationTask(SingleObject):
         task.receivers.set(receivers)
         task.save()
         task.receiver_names = list(receivers.values_list('username',flat=True))
-        # We should email the receivers with the link here
+        task.inviteRecipients(task.receivers)
         return task
 
     def load_task(task_id):
         task = ConfirmationTask.objects.get(pk=task_id)
         task.receiver_names = list(task.receivers.values_list('username',flat=True))
         return task
+
+    def inviteRecipients(self,recipients):
+        """
+        Emails list of recipients to inform/remind them that a confirmation task requires their response
+
+        Args:
+            recipients (`QuerySet`): A queryset of User objects.
+        """
+        site = Site.objects.get_current()
+        subject = 'A %s task requires your response' % self.task_type
+        message = 'Dear %s user, there is a %s task that requires your response. Click here for details: %s/confirmation/single/%s' % (site.name,self.task_type,site.domain,self.id)
+        recipient_emails = list(recipients.values_list('email',flat=True))
+        from_email = 'manager@%s' % site.domain
+        send_mail(subject,message,from_email,recipient_emails)
+        
 
     def get_all_receivers(self):
         """
@@ -752,23 +783,16 @@ class CedeOwnership(ConfirmationTask):
         return self.myForm()
 
     def finalizeTask(self,**kwargs):
-        # Only one receiver to get a response from here
+        # Here, only one receiver to get a response from
         response = self.heard_from().get().response
         if response == 'yes':
-            # Get receiver
             heir = self.get_all_receivers()[0]
-            # Process cargo
-            cargo = json.loads(self.cargo)
-            obj_ids = cargo['object_ids']
-            obj_type = cargo['object_type']
-            getattr(lenses.models,obj_type).objects.filter(pk__in=obj_ids).update(owner=heir)
-            # Send notification to previous owner and heir, and whoever else needs to be notified of the change of owner
+            #cargo = json.loads(self.cargo)
+            getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(owner=heir)
+            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),task_id=self.id)
+            notify.send(sender=heir,recipient=heir,verb='You have accepted a CedeOwnership request',level='success',timestamp=timezone.now(),task_id=self.id)
         else:
-            comment = kwargs.get('comment','')
-            if len(comment) != 0:
-                pass
-                # Add comment to notification.
-            # Send notification to the owner that the heir has refused.  
+            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was rejected',level='error',timestamp=timezone.now(),task_id=self.id)
 
         
 class MakePrivate(ConfirmationTask):
@@ -778,16 +802,23 @@ class MakePrivate(ConfirmationTask):
     _allowed_responses = ['yes','no']
         
     class myForm(forms.Form):
-        your_name = forms.CharField(label='Your name', max_length=100)
+        mychoices = [('yes','Yes'),('no','No')]
+        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
+        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
 
     def getForm(self):
         return self.myForm()
 
-    def createAnswerSelection(self):
-        pass
-
     def finalizeTask(self):
-        print("Decide based on admin's response whether to make private or not")
+        # Here, only one receiver to get a response from
+        response = self.heard_from().get().response
+        if response == 'yes':
+            #cargo = json.loads(self.cargo)
+            getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(access_level='PRI')
+            admin = Users.objects.filter(username='admin')
+            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),task_id=self.id)
+        else:
+            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),task_id=self.id)
         
 
 

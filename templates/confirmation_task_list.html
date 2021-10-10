@@ -7,16 +7,16 @@
     <p>
       Tasks initiated by me:
     </p>
-    {% if by_me %}
+    {% if N_list1 > 0 %}
     <table>
-      {% for receiver_names,task in by_me %}
+      {% for receiver_names,task in list1 %}
       <tr>
 	<td>{{ task.task_type }}</td>
 	<td>{{ task.owner }}</td>
 	<td>{{ task.created_at }}</td>
 	<td>{{ task.status }}</td>
 	<td>{{ receiver_names }}</td>
-	<td><a href="{% url 'owned_task' task_id=task.id %}">go</a></td>
+	<td><a href="{% url 'single_task' task_id=task.id %}">go</a></td>
       </tr>
       {% endfor %}
     </table>
@@ -32,16 +32,16 @@
     <p>
       Tasks addressed to me only:
     </p>
-    {% if to_me %}
+    {% if N_list2 > 0 %}
     <table>
-      {% for receiver_names,task in to_me %}
+      {% for receiver_names,task in list2 %}
       <tr>
 	<td>{{ task.task_type }}</td>
 	<td>{{ task.owner }}</td>
 	<td>{{ task.created_at }}</td>
 	<td>{{ task.status }}</td>
 	<td>{{ receiver_names }}</td>
-	<td><a href="{% url 'task_to_confirm' task_id=task.id %}">go</a></td>
+	<td><a href="{% url 'single_task' task_id=task.id %}">go</a></td>
       </tr>
       {% endfor %}
     </table>
@@ -57,16 +57,16 @@
     <p>
       Tasks addressed to me and others:
     </p>
-    {% if not_just_to_me %}
+    {% if N_list3 > 0 %}
     <table>
-      {% for receiver_names,task in not_just_to_me %}
+      {% for receiver_names,task in list3 %}
       <tr>
 	<td>{{ task.task_type }}</td>
 	<td>{{ task.owner }}</td>
 	<td>{{ task.created_at }}</td>
 	<td>{{ task.status }}</td>
 	<td>{{ receiver_names }}</td>
-	<td><a href="{% url 'task_to_confirm' task_id=task.id %}">go</a></td>
+	<td><a href="{% url 'single_task' task_id=task.id %}">go</a></td>
       </tr>
       {% endfor %}
     </table>

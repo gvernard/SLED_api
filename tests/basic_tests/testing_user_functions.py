@@ -177,16 +177,47 @@ owned_objects_per_user()
 
 # Owner selects some objects to cede to another user (receiver)
 sender = users.get(username='Cameron')
-receiver = users.filter(username='Fred')
+receiver = users.filter(username='Giorgos')
 owned_lenses = sender.getOwnedObjects(["Lenses","dummy"])
 lenses_to_cede = owned_lenses["Lenses"][3:6]
 print("Lenses to cede from ",sender," to ",receiver,":",lenses_to_cede)
-Print()
+print()
 mytask = sender.cedeOwnership(lenses_to_cede,receiver)
 
 # Receiver accepts
-target_receiver = users.get(username='Fred')
+target_receiver = users.get(username='Giorgos')
 mytask.registerAndCheck(target_receiver,'yes','I will happily take over.')
 
 # Test for user ownership
 owned_objects_per_user()
+
+
+
+
+
+print("Owner makes some public lenses private")
+
+# Owner selects some objects to make private
+owner = users.get(username='Cameron')
+public_lenses = Lenses.objects.filter(owner=owner,access_level='PUB')
+private_lenses = Lenses.objects.filter(owner=owner,access_level='PRI')
+
+# Test for AccessLevel
+print(owner,"'s PUBLIC lenses: ",public_lenses.count())
+print(owner,"'s PRIVATE lenses: ",private_lenses.count())
+
+lenses_to_privatize = public_lenses[3:6]
+print("Lenses to privatize:",lenses_to_privatize)
+print()
+mytask = sender.makePrivate(lenses_to_privatize)
+
+# Admin accepts
+target_receiver = users.get(username='Giorgos')
+mytask.registerAndCheck(target_receiver,'yes','You can make these lenses private.')
+
+# Test for AccessLevel
+public_lenses = Lenses.objects.filter(owner=owner,access_level='PUB')
+private_lenses = Lenses.objects.filter(owner=owner,access_level='PRI')
+print(owner,"'s PUBLIC lenses: ",public_lenses.count())
+print(owner,"'s PRIVATE lenses: ",private_lenses.count())
+
