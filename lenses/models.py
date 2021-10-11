@@ -22,29 +22,6 @@ import json
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
-### Dummy function to create a notification. The proper one should be called from the notifications module.
-def create_notification(user,objects,note_type):
-    if note_type == 'give_access':
-        # User - number of objects - comma separated list of object names
-        object_names = [x.name for x in objects]
-        if isinstance(user,Users):
-            return user.username+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
-        elif isinstance(user,SledGroups):
-            return user.name+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
-    if note_type == 'revoke_access':
-        # User - number of objects - comma separated list of object names
-        object_names = [x.name for x in objects]
-        if isinstance(user,Users):
-            return user.username+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
-        elif isinstance(user,SledGroups):
-            return user.name+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
-    elif note_type == 'make_public':
-        # User - number of objects - comma separated list of object ids
-        if isinstance(user,Users):
-            return user.username+' - '+str(len(objects))+ ' - ' + ','.join(objects)
-        elif isinstance(user,SledGroups):
-            return user.name+' - '+str(len(objects))+ ' - ' + ','.join(objects)
-
 '''
 class ImageConf(Enum):
     NONE = ''
@@ -142,7 +119,6 @@ class Users(AbstractUser,GuardianUserMixin):
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print("The operation of '"+caller[1][3]+"' should not proceed")
 
-    
     def giveAccess(self,objects,target_users):
         """
         Gives access to the primary object(s) that are owned by the user to a list of users or groups.
@@ -151,21 +127,15 @@ class Users(AbstractUser,GuardianUserMixin):
         Then, a cross match is performed between users/groups and objects to find to how many new objects each user will be given access to.
         This involves 2 queries to the database per user: 1 to get any permissions for the objects, and one to update the new permissions.
         But if the user already has permissions to all the objects then the second query is not performed.
+        Finally, each user is notified with which objects they have been granted access to.
 
         Note:
             A given user can also be a member of a given group. In this case the user will have a 'double permission' to view the object.
             Both the individual and group permissions will have to be revoked to forbid any access.
 
         Args:
-            objects (List[SingleObject]): A list of primary objects of a specific type.
-            A check is performed to ensure that the user is the owner of all the objects in the list.
+            objects (List[SingleObject]): A list of primary objects of a specific type. A check is performed to ensure that the user is the owner of all the objects in the list.
             target_users (List[Users or Groups]): A list of users, groups, or both.
-
-        Returns:
-            A list of notifications only to those users/groups that were just given access (i.e. didn't already have access to the objects), containing only those objects for which they were given access. If a user is also member of a group, they will be notified twice.
-
-        Todo:
-            Implement the notifications.
         """
 
         # If input arguments are single values, convert to lists
@@ -180,21 +150,21 @@ class Users(AbstractUser,GuardianUserMixin):
         perm = "view_"+objects[0]._meta.db_table
 
         # first loop over the target_users
-        notifications_per_user = []
         for user in target_users:
             # fetch permissions for all the objects for the given user (just 1 query)
             new_objects_per_user = []
+            new_objects_per_user_ids = []
             checker = ObjectPermissionChecker(user)
-            checker.prefetch_perms(objects)            
+            checker.prefetch_perms(objects)
+            object_type = objects[0]._meta.model.__name__
             for obj in objects:
                 if not checker.has_perm(perm,obj):
                     new_objects_per_user.append(obj)
+                    new_objects_per_user_ids.append(obj.id)
             # if there are objects for which this user was just granted new permission, create a notification
             if len(new_objects_per_user) > 0:
                 assign_perm(perm,user,new_objects_per_user) # (just 1 query)
-                notifications_per_user.append( create_notification(user,new_objects_per_user,'give_access') )
-                
-        return notifications_per_user
+                notify.send(sender=self,recipient=user,verb='You have been granted access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)
 
             
 
@@ -205,13 +175,11 @@ class Users(AbstractUser,GuardianUserMixin):
         Revokes 'view' permission of the 'target_users' from the given 'objects'.
 
         Checks that the user is the owner of all the provided objects first.
+        Notifies those users/groups whose 'view' permission was just revoked, containing only affected objects. If a user is also member of a group, they will be notified twice.
 
         Args:
             objects(List[SingleObject]): A list of primary objects of a specific type.
             target_users(List[User or SledGroup]): A list of Users, or Sledgroups, or mixed.
-
-        Returns:
-            A list of notifications only to those users/groups whose 'view' permission was just revoked, containing only affected objects. If a user is also member of a group, they will be notified twice.
         """
         # If input argument 'objects' is a single value, convert to list
         if isinstance(objects,SingleObject):
@@ -226,23 +194,22 @@ class Users(AbstractUser,GuardianUserMixin):
         perm = "view_"+objects[0]._meta.db_table
 
         # first loop over the target_users
-        notifications = []
         for user in target_users:
             # fetch permissions for all the objects for the given user (just 1 query)
             checker = ObjectPermissionChecker(user)
             checker.prefetch_perms(objects)            
-
+            object_type = objects[0]._meta.model.__name__
             revoked_objects_per_user = []
+            revoked_objects_per_user_ids = []
             for obj in objects:
                 if checker.has_perm(perm,obj):
                     revoked_objects_per_user.append(obj)
+                    revoked_objects_per_user_ids.append(obj.id)
             # if there are objects for which this user had permissions just revoked, create a notification
             if len(revoked_objects_per_user) > 0:
                 for obj in revoked_objects_per_user:
                     remove_perm(perm,user,obj) # (just 1 query)
-                notifications.append( create_notification(user,revoked_objects_per_user,'revoke_access') )
-               
-        return notifications
+                notify.send(sender=self,recipient=user,verb='Your access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
 
 
 
@@ -298,18 +265,18 @@ class Users(AbstractUser,GuardianUserMixin):
 
             # Create the notifications per user and remove permissions
             affected_users = Users.objects.filter(username__in=all_objs_per_user.keys())
-            notifications_per_user = []
             for user in affected_users:
                 username = user.username
                 ids = [objs_to_update[i].id for i in all_objs_per_user[username]]
                 objs_per_user = getattr(lenses.models,'Lenses').objects.filter(pk__in=ids)
+                object_type = objs_per_user[0]._meta.model.__name__
                 # Remove all the view permissions for these objects that are to be updated.
                 remove_perm(perm,user,objs_per_user) # (just 1 query)                
                 # exclude the owner from the notifications
                 if username != self.username:
-                    obj_names = list(map(str,objs_per_user))
+                    obj_ids = list(objs_per_user.values_list('id'))
                     #print(username,list(names))
-                    notifications_per_user.append( create_notification(user,obj_names,'make_public') )
+                    notify.send(sender=self,recipient=user,verb='Private objects you had access to are now public.',level='warning',timestamp=timezone.now(),note_type='MakePublic',object_type=object_type,object_ids=obj_ids)
 
 
             ### Second, find the Groups with access to the objects.
@@ -325,30 +292,25 @@ class Users(AbstractUser,GuardianUserMixin):
                     for group,perm_list in groups.items():
                         if perm in perm_list:
                             group_obj_pairs.append((group.name,i))
-            print(group_obj_pairs)
 
             # Aggregate the objects that were changed for each group in a dcitionary with username:list of indices to objs_to_update
             all_objs_per_group = {key: list(map(itemgetter(1), ele)) for key, ele in groupby(sorted(group_obj_pairs,key=itemgetter(0)), key = itemgetter(0))}
-            print(all_objs_per_group)
 
             # Create the notifications per group and remove permissions
             affected_groups = SledGroups.objects.filter(name__in=all_objs_per_group.keys())
-            notifications_per_group = []
             for group in affected_groups:
                 groupname = group.name
                 ids = [objs_to_update[i].id for i in all_objs_per_group[groupname]]
                 objs_per_group = getattr(lenses.models,'Lenses').objects.filter(pk__in=ids)
+                object_type = objs_per_group[0]._meta.model.__name__
                 # Remove all the view permissions for these objects that are to be updated.
                 remove_perm(perm,group,objs_per_group) # (just 1 query)                
-                obj_names = list(map(str,objs_per_group))
-                print(groupname,list(obj_names))
-                notifications_per_user.append( create_notification(group,obj_names,'make_public') )
-                    
+                obj_ids = list(objs_per_group.values_list('id'))
+                notify.send(sender=self,recipient=group,verb='Private objects you had access to are now public.',level='warning',timestamp=timezone.now(),note_type='MakePublic',object_type=object_type,object_ids=obj_ids)
+
             # Finally, update only those objects that need to be updated in a single query
             #####################################################
             getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
-            
-            return (notifications_per_user+notifications_per_group)
    
     def makePrivate(self,objects):
         """
@@ -806,10 +768,10 @@ class CedeOwnership(ConfirmationTask):
             heir = self.get_all_receivers()[0]
             #cargo = json.loads(self.cargo)
             getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(owner=heir)
-            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),task_id=self.id)
-            notify.send(sender=heir,recipient=heir,verb='You have accepted a CedeOwnership request',level='success',timestamp=timezone.now(),task_id=self.id)
+            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
+            notify.send(sender=heir,recipient=heir,verb='You have accepted a CedeOwnership request',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
         else:
-            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was rejected',level='error',timestamp=timezone.now(),task_id=self.id)
+            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was rejected',level='error',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
 
         
 class MakePrivate(ConfirmationTask):
@@ -832,10 +794,11 @@ class MakePrivate(ConfirmationTask):
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(access_level='PRI')
-            admin = Users.objects.filter(username='admin')
-            #notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),task_id=self.id)
-        #else:
-            #notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),task_id=self.id)
+            admin = Users.objects.get(username='admin')
+            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
+        else:
+            admin = Users.objects.get(username='admin')
+            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
         
 
 

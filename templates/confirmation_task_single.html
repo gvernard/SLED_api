@@ -80,22 +80,32 @@
   
   <div class="task_description">
     
-    {% if comment %}
-    <p>
-      User <span style="font-weight:bold">{{task.owner.username}}</span> is saying:
-    </p>
+    {% if comment %}    
+    <p>User <span style="font-weight:bold">{{task.owner.username}}</span> is saying:</p>
     <div class="sender_comment">
       &ldquo;{{ comment }}&rdquo;
     </div>
-    <p>
-      and would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:
-    </p>
-    {% else %}
-    <p>
-      User <span style="font-weight:bold">{{task.owner.username}}</span> would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:
-    </p>
+    {% endif %}
+
+
+    {% if comment %}    
+
+    {% if task.task_type == "CedeOwnership" %}
+    <p>and would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:</p>
+    {% elif task.task_type == "MakePrivate" %}
+    <p>and would like to make the following <span style="font-weight:bold">{{object_type}}</span> private:</p>    
     {% endif %}
     
+    {% else %}
+
+    {% if task.task_type == "CedeOwnership" %}
+    <p>User <span style="font-weight:bold">{{task.owner.username}}</span> would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:</p>
+    {% elif task.task_type == "MakePrivate" %}
+    <p>User <span style="font-weight:bold">{{task.owner.username}}</span> would like to make the following <span style="font-weight:bold">{{object_type}}</span> private:</p>
+    {% endif %}
+
+    {% endif %}
+
   </div>
   
   <table>
@@ -106,9 +116,11 @@
     {% endfor %}    
   </table>
 
-  <p>
-    Would you like to accept or refuse taking up the ownership?
-  </p>
+  {% if task.task_type == "CedeOwnership" %}
+  <p>Would you like to accept or refuse taking up the ownership?</p>
+  {% elif task.task_type == "MakePrivate" %}
+  <p>Do you authorize this action?</p>
+  {% endif %}
   
   <form method="post">
     {% csrf_token %}

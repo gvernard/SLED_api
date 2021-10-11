@@ -84,12 +84,11 @@ private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
 # accessible_objects_per_user()
 
 # most compact way: give access to a list of objects to a list of users/groups
-notifications = owner.giveAccess(private_lenses[0:3],[other_user,other_user2])
-notifications.append( owner.giveAccess(private_lenses[4],[other_user]) )
-notifications.append( owner.giveAccess(private_lenses[6:10],[some_group]) )
-notifications.append( owner.giveAccess(private_lenses[11:13],[other_group]) )
-for note in notifications:
-    print(note)
+owner.giveAccess(private_lenses[0:3],[other_user,other_user2])
+owner.giveAccess(private_lenses[4],[other_user])
+owner.giveAccess(private_lenses[6:10],[some_group])
+owner.giveAccess(private_lenses[11:13],[other_group])
+
 accessible_objects_per_user()
 print()
 ########################
@@ -113,7 +112,7 @@ set1 = Lenses.objects.filter(pk__in=ids)
 for i in range(0,set1.count()):
     print(set1[i],get_users_with_perms(set1[i],only_with_perms_in=['view_lenses']))
     
-notes = owner.makePublic(list(private_lenses[20:25]))
+owner.makePublic(list(private_lenses[20:25]))
 
 private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
 print("User ",owner," has ",len(private)," private objects")
@@ -123,8 +122,6 @@ for i in range(0,set1.count()):
 accessible_objects_per_user()
 print()
 
-for i in range(0,len(notes)):
-    print(notes[i])
 ########################
 
 
@@ -193,6 +190,7 @@ print("TEST ==== Owner revokes access to private lenses")
 owner = users.get(username='Cameron')
 private_lenses = Lenses.objects.filter(owner=owner,access_level='PRI')
 
+print('BEFORE:')
 set_with_perms = []
 for i in range(0,private_lenses.count()):
     qset = get_users_with_perms(private_lenses[i],only_with_perms_in=['view_lenses'])
@@ -207,20 +205,18 @@ some_group  = SledGroups.objects.get(name="Awesome Users")
 some_group2  = SledGroups.objects.get(name="TDCOSMO")
 
 # Comment and uncomment any combinations of lines below to see the effect
-#notifications = owner.revokeAccess(set_with_perms[0],[other_user])
-#notifications = owner.revokeAccess(set_with_perms[1],[other_user2])
-#notifications = owner.revokeAccess(set_with_perms[2],[other_user,other_user2])
-#notifications = owner.revokeAccess(set_with_perms,[some_group])
-notifications = owner.revokeAccess(set_with_perms,[other_user,some_group2])
+#owner.revokeAccess(set_with_perms[0],[other_user])
+#owner.revokeAccess(set_with_perms[1],[other_user2])
+#owner.revokeAccess(set_with_perms[2],[other_user,other_user2])
+#owner.revokeAccess(set_with_perms,[some_group])
+owner.revokeAccess(set_with_perms,[other_user,some_group2])
 
 
+print('AFTER:')
 for i in range(0,len(set_with_perms)):
     qset = get_users_with_perms(set_with_perms[i],only_with_perms_in=['view_lenses'])
     print(set_with_perms[i],qset)
 
-#for note in notifications:
-#    print(note)
-#accessible_objects_per_user()
 
 print()
 ########################
