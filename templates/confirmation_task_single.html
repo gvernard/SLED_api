@@ -99,9 +99,9 @@
   </div>
   
   <table>
-    {% for obj in objects %}
+    {% for link in links %}
     <tr>
-      <td><a href="{{ obj.link }}" target="_blank">{{ obj.name }}</a></td>
+      <td><a href="{{ link.link }}" target="_blank">{{ link.name }}</a></td>
     </tr>
     {% endfor %}    
   </table>

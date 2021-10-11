@@ -31,6 +31,13 @@ def create_notification(user,objects,note_type):
             return user.username+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
         elif isinstance(user,SledGroups):
             return user.name+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
+    if note_type == 'revoke_access':
+        # User - number of objects - comma separated list of object names
+        object_names = [x.name for x in objects]
+        if isinstance(user,Users):
+            return user.username+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
+        elif isinstance(user,SledGroups):
+            return user.name+' - '+str(len(objects))+ ' - ' + ','.join(object_names)
     elif note_type == 'make_public':
         # User - number of objects - comma separated list of object ids
         if isinstance(user,Users):
@@ -192,53 +199,51 @@ class Users(AbstractUser,GuardianUserMixin):
             
 
 
-    '''
-    ### Needs a small modification in the remove_perm of the django guardian package
+    
     def revokeAccess(self,objects,target_users):
-        # If input arguments are single values, convert to lists
+        """
+        Revokes 'view' permission of the 'target_users' from the given 'objects'.
+
+        Checks that the user is the owner of all the provided objects first.
+
+        Args:
+            objects(List[SingleObject]): A list of primary objects of a specific type.
+            target_users(List[User or SledGroup]): A list of Users, or Sledgroups, or mixed.
+
+        Returns:
+            A list of notifications only to those users/groups whose 'view' permission was just revoked, containing only affected objects. If a user is also member of a group, they will be notified twice.
+        """
+        # If input argument 'objects' is a single value, convert to list
         if isinstance(objects,SingleObject):
             objects = [objects]
-        if isinstance(target_users,Users) or isinstance(target_users,SledGroups):
-            target_users = [target_users]
-        #print(len(single_objects),len(target_users))
-    
         # Check that user is the owner
         self.checkOwnsList(objects)
+        # If input argument 'target_users' is a single value, convert to list
+        if isinstance(target_users,Users) or isinstance(target_users,SledGroups):
+            target_users = [target_users]
 
-        not_owned = []
-        for obj in objects:
-            if not obj.isOwner(self):
-                not_owned.append(obj)
-        if len(not_owned) == 0:
-            # User owns all objects, proceed with revoking access
-            perm = "view_"+objects[0]._meta.db_table
+        # User owns all objects, proceed with revoking access
+        perm = "view_"+objects[0]._meta.db_table
 
-            # first loop over the target_users
-            notifications = []
-            for user in target_users:
-                # fetch permissions for all the objects for the given user (just 1 query)
-                checker = ObjectPermissionChecker(user)
-                checker.prefetch_perms(objects)            
+        # first loop over the target_users
+        notifications = []
+        for user in target_users:
+            # fetch permissions for all the objects for the given user (just 1 query)
+            checker = ObjectPermissionChecker(user)
+            checker.prefetch_perms(objects)            
 
-                revoked_objects_per_user = []
-                for obj in objects:
-                    if checker.has_perm(perm,obj):
-                        revoked_objects_per_user.append(obj)
-                # if there are objects for which this user had permissions just revoked, create a notification
-                print(revoked_objects_per_user)
-                print(objects)
-                if len(revoked_objects_per_user) > 0:
-                    print(perm)
-                    print(user)
-                    remove_perm(perm,user,revoked_objects_per_user) # (just 1 query)
-                    #remove_perm(perm,user,objects) # (just 1 query)
-                    notifications.append( create_notification(user,revoked_objects_per_user) )
+            revoked_objects_per_user = []
+            for obj in objects:
+                if checker.has_perm(perm,obj):
+                    revoked_objects_per_user.append(obj)
+            # if there are objects for which this user had permissions just revoked, create a notification
+            if len(revoked_objects_per_user) > 0:
+                for obj in revoked_objects_per_user:
+                    remove_perm(perm,user,obj) # (just 1 query)
+                notifications.append( create_notification(user,revoked_objects_per_user,'revoke_access') )
                
-            return notifications
-        else:
-            # User does NOT own all the objects, raise exception with useful information
-            print('user is NOT the owner of '+str(len(not_owned))+' objects, the operation should not proceed')
-    '''            
+        return notifications
+
 
 
             
@@ -410,24 +415,19 @@ class Users(AbstractUser,GuardianUserMixin):
         mytask = ConfirmationTask.create_task(self,heir,'CedeOwnership',cargo)
         return mytask
 
-    def send_email(self,message):
-        pass
-        
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
-    def deactivateUser(self,user):
-        # See django documentation for is_active for login and permissions
-        if self.is_staff and user.is_active:
-            user.is_active = False
-            user.save()
+    # def deactivateUser(self,user):
+    #     # See django documentation for is_active for login and permissions
+    #     if self.is_staff and user.is_active:
+    #         user.is_active = False
+    #         user.save()
 
-    def activateUser(self,user):
-        # See django documentation for is_active for login and permissions
-        if self.is_staff and not user.is_active:
-            user.is_active = True
-            user.save()
-    
-    pass
+    # def activateUser(self,user):
+    #     # See django documentation for is_active for login and permissions
+    #     if self.is_staff and not user.is_active:
+    #         user.is_active = True
+    #         user.save()
 
 
     
@@ -587,6 +587,9 @@ class Lenses(SingleObject):
         verbose_name = "lens"
         verbose_name_plural = "lenses"
 
+    def getLink(self):
+        return '/lenses/'+self.name
+        
     def __str__(self):
         return self.name # or return some 'phone-number' if this name is not set
 
@@ -670,8 +673,22 @@ class ConfirmationTask(SingleObject):
         return task
 
     def load_task(task_id):
-        task = ConfirmationTask.objects.get(pk=task_id)
-        task.receiver_names = list(task.receivers.values_list('username',flat=True))
+        """
+        Loads a task based on the given id.
+
+        If the task exists it returns it and sets the receiver_names variables, otherwise it returns None.
+
+        Args:
+            task_id (int): An integer representing the task id.
+
+        Returns:
+            ConfirmationTask object: if successful, otherwise None.
+        """
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+            task.receiver_names = list(task.receivers.values_list('username',flat=True))
+        except ConfirmationTask.DoesNotExist:
+            task = None
         return task
 
     def inviteRecipients(self,recipients):
@@ -816,9 +833,9 @@ class MakePrivate(ConfirmationTask):
             #cargo = json.loads(self.cargo)
             getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(access_level='PRI')
             admin = Users.objects.filter(username='admin')
-            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),task_id=self.id)
-        else:
-            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),task_id=self.id)
+            #notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),task_id=self.id)
+        #else:
+            #notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),task_id=self.id)
         
 
 

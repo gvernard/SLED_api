@@ -5,11 +5,12 @@ from django.db.models import F,Q,Count
 
 import json
 
+import lenses
 from lenses.models import Users, ConfirmationTask
 
 
 @login_required
-def index(request):
+def list_tasks(request):
     tasks = ConfirmationTask.objects.filter(owner__username=request.user.username)
     receivers = []
     for task in tasks:
@@ -41,7 +42,12 @@ def index(request):
 def single_task(request,task_id):
     task = ConfirmationTask.load_task(task_id)
 
-    if request.user.username == task.owner.username:
+    if not task:
+        # Task does not exist
+        html = "<html><body>There is no such task!</body></html>"
+        return HttpResponse(html)
+    
+    elif request.user.username == task.owner.username:
         # User is the owner
         allowed = ' or '.join(task.get_allowed_responses())
         hf = task.heard_from().annotate(name=F('receiver__username')).values('name','response','created_at','response_comment')
@@ -53,9 +59,11 @@ def single_task(request,task_id):
         form = task.getForm()
         # create objects from cargo
         object_type = task.cargo["object_type"]
-        objects = []
-        for i in range(0,len(task.cargo['object_ids'])):
-            objects.append({'name':'Lens_'+str(task.cargo['object_ids'][i]),'link':'https://gerlumph.swin.edu.au'})
+        object_ids = task.cargo['object_ids']
+        objects = getattr(lenses.models,object_type).objects.filter(pk__in=object_ids)
+        link_list = []
+        for i,obj in enumerate(objects):
+            link_list.append({'name':obj.name,'link':obj.getLink()})
         comment = ''
         if "comment" in task.cargo:
             comment = task.cargo["comment"]
@@ -84,7 +92,7 @@ def single_task(request,task_id):
                 form.fields["response_comment"].initial = db_response.response_comment
                 form.fields["response_comment"].disabled = True
 
-        return render(request,'confirmation_task_single.html',context={'task':task,'owned':False,'form':form,'object_type':object_type,'objects':objects,'comment':comment,'db_response':db_response})
+        return render(request,'confirmation_task_single.html',context={'task':task,'owned':False,'form':form,'object_type':object_type,'links':link_list,'comment':comment,'db_response':db_response})
 
     else:
         # User shouldn't be allowed to access this task

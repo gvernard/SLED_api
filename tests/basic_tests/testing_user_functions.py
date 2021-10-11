@@ -23,31 +23,13 @@ from astropy.coordinates import SkyCoord
 import numpy as np
 
 
-
-'''
-usernames = ['Cameron', 'Giorgos', 'Fred']
-for username in usernames:
-    user = Users.objects.get(username=username)
-    #q = Lenses.objects.filter(ra__gte=180)
-    #accessible_lenses = get_objects_for_user(user, 'has_access', klass=q)
-    accessible_lenses = get_objects_for_user(user, 'lensdb.view_lenses',)
-    print(username+' has access to '+str(len(accessible_lenses))+' lenses')
-
-
-lenses = Lenses.objects.all()
-
-N = len(lenses)
-#index = randrange(N)
-index = 43
-lens = lenses[index]
-print('The following have access to this lens:', index, get_users_with_perms(lens))
-'''
-
+###### Do some initialization
+#users = Users.objects.exclude(username='admin')
 users = Users.objects.all()
 
 def accessible_objects_per_user():
     print("Accessible objects per user: ")
-    users = Users.objects.all()
+    users = Users.objects.exclude(username='admin')
     for user in users:
         lenses = Lenses.accessible_objects.all(user)
         print(user.username,len(lenses))
@@ -56,7 +38,7 @@ def accessible_objects_per_user():
     
 def owned_objects_per_user():
     print("Owned objects per user: ")
-    users = Users.objects.all()
+    users = Users.objects.exclude(username='admin')
     for user in users:
         owned_objects = user.getOwnedObjects(["Lenses","dummy"])
         for key in owned_objects:
@@ -65,30 +47,29 @@ def owned_objects_per_user():
 
 def groups_per_user():
     print("Groups that user belongs to: ")
-    users = Users.objects.all()
+    users = Users.objects.exclude(username='admin')
     for user in users:
         groups = user.getGroupsIsMember()
         print(user.username,groups.values_list('name',flat=True))
     print()
     
-
 owned_objects_per_user()
 groups_per_user()
 accessible_objects_per_user()
+#############################
 
 
 
 
-print("Owner gives access to private lenses")
+########### ANOTHER TEST
+print("TEST ==== Owner gives access to private lenses")
 owner       = users.get(username='Cameron')
 other_user  = users.get(username='Giorgos')
 other_user2 = users.get(username='Fred')
 some_group  = SledGroups.objects.get(name="Awesome Users")
 other_group = SledGroups.objects.get(name="TDCOSMO")
-print(owner,other_user,some_group)
 
 private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
-
 
 # simplest way: loop and give access object by object
 # for i in range(0,3):
@@ -104,73 +85,53 @@ private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
 
 # most compact way: give access to a list of objects to a list of users/groups
 notifications = owner.giveAccess(private_lenses[0:3],[other_user,other_user2])
-notifications = owner.giveAccess(private_lenses[4],[other_user])
-notifications = owner.giveAccess(private_lenses[6:10],[some_group])
-notifications = owner.giveAccess(private_lenses[8:10],[other_group])
+notifications.append( owner.giveAccess(private_lenses[4],[other_user]) )
+notifications.append( owner.giveAccess(private_lenses[6:10],[some_group]) )
+notifications.append( owner.giveAccess(private_lenses[11:13],[other_group]) )
 for note in notifications:
     print(note)
 accessible_objects_per_user()
 print()
-
-
-'''
-print("Owner revokes access to private lenses")
-notifications = owner.revokeAccess(private_lenses[0:3],[other_user])
-for note in notifications:
-    print(note)
-accessible_objects_per_user()
-print()
-'''
+########################
 
 
 
 
-print("Owner makes some private lenses public")
+
+########### ANOTHER TEST
+print("TEST ==== Owner makes some private lenses public")
 #public_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PUB')
 
-#### Test for user access and permissions
-check_private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
-print("User ",owner," has ",len(check_private)," private objects")
+owner = users.get(username='Cameron')
+private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
+print("User ",owner," has ",len(private_lenses)," private objects")
 
 
-ids = [private_lenses[i].id for i in range(0,10)]
-print(ids)
-check_2 = Lenses.objects.filter(pk__in=ids)
-for i in range(0,10):
-    print(check_2[i],get_users_with_perms(check_2[i],only_with_perms_in=['view_lenses']))
+ids = [private_lenses[i].id for i in range(20,25)]
+#print(ids)
+set1 = Lenses.objects.filter(pk__in=ids)
+for i in range(0,set1.count()):
+    print(set1[i],get_users_with_perms(set1[i],only_with_perms_in=['view_lenses']))
     
-notes = owner.makePublic(list(private_lenses[0:10]))
+notes = owner.makePublic(list(private_lenses[20:25]))
 
-check_private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
-print("User ",owner," has ",len(check_private)," private objects")
-for i in range(0,10):
-    print(check_2[i],get_users_with_perms(check_2[i],only_with_perms_in=['view_lenses']))
+private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
+print("User ",owner," has ",len(private)," private objects")
+for i in range(0,set1.count()):
+    print(set1[i],get_users_with_perms(set1[i],only_with_perms_in=['view_lenses']))
 
 accessible_objects_per_user()
 print()
-
 
 for i in range(0,len(notes)):
     print(notes[i])
+########################
 
 
 
 
-
-
-
-
-
-
-# print("Owner revokes access to public lenses")
-# public_lenses = Lenses.accessible_objects.all(owner).filter(access_level='public')
-# owner.revokeAccess(public_lenses[0],other_user)
-# accessible_objects_per_user()
-# print()
-
-
-
-print("Owner cedes ownesrhip to another user")
+########### ANOTHER TEST
+print("TEST ==== Owner cedes ownesrhip to another user")
 
 # Test for user ownership
 owned_objects_per_user()
@@ -190,12 +151,13 @@ mytask.registerAndCheck(target_receiver,'yes','I will happily take over.')
 
 # Test for user ownership
 owned_objects_per_user()
+########################
 
 
 
 
-
-print("Owner makes some public lenses private")
+########### ANOTHER TEST
+print("TEST ==== Owner makes some public lenses private")
 
 # Owner selects some objects to make private
 owner = users.get(username='Cameron')
@@ -212,7 +174,7 @@ print()
 mytask = sender.makePrivate(lenses_to_privatize)
 
 # Admin accepts
-target_receiver = users.get(username='Giorgos')
+target_receiver = users.get(username='admin')
 mytask.registerAndCheck(target_receiver,'yes','You can make these lenses private.')
 
 # Test for AccessLevel
@@ -220,4 +182,47 @@ public_lenses = Lenses.objects.filter(owner=owner,access_level='PUB')
 private_lenses = Lenses.objects.filter(owner=owner,access_level='PRI')
 print(owner,"'s PUBLIC lenses: ",public_lenses.count())
 print(owner,"'s PRIVATE lenses: ",private_lenses.count())
+print()
+########################
+
+
+
+
+########### ANOTHER TEST
+print("TEST ==== Owner revokes access to private lenses")
+owner = users.get(username='Cameron')
+private_lenses = Lenses.objects.filter(owner=owner,access_level='PRI')
+
+set_with_perms = []
+for i in range(0,private_lenses.count()):
+    qset = get_users_with_perms(private_lenses[i],only_with_perms_in=['view_lenses'])
+    if qset.count() > 1:
+        set_with_perms.append(private_lenses[i])
+        print(private_lenses[i],qset)
+
+
+other_user = users.get(username='Giorgos')
+other_user2 = users.get(username='Fred')
+some_group  = SledGroups.objects.get(name="Awesome Users")
+some_group2  = SledGroups.objects.get(name="TDCOSMO")
+
+# Comment and uncomment any combinations of lines below to see the effect
+#notifications = owner.revokeAccess(set_with_perms[0],[other_user])
+#notifications = owner.revokeAccess(set_with_perms[1],[other_user2])
+#notifications = owner.revokeAccess(set_with_perms[2],[other_user,other_user2])
+#notifications = owner.revokeAccess(set_with_perms,[some_group])
+notifications = owner.revokeAccess(set_with_perms,[other_user,some_group2])
+
+
+for i in range(0,len(set_with_perms)):
+    qset = get_users_with_perms(set_with_perms[i],only_with_perms_in=['view_lenses'])
+    print(set_with_perms[i],qset)
+
+#for note in notifications:
+#    print(note)
+#accessible_objects_per_user()
+
+print()
+########################
+
 

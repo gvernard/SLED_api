@@ -24,8 +24,7 @@ password = '123'
 for name in names:
     print(name)
     user = Users.objects.create_user(username=name, password=password, affiliation='EPFL', email=name+'@epfl.ch')
-
-
+Users.objects.create_superuser(username='admin',password=password,email='admin@example.com')
 
 
 #let's take a look at the fields and their values for this user
