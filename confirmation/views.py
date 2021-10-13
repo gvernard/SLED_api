@@ -12,29 +12,32 @@ from lenses.models import Users, ConfirmationTask
 @login_required
 def list_tasks(request):
     tasks = ConfirmationTask.objects.filter(owner__username=request.user.username)
-    receivers = []
+    recipients = []
     for task in tasks:
-        names = list(task.get_all_receivers().values_list('username',flat=True))
-        receivers.append(','.join(names))
-    list1 = zip(receivers,tasks)
+        names = list(task.get_all_recipients().values_list('username',flat=True))
+        recipients.append(','.join(names))
+    list1 = zip(recipients,tasks)
     N_list1 = len(tasks)
+
+    tasks = ConfirmationTask.objects.annotate(N=Count('recipients')).filter(recipients__username=request.user.username).prefetch_related('recipients')
+    recipientsA = []
+    recipientsB = []
+    tasksA = []
+    tasksB = []
+    for task in tasks:
+        names = [user.username for user in task.recipients.all()]
+        if task.N == 1:
+            recipientsA.append(','.join(names))
+            tasksA.append(task)
+        else:
+            recipientsB.append(','.join(names))
+            tasksB.append(task)
+
+    list2 =  zip(recipientsA,tasksA)
+    N_list2 = len(tasksA)
+    list3 =  zip(recipientsB,tasksB)
+    N_list3 = len(tasksB)
     
-    tasks = ConfirmationTask.objects.annotate(num_receivers=Count('receivers')).filter(receivers__username=request.user.username).filter(num_receivers__exact=1)
-    receivers = []
-    for task in tasks:
-        names = list(task.get_all_receivers().values_list('username',flat=True))
-        receivers.append(','.join(names))    
-    list2 =  zip(receivers,tasks)
-    N_list2 = len(tasks)
-
-    tasks = ConfirmationTask.objects.annotate(num_receivers=Count('receivers')).filter(receivers__username=request.user.username).filter(num_receivers__gt=1)
-    receivers = []
-    for task in tasks:
-        names = list(task.get_all_receivers().values_list('username',flat=True))
-        receivers.append(','.join(names))
-    list3 =  zip(receivers,tasks)
-    N_list3 = len(tasks)
-
     return render(request,'confirmation_task_list.html',context={'list1':list1,'N_list1':N_list1,'list2':list2,'N_list2':N_list2,'list3':list3,'N_list3':N_list3})
     
 
@@ -51,12 +54,12 @@ def single_task(request,task_id):
         # User is the owner
         allowed = task.allowed_responses()
         allowed = ' or '.join( allowed )
-        hf = task.heard_from().annotate(name=F('receiver__username')).values('name','response','created_at','response_comment')
-        nhf = task.not_heard_from().values_list('receiver__username',flat=True)
+        hf = task.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+        nhf = task.not_heard_from().values_list('recipient__username',flat=True)
         return render(request,'confirmation_task_single.html',context={'task':task,'owned':True,'allowed':allowed,'hf':hf,'nhf':nhf})
 
-    elif request.user.username in task.receiver_names:
-        # User is a receiver
+    elif request.user.username in task.recipient_names:
+        # User is a recipient
         form = task.getForm()
         # create objects from cargo
         object_type = task.cargo["object_type"]
@@ -70,7 +73,7 @@ def single_task(request,task_id):
             comment = task.cargo["comment"]
 
         # Get user response from the database
-        db_response = task.receivers.through.objects.get(confirmation_task__exact=task.id,receiver__username=request.user.username)
+        db_response = task.recipients.through.objects.get(confirmation_task__exact=task.id,recipient__username=request.user.username)
     
         if not db_response.response:
             # Response does not exist in the database, render an editable form
@@ -78,7 +81,7 @@ def single_task(request,task_id):
                 response = request.POST.get('response')
                 response_comment = request.POST.get('response_comment')
                 task.registerAndCheck(request.user,response,response_comment)
-                db_response = task.receivers.through.objects.get(confirmation_task__exact=task.id,receiver__username=request.user.username)
+                db_response = task.recipients.through.objects.get(confirmation_task__exact=task.id,recipient__username=request.user.username)
 
                 form.fields["response"].initial = db_response.response
                 form.fields["response"].disabled = True

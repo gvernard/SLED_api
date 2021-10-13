@@ -584,7 +584,7 @@ class ConfirmationTask(SingleObject):
         task_name (str): the name of the task to perform.
         status (`enum`): completed if all the users have responded, otherwise pending.
         cargo (json): a JSON object that carries information necessary to complete the task once all responses have been received.
-        receivers (`QuerySet`): A set of Users.
+        recipients (`QuerySet`): A set of Users.
 
     Todo:
         - Associate the task name to a class (classes of confirmation task types will need to be implemented first). 
@@ -600,14 +600,14 @@ class ConfirmationTask(SingleObject):
         Completed = "C"
     status = CharField(max_length=1,choices=StatusType.choices,default=StatusType.Pending,help_text="Status of the task: 'Pending' (P) or 'Completed' (C).")
     cargo = models.JSONField(help_text="A json object holding any variables that will be executed upon completion of the task.")
-    receivers = models.ManyToManyField(
+    recipients = models.ManyToManyField(
         Users,
-        related_name='receivers',
-        through='ReceiversResponse',
-        through_fields=('confirmation_task','receiver'),
+        related_name='confirmation_tasks',
+        through='ConfirmationResponse',
+        through_fields=('confirmation_task','recipient'),
         help_text="A many-to-many relationship between ConfirmationTask and Users that will need to respond."
     )
-    receiver_names = []
+    recipient_names = []
 
     def __str__(self):
         return '%s_$s' % (self.task_type,self.id)
@@ -622,7 +622,6 @@ class ConfirmationTask(SingleObject):
 
     def __init__(self, *args, **kwargs):
         super(ConfirmationTask,self).__init__(*args, **kwargs)
-
         subclass_found = False
         for _class in ConfirmationTask.__subclasses__():
             if self.task_type == _class.__name__:
@@ -631,16 +630,23 @@ class ConfirmationTask(SingleObject):
                 break
         if not subclass_found:
             raise ValueError(task_type)
-        
-    def create_task(sender,receivers,task_type,cargo):
-        """
-        Creates a task and assigns the receivers (list of users) to it via a many-to-many relation.
 
-        It also invites the receivers by sending them a link via email.
+    def save(self,**kwargs):
+        super(ConfirmationTask, self).save()
+
+        for i in range(1, self.number_of_lanes+1):
+            lane = Lane.objects.get(id=i)
+            self.lanes.add(lane)
+        
+    def create_task(sender,users,task_type,cargo):
+        """
+        Creates a task and assigns the recipients (list of users) to it via a many-to-many relation.
+
+        It also invites the recipients by sending them a link via email.
 
         Args:
             sender (`User`): An instance of a `User` object.
-            receivers (`QuerySet`): A queryset of User objects.
+            users (`QuerySet`): A queryset of User objects.
             task_type (str): The name of the task to perform once all users have responded.
             cargo (JSON): a JSON object with information required to complete the task.
 
@@ -649,17 +655,17 @@ class ConfirmationTask(SingleObject):
         """
         task = ConfirmationTask(owner=sender,task_type=task_type,cargo=cargo)
         task.save()
-        task.receivers.set(receivers)
+        task.recipients.set(users)
         task.save()
-        task.receiver_names = list(receivers.values_list('username',flat=True))
-        task.inviteRecipients(task.receivers)
+        task.recipient_names = list(users.values_list('username',flat=True))
+        task.inviteRecipients(task.recipients)
         return task
 
     def load_task(task_id):
         """
         Loads a task based on the given id.
 
-        If the task exists it returns it and sets the receiver_names variables, otherwise it returns None.
+        If the task exists it returns it and sets the recipient_names variables, otherwise it returns None.
 
         Args:
             task_id (int): An integer representing the task id.
@@ -669,12 +675,12 @@ class ConfirmationTask(SingleObject):
         """
         try:
             task = ConfirmationTask.objects.get(pk=task_id)
-            task.receiver_names = list(task.receivers.values_list('username',flat=True))
+            task.recipient_names = list(task.recipients.values_list('username',flat=True))
         except ConfirmationTask.DoesNotExist:
             task = None
         return task
 
-    def inviteRecipients(self,recipients):
+    def inviteRecipients(self,users):
         """
         Emails list of recipients to inform/remind them that a confirmation task requires their response
 
@@ -684,53 +690,53 @@ class ConfirmationTask(SingleObject):
         site = Site.objects.get_current()
         subject = 'A %s task requires your response' % self.task_type
         message = 'Dear %s user, there is a %s task that requires your response. Click here for details: %s/confirmation/single/%s' % (site.name,self.task_type,site.domain,self.id)
-        recipient_emails = list(recipients.values_list('email',flat=True))
+        recipient_emails = list(users.values_list('email',flat=True))
         from_email = 'manager@%s' % site.domain
-        send_mail(subject,message,from_email,recipient_emails)
+        #send_mail(subject,message,from_email,recipient_emails)
         
-    def get_all_receivers(self):
+    def get_all_recipients(self):
         """
-        Gets all the receivers of the confirmation task. 
+        Gets all the recipients of the confirmation task. 
          
         Returns:
             A QuerySet with User objects.
         """
-        return self.receivers.all()
+        return self.recipients.all()
 
     def not_heard_from(self):
          """
-         Checks which receivers have not responded yet. 
+         Checks which recipients have not responded yet. 
          
          Returns:
-             A QuerySet with ReceiversResponse objects.
+             A QuerySet with ConfirmationResponse objects.
          """
-         return self.receivers.through.objects.filter(confirmation_task__exact=self.id,response__exact='')
+         return self.recipients.through.objects.filter(confirmation_task__exact=self.id,response__exact='')
 
     def heard_from(self):
          """
-         Checks which receivers have already responded. 
+         Checks which recipients have already responded. 
          
          Returns:
-             A QuerySet with ReceiversResponse objects.
+             A QuerySet with ConfirmationResponse objects.
          """
-         return self.receivers.through.objects.filter(confirmation_task__exact=self.id).exclude(response__exact='')
+         return self.recipients.through.objects.filter(confirmation_task__exact=self.id).exclude(response__exact='')
 
-    def registerResponse(self,receiver,response,comment):
+    def registerResponse(self,user,response,comment):
         """
         Registers the given users response to the confirmation task
         """
-        if receiver.username not in self.receiver_names:
-            raise ValueError(self.receiver_names,receiver.username) # Need custom exception here
+        if user.username not in self.recipient_names:
+            raise ValueError(self.recipient_names,user.username) # Need custom exception here
         if response not in self.allowed_responses(): 
             raise ValueError(response) # Need custom exception here
-        self.receivers.through.objects.filter(confirmation_task=self,receiver=receiver).update(response=response,response_comment=comment,created_at=timezone.now())
+        self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response=response,response_comment=comment,created_at=timezone.now())
         
 
-    def registerAndCheck(self,receiver,response,comment):
+    def registerAndCheck(self,user,response,comment):
         """
-        Registers the given receivers response and checks if all receivers have replied. If yes, calls finalizeTask and updates the status to completed.
+        Registers the given recipients response and checks if all recipients have replied. If yes, calls finalizeTask and updates the status to completed.
         """
-        self.registerResponse(receiver,response,comment)
+        self.registerResponse(user,response,comment)
         nhf = self.not_heard_from()
         if nhf.count() == 0:
             self.finalizeTask()
@@ -754,12 +760,12 @@ class ConfirmationTask(SingleObject):
         pass
         
      
-class ReceiversResponse(models.Model):
+class ConfirmationResponse(models.Model):
     confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
-    receiver = models.ForeignKey(Users,on_delete=models.CASCADE)
+    recipient = models.ForeignKey(Users,on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
     response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.") 
-    response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the receiver on the given response.") 
+    response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the recipient on the given response.") 
 
     
 class CedeOwnership(ConfirmationTask):
@@ -778,10 +784,10 @@ class CedeOwnership(ConfirmationTask):
         return self.myForm()
 
     def finalizeTask(self,**kwargs):
-        # Here, only one receiver to get a response from
+        # Here, only one recipient to get a response from
         response = self.heard_from().get().response
         if response == 'yes':
-            heir = self.get_all_receivers()[0]
+            heir = self.get_all_recipients()[0]
             #cargo = json.loads(self.cargo)
             getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(owner=heir)
             notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
@@ -806,15 +812,14 @@ class MakePrivate(ConfirmationTask):
         return self.myForm()
 
     def finalizeTask(self):
-        # Here, only one receiver to get a response from
+        # Here, only one recipient to get a response from
         response = self.heard_from().get().response
+        admin = Users.objects.get(username='admin')
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(access_level='PRI')
-            admin = Users.objects.get(username='admin')
             notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
         else:
-            admin = Users.objects.get(username='admin')
             notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
         
 
