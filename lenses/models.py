@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractUser, Group
 from django.utils import timezone
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
+from django.urls import reverse
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
@@ -12,6 +13,7 @@ from guardian.shortcuts import *
 
 from notifications.signals import notify
 
+import abc
 from operator import itemgetter
 import sys
 sys.path.append('..')
@@ -65,6 +67,12 @@ class Users(AbstractUser,GuardianUserMixin):
     """
     affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
 
+    def __str__(self):
+        return self.username
+
+    def get_absolute_url(self):
+        return reverse('users:user_profile')
+    
     def getOwnedObjects(self, user_object_types=None):
         """
         Provides access to all the objects that the user owns, arranged by type.
@@ -143,6 +151,8 @@ class Users(AbstractUser,GuardianUserMixin):
             objects = [objects]
         if isinstance(target_users,Users) or isinstance(target_users,SledGroups):
             target_users = [target_users]
+        if self in target_users:
+            target_users.remove(self)
         # Check that user is the owner
         self.checkOwnsList(objects)
 
@@ -164,12 +174,12 @@ class Users(AbstractUser,GuardianUserMixin):
             # if there are objects for which this user was just granted new permission, create a notification
             if len(new_objects_per_user) > 0:
                 assign_perm(perm,user,new_objects_per_user) # (just 1 query)
-                notify.send(sender=self,recipient=user,verb='You have been granted access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)
+                if isinstance(user,Users):
+                    notify.send(sender=self,recipient=user,verb='You have been granted access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)
+                else:
+                    notify.send(sender=self,recipient=user,verb=user.name+' has been granted group access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)            
 
-            
 
-
-    
     def revokeAccess(self,objects,target_users):
         """
         Revokes 'view' permission of the 'target_users' from the given 'objects'.
@@ -189,7 +199,9 @@ class Users(AbstractUser,GuardianUserMixin):
         # If input argument 'target_users' is a single value, convert to list
         if isinstance(target_users,Users) or isinstance(target_users,SledGroups):
             target_users = [target_users]
-
+        if self in target_users:
+            target_users.remove(self)
+            
         # User owns all objects, proceed with revoking access
         perm = "view_"+objects[0]._meta.db_table
 
@@ -209,11 +221,12 @@ class Users(AbstractUser,GuardianUserMixin):
             if len(revoked_objects_per_user) > 0:
                 for obj in revoked_objects_per_user:
                     remove_perm(perm,user,obj) # (just 1 query)
-                notify.send(sender=self,recipient=user,verb='Your access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
+                if isinstance(user,Users):
+                    notify.send(sender=self,recipient=user,verb='Your access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
+                else:
+                    notify.send(sender=self,recipient=user,verb=user.name+'\'s group access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
 
 
-
-            
     def makePublic(self,objects):
         """
         Changes the access_level of the given objects to private.
@@ -392,9 +405,10 @@ class Users(AbstractUser,GuardianUserMixin):
     #         user.save()
 
 
+class AbstractModelMeta(abc.ABCMeta,type(models.Model)):
+    pass
     
-    
-class SingleObject(models.Model):
+class SingleObject(models.Model,metaclass=AbstractModelMeta):
     """
     This is a **base** class that encapsulates all the variables and functionality that is common across all the primary models with which we populate our database.
 
@@ -408,7 +422,7 @@ class SingleObject(models.Model):
         - We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
         - WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
     """
-
+    
     owner = models.ForeignKey(Users,on_delete=models.CASCADE) 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -451,10 +465,7 @@ class SingleObject(models.Model):
         """
         return self.modified_at
 
-
     # def getOwnerInfo():
-
-    # def getLink():
 
     # def addToCollection():
 
@@ -477,6 +488,9 @@ class SledGroups(Group):
     """
     description = models.CharField(max_length=180,null=True, blank=True)
     
+    def __str__(self):
+        return self.name
+
     class Meta():
         db_table = "sledgroups"
         verbose_name = "sledgroup"
@@ -538,6 +552,9 @@ class Lenses(SingleObject):
     accessible_objects = AccessibleLensManager() # the first manager is the default one
     objects = models.Manager()
     
+    def __str__(self):
+        return self.name # or return some 'phone-number' if this name is not set
+
     class Meta():
         db_table = "lenses"
         ordering = ["ra"]
@@ -549,11 +566,9 @@ class Lenses(SingleObject):
         verbose_name = "lens"
         verbose_name_plural = "lenses"
 
-    def getLink(self):
-        return '/lenses/'+self.name
+    def get_absolute_url(self):
+        return reverse('lenses:lens_detail',kwargs={'lens_name':self.name})
         
-    def __str__(self):
-        return self.name # or return some 'phone-number' if this name is not set
 
 
 
@@ -593,7 +608,13 @@ class ConfirmationTask(SingleObject):
         help_text="A many-to-many relationship between ConfirmationTask and Users that will need to respond."
     )
     receiver_names = []
-    
+
+    def __str__(self):
+        return '%s_$s' % (self.task_type,self.id)
+
+    def get_absolute_url(self):
+        return reverse('confirmation:single_task',kwargs={'task_id':self.id})
+
     class Meta():
         db_table = "confirmation_tasks"
         verbose_name = "confirmation_task"
@@ -667,31 +688,21 @@ class ConfirmationTask(SingleObject):
         from_email = 'manager@%s' % site.domain
         send_mail(subject,message,from_email,recipient_emails)
         
-
     def get_all_receivers(self):
         """
         Gets all the receivers of the confirmation task. 
          
         Returns:
-           A QuerySet with User objects.
+            A QuerySet with User objects.
         """
         return self.receivers.all()
 
-    def get_allowed_responses(self):
-        """
-        Get all the allowed responses to the task.
-         
-        Returns:
-           A list with all the allowed responses. 
-        """
-        return self._allowed_responses
-    
     def not_heard_from(self):
          """
          Checks which receivers have not responded yet. 
          
          Returns:
-            A QuerySet with ReceiversResponse objects.
+             A QuerySet with ReceiversResponse objects.
          """
          return self.receivers.through.objects.filter(confirmation_task__exact=self.id,response__exact='')
 
@@ -700,7 +711,7 @@ class ConfirmationTask(SingleObject):
          Checks which receivers have already responded. 
          
          Returns:
-            A QuerySet with ReceiversResponse objects.
+             A QuerySet with ReceiversResponse objects.
          """
          return self.receivers.through.objects.filter(confirmation_task__exact=self.id).exclude(response__exact='')
 
@@ -710,7 +721,7 @@ class ConfirmationTask(SingleObject):
         """
         if receiver.username not in self.receiver_names:
             raise ValueError(self.receiver_names,receiver.username) # Need custom exception here
-        if response not in self._allowed_responses: 
+        if response not in self.allowed_responses(): 
             raise ValueError(response) # Need custom exception here
         self.receivers.through.objects.filter(confirmation_task=self,receiver=receiver).update(response=response,response_comment=comment,created_at=timezone.now())
         
@@ -726,16 +737,20 @@ class ConfirmationTask(SingleObject):
             self.status = self.StatusType.Completed
             self.save()
 
-            
     # To be overwritten by the proxy models
-    _allowed_responses = {}
-
-    # To be overwritten by the proxy models
-    def createAnswerSelection(self):
+    #@property
+    #@abc.abstractmethod
+    def allowed_responses(self):
         pass
 
     # To be overwritten by the proxy models
+    #@abc.abstractmethod
     def finalizeTask(self):
+        pass
+
+    # To be overwritten by the proxy models
+    #@abc.abstractmethod
+    def getForm(self):
         pass
         
      
@@ -751,12 +766,13 @@ class CedeOwnership(ConfirmationTask):
     class Meta:
         proxy = True
 
-    _allowed_responses = ['yes','no']
-
     class myForm(forms.Form):
         mychoices = [('yes','Yes'),('no','No')]
         response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
         response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
+
+    def allowed_responses(self):
+        return ['yes','no']
 
     def getForm(self):
         return self.myForm()
@@ -777,13 +793,14 @@ class CedeOwnership(ConfirmationTask):
 class MakePrivate(ConfirmationTask):
     class Meta:
         proxy = True
-
-    _allowed_responses = ['yes','no']
         
     class myForm(forms.Form):
         mychoices = [('yes','Yes'),('no','No')]
         response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
         response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
+
+    def allowed_responses(self):
+        return ['yes','no']
 
     def getForm(self):
         return self.myForm()

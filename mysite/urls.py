@@ -29,5 +29,6 @@ urlpatterns = [
     path('groups/', include('groups.urls'), name='users'),
     path('register/', vregistration.register, name='register'),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('inbox/notifications/', include(notifications.urls, namespace='notifications')),
+    path('notifications/', include(notifications.urls, namespace='notifications')),
+    path('sled_notifications/', include('sled_notifications.urls'), name='sled_notifications'),
 ]

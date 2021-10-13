@@ -10,5 +10,5 @@ pages:
       - Users
       - SingleObject
       - SledGroups
-
+      - ConfirmationTask
   

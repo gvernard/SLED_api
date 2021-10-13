@@ -49,7 +49,8 @@ def single_task(request,task_id):
     
     elif request.user.username == task.owner.username:
         # User is the owner
-        allowed = ' or '.join(task.get_allowed_responses())
+        allowed = task.allowed_responses()
+        allowed = ' or '.join( allowed )
         hf = task.heard_from().annotate(name=F('receiver__username')).values('name','response','created_at','response_comment')
         nhf = task.not_heard_from().values_list('receiver__username',flat=True)
         return render(request,'confirmation_task_single.html',context={'task':task,'owned':True,'allowed':allowed,'hf':hf,'nhf':nhf})
@@ -63,7 +64,7 @@ def single_task(request,task_id):
         objects = getattr(lenses.models,object_type).objects.filter(pk__in=object_ids)
         link_list = []
         for i,obj in enumerate(objects):
-            link_list.append({'name':obj.name,'link':obj.getLink()})
+            link_list.append({'name':obj.name,'link':obj.get_absolute_url()})
         comment = ''
         if "comment" in task.cargo:
             comment = task.cargo["comment"]

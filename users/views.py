@@ -8,6 +8,6 @@ from lenses.models import Users, SledGroups, Lenses
 
 #@user_passes_test(check_authenticated)
 @login_required
-def index(request):
+def user_profile(request):
     current_user = request.user
     return render(request, 'user_index.html', context={'user':current_user})

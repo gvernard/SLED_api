@@ -61,7 +61,10 @@ accessible_objects_per_user()
 
 
 
-########### ANOTHER TEST
+
+
+
+########### FIRST TEST
 print("TEST ==== Owner gives access to private lenses")
 owner       = users.get(username='Cameron')
 other_user  = users.get(username='Giorgos')
