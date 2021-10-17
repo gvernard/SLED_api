@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.db.models import F, Func, FloatField
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
@@ -552,9 +553,6 @@ class Lenses(SingleObject):
     accessible_objects = AccessibleLensManager() # the first manager is the default one
     objects = models.Manager()
     
-    def __str__(self):
-        return self.name # or return some 'phone-number' if this name is not set
-
     class Meta():
         db_table = "lenses"
         ordering = ["ra"]
@@ -566,12 +564,35 @@ class Lenses(SingleObject):
         verbose_name = "lens"
         verbose_name_plural = "lenses"
 
+    def __str__(self):
+        return self.name # or return some 'phone-number' if this name is not set
+
     def get_absolute_url(self):
         return reverse('lenses:lens_detail',kwargs={'lens_name':self.name})
         
+    def save(self, *args, **kwargs):
+        if self.pk is None:
+            dum = 1
+        else:
+            super(Lenses, self).save(*args,**kwargs)
 
+    def get_DB_neighbours(self,user,radius):
+        '''
+        The custom SLED model for a group of users, inheriting from the django `Group`.
 
+        Attributes:
+            user (`User`): the user for whom to query the database for all the accessible lenses.
+            radius (`float`): A radius in arcsec around each existing lens.
 
+        Returns:
+            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+        '''
+        neighbours = list(Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))
+        return neighbours
+        
+        
+            
+        
 
 ################################################################################################################################################
 ### BEGIN: Confirmation task specific code
@@ -631,13 +652,6 @@ class ConfirmationTask(SingleObject):
         if not subclass_found:
             raise ValueError(task_type)
 
-    def save(self,**kwargs):
-        super(ConfirmationTask, self).save()
-
-        for i in range(1, self.number_of_lanes+1):
-            lane = Lane.objects.get(id=i)
-            self.lanes.add(lane)
-        
     def create_task(sender,users,task_type,cargo):
         """
         Creates a task and assigns the recipients (list of users) to it via a many-to-many relation.

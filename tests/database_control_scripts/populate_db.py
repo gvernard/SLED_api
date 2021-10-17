@@ -22,7 +22,6 @@ print('Populating the database with the following users:', names)
 password = '123'
 
 for name in names:
-    print(name)
     user = Users.objects.create_user(username=name, password=password, affiliation='EPFL', email=name+'@epfl.ch')
 Users.objects.create_superuser(username='admin',password=password,email='admin@example.com')
 
@@ -59,9 +58,9 @@ user3.groups.add(my_group)
 #my_group.user_set.add(user2)
 
 user1 = Users.objects.get(username='Cameron')
-print(model_to_dict(user1))
+#print(model_to_dict(user1))
 user2 = Users.objects.get(username='Fred')
-print(model_to_dict(user2))
+#print(model_to_dict(user2))
 
 
 

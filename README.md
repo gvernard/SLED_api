@@ -3,7 +3,7 @@ Web interface for the strong lens database
 
 # Launching the test database
 
-The current version of the database is built in python 3.7.3. It is recommended to create a new virtual environment and load the necessary packages through our compiled requirements.txt file, as so:
+The current version of SLED is built in python 3.7.3. It is recommended to create a new virtual environment and load the necessary packages through our compiled requirements.txt file, as so:
 
 create a new virtual environment with conda:
 conda create -n SLED python=3.7.3
@@ -13,45 +13,49 @@ install the necessary packages in this environment:
 pip install -r requirements.txt
 
 
-If you are not copying the database file then you need to initialise it (read more here):
+As the actual database we are using a remote Mysql (MariaDB) server.
+This has been set up in the 'settings.py' file and requires a 'my.cnf' file with the credentials, which, obviously, is not and must not be publicly accessible. 
+Before running the server or any tests, one needs to run:
 
-python manage.py migrate
+ssh -f <username>@login01.astro.unige.ch -L 8888:mysql10.astro.unige.ch:4006 -N
 
-
-Now you are ready to run the database and populate it:
-
-create an admin superuser that can access the browser database interface
-
-python manage.py createsuperuser
-
-Username: admin
-
-Password: ********
-
-Email address: can leave blank
+where <username> is your username for the Geneva observatory.
+This is because the Mysql server runs in the internal network and the only way to access it from the outside is through an SSH tunnel.
+This is what the above command sets up in the backround, it maps 'localhost' and a port, through the gateway server (login01) to the Mysql configured machine.
+The SSH tunnel might be closed if the connection gets interrupted - just run it again.
 
 
-in a new terminal window, run the server:
+The database is initialized (or reset) by running:
+
+bash reset_db.sh
+
+which requires two Mysql scripts, 'drop_all_tables.sh' and 'function_distance_on_sky.sql'.
+The first one resets all the tables in the database, erasing all inserted data, and the second one defines a custom user function (stored function) that the database server will perform.
+It calculates the distance between two points on a sphere in arsec and is required to check proximity of lenses.
+These two scripts contain passwords and must NOT be publicly accessible.
+
+**It is advised to create a directory outside the git-tracked one to keep the my.cnf, drop_all_tables.sh, and function_distance_on_sky.sh scripts.
+Then point the settings.py and reset_db.sh to this directory.**
+
+
+Now you are ready to run the server (in a new terminal window):
 
 python manage.py runserver
 
-
-this will launch an interactive admin session that can be accessed through a browser:
+This will launch an interactive admin session that can be accessed through a browser:
 http://127.0.0.1:8000/admin
-
 
 enter the admin credentials to access the administration page
 
 (you will notice an AnonymousUser is created automatically by the django-guardian package)
 
 
-Run some test scripts!
+You can also choose to run some test scripts.
+Go to the test_scripts directory, and run some files:
 
-
-go to the test_scripts directory, and run some files:
-python populate_db.py 
-python give_access.py 
-python check_user_permissions.py
+python testing_user_functions.py
+python confirmation_task.py
+python testing_lenses.py
 
 
 If you ever make changes to the underlying models or views, then you push them to the database by creating a migration file and migrating it:

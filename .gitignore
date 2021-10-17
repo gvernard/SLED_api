@@ -117,3 +117,5 @@ media/
 
 documentation/site
 documentation/docs/sources
+tests/*/*.pdf
+tests/*/*.png
