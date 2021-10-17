@@ -119,3 +119,6 @@ documentation/site
 documentation/docs/sources
 tests/*/*.pdf
 tests/*/*.png
+drop_all_tables.sh
+function_distance_on_sky.sql
+mysite/my.cnf

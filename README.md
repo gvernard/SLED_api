@@ -35,7 +35,7 @@ It calculates the distance between two points on a sphere in arsec and is requir
 These two scripts contain passwords and must NOT be publicly accessible.
 
 **It is advised to create a directory outside the git-tracked one to keep the my.cnf, drop_all_tables.sh, and function_distance_on_sky.sh scripts.
-Then point the settings.py and reset_db.sh to this directory.**
+Then use symbolic links to link these scripts where they are expected: the first in mysite/ and the other two at the project root dir.**
 
 
 Now you are ready to run the server (in a new terminal window):

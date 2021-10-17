@@ -69,15 +69,15 @@ lenses = Lenses.accessible_objects.all(sled_user)
 lens0 = lenses[2]
 
 lens1 = lenses[1]
-dra = 22.0/3600.0 # 3 arcsec
-ddec = 22.0/3600.0 # 3 arcsec
+dra = 20.0/3600.0 # 3 arcsec
+ddec = 20.0/3600.0 # 3 arcsec
 lens1.ra = float(lens0.ra)+dra
 lens1.dec = float(lens0.dec)#+ddec
 lens1.save()
 
 lens2 = lenses[0]
-dra = 12.0/3600.0 # 3 arcsec
-ddec = 12.0/3600.0 # 3 arcsec
+dra = 19.0/3600.0 # 3 arcsec
+ddec = 19.0/3600.0 # 3 arcsec
 lens2.ra = float(lens0.ra)+dra
 lens2.dec = float(lens0.dec)+ddec
 lens2.save()
@@ -105,7 +105,7 @@ print()
 
 # Find which existing lenses are within a check_radius to each new lens.
 print('Find which existing lenses are within a check_radius to each new lens.')
-check_radius = 10 # in arcsec
+check_radius = 16 # in arcsec
 counter = 0
 neighbours_all = []
 distinct_existing = []
@@ -170,4 +170,4 @@ ax.set_ylim(deg2arcsec(lens0.dec)-darea-y0,deg2arcsec(lens0.dec)+darea-y0)
 ax.set_xlabel('RA [arcsec]')
 ax.set_ylabel('DEC [arcsec]')
 fig.savefig(base_dir+'/'+dirname+"/check_radius.pdf")
-print(dirname)
+print()
