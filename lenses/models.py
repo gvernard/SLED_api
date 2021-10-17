@@ -96,6 +96,7 @@ class Users(AbstractUser,GuardianUserMixin):
             objects[table] = getattr(lenses.models,table).objects.filter(owner__username=self.username)
         return objects
 
+
     def getGroupsIsMember(self):
         """
         Provides access to all the SledGroups that the user is a member of.

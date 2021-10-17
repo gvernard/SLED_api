@@ -62,3 +62,5 @@ If you ever make changes to the underlying models or views, then you push them t
 
 python manage.py makemigrations
 python manage.py migrate
+
+If you want to include a dummy email server, then use: python -m smtpd -n -c DebuggingServer localhost:1025
