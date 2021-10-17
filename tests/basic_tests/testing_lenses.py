@@ -19,7 +19,7 @@ from astropy.coordinates import SkyCoord
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-
+from matplotlib.lines import Line2D
 
 
 def deg2arcsec(val):
@@ -137,7 +137,7 @@ print()
 
 
 # Plot the new lenses on the sky in arcsec units
-fig, ax = plt.subplots(figsize=(10,10))
+fig, ax = plt.subplots(figsize=(10,12))
 
 # center on lens0
 x0 = deg2arcsec(lens0.ra)
@@ -150,7 +150,7 @@ for i,lens in enumerate(distinct_existing):
 
 # Plot existing lenses that are within check_radius of the new lenses
 for i,lens in enumerate(distinct_existing):
-    ax.scatter(deg2arcsec(lens.ra)-x0,deg2arcsec(lens.dec)-y0,color='black',zorder=2)
+    ax.scatter(deg2arcsec(lens.ra)-x0,deg2arcsec(lens.dec)-y0,color=mycolors[lens.name],zorder=2)
     circle = plt.Circle((deg2arcsec(lens.ra)-x0,deg2arcsec(lens.dec)-y0),check_radius,fill=False,edgecolor=mycolors[lens.name])
     ax.add_patch(circle)
 
@@ -164,10 +164,18 @@ for i,new_lens in enumerate(new_lenses):
     else:
         ax.scatter(x,y,color='grey',zorder=2)
 
+
+legend_elements = [Line2D([0], [0], marker='o', color='grey', label='New without proximity to existing', markersize=20)]
+for i,lens in enumerate(distinct_existing):
+    legend_elements.append(Line2D([0], [0], marker='o',label=lens.name,color=mycolors[lens.name],markersize=20))
+    legend_elements.append(Line2D([0], [0], marker='o',label='%s new neighbours (%d)'%(lens.name,mycounts[lens.name]),markerfacecolor='none',color=mycolors[lens.name],markersize=20))
+
+    
+ax.legend(handles=legend_elements,labelspacing=1.5,bbox_to_anchor=(0.1, 1.0))
 ax.set_aspect('equal')
 ax.set_xlim(deg2arcsec(lens0.ra)-darea-x0,deg2arcsec(lens0.ra)+darea-x0)
 ax.set_ylim(deg2arcsec(lens0.dec)-darea-y0,deg2arcsec(lens0.dec)+darea-y0)
 ax.set_xlabel('RA [arcsec]')
 ax.set_ylabel('DEC [arcsec]')
-fig.savefig(base_dir+'/'+dirname+"/check_radius.pdf")
+fig.savefig(base_dir+'/'+dirname+"/check_radius.pdf",bbox_inches='tight')
 print()
