@@ -1,0 +1,23 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% block content %}
+
+<h1>Add a new lens</h1>
+
+<form id="form-container" method="POST">
+  {% csrf_token %}
+  {{lens_formset.management_form}}
+  {% for form in lens_formset %}
+  <div class="lens-form">
+    {{form.as_p}}
+    <button class="remove-button">remove</button>
+  </div>
+  {% endfor %}
+  <button id="add-form" type="button">Add another Lens</button>
+  <button type="submit">Create Lenses</button>
+</form>
+
+<script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_add.css' %}"/>
+
+{% endblock content %}

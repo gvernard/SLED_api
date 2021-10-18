@@ -1,0 +1,15 @@
+{% extends 'master_header.html' %}
+{% block content %}
+
+<div class="section">
+  <h1>Main page for Lenses</h1>
+
+  <ul>
+    <li><a href="{% url 'lenses:lens-query' %}">Query lenses</a></li>
+    <li>Browse collections</li>
+    <li><a href="{% url 'lenses:lens-add' %}">Add new lenses</a></li>
+    <li>Manage your lenses</li>
+  </ul>
+</div>
+
+{% endblock content %}

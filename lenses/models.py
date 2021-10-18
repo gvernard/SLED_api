@@ -21,6 +21,10 @@ sys.path.append('..')
 import lenses
 import inspect
 import json
+from astropy import units as u
+from astropy.coordinates import SkyCoord
+
+
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
@@ -437,7 +441,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
     class Meta:
         abstract = True
         get_latest_by = ["modified_at","created_at"]
-        
+
     def isOwner(self, user):
         """
         Checks if the provided `User` is the owner.
@@ -520,6 +524,14 @@ class SledGroups(Group):
 
 
     
+class NewLensManager(models.Manager):
+    def create_lens(self,user,*args,**kwargs):
+        ra = kwargs.get('ra')
+        ra = kwargs.get('dec')
+        c = SkyCoord(ra=ra*u.degree, dec=dec*u.degree, frame='icrs')
+        Jname = 'J'+c.to_string('hmsdms')
+        lens = self.create(**kwargs,owner=user,name=Jname)
+        return lens
 
 class AccessibleLensManager(models.Manager):
     def all(self,user):
@@ -528,7 +540,6 @@ class AccessibleLensManager(models.Manager):
         lenses_private = super().get_queryset().filter(access_level='PRI')
         accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
         return lenses_public | accessible_private_lenses # merge and return querysets
-
 
 # Privileges:
 # - anonymous user can only view (in the web interface, cannot download JSON, etc)
@@ -552,6 +563,7 @@ class Lenses(SingleObject):
     # info = TextField(help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
     
     accessible_objects = AccessibleLensManager() # the first manager is the default one
+    new_objects = NewLensManager()
     objects = models.Manager()
     
     class Meta():
@@ -568,16 +580,19 @@ class Lenses(SingleObject):
     def __str__(self):
         return self.name # or return some 'phone-number' if this name is not set
 
+    def create_name(self):
+        c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
+        self.name = 'J'+c.to_string('hmsdms')
+
     def get_absolute_url(self):
         return reverse('lenses:lens_detail',kwargs={'lens_name':self.name})
-        
-    def save(self, *args, **kwargs):
-        if self.pk is None:
-            dum = 1
-        else:
-            super(Lenses, self).save(*args,**kwargs)
 
-    def get_DB_neighbours(self,user,radius):
+    def save(self, *args, **kwargs):
+        if self.pk is None and 'name' not in kwargs:
+            self.create_name()
+        super(Lenses, self).save(*args,**kwargs)
+
+    def get_DB_neighbours(self,radius):
         '''
         The custom SLED model for a group of users, inheriting from the django `Group`.
 
@@ -588,7 +603,7 @@ class Lenses(SingleObject):
         Returns:
             neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
         '''
-        neighbours = list(Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))
+        neighbours = list(Lenses.objects.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))
         return neighbours
         
         

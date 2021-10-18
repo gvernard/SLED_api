@@ -1,4 +1,4 @@
-{% extends 'lenses_header.html' %}
+{% extends 'master_header.html' %}
 {% block content %}
 
     <div class="section">
@@ -49,7 +49,7 @@
             </tr>
         {% for lens in lenses %}
             <tr>
-                <td class="td-center"><a href="{% url 'lenses:lens_detail' lens_name=lens.name %}">{{lens.name}}</a></td>
+                <td class="td-center"><a href="{% url 'lenses:lens-detail' slug=lens.name %}">{{lens.name}}</a></td>
                 <!--<td class="td-center">{{lens.kind_acronym}}</td>-->
                 <td class="td-center">{{lens.zlens|floatformat:2}}</td>
                 <td class="td-center">{{lens.zsource|floatformat:2}}</td>

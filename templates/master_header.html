@@ -1,0 +1,42 @@
+{% load static %}
+
+<!DOCTYPE html>
+<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/style.css' %}"/>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> 
+	 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"> -->
+	 
+	 <!--<link href="https://fonts.googleapis.com/css?family=Bitter|Open+Sans" rel="stylesheet"> -->
+	 <!--<script src="{% static 'lenses/js/sorttable.js' %}"></script>-->
+	 <!--<link rel="shortcut icon" type="image/x-icon" href="{% static 'IPT2017/IPT_logo.png' %}" />-->
+	 <title>Strong Gravitational Lens database</title>
+  </head>
+  <body>
+    
+    <div class="topmenu">
+      <h1>
+        <table>
+	  <tr>
+            <td class="td-center1"><a href="{% url 'home:homepage' %}">Home</a></td>
+            <td class="td-center1selected"><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
+            <td class="td-center1"><a href="{% url 'groups:index' %}">Groups</a></td>
+            <td class="td-center1">
+	      {% if user.is_authenticated %}
+              <a href="{% url 'users:user_profile'%}">{{user.username}}</a>
+              {% else %}
+              <a href="{% url 'login'%}">Login</a>
+              {% endif %}
+	    </td>
+	  </tr>
+	</table>
+      </h1>
+    </div>
+    
+    {% block content %}
+    {% endblock %}
+    
+  </body>
+</html>

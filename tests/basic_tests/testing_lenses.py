@@ -110,7 +110,7 @@ counter = 0
 neighbours_all = []
 distinct_existing = []
 for i,new_lens in enumerate(new_lenses):
-    neighbours = new_lens.get_DB_neighbours(sled_user,check_radius)
+    neighbours = new_lens.get_DB_neighbours(check_radius)
     neighbours_all.append(neighbours)
     if len(neighbours) > 0:
         distinct_existing.extend(neighbours)
@@ -140,8 +140,8 @@ print()
 fig, ax = plt.subplots(figsize=(10,12))
 
 # center on lens0
-x0 = deg2arcsec(lens0.ra)
-y0 = deg2arcsec(lens0.dec)
+x0 = 0.0000 #deg2arcsec(lens0.ra)
+y0 = 0.0000 #deg2arcsec(lens0.dec)
 
 cmap = plt.cm.get_cmap('Set1',2+len(distinct_existing))
 mycolors = {}
