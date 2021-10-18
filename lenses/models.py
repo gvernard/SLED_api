@@ -21,6 +21,7 @@ sys.path.append('..')
 import lenses
 import inspect
 import json
+import math
 from astropy import units as u
 from astropy.coordinates import SkyCoord
 
@@ -605,8 +606,28 @@ class Lenses(SingleObject):
         '''
         neighbours = list(Lenses.objects.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))
         return neighbours
-        
-        
+
+    @staticmethod
+    def distance_on_sky(ra1,dec1,ra2,dec2):
+        '''
+        This is the same implementation of the distance between a points on a sphere and the lens as the function 'distance_on_sky' in the database.
+
+        Attributes:
+            ra1,dec1 (`float`): the ra and dec of a point on the sphere. If not given, then the lens coordinates are used.
+            ra2,dec2 (`float`): the ra and dec of another point.
+
+        Returns:
+            distance (`float`): the distance between the lens and the given point in arcsec.
+        '''
+        dec1_rad = math.radians(dec1);
+        dec2_rad = math.radians(dec2);
+        Ddec = dec1_rad - dec2_rad;
+        Dra = math.radians(ra1) - math.radians(ra2);
+        a = math.pow(math.sin(Ddec/2.0),2) + math.cos(dec1_rad)*math.cos(dec2_rad)*math.pow(math.sin(Dra/2.0),2);
+        d = math.degrees( 2.0*math.atan2(math.sqrt(a),math.sqrt(1.0-a)) )
+        return d*3600.0
+
+
             
         
 

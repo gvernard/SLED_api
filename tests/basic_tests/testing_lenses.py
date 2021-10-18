@@ -25,16 +25,6 @@ from matplotlib.lines import Line2D
 def deg2arcsec(val):
     return float(val)*3600.0
 
-# This is the same implementation as the function 'distance_on_sky' in the database
-def my_distance(ra,dec,ra0,dec0):
-    dec_rad = math.radians(dec);
-    dec0_rad = math.radians(dec0);
-    Ddec = dec_rad - dec0_rad;
-    Dra = math.radians(ra) - math.radians(ra0);
-    a = math.pow(math.sin(Ddec/2.0),2) + math.cos(dec_rad)*math.cos(dec0_rad)*math.pow(math.sin(Dra/2.0),2);
-    d = math.degrees( 2.0*math.atan2(math.sqrt(a),math.sqrt(1.0-a)) )
-    return deg2arcsec(d)
-
 
 sled_user  = Users.objects.get(username='Giorgos')
 
@@ -46,16 +36,16 @@ sled_user  = Users.objects.get(username='Giorgos')
 print("Testing different methods on calculating the distance between points on a sphere..")
 ra0 = 30.0 # degrees
 dec0 = -2.0 # degrees
-existing_obj = Lenses.accessible_objects.all(sled_user).annotate(distance=Func(F('ra'),F('dec'),ra0,dec0,function='distance_on_sky',output_field=FloatField())).order_by('distance')
-existing = existing_obj.values('name','ra','dec','distance')[0:4]
+existing_obj = Lenses.accessible_objects.all(sled_user).annotate(distance=Func(F('ra'),F('dec'),ra0,dec0,function='distance_on_sky',output_field=FloatField())).order_by('distance')[0:4]
+#existing = existing_obj.values('name','ra','dec','distance')[0:4]
 c0 = SkyCoord(ra0*u.degree,dec0*u.degree,frame='icrs')
-for lens in existing:
-    ra = lens['ra']
-    dec = lens['dec']
+for lens in existing_obj:
+    ra = lens.ra
+    dec = lens.dec
     c = SkyCoord(ra*u.degree,dec*u.degree,frame='icrs')
     d = deg2arcsec( c0.separation(c).degree )
-    same_as_db = my_distance(ra,dec,ra0,dec0)
-    print(lens['distance'],same_as_db,d)
+    same_as_db = lens.distance_on_sky(ra0,dec0)
+    print(lens.distance,same_as_db,d)
 print()
 
 

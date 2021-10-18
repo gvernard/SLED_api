@@ -4,13 +4,21 @@
 
 <h1>Add a new lens</h1>
 
+<p>
+  For now, this is a static formset with three forms. Later we want to changee this into a dynamic one.
+  To be within the check radius of existing lenses set RA= 17.275 and DEC= 1.404
+</p>
+
+
 <form id="form-container" method="POST">
   {% csrf_token %}
   {{lens_formset.management_form}}
+  {{ lens_formset.non_field_errors }}
   {% for form in lens_formset %}
   <div class="lens-form">
+    <h3>Lens {{ forloop.counter }}</h3>
     {{form.as_p}}
-    <button class="remove-button">remove</button>
+    <button type="button" class="remove-button">remove</button>
   </div>
   {% endfor %}
   <button id="add-form" type="button">Add another Lens</button>

@@ -9,11 +9,11 @@ let baseForm = lensForm[0].cloneNode(true);
 let Nforms = parseInt(totalForms.getAttribute('value'));
 
 
-addButton.addEventListener('click', addForm);
+// addButton.addEventListener('click', addForm);
 
-removeButton.forEach((button) => {
-    button.addEventListener('click', removeLens);
-});
+// removeButton.forEach((button) => {
+//     button.addEventListener('click', removeLens);
+// });
 
 
 function addForm(e){

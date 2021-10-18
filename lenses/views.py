@@ -52,28 +52,26 @@ class LensCreateView(TemplateView):
     fields = ['ra','dec']
     
     def get(self, *args, **kwargs):
-        formset = LensFormSet(queryset=Lenses.accessible_objects.none())
+        formset = LensFormSet()
         return self.render_to_response({'lens_formset': formset})
 
     # Define method to handle POST request
     def post(self, *args, **kwargs):
         formset = LensFormSet(data=self.request.POST)
-
-        print('total/filled: ',formset.total_form_count(),formset.initial_form_count())
         
         # Check if submitted forms are valid
         if formset.has_changed() and formset.is_valid():
             print('VALID')
-            print(formset.cleaned_data)
-            instances = formset.save(commit=False)
-            for i,lens in enumerate(instances):
-                neis = lens.get_DB_neighbours(16)
-                if len(neis) == 0:
-                    lens.owner = self.request.user
-                    print('(%d) %s (%f,%f) - INSERT' % (i,lens.name,lens.ra,lens.dec))
-                    #lens.save()
-                else:
-                    print('(%d) %s (%f,%f) - Proximity alert (%d)' % (i,lens.name,lens.ra,lens.dec,len(neis)))
+            # print(formset.cleaned_data)
+            # instances = formset.save(commit=False)
+            # for i,lens in enumerate(instances):
+            #     neis = lens.get_DB_neighbours(16)
+            #     if len(neis) == 0:
+            #         lens.owner = self.request.user
+            #         print('(%d) %s (%f,%f) - INSERT' % (i,lens.name,lens.ra,lens.dec))
+            #         #lens.save()
+            #     else:
+            #         print('(%d) %s (%f,%f) - Proximity alert (%d)' % (i,lens.name,lens.ra,lens.dec,len(neis)))
             return self.render_to_response({'lens_formset': formset})
         else:
             print('NOT VALID')
