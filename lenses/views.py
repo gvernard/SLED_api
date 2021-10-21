@@ -45,25 +45,7 @@ class LensDetailView(DetailView):
     def get_queryset(self):
         return Lenses.accessible_objects.all(self.request.user)
 
-# View to check lenses
-class LensCheckView(TemplateView):
-    """
-    A view that renders a template.  This view will also pass into the context
-    any keyword arguments passed by the url conf.
-    """
-    template_name = 'lens_check.html'
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        to_create = context['to_create']
-        duplicate = context['duplicate']
-        existing = context['existing']
-        actions = ActionFormSet(extra=len(duplicate))
-        zipped = zip(duplicate,existing,actions)
-        context = {'to_create': to_create,
-                   'zipped': zipped}
-        return self.render_to_response(context)
-    
+   
 # View to add new lenses
 @method_decorator(login_required,name='dispatch')
 class LensCreateView(TemplateView):

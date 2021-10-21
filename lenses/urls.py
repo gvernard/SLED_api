@@ -9,6 +9,6 @@ urlpatterns = [
     path('query/',LensQueryView.as_view(),name='lens-query'),
     path('list/',LensListView.as_view(),name='lens-list'),
     path('add/',LensCreateView.as_view(),name='lens-add'),
-    path('check/',LensCheckView.as_view(),name='lens-check'),
+    #path('update/<int:lens>',LensUpdateView.as_view(),name='lens-update'),
     re_path('(?P<slug>[A-Za-z0-9\w|\W\- ]+)/$', LensDetailView.as_view(), name='lens-detail'),
 ]

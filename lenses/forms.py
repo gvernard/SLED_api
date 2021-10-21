@@ -22,8 +22,6 @@ class BaseLensFormSet(BaseModelFormSet):
         for form in self.forms:
             form.empty_permitted = False
             form.fields['info'].widget.attrs.update({'placeholder': form.fields['info'].help_text})
-            #form.fields["confirmed_to_insert"] = forms.CharField(required=False,max_length=2,initial='bl')
-            #form.fields["confirmed_to_insert"] = forms.BooleanField(required=False,initial=False)
             form.fields["insert"] = self.insert
 
     def add_fields(self,form,index):
@@ -37,7 +35,7 @@ class BaseLensFormSet(BaseModelFormSet):
             # Don't bother validating the formset unless each form is valid on its own
             return
 
-        
+        ### Add a validation on the 'insert' field
         
         ### Check proximity here
         check_radius = 16 # arcsec
