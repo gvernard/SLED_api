@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from lenses.models import Users, SledGroups, Lenses
 
 
-from .forms import LensFormSet, ActionForm
+from .forms import LensFormSet
 from django.forms import formset_factory
 from django.urls import reverse_lazy,reverse
 from django.shortcuts import redirect
@@ -72,7 +72,6 @@ class LensCreateView(TemplateView):
     
     def get(self, *args, **kwargs):
         myformset = LensFormSet()
-        #myforms = myformset()
         existing = [None]*len(myformset)
         new_existing = zip(myformset,existing)
         return self.render_to_response({'lens_formset': myformset,'new_existing':new_existing})
@@ -85,22 +84,27 @@ class LensCreateView(TemplateView):
         if myformset.has_changed() and myformset.is_valid():
             instances = myformset.save(commit=False)
             existing_prox = [None]*len(instances)
-            flag = False
+            display_duplicates = False
             for i,lens in enumerate(instances):
                 neis = lens.get_DB_neighbours(16)
-                if len(neis) != 0:
-                    flag = True
+                if len(neis) != 0 and myformset.cleaned_data[i]['insert'] == '':
+                    display_duplicates = True
                     existing_prox[i] = neis
                     print('(%d) %s (%f,%f) - Proximity alert (%d)' % (i,lens.name,lens.ra,lens.dec,len(neis)))
-
-            if flag:
+                    
+                    
+            if display_duplicates:
                 new_existing = zip(myformset,existing_prox)
                 return self.render_to_response({'lens_formset':myformset,'new_existing':new_existing})
             else:
-                for lens in instances:
-                    lens.owner = self.request.user
-                    lens.create_name()
-                Lenses.objects.bulk_create(instances)
+                to_insert = []
+                for i,lens in enumerate(instances):
+                    if myformset.cleaned_data[i]['insert'] != 'no':
+                        lens.owner = self.request.user
+                        lens.create_name()
+                        to_insert.append(lens)
+                print(to_insert)
+                Lenses.objects.bulk_create(to_insert)
                 return HttpResponse('Lenses successfully added to the database')
 
         else:

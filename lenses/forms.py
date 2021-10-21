@@ -7,14 +7,28 @@ from lenses.models import Lenses
 
 
 class BaseLensFormSet(BaseModelFormSet):
-    confirmed_to_insert = forms.BooleanField(required=False,initial=False)
-
+    mychoices = (
+        ('no','No, this is a duplicate, ignore it'),
+        ('yes','Yes, insert to the database anyway')
+    )
+    insert = forms.ChoiceField(required=False,
+                               label='Submit this lens?',
+                               choices=mychoices,
+                               widget=forms.RadioSelect)
+    
     def __init__(self, *args, **kwargs):
         super(BaseLensFormSet,self).__init__(*args, **kwargs)
         self.queryset = Lenses.accessible_objects.none()
         for form in self.forms:
             form.empty_permitted = False
             form.fields['info'].widget.attrs.update({'placeholder': form.fields['info'].help_text})
+            #form.fields["confirmed_to_insert"] = forms.CharField(required=False,max_length=2,initial='bl')
+            #form.fields["confirmed_to_insert"] = forms.BooleanField(required=False,initial=False)
+            form.fields["insert"] = self.insert
+
+    def add_fields(self,form,index):
+        super().add_fields(form,index)
+        form.fields["insert"] = self.insert
             
     def clean(self):
         """Checks that no two new lenses are within a proximity radius."""
@@ -23,8 +37,10 @@ class BaseLensFormSet(BaseModelFormSet):
             # Don't bother validating the formset unless each form is valid on its own
             return
 
+        
+        
+        ### Check proximity here
         check_radius = 16 # arcsec
-
         for i in range(0,len(self.forms)-1):
             form1 = self.forms[i]
             if self.can_delete and self._should_delete_form(form):
@@ -54,7 +70,18 @@ class BaseLensFormSet(BaseModelFormSet):
 LensFormSet = modelformset_factory(
     Lenses,
     formset=BaseLensFormSet,
-    fields=("ra","dec","access_level","flag_confirmed","flag_contaminant","image_sep","z_source","z_lens","image_conf","source_type","lens_type","info"),
+    fields=("ra",
+            "dec",
+            "access_level",
+            "flag_confirmed",
+            "flag_contaminant",
+            "image_sep",
+            "z_source",
+            "z_lens",
+            "image_conf",
+            "source_type",
+            "lens_type",
+            "info"),
     max_num=5,
     absolute_max=5,
     extra=1,
@@ -62,13 +89,4 @@ LensFormSet = modelformset_factory(
         'info': Textarea({'placeholder':'dum'}),
     },
 )
-
-
-
-class ActionForm(forms.Form):
-    CHOICES=(
-        ('This is a duplicate, do not insert','duplicate'),
-        ('Insert in the database anyway','insert')
-    )
-    response = forms.ChoiceField(choices=CHOICES,widget=forms.RadioSelect)
 

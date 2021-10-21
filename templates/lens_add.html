@@ -101,13 +101,20 @@
 	  
 	</td>
 	<td>
+
+	  {% if existing %}
+	  {{ form.insert.errors }}
+	  {{ form.insert.label_tag }}
+	  {{ form.insert }}
+	  {% endif %}
+	  
+	</td>
+	<td>
 	  
 	  {% if existing %}
 	  {% for lens in existing %}
 	  {% include 'lens_visit_card.html' with lens=lens %}
 	  {% endfor %}
-	  {% else %}
-	  no
 	  {% endif %}
 	  
 	</td>
