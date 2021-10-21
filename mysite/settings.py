@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'notifications',
     'multiselectfield',
+    'django_select2',
 ]
 
 SITE_ID = 1

@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from django.views.generic import TemplateView
-from lenses.views import LensListView, LensDetailView, LensCreateView, LensQueryView, LensCheckView
+from lenses.views import LensListView, LensDetailView, LensCreateView, LensQueryView
 #from . import views
 
 app_name = 'lenses'

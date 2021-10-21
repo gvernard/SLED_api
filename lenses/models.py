@@ -552,7 +552,7 @@ class Lenses(SingleObject):
                                     null=True,
                                     max_digits=4,
                                     decimal_places=2,
-                                    verbose_name="Image separation",
+                                    verbose_name="Separation",
                                     help_text="An estimate of the maximum image separation or arc radius [arcsec].",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                 MaxValueValidator(10,"Separation must be less than 10 arcsec.")])
@@ -560,7 +560,7 @@ class Lenses(SingleObject):
                                    null=True,
                                    max_digits=4,
                                    decimal_places=3,
-                                   verbose_name="z<sub>S</sub>",
+                                   verbose_name="Z source",
                                    help_text="The redshift of the source, if known.",
                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                MaxValueValidator(15,"If your source is further than that then congrats! (but probably it's a mistake)")])
@@ -568,7 +568,7 @@ class Lenses(SingleObject):
                                  null=True,
                                  max_digits=4,
                                  decimal_places=3,
-                                 verbose_name="z<sub>L</sub>",
+                                 verbose_name="Z lens",
                                  help_text="The redshift of the lens, if known.",
                                  validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                              MaxValueValidator(15,"If your lens is further than that then congrats! (but probably it's a mistake)")])
@@ -585,10 +585,11 @@ class Lenses(SingleObject):
         ('RING','Ring'),
         ('ARCS','Arcs')
     )
-    image_conf = MultiSelectField(blank=True,
-                                  null=True,
-                                  choices=ImageConfChoices,
-                                  verbose_name="Image configuration")
+    image_conf = CharField(max_length=100,
+                           blank=True,
+                           null=True,
+                           choices=ImageConfChoices,
+                           verbose_name="Configuration")
     
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -596,9 +597,10 @@ class Lenses(SingleObject):
         ('CLUSTER','Galaxy cluster'),
         ('QUASAR','Quasar')
     )
-    lens_type = MultiSelectField(blank=True,
-                                 null=True,
-                                 choices=LensTypeChoices)
+    lens_type = CharField(max_length=100,
+                          blank=True,
+                          null=True,
+                          choices=LensTypeChoices)
     
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -608,9 +610,10 @@ class Lenses(SingleObject):
         ('GRB','Gamma Ray Burst'),
         ('SN','Supernova')
     )
-    source_type = MultiSelectField(blank=True,
-                                   null=True,
-                                   choices=SourceTypeChoices)
+    source_type = CharField(max_length=100,
+                            blank=True,
+                            null=True,
+                            choices=SourceTypeChoices)
 
     
     accessible_objects = AccessibleLensManager() # the first manager is the default one

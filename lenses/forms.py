@@ -4,6 +4,7 @@ from django.forms import formset_factory, modelformset_factory, BaseModelFormSet
 from django.core.exceptions import ValidationError
 from lenses.models import Lenses
 
+from django_select2 import forms as s2forms
 
 
 class BaseLensFormSet(BaseModelFormSet):
@@ -21,7 +22,7 @@ class BaseLensFormSet(BaseModelFormSet):
         self.queryset = Lenses.accessible_objects.none()
         for form in self.forms:
             form.empty_permitted = False
-            form.fields['info'].widget.attrs.update({'placeholder': form.fields['info'].help_text})
+            form.fields['info'].widget.attrs.update({'rows':4, 'cols':37,'placeholder': form.fields['info'].help_text})
             form.fields["insert"] = self.insert
 
     def add_fields(self,form,index):
@@ -85,6 +86,9 @@ LensFormSet = modelformset_factory(
     extra=1,
     widgets = {
         'info': Textarea({'placeholder':'dum'}),
+        'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+        'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+        'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
     },
 )
 

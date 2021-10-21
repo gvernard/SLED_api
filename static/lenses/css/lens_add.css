@@ -15,14 +15,16 @@
 .controls td:first-child {text-align:left}
 .controls td:last-child {text-align:right}
 
-.form-table {table-layout:auto;margin:2px auto}
-.form-table td {padding:2px;vertical-align:top;}
+.form-table {table-layout:auto;margin:2px auto;width:1000px;}
+.form-table td {padding:2px;vertical-align:top;text-align:center}
 
 .column {display:inline-block}
 .column table td {padding: 2px;}
 .column input[type="number"] {width:100px}
 .column ul {margin:0;list-style-type: none;}
-
+.lens-mugshot {width:204px;height:204px;border:1px solid #777777;padding: 5px}
+.column label {display:block;text-align:right}
+									       
 .button-div {width:500px;margin:40px auto;text-align:center;}
 
 .add-row {font-weight:bold;width:200px;text-aling:center;display:block;margin:10px auto;}

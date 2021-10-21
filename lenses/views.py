@@ -85,7 +85,6 @@ class LensCreateView(TemplateView):
                         lens.owner = self.request.user
                         lens.create_name()
                         to_insert.append(lens)
-                print(to_insert)
                 Lenses.objects.bulk_create(to_insert)
                 return HttpResponse('Lenses successfully added to the database')
 

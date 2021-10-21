@@ -5,15 +5,20 @@ $( document ).ready(function() {
 	deleteContainerClass: "delete-button",
 	addContainerClass: "add-button"
     });
+
+    $('.my-select2').select2({
+	placeholder: 'Select an option',
+	width: '180px'
+    });
     //move_remove($('.lens-form'));
     //move_add_another();
-//     $('.delete-row').click(function() {
-// 	alert( "Handler for .click() called." );
-// 	$( this ).parents('.lens-form').parent().html('removed');
-//     });
 });
 
 
 function reposition(form_div){
     form_div.detach().appendTo('.master');
+    form_div.find('.my-select2').select2({
+	placeholder: 'Select an option',
+	width: '180px'
+    });
 }

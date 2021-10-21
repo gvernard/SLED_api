@@ -31,4 +31,5 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('notifications/', include(notifications.urls, namespace='notifications')),
     path('sled_notifications/', include('sled_notifications.urls'), name='sled_notifications'),
+    path("select2/", include("django_select2.urls")),
 ]
