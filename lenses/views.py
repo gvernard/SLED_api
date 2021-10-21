@@ -8,7 +8,8 @@ from django.utils.decorators import method_decorator
 from lenses.models import Users, SledGroups, Lenses
 
 
-from .forms import LensFormSet
+from .forms import LensFormSet, ActionForm
+from django.forms import formset_factory
 from django.urls import reverse_lazy,reverse
 from django.shortcuts import redirect
 
@@ -44,38 +45,65 @@ class LensDetailView(DetailView):
     def get_queryset(self):
         return Lenses.accessible_objects.all(self.request.user)
 
+# View to check lenses
+class LensCheckView(TemplateView):
+    """
+    A view that renders a template.  This view will also pass into the context
+    any keyword arguments passed by the url conf.
+    """
+    template_name = 'lens_check.html'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        to_create = context['to_create']
+        duplicate = context['duplicate']
+        existing = context['existing']
+        actions = ActionFormSet(extra=len(duplicate))
+        zipped = zip(duplicate,existing,actions)
+        context = {'to_create': to_create,
+                   'zipped': zipped}
+        return self.render_to_response(context)
+    
 # View to add new lenses
 @method_decorator(login_required,name='dispatch')
 class LensCreateView(TemplateView):
     model = Lenses
     template_name = 'lens_add.html'
-    fields = ['ra','dec']
     
     def get(self, *args, **kwargs):
-        formset = LensFormSet()
-        return self.render_to_response({'lens_formset': formset})
+        myformset = LensFormSet()
+        #myforms = myformset()
+        existing = [None]*len(myformset)
+        new_existing = zip(myformset,existing)
+        return self.render_to_response({'lens_formset': myformset,'new_existing':new_existing})
 
     # Define method to handle POST request
-    def post(self, *args, **kwargs):
-        formset = LensFormSet(data=self.request.POST)
+    def post(self, request, *args, **kwargs):
+        myformset = LensFormSet(data=self.request.POST)
         
         # Check if submitted forms are valid
-        if formset.has_changed() and formset.is_valid():
-            print('VALID')
-            # print(formset.cleaned_data)
-            # instances = formset.save(commit=False)
-            # for i,lens in enumerate(instances):
-            #     neis = lens.get_DB_neighbours(16)
-            #     if len(neis) == 0:
-            #         lens.owner = self.request.user
-            #         print('(%d) %s (%f,%f) - INSERT' % (i,lens.name,lens.ra,lens.dec))
-            #         #lens.save()
-            #     else:
-            #         print('(%d) %s (%f,%f) - Proximity alert (%d)' % (i,lens.name,lens.ra,lens.dec,len(neis)))
-            return self.render_to_response({'lens_formset': formset})
+        if myformset.has_changed() and myformset.is_valid():
+            instances = myformset.save(commit=False)
+            existing_prox = [None]*len(instances)
+            flag = False
+            for i,lens in enumerate(instances):
+                neis = lens.get_DB_neighbours(16)
+                if len(neis) != 0:
+                    flag = True
+                    existing_prox[i] = neis
+                    print('(%d) %s (%f,%f) - Proximity alert (%d)' % (i,lens.name,lens.ra,lens.dec,len(neis)))
+
+            if flag:
+                new_existing = zip(myformset,existing_prox)
+                return self.render_to_response({'lens_formset':myformset,'new_existing':new_existing})
+            else:
+                for lens in instances:
+                    lens.owner = self.request.user
+                    lens.create_name()
+                Lenses.objects.bulk_create(instances)
+                return HttpResponse('Lenses successfully added to the database')
+
         else:
-            print('NOT VALID')
-            print(formset.errors)
-            print(formset.non_form_errors())
-            #return redirect('/lenses/query/')
-            return self.render_to_response({'lens_formset': formset})
+            existing = [None]*len(myformset)
+            new_existing = zip(myformset,existing)
+            return self.render_to_response({'lens_formset': myformset,'new_existing':new_existing})

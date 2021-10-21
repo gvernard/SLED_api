@@ -2,17 +2,22 @@ from django.db import models
 from django import forms
 from django.contrib.auth.models import AbstractUser, Group
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.urls import reverse
 from django.db.models import F, Func, FloatField
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
 from guardian.mixins import GuardianUserMixin
 from guardian.shortcuts import *
 
+from multiselectfield import MultiSelectField
+
 from notifications.signals import notify
+
 
 import abc
 from operator import itemgetter
@@ -30,33 +35,7 @@ from astropy.coordinates import SkyCoord
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
-'''
-class ImageConf(Enum):
-    NONE = ''
-    CUSP = 'CUSP'
-    FOLD = 'FOLD'
-    CROSS = 'CROSS'
-    DOUBLE = 'DOUBLE'
-    QUAD = 'QUAD'
-    RING = 'RING'
-    ARCS = 'ARCS'
 
-class SourceType(Enum):
-    NONE = ''
-    GALAXY = 'GALAXY'
-    GROUP = 'GROUP'
-    CLUSTER = 'CLUSTER'
-    AGN = 'AGN'
-
-class LensType(Enum):
-    NONE = ''
-    GALAXY = 'GALAXY'
-    AGN = 'AGN'
-    GW = 'GW'
-    FRB = 'FRB'
-    GRB = 'GRB'
-    SN = 'SN'
-'''
 
 
 
@@ -542,31 +521,102 @@ class AccessibleLensManager(models.Manager):
         accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
         return lenses_public | accessible_private_lenses # merge and return querysets
 
-# Privileges:
-# - anonymous user can only view (in the web interface, cannot download JSON, etc)
-# - AUTH_user can insert
-# - owner can update
-# - admin can update and delete
-class Lenses(SingleObject):
-    ra = models.DecimalField(max_digits=7, decimal_places=4, help_text="The RA of the lens [degrees].") # validators or constraints in Meta?
-    dec = models.DecimalField(max_digits=6, decimal_places=4, help_text="The DEC of the lens [degrees].")
-    name = models.CharField(max_length=100, help_text="An identification for the lens, e.g. the usual phone numbers.")
-    # alt_name = models.CharField(max_length=100,help_text="A colloquial name with which the lens is know, e.g. 'The Einstein cross', etc.")  # This could become a comma separated list of names.
-    # image_sep = models.DecimalField(max_digits=4,decimal_places=2,help_text="An estimate of the maximum image separation or arc radius [arcsec].",validators=[MinValueValidator(0.0)]) # DecimalField calls DecimalValidator
-    # z_source = models.DecimalField(blank=True,max_digits=4,decimal_places=3,help_text="The redshift of the source, if known.",validators=[MinValueValidator(0.0)])
-    # z_lens = models.DecimalField(blank=True,max_digits=4,decimal_places=3,help_text="The redshift of the lens, if known.",validators=[MinValueValidator(0.0)])
-    # image_conf = models.CharField(blank=True,max_length=10,choices=ImageConf.choices,default=ImageConf.NONE,help_text="Multiple image and extended lensed features configuration.")
-    # lens_type = models.CharField(blank=True,max_length=10,choices=LensType.choices,default=LensType.NONE,help_text="Lens object type.")
-    # source_type = models.CharField(blank=True,max_length=10,choices=SourceType.choices,default=SourceType.NONE,help_text="Source object type.")
-    # flag_confirmed = models.BooleanField(default=False,blank=True,help_text="Set to true if the lens has been confirmed by a publication.") # Do we need to associate a paper directly (ForeignKey) instead of Booelan? We can have both confirmed and contaminant set to true :)
-    # flag_contaminant = models.BooleanField(default=False,blank=True,help_text="Set to true if the object has been confirmed as not a lens by a publication.")
-    # discovered_at = models.DateField(help_text="The date when the lens was discovered, or the discovery paper published.")
-    # info = TextField(help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
+class Lenses(SingleObject):    
+    ra = models.DecimalField(max_digits=7,
+                             decimal_places=4,
+                             verbose_name="RA",
+                             help_text="The RA of the lens [degrees].",
+                             validators=[MinValueValidator(0.0,"RA must be positive."),
+                                         MaxValueValidator(360,"RA must be less than 360 degrees.")])
+    dec = models.DecimalField(max_digits=6,
+                              decimal_places=4,
+                              verbose_name="DEC",
+                              help_text="The DEC of the lens [degrees].",
+                              validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
+                                          MaxValueValidator(90,"DEC must be below 90 degrees.")])
+    name = models.CharField(blank=True,
+                            max_length=100,
+                            help_text="An identification for the lens, e.g. the usual phone numbers.")
+    # alt_name = models.CharField(max_length=100,
+    #                             help_text="A colloquial name with which the lens is know, e.g. 'The Einstein cross', etc.")  # This could become a comma separated list of names.
+    #discovered_at = models.DateField(help_text="The date when the lens was discovered, or the discovery paper published.")
+    flag_confirmed = models.BooleanField(default=False,
+                                         blank=True,
+                                         verbose_name="Confirmed",
+                                         help_text="Set to true if the lens has been confirmed by a publication.")
+    flag_contaminant = models.BooleanField(default=False,
+                                           blank=True,
+                                           verbose_name="Contaminant",
+                                           help_text="Set to true if the object has been confirmed as NOT a lens by a publication.")
+    image_sep = models.DecimalField(blank=True,
+                                    null=True,
+                                    max_digits=4,
+                                    decimal_places=2,
+                                    verbose_name="Image separation",
+                                    help_text="An estimate of the maximum image separation or arc radius [arcsec].",
+                                    validators=[MinValueValidator(0.0,"Separation must be positive."),
+                                                MaxValueValidator(10,"Separation must be less than 10 arcsec.")])
+    z_source = models.DecimalField(blank=True,
+                                   null=True,
+                                   max_digits=4,
+                                   decimal_places=3,
+                                   verbose_name="z<sub>S</sub>",
+                                   help_text="The redshift of the source, if known.",
+                                   validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                               MaxValueValidator(15,"If your source is further than that then congrats! (but probably it's a mistake)")])
+    z_lens = models.DecimalField(blank=True,
+                                 null=True,
+                                 max_digits=4,
+                                 decimal_places=3,
+                                 verbose_name="z<sub>L</sub>",
+                                 help_text="The redshift of the lens, if known.",
+                                 validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                             MaxValueValidator(15,"If your lens is further than that then congrats! (but probably it's a mistake)")])
+    info = models.TextField(blank=True,
+                            default='',
+                            help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
+
+    ImageConfChoices = (
+        ('CUSP','Cusp'),
+        ('FOLD','Fold'),
+        ('CROSS','Cross'),
+        ('DOUBLE','Double'),
+        ('QUAD','Quad'),
+        ('RING','Ring'),
+        ('ARCS','Arcs')
+    )
+    image_conf = MultiSelectField(blank=True,
+                                  null=True,
+                                  choices=ImageConfChoices,
+                                  verbose_name="Image configuration")
+    
+    LensTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('GROUP','Group of galaxies'),
+        ('CLUSTER','Galaxy cluster'),
+        ('QUASAR','Quasar')
+    )
+    lens_type = MultiSelectField(blank=True,
+                                 null=True,
+                                 choices=LensTypeChoices)
+    
+    SourceTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('QUASAR','Quasar'),
+        ('GW','Gravitational Wave'),
+        ('FRB','Fast Radio Burst'),
+        ('GRB','Gamma Ray Burst'),
+        ('SN','Supernova')
+    )
+    source_type = MultiSelectField(blank=True,
+                                   null=True,
+                                   choices=SourceTypeChoices)
+
     
     accessible_objects = AccessibleLensManager() # the first manager is the default one
     new_objects = NewLensManager()
     objects = models.Manager()
-    
+
     class Meta():
         db_table = "lenses"
         ordering = ["ra"]
@@ -578,13 +628,24 @@ class Lenses(SingleObject):
         verbose_name = "lens"
         verbose_name_plural = "lenses"
 
+    def clean(self):
+        if self.flag_confirmed and self.flag_contaminant:
+            raise ValidationError('The object cannot be both a lens and a contaminant.')
+        if self.flag_contaminant and (image_conf or lens_type or source_type):
+            raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
+        
+        
     def __str__(self):
-        return self.name # or return some 'phone-number' if this name is not set
+        if self.name:
+            return self.name
+        else:
+            c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
+            return 'J'+c.to_string('hmsdms')
 
     def create_name(self):
         c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
         self.name = 'J'+c.to_string('hmsdms')
-
+        
     def get_absolute_url(self):
         return reverse('lenses:lens_detail',kwargs={'lens_name':self.name})
 
@@ -621,8 +682,8 @@ class Lenses(SingleObject):
         '''
         dec1_rad = math.radians(dec1);
         dec2_rad = math.radians(dec2);
-        Ddec = dec1_rad - dec2_rad;
-        Dra = math.radians(ra1) - math.radians(ra2);
+        Ddec = abs(dec1_rad - dec2_rad);
+        Dra = abs(math.radians(ra1) - math.radians(ra2));
         a = math.pow(math.sin(Ddec/2.0),2) + math.cos(dec1_rad)*math.cos(dec2_rad)*math.pow(math.sin(Dra/2.0),2);
         d = math.degrees( 2.0*math.atan2(math.sqrt(a),math.sqrt(1.0-a)) )
         return d*3600.0
@@ -650,13 +711,18 @@ class ConfirmationTask(SingleObject):
 
     # The task types MUST match 1-to-1 the proxy models below
     class TaskType(models.TextChoices):
-        CedeOwnership = 'CedeOwnership'
-        MakePrivate = 'MakePrivate'
-    task_type = models.CharField(max_length=100,choices=TaskType.choices,help_text="The name of the task to perform.") 
+        CedeOwnership = 'CedeOwnership', _('Cede ownership')
+        MakePrivate = 'MakePrivate', _('Make private')
+    task_type = models.CharField(max_length=100,
+                                 choices=TaskType.choices,
+                                 help_text="The name of the task to perform.") 
     class StatusType(models.TextChoices):
-        Pending = "P"
-        Completed = "C"
-    status = CharField(max_length=1,choices=StatusType.choices,default=StatusType.Pending,help_text="Status of the task: 'Pending' (P) or 'Completed' (C).")
+        Pending = "P", _('Pending')
+        Completed = "C", _('Completed')
+    status = CharField(max_length=1,
+                       choices=StatusType.choices,
+                       default=StatusType.Pending,
+                       help_text="Status of the task: 'Pending' (P) or 'Completed' (C).")
     cargo = models.JSONField(help_text="A json object holding any variables that will be executed upon completion of the task.")
     recipients = models.ManyToManyField(
         Users,

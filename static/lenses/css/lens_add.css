@@ -1,6 +1,30 @@
+.master {table-layout:auto;margin:2px auto}
+.master tr {background-color:white}
+.master td {padding:2px;vertical-align:top;}
+
 .lens-form {
     background-color: #BDD4DE;
     margin-top: 5px;
     margin-right: 0px;
-    padding: 5px 5px 5px 50px;
+    padding: 5px 5px 5px 5px;
 }
+.lens-form h3 {font-weight:bold}
+
+.controls {margin:0px;}
+.controls td {padding:0px}
+.controls td:first-child {text-align:left}
+.controls td:last-child {text-align:right}
+
+.form-table {table-layout:auto;margin:2px auto}
+.form-table td {padding:2px;vertical-align:top;}
+
+.column {display:inline-block}
+.column table td {padding: 2px;}
+.column input[type="number"] {width:100px}
+.column ul {margin:0;list-style-type: none;}
+
+.button-div {width:500px;margin:40px auto;text-align:center;}
+
+.add-row {font-weight:bold;width:200px;text-aling:center;display:block;margin:10px auto;}
+
+.errorlist {color:red}

@@ -67,6 +67,7 @@ user2 = Users.objects.get(username='Fred')
 # Adding lenses
 N = 100
 print('Populating the database with '+str(N)+' random lenses')
+np.random.seed(666)
 ras = np.random.uniform(0, 360, N)
 decs = np.random.uniform(-90, 90, N) #NOT UNIFORMLY DISTRIBUTED ON A SPHERE!
 mylenses = []

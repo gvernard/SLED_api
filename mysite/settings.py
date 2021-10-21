@@ -45,11 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'guardian',
     'registration.apps.RegistrationConfig',  
     'crispy_forms',
     'notifications',
-    'django.contrib.sites',
+    'multiselectfield',
 ]
 
 SITE_ID = 1

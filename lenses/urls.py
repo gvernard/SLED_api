@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from django.views.generic import TemplateView
-from lenses.views import LensListView, LensDetailView, LensCreateView, LensQueryView
+from lenses.views import LensListView, LensDetailView, LensCreateView, LensQueryView, LensCheckView
 #from . import views
 
 app_name = 'lenses'
@@ -9,6 +9,6 @@ urlpatterns = [
     path('query/',LensQueryView.as_view(),name='lens-query'),
     path('list/',LensListView.as_view(),name='lens-list'),
     path('add/',LensCreateView.as_view(),name='lens-add'),
-    #path('check/',LensCreateView.as_view(),name='lens-check'),
+    path('check/',LensCheckView.as_view(),name='lens-check'),
     re_path('(?P<slug>[A-Za-z0-9\w|\W\- ]+)/$', LensDetailView.as_view(), name='lens-detail'),
 ]

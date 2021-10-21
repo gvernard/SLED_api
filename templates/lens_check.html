@@ -1,0 +1,93 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_check_object.css' %}"/>
+
+<div class="section">
+  <h1>Check for proximity</h1>
+</div>
+
+<div class="to_create">
+  {% if to_create %}
+  <p>New lenses to create: {{ to_create|length }}</p>
+  {% for new in to_create %}
+  {% include 'lens_check_object.html' with lens=new index=forloop.counter %}
+  {% endfor %}
+  {% else %}
+  <p>No new lenses to create</p>
+  {% endif %}
+</div>
+
+<div>
+  {% if zipped %}
+  <p>New lenses with existing ones nearby: {{ zipped|length }}</p>
+
+  <form id="form-container" method="POST">
+    <div class="form-div">
+      {% csrf_token %}
+      {{ formset.management_form}}
+      {{ formset.non_field_errors }}
+      <table class="existing">
+	<thead>
+	  <tr>
+	    <th>New</th>
+	    <th></th>
+	    <th>Existing</th>
+	    <th>Action</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for new,existing,action in zipped %}
+	  <tr>
+	    <td>{% include 'lens_check_object.html' with lens=new index=forloop.counter %}</td>
+	    <td>is close to:</td>
+	    <td>
+	      {% for lens in existing %}
+	      {% include 'lens_check_object.html' with lens=lens index=forloop.counter %}
+	      {% endfor %}
+	    </td>
+	    <td>
+	      {{ action.as_p }}
+	    </td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+    </div>
+  </form>
+  {% else %}
+  <p>No new lenses with existing ones nearby</p>
+  {% endif %}
+</div>
+
+
+<!-- <div class="content container"> -->
+<!--   <table class="sortable"> -->
+<!--     <tr> -->
+<!--       <th class="th-center">Name</th> -->
+<!--       <\!--<th class="th-center">Type (LENS-SOURCE)</th>-\-> -->
+<!--       <th class="th-center">Lens redshift</th> -->
+<!--       <th class="th-center">Source redshift</th> -->
+<!--       <th class="th-center">Right Ascension J2000</th> -->
+<!--       <th class="th-center">Declination J2000</th> -->
+      
+<!--     </tr> -->
+<!--     {% for lens in lenses %} -->
+<!--     <tr> -->
+<!--       <td class="td-center"><a href="{% url 'lenses:lens-detail' slug=lens.name %}">{{lens.name}}</a></td> -->
+<!--       <\!--<td class="td-center">{{lens.kind_acronym}}</td>-\-> -->
+<!--       <td class="td-center">{{lens.zlens|floatformat:2}}</td> -->
+<!--       <td class="td-center">{{lens.zsource|floatformat:2}}</td> -->
+<!--       <\!-- <td class="td-center">{{lens.ra_HH|floatformat:0}}:{{lens.ra_MM|floatformat:0}}:{{lens.ra_SS|floatformat:2}}</td> -\-> -->
+<!--       <td class="td-center">{{lens.ra|floatformat:5}}</td> -->
+<!--       <\!--<td class="td-center">{{lens.dec_DD|floatformat:0}}:{{lens.dec_MM|floatformat:0}}:{{lens.dec_SS|floatformat:2}}</td> -\-> -->
+<!--       <td class="td-center">{{lens.dec|floatformat:5}}</td> -->
+      
+<!--     </tr> -->
+<!--     {% endfor %} -->
+<!--   </table> -->  
+<!-- </div> -->
+
+{% endblock content %}

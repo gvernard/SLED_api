@@ -2,30 +2,134 @@
 {% load static %}
 {% block content %}
 
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
+<script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
+<script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_add.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_visit_card.css' %}"/>
+
+
+
 <h1>Add a new lens</h1>
 
 <p>
-  For now, this is a static formset with three forms. Later we want to changee this into a dynamic one.
-  To be within the check radius of existing lenses set RA= 17.275 and DEC= 1.404
+  For now, this is a static formset with <span style="font-weight:bold">three</span> forms. Later we want to changee this into a dynamic one (see <a href="https://github.com/dallasmorningnews/django-dynamic-formsets">here</a> and <a href="https://github.com/elo80ka/django-dynamic-formset">here</a>).
+  To be within the check radius of existing lenses set RA= 8.368 and DEC= -5.6694
 </p>
 
 
-<form id="form-container" method="POST">
-  {% csrf_token %}
-  {{lens_formset.management_form}}
-  {{ lens_formset.non_field_errors }}
-  {% for form in lens_formset %}
-  <div class="lens-form">
-    <h3>Lens {{ forloop.counter }}</h3>
-    {{form.as_p}}
-    <button type="button" class="remove-button">remove</button>
+<form id="form-container" method="POST">    
+  <div class="form-div">
+    {% csrf_token %}
+    {{ lens_formset.management_form }}
+    {{ lens_formset.non_field_errors }}
+
+    <table class="master">
+      {% for form,existing in new_existing %}
+      <tr class="copy-target">
+	<td>
+	  
+	  <div class="lens-form">
+	    <table class="controls">
+	      <tr>
+		<td><h3>Lens {{ forloop.counter }}</h3></td>
+		<td class="delete-button"></td>
+	      </tr>
+	    </table>
+	    
+	    {{ form.non_field_errors }}
+	    
+	    <table class="form-table">
+	      <tr>
+		<!-- First column -->
+		<td>
+		  <div class="column">
+		    <table>
+		      <tr><td>{{ form.ra.errors }}</td><td>{{ form.ra.label_tag }}</td><td>{{ form.ra }}</td></tr>
+		      <tr><td>{{ form.dec.errors }}</td><td>{{ form.dec.label_tag }}</td><td>{{ form.dec }}</td></tr>
+		      <tr><td>{{ form.image_sep.errors }}</td><td>{{ form.image_sep.label_tag }}</td><td>{{ form.image_sep }}</td></tr>
+		      <tr><td>{{ form.z_lens.errors }}</td><td>{{ form.z_lens.label_tag }}</td><td>{{ form.z_lens }}</td></tr>
+		      <tr><td>{{ form.z_source.errors }}</td><td>{{ form.z_source.label_tag }}</td><td>{{ form.z_source }}</td></tr>
+		      <tr><td>{{ form.flag_confirmed.errors }}</td><td>{{ form.flag_confirmed.label_tag }}</td><td>{{ form.flag_confirmed }}</td></tr>
+		      <tr><td>{{ form.flag_contaminant.errors }}</td><td>{{ form.flag_contaminant.label_tag }}</td><td>{{ form.flag_contaminant }}</td></tr>
+		      <tr><td>{{ form.access_level.errors }}</td><td>{{ form.access_level.label_tag }}</td><td>{{ form.access_level }}</td></tr>
+		    </table>
+		  </div>
+		</td>
+		
+		<!-- <\!-- Fourth column -\-> -->
+		  <!-- <td> -->
+		    <!--   <div class="column"> -->
+		      <!--     <table> -->
+			<!-- 	<tr><td>{{ form.lens_type.errors }}</td></tr> -->
+			<!-- 	<tr><td>{{ form.lens_type.label_tag }}</td></tr> -->
+			<!-- 	<tr><td>{{ form.lens_type }}</td></tr> -->
+			<!-- 	<tr><td>{{ form.source_type.errors }}</td></tr> -->
+			<!-- 	<tr><td>{{ form.source_type.label_tag }}</td></tr> -->
+			<!-- 	<tr><td>{{ form.source_type }}</td></tr> -->
+			<!--     </table> -->
+		      <!--   </div> -->
+		    <!-- </td> -->
+		  
+		  <!-- <\!-- Third column -\-> -->
+		    <!-- <td> -->
+		      <!--   <div class="column"> -->
+			<!--     <table> -->
+			  <!-- 	<tr><td>{{ form.image_conf.errors }}</td></tr> -->
+			  <!-- 	<tr><td>{{ form.image_conf.label_tag }}</td></tr> -->
+			  <!-- 	<tr><td>{{ form.image_conf }}</td></tr> -->
+			  <!--     </table> -->
+			<!--   </div> -->
+		      <!-- </td> -->
+		    
+  		    <!-- <\!-- Sixth column -\-> -->
+		      <!-- <td> -->
+			<!--   <div class="column"> -->
+			  <!--     <table> -->
+			    <!-- 	<tr><td>{{ form.info.errors }}</td></tr> -->
+			    <!-- 	<tr><td>{{ form.info.label_tag }}</td></tr> -->
+			    <!-- 	<tr><td>{{ form.info }}</td></tr> -->
+			    <!--     </table> -->
+			  <!--   </div> -->
+			<!-- </td> -->
+		      
+	      </tr>
+	    </table>
+	  </div>
+	  
+	</td>
+	<td>
+	  
+	  {% if existing %}
+	  {% for lens in existing %}
+	  {% include 'lens_visit_card.html' with lens=lens %}
+	  {% endfor %}
+	  {% else %}
+	  no
+	  {% endif %}
+	  
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+    
   </div>
-  {% endfor %}
-  <button id="add-form" type="button">Add another Lens</button>
-  <button type="submit">Create Lenses</button>
+  
+  
+  
+  <div class="button-div">
+    <table>
+      <tr>
+	<td><div class="add-button"></div></td>
+	<td><button id="toggle-access-level" type="button">Toggle access_level all</button></td>
+	<td><button type="submit">Create Lenses</button></td>
+      </tr>
+    </table>
+  </div>
 </form>
 
-<script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_add.css' %}"/>
+<!-- <script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script> -->
 
 {% endblock content %}

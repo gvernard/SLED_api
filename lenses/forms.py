@@ -1,14 +1,21 @@
 # forms.py
-from django.forms import modelformset_factory, BaseModelFormSet
+from django import forms
+from django.forms import formset_factory, modelformset_factory, BaseModelFormSet, Textarea, SelectMultiple
 from django.core.exceptions import ValidationError
 from lenses.models import Lenses
 
 
 
 class BaseLensFormSet(BaseModelFormSet):
-    def queryset(self):
-        return Lenses.accessible_objects.none()
+    confirmed_to_insert = forms.BooleanField(required=False,initial=False)
 
+    def __init__(self, *args, **kwargs):
+        super(BaseLensFormSet,self).__init__(*args, **kwargs)
+        self.queryset = Lenses.accessible_objects.none()
+        for form in self.forms:
+            form.empty_permitted = False
+            form.fields['info'].widget.attrs.update({'placeholder': form.fields['info'].help_text})
+            
     def clean(self):
         """Checks that no two new lenses are within a proximity radius."""
         super(BaseLensFormSet,self).clean()
@@ -38,7 +45,7 @@ class BaseLensFormSet(BaseModelFormSet):
 
             if len(other_forms) > 0:
                 strs = [str(i+1) for i in other_forms]
-                message = 'This Lens is too close to Lens '+str(','.join(strs)+'. This probably indicates an issue. Submission is not allowed.')
+                message = 'This Lens is too close to Lens '+str(','.join(strs)+'. This probably indicates a possible duplicate and submission is not allowed.')
                 flag = True
                 self.forms[i].add_error('__all__',message)
                 
@@ -47,10 +54,21 @@ class BaseLensFormSet(BaseModelFormSet):
 LensFormSet = modelformset_factory(
     Lenses,
     formset=BaseLensFormSet,
-    fields=("ra", "dec", "access_level"),
+    fields=("ra","dec","access_level","flag_confirmed","flag_contaminant","image_sep","z_source","z_lens","image_conf","source_type","lens_type","info"),
     max_num=5,
     absolute_max=5,
-    extra=3,
+    extra=1,
+    widgets = {
+        'info': Textarea({'placeholder':'dum'}),
+    },
 )
 
+
+
+class ActionForm(forms.Form):
+    CHOICES=(
+        ('This is a duplicate, do not insert','duplicate'),
+        ('Insert in the database anyway','insert')
+    )
+    response = forms.ChoiceField(choices=CHOICES,widget=forms.RadioSelect)
 

@@ -1,0 +1,24 @@
+<div class="visit-card">
+  <table>
+    <tr>
+      <td>
+	<!-- Lens parameters -->
+	<h3>{{ lens.name }}</h3>
+	<table>
+	  <tr><td>RA:</td><td>{{ lens.ra }}</td></tr>
+	  <tr><td>DEC:</td><td>{{ lens.dec }}</td></tr>
+	  <tr><td>Created at:</td><td>{{ lens.created_at }}</td></tr>
+	  <tr><td>Info:</td><td>{{ lens.info }}</td></tr>
+	  <tr><td colspan="2">Contact owner</td></tr>
+	  <tr><td colspan="2">Linked papers</td></tr>
+	</table>
+      </td>
+      <td>
+	<!-- Lens image -->
+	<div class="img-container">
+	  <img src="" alt="Image of a lens" />
+	</div>
+      </td>
+    </tr>
+  </table>
+</div>
