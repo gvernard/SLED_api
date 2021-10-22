@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 
 from django.views.generic import ListView, DetailView, TemplateView
@@ -118,7 +119,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
     template_name = 'lens_add_update.html'
     
     def get(self, request, *args, **kwargs):
-        return HttpResponse('You must select which lenses to update from your User profile page: <link>')
+        return TemplateResponse(request,'simple_message.html',context={message:'You must select which lenses to update from your User profile page: <link>'})
 
     def post(self, request, *args, **kwargs):
         check = request.POST.get('check')
@@ -148,9 +149,9 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
                 if to_update:
                     for lens in to_update:
                         lens.save()
-                    return HttpResponse('Lenses successfully updated')
+                    return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully updated!'})
                 else:
-                    return HttpResponse('No lenses to update.')
+                    return TemplateResponse(request,'simple_message.html',context={'message':'No lenses to update.'})
             else:
                 return self.render_to_response(self.get_my_context(myformset))
                 
@@ -161,7 +162,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
                 myformset = LensFormSet(queryset=Lenses.objects.filter(owner=self.request.user).filter(id__in=ids).order_by('ra'))
                 return self.render_to_response(self.get_my_context(myformset))
             else:
-                return HttpResponse('You must select which lenses to update from your User profile page: <link>')
+                return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your User profile page: <link>'})
 
 
 
@@ -201,9 +202,9 @@ class LensAddView(AddUpdateMixin,TemplateView):
                             to_insert.append(lens)
                     if to_insert:
                         Lenses.objects.bulk_create(to_insert)
-                        return HttpResponse('Lenses successfully added to the database')
+                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
-                        return HttpResponse('No new lenses to insert.')
+                        return TemplateResponse(request,'simple_message.html',context={'message':'No new lenses to insert.'})
             else:
                 return self.render_to_response(self.get_my_context(myformset))
 
