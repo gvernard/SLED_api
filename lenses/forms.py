@@ -1,6 +1,6 @@
 # forms.py
 from django import forms
-from django.forms import formset_factory, modelformset_factory, BaseModelFormSet, Textarea, SelectMultiple
+from django.forms import BaseModelFormSet
 from django.core.exceptions import ValidationError
 from lenses.models import Lenses
 
@@ -67,27 +67,4 @@ class BaseLensAddFormSet(BaseModelFormSet):
                 
 
 
-LensFormSet = modelformset_factory(
-    Lenses,
-    formset=BaseLensAddFormSet,
-    fields=("ra",
-            "dec",
-            "access_level",
-            "flag_confirmed",
-            "flag_contaminant",
-            "image_sep",
-            "z_source",
-            "z_lens",
-            "image_conf",
-            "source_type",
-            "lens_type",
-            "info"),
-    extra=0,
-    widgets = {
-        'info': Textarea({'placeholder':'dum','rows':3,'cols':30}),
-        'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-        'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-        'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
-    },
-)
 

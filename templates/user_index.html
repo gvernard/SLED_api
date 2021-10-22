@@ -77,9 +77,8 @@
   <h1>My lenses ({{ user.getOwnedObjects.Lenses|length }}) </h1>
 </div>
 <div class="content container">
-  <form id="list-form" method="POST" action="{% url 'lenses:lens-add' %}">
+  <form id="list-form" method="POST" action="{% url 'lenses:lens-update' %}">
     {% csrf_token %}
-    <input type="hidden" name="mode" value="update">
     <table class="sortable">
       <tr>
 	<th></th>

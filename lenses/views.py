@@ -5,14 +5,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
 
-from lenses.models import Users, SledGroups, Lenses
+from lenses.models import Users, Lenses
 
 
-from .forms import LensFormSet
-from django.forms import formset_factory
-from django.urls import reverse_lazy,reverse
-from django.shortcuts import redirect
-
+from .forms import BaseLensAddFormSet
+from django.forms import modelformset_factory, Textarea, Select
 
 
 # View for lens queries
@@ -68,21 +65,36 @@ class LensListView(ListView):
                 
 
 
-    
+
+
+
 # View to add new lenses
-@method_decorator(login_required,name='dispatch')
-class LensCreateView(TemplateView):
-    model = Lenses
-    template_name = 'lens_add.html'
+class AddUpdateMixin(object):
+    myfields = ("ra",
+            "dec",
+            "access_level",
+            "flag_confirmed",
+            "flag_contaminant",
+            "image_sep",
+            "z_source",
+            "z_lens",
+            "image_conf",
+            "source_type",
+            "lens_type",
+            "info")
+    mywidgets = {
+        'info': Textarea({'placeholder':'dum','rows':3,'cols':30}),
+        'lens_type': Select(attrs={'class':'my-select2','multiple':'multiple'}),
+        'source_type': Select(attrs={'class':'my-select2','multiple':'multiple'}),
+        'image_conf': Select(attrs={'class':'my-select2','multiple':'multiple'})
+    }
     
     def get_my_context(self,myformset,**kwargs):
         for f in myformset.forms:
             f.initial['insert'] = ''
-        mode = kwargs.get('mode','create')
         existing = kwargs.get('existing',[None]*len(myformset))
         context = {'lens_formset': myformset,
-                   'new_existing': zip(myformset,existing),
-                   'mode': mode
+                   'new_existing': zip(myformset,existing)
                    }
         return context
 
@@ -97,93 +109,110 @@ class LensCreateView(TemplateView):
                 print('(%d) %s (%f,%f) - Proximity alert (%d)' % (i,lens.name,lens.ra,lens.dec,len(neis)))
         return flag,existing_prox
 
-    
-    
-    def get(self, *args, **kwargs):
-        myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
-        return self.render_to_response(self.get_my_context(myformset))
 
+
+# View to update lenses
+@method_decorator(login_required,name='dispatch')
+class LensUpdateView(AddUpdateMixin,TemplateView):
+    model = Lenses
+    template_name = 'lens_add_update.html'
     
+    def get(self, request, *args, **kwargs):
+        return HttpResponse('You must select which lenses to update from your User profile page: <link>')
 
     def post(self, request, *args, **kwargs):
-        mode = request.POST.get('mode','create')
         check = request.POST.get('check')
-        print(mode,check)
+        print(check)
+        
+        if check:
+            # Submitting to itself, perform all the checks
+            LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
+            myformset = LensFormSet(data=self.request.POST)
+            if myformset.has_changed() and myformset.is_valid():
+                instances = myformset.save(commit=False)
+                for i,myform in enumerate(myformset.forms):
+                    to_check = []
+                    if 'ra' in myform.changed_data or 'dec' in myform.changed_data:
+                        to_check.append(instances[i])
 
-
-        if mode == 'create':
-            # Create new objects
-            
-            if check:
-                # Submitting to itself, perform all the checks
-                myformset = LensFormSet(data=self.request.POST)
-                if myformset.has_changed() and myformset.is_valid():
-                    instances = myformset.save(commit=False)
-                    flag,existing_prox = self.get_proximity(instances,myformset.cleaned_data)
-                
+                # Double 'if' here. First check, then if there is proximity render. If not, proceed with the update.
+                if to_check:
+                    flag,existing_prox = self.get_proximity(to_check,myformset.cleaned_data)
                     if flag:
-                        # Display duplicates
-                        return self.render_to_response(self.get_my_context(myformset,existing=existing_prox,mode=mode))
-                    else:
-                        to_insert = []
-                        for i,lens in enumerate(instances):
-                            if myformset.cleaned_data[i]['insert'] != 'no':
-                                lens.owner = self.request.user
-                                lens.create_name()
-                                to_insert.append(lens)
-                        if to_insert:
-                            Lenses.objects.bulk_create(to_insert)
-                            return HttpResponse('Lenses successfully added to the database')
-                        else:
-                            return HttpResponse('No new lenses to insert.')
-                else:
-                    return self.render_to_response(self.get_my_context(myformset,mode=mode))
+                        return self.render_to_response(self.get_my_context(myformset,existing=existing_prox))
 
+                to_update = []
+                for i,myform in enumerate(myformset.forms):
+                    if myform.has_changed() and myform.cleaned_data['insert'] != 'no':
+                        to_update.append(instances[i])
+                if to_update:
+                    for lens in to_update:
+                        lens.save()
+                    return HttpResponse('Lenses successfully updated')
+                else:
+                    return HttpResponse('No lenses to update.')
             else:
-                self.get(*args,**kwargs)
-           
-            
-        else:
-            # Update existing objects
-
-            if check:
-                # Submitting to itself, perform all the checks
-                myformset = LensFormSet(self.request.POST)
-                if myformset.has_changed() and myformset.is_valid():
-                    instances = myformset.save(commit=False)
-                    for i,myform in enumerate(myformset.forms):
-                        to_check = []
-                        if 'ra' in myform.changed_data or 'dec' in myform.changed_data:
-                            to_check.append(instances[i])
-
-                    # Double 'if' here. First check, then if there is proximity render. If not, proceed with the update.
-                    if to_check:
-                        flag,existing_prox = self.get_proximity(to_check,myformset.cleaned_data)
-                        if flag:
-                            return self.render_to_response(self.get_my_context(myformset,existing=existing_prox,mode=mode))
-
-                    to_update = []
-                    for i,myform in enumerate(myformset.forms):
-                        if myform.has_changed() and myform.cleaned_data['insert'] != 'no':
-                            to_update.append(instances[i])
-                    if to_update:
-                        for lens in to_update:
-                            lens.save()
-                        return HttpResponse('Lenses successfully updated')
-                    else:
-                        return HttpResponse('No lenses to update.')
-                else:
-                    return self.render_to_response(self.get_my_context(myformset,mode=mode))
+                return self.render_to_response(self.get_my_context(myformset))
                 
+        else:
+            ids = request.POST.getlist('ids')
+            if ids:
+                LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
+                myformset = LensFormSet(queryset=Lenses.objects.filter(owner=self.request.user).filter(id__in=ids).order_by('ra'))
+                return self.render_to_response(self.get_my_context(myformset))
             else:
-                ids = request.POST.getlist('ids')
-                if ids:
-                    lenses = Lenses.objects.filter(owner=self.request.user).filter(id__in=ids).order_by('ra')
-                    initial_data = list(lenses.values())
-                    myformset = LensFormSet(queryset=lenses,initial=initial_data)
-                    return self.render_to_response(self.get_my_context(myformset,mode=mode))
+                return HttpResponse('You must select which lenses to update from your User profile page: <link>')
+
+
+
+# View to add new lenses
+@method_decorator(login_required,name='dispatch')
+class LensAddView(AddUpdateMixin,TemplateView):
+    model = Lenses
+    template_name = 'lens_add_update.html'
+
+    def get(self, request, *args, **kwargs):
+        LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddFormSet,extra=1,fields=self.myfields,widgets=self.mywidgets)
+        myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
+        context = self.get_my_context(myformset)
+        return self.render_to_response(context)
+    
+    def post(self, request, *args, **kwargs):
+        check = request.POST.get('check')
+        print(check)
+
+        if check:
+            # Submitting to itself, perform all the checks
+            LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
+            myformset = LensFormSet(data=self.request.POST)
+            if myformset.has_changed() and myformset.is_valid():
+                instances = myformset.save(commit=False)
+                flag,existing_prox = self.get_proximity(instances,myformset.cleaned_data)
+                
+                if flag:
+                    # Display duplicates
+                    return self.render_to_response(self.get_my_context(myformset,existing=existing_prox))
                 else:
-                    return HttpResponse('You must select which lenses to update from your User profile page: <link>')
+                    to_insert = []
+                    for i,lens in enumerate(instances):
+                        if myformset.cleaned_data[i]['insert'] != 'no':
+                            lens.owner = self.request.user
+                            lens.create_name()
+                            to_insert.append(lens)
+                    if to_insert:
+                        Lenses.objects.bulk_create(to_insert)
+                        return HttpResponse('Lenses successfully added to the database')
+                    else:
+                        return HttpResponse('No new lenses to insert.')
+            else:
+                return self.render_to_response(self.get_my_context(myformset))
+
+        else:
+            self.get(*args,**kwargs)
+
+
+
+
 
 
 
