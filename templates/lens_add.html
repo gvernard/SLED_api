@@ -19,14 +19,18 @@
 </p>
 
 
-<form id="form-container" method="POST">    
+<form id="form-container" method="POST">
   <div class="form-div">
     {% csrf_token %}
     {{ lens_formset.management_form }}
     {{ lens_formset.non_field_errors }}
-
+    <input type="hidden" name="check" value="true">
+    <input type="hidden" name="mode" value="{{ mode }}">
+    <input type="hidden" name="initial" value="{{ initial }}">
+    
     <table class="master">
       {% for form,existing in new_existing %}
+      
       <tr class="copy-target">
 	<td>
 	  
@@ -37,8 +41,9 @@
 		<td class="delete-button"></td>
 	      </tr>
 	    </table>
-	    
+
 	    {{ form.non_field_errors }}
+	    {{ form.id }}
 	    
 	    <table class="form-table">
 	      <tr>
@@ -116,9 +121,13 @@
   <div class="button-div">
     <table>
       <tr>
+	{% if mode == 'create' %}
 	<td><div class="add-button"></div></td>
 	<td><button id="toggle-access-level" type="button">Toggle access_level all</button></td>
 	<td><button type="submit">Create Lenses</button></td>
+	{% else %}
+	<td><button type="submit">Update Lenses</button></td>	
+	{% endif %}
       </tr>
     </table>
   </div>

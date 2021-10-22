@@ -623,7 +623,7 @@ class Lenses(SingleObject):
     class Meta():
         db_table = "lenses"
         ordering = ["ra"]
-        unique_together = ["ra","dec"]
+        #unique_together = ["ra","dec"] # removed because it causes invalid forms when updating
         constraints = [
             # Reiterate the validators
             # z_lens must be > lens_source

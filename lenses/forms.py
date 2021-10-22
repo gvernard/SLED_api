@@ -7,7 +7,8 @@ from lenses.models import Lenses
 from django_select2 import forms as s2forms
 
 
-class BaseLensFormSet(BaseModelFormSet):
+
+class BaseLensAddFormSet(BaseModelFormSet):
     mychoices = (
         ('no','No, this is a duplicate, ignore it'),
         ('yes','Yes, insert to the database anyway')
@@ -18,11 +19,11 @@ class BaseLensFormSet(BaseModelFormSet):
                                widget=forms.RadioSelect)
     
     def __init__(self, *args, **kwargs):
-        super(BaseLensFormSet,self).__init__(*args, **kwargs)
-        self.queryset = Lenses.accessible_objects.none()
+        super(BaseLensAddFormSet,self).__init__(*args, **kwargs)
+        #self.queryset = Lenses.accessible_objects.none()
         for form in self.forms:
             form.empty_permitted = False
-            form.fields['info'].widget.attrs.update({'rows':4, 'cols':37,'placeholder': form.fields['info'].help_text})
+            #form.fields['info'].widget.attrs.update({'placeholder':'dum','rows':3,'cols':30})
             form.fields["insert"] = self.insert
 
     def add_fields(self,form,index):
@@ -31,7 +32,7 @@ class BaseLensFormSet(BaseModelFormSet):
             
     def clean(self):
         """Checks that no two new lenses are within a proximity radius."""
-        super(BaseLensFormSet,self).clean()
+        super(BaseLensAddFormSet,self).clean()
         if any(self.errors):
             # Don't bother validating the formset unless each form is valid on its own
             return
@@ -68,7 +69,7 @@ class BaseLensFormSet(BaseModelFormSet):
 
 LensFormSet = modelformset_factory(
     Lenses,
-    formset=BaseLensFormSet,
+    formset=BaseLensAddFormSet,
     fields=("ra",
             "dec",
             "access_level",
@@ -81,11 +82,9 @@ LensFormSet = modelformset_factory(
             "source_type",
             "lens_type",
             "info"),
-    max_num=5,
-    absolute_max=5,
-    extra=1,
+    extra=0,
     widgets = {
-        'info': Textarea({'placeholder':'dum'}),
+        'info': Textarea({'placeholder':'dum','rows':3,'cols':30}),
         'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
         'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
         'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})

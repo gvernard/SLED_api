@@ -10,32 +10,35 @@
 </div>
 
 <div class="content container">
-  <table class="sortable">
-    <tr>
-      <th class="th-center">Name</th>
-      <!--<th class="th-center">Type (LENS-SOURCE)</th>-->
-      <th class="th-center">Lens redshift</th>
-      <th class="th-center">Source redshift</th>
-      <th class="th-center">Right Ascension J2000</th>
-      <th class="th-center">Declination J2000</th>
-      
-    </tr>
-    {% for lens in lenses %}
-    <tr>
-      <td class="td-center"><a href="{% url 'lenses:lens-detail' slug=lens.name %}">{{lens.name}}</a></td>
-      <!--<td class="td-center">{{lens.kind_acronym}}</td>-->
-      <td class="td-center">{{lens.zlens|floatformat:2}}</td>
-      <td class="td-center">{{lens.zsource|floatformat:2}}</td>
-      <!-- <td class="td-center">{{lens.ra_HH|floatformat:0}}:{{lens.ra_MM|floatformat:0}}:{{lens.ra_SS|floatformat:2}}</td> -->
-      <td class="td-center">{{lens.ra|floatformat:5}}</td>
-      <!--<td class="td-center">{{lens.dec_DD|floatformat:0}}:{{lens.dec_MM|floatformat:0}}:{{lens.dec_SS|floatformat:2}}</td> -->
-      <td class="td-center">{{lens.dec|floatformat:5}}</td>
-      
-    </tr>
-    {% endfor %}
-  </table>
-  
-  
+  <form id="list-form" method="POST">
+    {% csrf_token %}
+    <table class="sortable">
+      <tr>
+	<th></th>
+	<th class="th-center">Name</th>
+	<!--<th class="th-center">Type (LENS-SOURCE)</th>-->
+	<th class="th-center">Right Ascension J2000</th>
+	<th class="th-center">Declination J2000</th>
+	<th class="th-center">Lens redshift</th>
+	<th class="th-center">Source redshift</th>
+      </tr>
+      {% for lens in lenses %}
+      <tr>
+	<td><input type="checkbox" name="myselect" value="{{ lens.id }}" /></td>
+	<td class="td-center"><a href="{% url 'lenses:lens-detail' slug=lens.name %}">{{lens.name}}</a></td>
+	<!-- <td class="td-center">{{lens.ra_HH|floatformat:0}}:{{lens.ra_MM|floatformat:0}}:{{lens.ra_SS|floatformat:2}}</td> -->
+	<td class="td-center">{{lens.ra|floatformat:5}}</td>
+	<!--<td class="td-center">{{lens.dec_DD|floatformat:0}}:{{lens.dec_MM|floatformat:0}}:{{lens.dec_SS|floatformat:2}}</td> -->
+	<td class="td-center">{{lens.dec|floatformat:5}}</td>
+	<td class="td-center">{{lens.zlens|floatformat:2}}</td>
+	<td class="td-center">{{lens.zsource|floatformat:2}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <td><button type="submit">Create Lenses</button></td>
+
+  </form>
 </div>
 
 {% endblock content %}

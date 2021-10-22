@@ -16,6 +16,8 @@ $( document ).ready(function() {
 
 
 function reposition(form_div){
+    form_div.children(':nth-child(2)').empty();
+    form_div.children(':nth-child(3)').empty();
     form_div.detach().appendTo('.master');
     form_div.find('.my-select2').select2({
 	placeholder: 'Select an option',

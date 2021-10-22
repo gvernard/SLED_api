@@ -77,24 +77,31 @@
   <h1>My lenses ({{ user.getOwnedObjects.Lenses|length }}) </h1>
 </div>
 <div class="content container">
-  <table class="sortable">
-    <tr>
-      <th class="th-center">Name</th>
-      <th class="th-center">Lens redshift</th>
-      <th class="th-center">Source redshift</th>
-      <th class="th-center">Right Ascension J2000</th>
-      <th class="th-center">Declination J2000</th>	
-    </tr>
-    {% for lens in user.getOwnedObjects.Lenses %}
-    <tr>
-      <td class="td-center"><a href="">{{lens.name}}</td>
-      <td class="td-center">{{lens.zlens|floatformat:2}}</td>
-      <td class="td-center">{{lens.zsource|floatformat:2}}</td>
-      <td class="td-center">{{lens.ra|floatformat:5}}</td>
-      <td class="td-center">{{lens.dec|floatformat:5}}</td>  
-    </tr>
-    {% endfor %}
-  </table>
+  <form id="list-form" method="POST" action="{% url 'lenses:lens-add' %}">
+    {% csrf_token %}
+    <input type="hidden" name="mode" value="update">
+    <table class="sortable">
+      <tr>
+	<th></th>
+	<th class="th-center">Name</th>
+	<th class="th-center">Lens redshift</th>
+	<th class="th-center">Source redshift</th>
+	<th class="th-center">Right Ascension J2000</th>
+	<th class="th-center">Declination J2000</th>	
+      </tr>
+      {% for lens in user.getOwnedObjects.Lenses %}
+      <tr>
+	<td><input type="checkbox" name="ids" value="{{ lens.id }}" /></td>
+	<td class="td-center"><a href="">{{lens.name}}</td>
+	<td class="td-center">{{lens.zlens|floatformat:2}}</td>
+	<td class="td-center">{{lens.zsource|floatformat:2}}</td>
+	<td class="td-center">{{lens.ra|floatformat:5}}</td>
+	<td class="td-center">{{lens.dec|floatformat:5}}</td>  
+      </tr>
+      {% endfor %}
+    </table>
+    <button type="submit">Update lenses</button>
+  </form>
 </div>
 
 {% endblock content %}
