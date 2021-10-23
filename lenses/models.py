@@ -240,7 +240,8 @@ class Users(AbstractUser,GuardianUserMixin):
             assert (len(objs_to_update)>0),"All objects are already public"
         except AssertionError as error:
             print(error)
-            print("Execution of 'makePublic' stops.")
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
         else:
             perm = "view_"+objs_to_update[0]._meta.db_table
 
@@ -437,20 +438,71 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
         else:
             return False
 
-    def getCreatedAt():
+    def getCreatedAt(self):
         """
         Return:
            datetime: A formatted datetime string of the `created_at` attribute.
         """
         return self.created_at
 
-    def getModifiedAt():
+    def getModifiedAt(self):
         """
         Return:
            datetime: A formatted datetime string of the `modified_at` attribute.
         """
         return self.modified_at
 
+    def getUsersWithAccess(self,user):
+        """
+        Checks which users have view access the the object.
+        
+        Args:
+            `User`: a user that has to be the owner of the object.
+
+        Return:
+            queryset(`Users`): a queryset with all the users that have view access to the object. An empty queryset if none.
+        """
+        try:
+            assert (user!=self.owner),"The calling user is not the owner of the object."
+            assert (self.access_level=='PUB'),"Object is already public, no point to fetch users with access to it."
+        except AssertionError as error:
+            print(error)
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
+        else:
+            perm = "view_"+self._meta.db_table
+            users = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
+            if users:
+                return users
+            else:
+                return Users.objects.none()
+
+    def getGroupsWithAccess(self,user):
+        """
+        Checks which groups have view access the the object.
+
+        Args:
+            `User`: a user that has to be the owner of the object.
+
+        Return:
+            queryset(`Groups`): a queryset with all the groups that have view access to the object. An empty queryset if none.
+        """
+        try:
+            assert (user!=self.owner),"The calling user is not the owner of the object."
+            assert (self.access_level=='PUB'),"Object is already public, no point to fetch groups with access to it."
+        except AssertionError as error:
+            print(error)
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
+        else:
+            groups = get_groups_with_perms(self)
+            if groups:
+                return groups
+            else:
+                return SledGroups.objects.none()
+        
+        
+    
     # def getOwnerInfo():
 
     # def addToCollection():

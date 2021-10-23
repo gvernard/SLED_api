@@ -69,7 +69,7 @@ class LensListView(ListView):
 
 
 
-# View to add new lenses
+# This is a 'Mixin' class, used to carry variables and functions that are common to LensAddView and LensUpdateView.
 class AddUpdateMixin(object):
     myfields = ("ra",
             "dec",
