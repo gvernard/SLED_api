@@ -1,0 +1,65 @@
+{% extends 'master_header.html' %}
+
+{% block content %}
+
+<h1>Delete lenses</h1>
+
+<p>
+  Always careful when deleting!
+</p>
+
+<form id="form-container" method="POST">
+  <div class="form-div">
+    {% csrf_token %}
+    {{ lens_formset.management_form }}
+    {{ lens_formset.non_field_errors }}
+    <input type="hidden" name="confirmed" value="true">
+
+    <table class="master">
+      <thead>
+	<tr>
+	  <th></th>
+	  <th class="th-center">Name</th>
+	  <th class="th-center">Right Ascension J2000</th>
+	  <th class="th-center">Declination J2000</th>
+	  <th class="th-center">Info</th>
+	  <th class="th-center">Access Level</th>
+	  <th class="th-center">Users</th>
+	  <th class="th-center">Groups</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for form in lens_formset %}
+	<tr>
+	  <td><input type="checkbox" name="ids" value="{{ form.id.value }}"></td>
+	  <td>{{ form.name.value }}</td>
+	  <td>{{ form.ra.value }}</td>
+	  <td>{{ form.dec.value }}</td>
+	  <td>{{ form.info.value }}</td>
+	  <td>{{ form.access_level.value }}</td>
+	  <td>{{ form.users_with_access.value }}</td>
+	  <td>{{ form.groups_with_access.value }}</td>
+	</tr>
+	{% endfor %}
+      <tbody>
+    </table>
+
+    {% for form in lens_formset %}
+    {{ form.name.as_hidden }}
+    {{ form.ra.as_hidden }}
+    {{ form.dec.as_hidden }}
+    {{ form.info.as_hidden }}
+    {{ form.access_level.as_hidden }}
+    {{ form.users_with_access.as_hidden }}
+    {{ form.groups_with_access.as_hidden }}
+    {% endfor %}
+    
+    <div>
+      <textarea name="justification" placeholder="Justification in case public lenses are deleted" cols="60" rows="3"></textarea>
+    </div>
+
+  </div>
+  <button type="submit">Confirm delete</button>
+</form>
+
+{% endblock content %}

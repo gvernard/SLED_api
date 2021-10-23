@@ -9,7 +9,7 @@ from django.utils.decorators import method_decorator
 from lenses.models import Users, Lenses
 
 
-from .forms import BaseLensAddFormSet
+from .forms import BaseLensAddFormSet, LensDeleteFormSet
 from django.forms import modelformset_factory, Textarea, Select
 
 
@@ -59,7 +59,7 @@ class LensListView(ListView):
     def post(self,request,*args,**kwargs):
         selected = request.POST.getlist('myselect')
         if selected:
-            lenses = Lenses.accessible_objects.all(self.request.user).filter(id__in=selected).order_by('ra')
+            lenses = Lenses.accessible_objects.all(request.user).filter(id__in=selected).order_by('ra')
         else:
             lenses = self.get_queryset()
         return render(request, self.template_name,{'lenses': lenses})
@@ -128,7 +128,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
         if check:
             # Submitting to itself, perform all the checks
             LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
-            myformset = LensFormSet(data=self.request.POST)
+            myformset = LensFormSet(data=request.POST)
             if myformset.has_changed() and myformset.is_valid():
                 instances = myformset.save(commit=False)
                 for i,myform in enumerate(myformset.forms):
@@ -159,7 +159,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
             ids = request.POST.getlist('ids')
             if ids:
                 LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
-                myformset = LensFormSet(queryset=Lenses.objects.filter(owner=self.request.user).filter(id__in=ids).order_by('ra'))
+                myformset = LensFormSet(queryset=Lenses.objects.filter(owner=request.user).filter(id__in=ids).order_by('ra'))
                 return self.render_to_response(self.get_my_context(myformset))
             else:
                 return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your User profile page: <link>'})
@@ -185,7 +185,7 @@ class LensAddView(AddUpdateMixin,TemplateView):
         if check:
             # Submitting to itself, perform all the checks
             LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
-            myformset = LensFormSet(data=self.request.POST)
+            myformset = LensFormSet(data=request.POST)
             if myformset.has_changed() and myformset.is_valid():
                 instances = myformset.save(commit=False)
                 flag,existing_prox = self.get_proximity(instances,myformset.cleaned_data)
@@ -197,7 +197,7 @@ class LensAddView(AddUpdateMixin,TemplateView):
                     to_insert = []
                     for i,lens in enumerate(instances):
                         if myformset.cleaned_data[i]['insert'] != 'no':
-                            lens.owner = self.request.user
+                            lens.owner = request.user
                             lens.create_name()
                             to_insert.append(lens)
                     if to_insert:
@@ -214,7 +214,70 @@ class LensAddView(AddUpdateMixin,TemplateView):
 
 
 
+# View to delete lenses
+@method_decorator(login_required,name='dispatch')
+class LensDeleteView(TemplateView):
+    model = Lenses
+    template_name = 'lens_delete.html'
 
+    def get(self, request, *args, **kwargs):
+        return TemplateResponse(request,'simple_message.html',context={message:'You must select which lenses to delete from your User profile page: <link>'})
+    
+    def post(self, request, *args, **kwargs):
+        confirmed = request.POST.get('confirmed')
+        justification = request.POST.get('justification')
 
+        if confirmed:
+            myformset = LensDeleteFormSet(data=request.POST)
+            return self.render_to_response({'lens_formset':myformset})
+
+            if myformset.has_changed() and myformset.is_valid():
+                lenses = myformset.save(commit=False)
+
+                if lenses:
+                    pub = []
+                    pri = []
+                    for lens in lenses:
+                        if lens.access_level == 'PUB':
+                            pub.append(lens)
+                        else:
+                            pri.append(lens)
+                    message = ''
+                    if pub:
+                        # confirmation task to delete the public lenses
+                        message = message + '<p>The admins have been notified to approve the deletion of %d public lenses</p>' % (len(pub))
+                    if pri:
+                        # Here sort and notify users and groups
+                        pri.delete()
+                    message = message + '<p>%d private lenses have been deleted</p>' % (len(pub))
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                else:
+                    return TemplateResponse(request,'simple_message.html',context={'message':'No lenses to delete.'})
+            else:
+                return self.render_to_response(self.get_my_context(myformset))
+
+        else:
+            ids = request.POST.getlist('ids')
+            if ids:
+                # Display the lenses with info on access and the users/groups with access
+                lenses = Lenses.objects.filter(owner=request.user).filter(id__in=ids).order_by('ra')
+
+                users_with_access = []
+                groups_with_access = []
+                for i,lens in enumerate(lenses):
+                    users = lens.getUsersWithAccess(request.user)
+                    unames = [user.username for user in users]
+                    users_with_access.append(','.join(unames))
+                    groups = lens.getGroupsWithAccess(request.user)
+                    gnames = [group.name for group in groups]
+                    groups_with_access.append(','.join(gnames))
+
+                myformset = LensDeleteFormSet(queryset=lenses,users_with_access=users_with_access,groups_with_access=groups_with_access)
+
+                context = {'lens_formset': myformset}
+                return self.render_to_response(context)
+            else:
+                return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your User profile page: <link>'})
+            
 
 

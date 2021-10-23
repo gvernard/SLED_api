@@ -1,0 +1,49 @@
+{% extends 'master_header.html' %}
+
+{% block content %}
+
+<h1>Delete lenses</h1>
+
+<p>
+  Always careful when deleting!
+</p>
+
+<form id="form-container" method="POST">
+  <div class="form-div">
+    {% csrf_token %}
+    {{ lens_formset.management_form }}
+    {{ lens_formset.non_field_errors }}
+    <input type="hidden" name="confirmed" value="true">
+
+    <table class="master">
+      <thead>
+	<tr>
+	  <th></th>
+	  <th class="th-center">Name</th>
+	  <th class="th-center">Right Ascension J2000</th>
+	  <th class="th-center">Declination J2000</th>
+	  <th class="th-center">Info</th>
+	  <th class="th-center">Groups</th>	
+	  <th class="th-center">Users</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for form,users,groups in zipped %}
+	<tr>
+	  <td><input type="checkbox" name="ids" value="{{ form.id.value }}"></td>
+	  <td>{{ form.name.value }}</td>
+	  <td>{{ form.ra.value }}</td>
+	  <td>{{ form.dec.value }}</td>
+	  <td>{{ form.info.value }}</td>
+	  <td>{{ users }}</td>
+	  <td>{{ groups }}</td>
+	</tr>
+	{% endfor %}
+      <tbody>
+    </table>
+
+  </div>
+  <button type="submit">Confirm delete</button>
+</form>
+
+{% endblock content %}
