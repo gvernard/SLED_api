@@ -213,6 +213,57 @@ class Users(AbstractUser,GuardianUserMixin):
                     notify.send(sender=self,recipient=user,verb=user.name+'\'s group access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
 
 
+    def accessible_per_other(self,objects,flag):
+        """
+        Given a list of PRIVATE objects OWNED by the user, this function finds who else has access to them.
+        The output is arranged per username.
+
+        Args:
+            objects(List[SingleObject]): a list of OWNED and PRIVATE objects for which the user-owner needs to find who else has access to.
+            flag ('users' or 'groups'): a flag to determine whether access is checked on an individual users or group basis.
+        Return:
+            ugs(List[`Users`]): a list of users or groups that have access to the objects
+            accessible_objects(List[int]): a list of lists. One list per entry of 'ugs' that contains the indices of the input list, i.e. a subset of it, that the user, or group, has access to. 
+        """
+        # If input argument is a single value, convert to list
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+        # Check that user is the owner
+        self.checkOwnsList(objects) 
+        
+        try:
+            # Check that all objects are indeed private.
+            flag = True
+            for obj in objects:
+                if obj.access_level == 'PUB':
+                    flag = False
+            assert(flag),"All given objects MUST be private, but it's not the case."
+        except:
+            print(error)
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
+        else:
+            all_ugs = []
+            ug_obj_pairs = []
+            for i in range(0,len(objs_to_update)):
+                if flag == 'users':
+                    ugs = list(objs_to_update[i].getUsersWithAccess(self))
+                else:
+                    ugs = list(objs_to_update[i].getGroupssWithAccess(self))
+                if ugs:
+                    all_ugs.extend(ugs)
+                    for ug in ugs:
+                        ug_obj_pairs.append((ug.id,i))
+            # Aggregate the objects that were changed for each user in a dcitionary with primary_key:list of indices to objs_to_update
+            ug_accesses_objects = {key: list(map(itemgetter(1), ele)) for key, ele in groupby(sorted(ug_obj_pairs,key=itemgetter(0)), key = itemgetter(0))}
+            unique_ugs = set(all_ugs)
+            accessible_objects = []
+            for ug in unique_ugs:
+                    accessible_objects.append(ug_accesses_objects[ug.id])
+            return unique_ugs,accessible_objects
+
+
+        
     def makePublic(self,objects):
         """
         Changes the access_level of the given objects to private.
@@ -221,6 +272,9 @@ class Users(AbstractUser,GuardianUserMixin):
 
         Args:
             objects(List[SingleObject]): A list of primary objects of a specific type.
+
+        Returns:
+            to_check(List[SingleObject]): A subset of the input objects, those that have close neighbours already existing in the database (possible duplicates)
         """
         # If input argument is a single value, convert to list
         if isinstance(objects,SingleObject):
@@ -243,75 +297,61 @@ class Users(AbstractUser,GuardianUserMixin):
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print("The operation of '"+caller[1][3]+"' should not proceed")
         else:
-            perm = "view_"+objs_to_update[0]._meta.db_table
-
-            ### First, find the Users with access to the objects.
+            object_type = objs_to_update[0]._meta.model.__name__
+            perm = "view_"+object_type
+            
+            ### Very important: check for proximity before making public.
             #####################################################            
-            # Before updating the access, find all users with private access to each object.
-            user_obj_pairs = []
-            for i in range(0,len(objs_to_update)):
-                obj = objs_to_update[i]
-                #print("Lens object:   ",obj)
-                users = get_users_with_perms(obj,with_group_users=False,only_with_perms_in=[perm])
-                if len(users) > 0:
-                    for user in users:
-                        user_obj_pairs.append((user.username,i))
-                        #print(user.username,obj)
-            #print(user_obj_pairs)
-                    
-            # Aggregate the objects that were changed for each user in a dcitionary with username:list of indices to objs_to_update
-            all_objs_per_user = {key: list(map(itemgetter(1), ele)) for key, ele in groupby(sorted(user_obj_pairs,key=itemgetter(0)), key = itemgetter(0))}
-            #print(all_objs_per_user)
+            if object_type == 'Lenses':
+                indices,neis = Lenses.proximal.get_DB_neighbours_many(objs_to_update)
+                if indices:
+                    # Possible duplicates, return them
+                    to_check = [objs_to_update[i] for i in indices]
+                    return to_check
+            
+            ### Per user
+            #####################################################            
+            users_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'users')
+            for i,user in enumerate(users_with_access):
+                objs_per_user = []
+                obj_ids = []
+                for j in accessible_objects[i]:
+                    objs_per_user.append(objs_to_update[j])
+                    obj_ids.append(objs_to_update[j].id)
+                remove_perm(perm,user,objs_per_user) # Remove all the view permissions for these objects that are to be updated (just 1 query)                
+                notify.send(sender=self,
+                            recipient=user,
+                            verb='Private objects you had access to are now public.',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            note_type='MakePublic',
+                            object_type=object_type,
+                            object_ids=obj_ids)
 
-            # Create the notifications per user and remove permissions
-            affected_users = Users.objects.filter(username__in=all_objs_per_user.keys())
-            for user in affected_users:
-                username = user.username
-                ids = [objs_to_update[i].id for i in all_objs_per_user[username]]
-                objs_per_user = getattr(lenses.models,'Lenses').objects.filter(pk__in=ids)
-                object_type = objs_per_user[0]._meta.model.__name__
-                # Remove all the view permissions for these objects that are to be updated.
-                remove_perm(perm,user,objs_per_user) # (just 1 query)                
-                # exclude the owner from the notifications
-                if username != self.username:
-                    obj_ids = list(objs_per_user.values_list('id'))
-                    #print(username,list(names))
-                    notify.send(sender=self,recipient=user,verb='Private objects you had access to are now public.',level='warning',timestamp=timezone.now(),note_type='MakePublic',object_type=object_type,object_ids=obj_ids)
-
-
-            ### Second, find the Groups with access to the objects.
+            ### Per group
             #####################################################
-            group_obj_pairs = []
-            perm = "view_"+objs_to_update[0]._meta.db_table
-            for i in range(0,len(objs_to_update)):
-                obj = objs_to_update[i]
-                #print("Lens object:   ",obj)
-                groups = get_groups_with_perms(obj,attach_perms=True) # returns dictionary
-                #print(groups)
-                if len(groups) > 0:
-                    for group,perm_list in groups.items():
-                        if perm in perm_list:
-                            group_obj_pairs.append((group.name,i))
-
-            # Aggregate the objects that were changed for each group in a dcitionary with username:list of indices to objs_to_update
-            all_objs_per_group = {key: list(map(itemgetter(1), ele)) for key, ele in groupby(sorted(group_obj_pairs,key=itemgetter(0)), key = itemgetter(0))}
-
-            # Create the notifications per group and remove permissions
-            affected_groups = SledGroups.objects.filter(name__in=all_objs_per_group.keys())
-            for group in affected_groups:
-                groupname = group.name
-                ids = [objs_to_update[i].id for i in all_objs_per_group[groupname]]
-                objs_per_group = getattr(lenses.models,'Lenses').objects.filter(pk__in=ids)
-                object_type = objs_per_group[0]._meta.model.__name__
-                # Remove all the view permissions for these objects that are to be updated.
+            groups_with_access,accessible_objects = self..accessible_per_other(objs_to_update,'groups')
+            for i,group in enumerate(groups_with_access):
+                objs_per_group = []
+                obj_ids = []
+                for j in accessible_objects[i]:
+                    objs_per_group.append(objs_to_update[j])
+                    obj_ids.append(objs_to_update[j].id)
                 remove_perm(perm,group,objs_per_group) # (just 1 query)                
-                obj_ids = list(objs_per_group.values_list('id'))
-                notify.send(sender=self,recipient=group,verb='Private objects you had access to are now public.',level='warning',timestamp=timezone.now(),note_type='MakePublic',object_type=object_type,object_ids=obj_ids)
+                notify.send(sender=self,
+                            recipient=group,
+                            verb='Private objects you had access to are now public.',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            note_type='MakePublic',
+                            object_type=object_type,
+                            object_ids=obj_ids)
 
             # Finally, update only those objects that need to be updated in a single query
             #####################################################
             getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
-   
+
+
     def makePrivate(self,objects):
         """
         Changes the AccessLevel of the given objects to 'private'.
@@ -476,7 +516,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 perm = "view_"+self._meta.db_table
                 users = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
                 if users:
-                    return users
+                    return users.exclude(username=self.username) # exclude the owner
                 else:
                     return Users.objects.none()
 
@@ -581,6 +621,42 @@ class AccessibleLensManager(models.Manager):
         accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
         return lenses_public | accessible_private_lenses # merge and return querysets
 
+class ProximalLensManager(models.Manager):
+    """
+    Attributes:
+        check_radius (`float`): A radius in arcsec, representing an area around each existing lens.
+    """
+    check_radius = 16 # in arcsec
+    
+    def get_DB_neighbours(self,lens):
+        '''
+        The custom SLED model for a group of users, inheriting from the django `Group`.
+
+        Attributes:
+            user (`User`): the user for whom to query the database for all the accessible lenses.
+            
+
+        Returns:
+            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+        '''
+        qset = super().get_queryset.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+        if qset.count() > 0:
+            return qset.order_by(distance)
+        else:
+            return False
+        
+    def get_DB_neighbours_many(self,lenses):
+        index_list = []
+        neis_list = [] # A list of non-empty querysets
+        for i,lens in enumerate(lenses):
+            neis = self.get_DB_neighbours(lens)
+            if neis:
+                index_list.append(i)
+                neis_list.append(neis)
+        return index_list,neis_list
+    
+    
+    
 class Lenses(SingleObject):    
     ra = models.DecimalField(max_digits=7,
                              decimal_places=4,
@@ -677,8 +753,9 @@ class Lenses(SingleObject):
 
     
     accessible_objects = AccessibleLensManager() # the first manager is the default one
+    proximal = ProximalLensManager()
     objects = models.Manager()
-
+    
     class Meta():
         db_table = "lenses"
         ordering = ["ra"]
@@ -717,17 +794,7 @@ class Lenses(SingleObject):
             self.create_name()
         super(Lenses, self).save(*args,**kwargs)
 
-    def get_DB_neighbours(self,radius):
-        '''
-        The custom SLED model for a group of users, inheriting from the django `Group`.
-
-        Attributes:
-            user (`User`): the user for whom to query the database for all the accessible lenses.
-            radius (`float`): A radius in arcsec around each existing lens.
-
-        Returns:
-            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
-        '''
+    def get_DB_neighbours(self,radius)
         neighbours = list(Lenses.objects.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))
         return neighbours
 
