@@ -1,3 +1,4 @@
+{% extends 'master_header.html' %}
 {% block content %}
 <div class="content container">
   <p class="title">My Confirmation Tasks</p>
@@ -16,7 +17,7 @@
 	<td>{{ task.created_at }}</td>
 	<td>{{ task.status }}</td>
 	<td>{{ receiver_names }}</td>
-	<td><a href="{% url 'single_task' task_id=task.id %}">go</a></td>
+	<td><a href="{% url 'confirmation:single-task' task_id=task.id %}">go</a></td>
       </tr>
       {% endfor %}
     </table>
@@ -41,7 +42,7 @@
 	<td>{{ task.created_at }}</td>
 	<td>{{ task.status }}</td>
 	<td>{{ receiver_names }}</td>
-	<td><a href="{% url 'single_task' task_id=task.id %}">go</a></td>
+	<td><a href="{% url 'confirmation:single-task' task_id=task.id %}">go</a></td>
       </tr>
       {% endfor %}
     </table>
@@ -66,7 +67,7 @@
 	<td>{{ task.created_at }}</td>
 	<td>{{ task.status }}</td>
 	<td>{{ receiver_names }}</td>
-	<td><a href="{% url 'single_task' task_id=task.id %}">go</a></td>
+	<td><a href="{% url 'confirmation:single-task' task_id=task.id %}">go</a></td>
       </tr>
       {% endfor %}
     </table>
