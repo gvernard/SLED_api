@@ -12,7 +12,7 @@
   <div class="form-div">
     {% csrf_token %}
     {{ lens_formset.management_form }}
-    {{ lens_formset.non_field_errors }}
+    {{ lens_formset.non_form_errors }}
     <input type="hidden" name="confirmed" value="true">
 
     <table class="master">
@@ -45,13 +45,9 @@
     </table>
 
     {% for form in lens_formset %}
-    {{ form.name.as_hidden }}
-    {{ form.ra.as_hidden }}
-    {{ form.dec.as_hidden }}
-    {{ form.info.as_hidden }}
-    {{ form.access_level.as_hidden }}
-    {{ form.users_with_access.as_hidden }}
-    {{ form.groups_with_access.as_hidden }}
+    {% for field in form %}
+    {{ field.as_hidden }}
+    {% endfor %}
     {% endfor %}
     
     <div>

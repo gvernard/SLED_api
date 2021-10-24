@@ -561,19 +561,21 @@ class SledGroups(Group):
     
 
 
-    
-class NewLensManager(models.Manager):
-    def create_lens(self,user,*args,**kwargs):
-        ra = kwargs.get('ra')
-        ra = kwargs.get('dec')
-        c = SkyCoord(ra=ra*u.degree, dec=dec*u.degree, frame='icrs')
-        Jname = 'J'+c.to_string('hmsdms')
-        lens = self.create(**kwargs,owner=user,name=Jname)
-        return lens
+
+
+
+class LensQuerySet(models.QuerySet):
+    def get_DB_neighbours(self,radius,ra,dec):
+        return self.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius).order_by(distance)
+    def accessible_objects(self,user):
+        lenses_public  = self.filter(access_level='PUB')
+        lenses_private = self.filter(access_level='PRI')
+        accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
+        return lenses_public | accessible_private_lenses # merge and return querysets
 
 class AccessibleLensManager(models.Manager):
     def all(self,user):
-        # Attention: this is inefficient because it makes two queries to the database, one for the public and one for the private lenses. We need to replace this with one.
+        # Attention: all this should result to no hits to the DB because it is supposed to work with querysets only...to check!
         lenses_public  = super().get_queryset().filter(access_level='PUB')
         lenses_private = super().get_queryset().filter(access_level='PRI')
         accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
@@ -675,7 +677,6 @@ class Lenses(SingleObject):
 
     
     accessible_objects = AccessibleLensManager() # the first manager is the default one
-    new_objects = NewLensManager()
     objects = models.Manager()
 
     class Meta():
@@ -708,7 +709,8 @@ class Lenses(SingleObject):
         self.name = 'J'+c.to_string('hmsdms')
         
     def get_absolute_url(self):
-        return reverse('lenses:lens_detail',kwargs={'lens_name':self.name})
+        #return reverse('lenses:lens-detail',kwargs={'lens_name':self.name})
+        return "bleedf"
 
     def save(self, *args, **kwargs):
         if self.pk is None and 'name' not in kwargs:
@@ -774,6 +776,7 @@ class ConfirmationTask(SingleObject):
     class TaskType(models.TextChoices):
         CedeOwnership = 'CedeOwnership', _('Cede ownership')
         MakePrivate = 'MakePrivate', _('Make private')
+        DeleteObject = 'DeleteObject', _('Delete public object')
     task_type = models.CharField(max_length=100,
                                  choices=TaskType.choices,
                                  help_text="The name of the task to perform.") 
@@ -945,7 +948,33 @@ class ConfirmationResponse(models.Model):
     response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.") 
     response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the recipient on the given response.") 
 
-    
+class DeleteObject(ConfirmationTask):
+    class Meta:
+        proxy = True
+        
+    class myForm(forms.Form):
+        mychoices = [('yes','Yes'),('no','No')]
+        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
+        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
+
+    def allowed_responses(self):
+        return ['yes','no']
+
+    def getForm(self):
+        return self.myForm()
+
+    def finalizeTask(self):
+        # Here, only one recipient to get a response from
+        response = self.heard_from().get().response
+        admin = Users.objects.get(username='admin')
+        if response == 'yes':
+            #cargo = json.loads(self.cargo)
+            getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
+            notify.send(sender=admin,recipient=self.owner,verb='Your request to delete public objects was accepted',level='success',timestamp=timezone.now(),note_type='DeleteObjects',task_id=self.id)
+        else:
+            notify.send(sender=admin,recipient=self.owner,verb='Your request to delete public objects was rejected',level='error',timestamp=timezone.now(),note_type='DeleteObjects',task_id=self.id)
+
+            
 class CedeOwnership(ConfirmationTask):
     class Meta:
         proxy = True
