@@ -32,4 +32,5 @@ urlpatterns = [
     path('notifications/', include(notifications.urls, namespace='notifications')),
     path('sled_notifications/', include('sled_notifications.urls'), name='sled_notifications'),
     path("select2/", include("django_select2.urls")),
+    path('api/',include('api.urls')),
 ]

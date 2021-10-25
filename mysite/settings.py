@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     'notifications',
     'multiselectfield',
     'django_select2',
+    'api',
+    'rest_framework',
 ]
 
 SITE_ID = 1
