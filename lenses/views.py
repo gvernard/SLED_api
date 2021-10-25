@@ -38,31 +38,31 @@ class LensDetailView(DetailView):
     
     
 # View for any list of lenses
-@method_decorator(login_required,name='dispatch')
-class LensListView(ListView):
-    model = Lenses
-    template_name = 'lens_list.html'
-    context_object_name = 'lenses'
-
-    def get_queryset(self):
-        return Lenses.accessible_objects.all(self.request.user).order_by('ra')
-
-    def get_context_data(self):
-        '''
-        Adds the model to the context data.
-        '''
-        context          = super(ListView, self).get_context_data()
-        context['model'] = self.model
-        context['fields_to_display'] = ['name','ra','dec','z_lens','z_source','access_level']
-        return context
-
-    def post(self,request,*args,**kwargs):
-        selected = request.POST.getlist('myselect')
-        if selected:
-            lenses = Lenses.accessible_objects.all(request.user).filter(id__in=selected).order_by('ra')
-        else:
-            lenses = self.get_queryset()
-        return render(request, self.template_name,{'lenses': lenses})
+# @method_decorator(login_required,name='dispatch')
+# class LensListView(ListView):
+#     model = Lenses
+#     template_name = 'lens_list.html'
+#     context_object_name = 'lenses'
+#
+#     def get_queryset(self):
+#         return Lenses.accessible_objects.all(self.request.user).order_by('ra')
+#
+#     def get_context_data(self):
+#         '''
+#         Adds the model to the context data.
+#         '''
+#         context          = super(ListView, self).get_context_data()
+#         context['model'] = self.model
+#         context['fields_to_display'] = ['name','ra','dec','z_lens','z_source','access_level']
+#         return context
+#
+#     def post(self,request,*args,**kwargs):
+#         selected = request.POST.getlist('myselect')
+#         if selected:
+#             lenses = Lenses.accessible_objects.all(request.user).filter(id__in=selected).order_by('ra')
+#         else:
+#             lenses = self.get_queryset()
+#         return render(request, self.template_name,{'lenses': lenses})
                 
 
 
@@ -250,12 +250,50 @@ class LensDeleteView(TemplateView):
                             cargo["object_ids"] = ids
                         cargo["comment"] = myformset.justification
 
-                        # This line needs to be replaced with the DB admin
-                        admin = Users.objects.filter(username='admin')
+                        admin = Users.objects.filter(username='admin') # This line needs to be replaced with the DB admin
                         mytask = ConfirmationTask.create_task(request.user,admin,'DeleteObject',cargo)
                         message = message + '<p>The admins have been notified to approve the deletion of %d public lenses</p>' % (len(pub))
                     if pri:
                         # Here sort and notify users and groups
+
+                        ### Per user
+                        #####################################################            
+                        users_with_access,accessible_objects = self.accessible_per_other(pri,'users')
+                        for i,user in enumerate(users_with_access):
+                            objs_per_user = []
+                            obj_ids = []
+                            for j in accessible_objects[i]:
+                                objs_per_user.append(objs_to_update[j])
+                                obj_ids.append(objs_to_update[j].id)
+                            remove_perm(perm,user,objs_per_user) # Remove all the view permissions for these objects that are to be updated (just 1 query)                
+                            notify.send(sender=self,
+                                        recipient=user,
+                                        verb='Private objects you had access to have been deleted.',
+                                        level='warning',
+                                        timestamp=timezone.now(),
+                                        note_type='DeleteObject',
+                                        object_type=object_type,
+                                        object_ids=obj_ids)
+
+                        ### Per group
+                        #####################################################
+                        groups_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'groups')
+                        for i,group in enumerate(groups_with_access):
+                            objs_per_group = []
+                            obj_ids = []
+                            for j in accessible_objects[i]:
+                                objs_per_group.append(objs_to_update[j])
+                                obj_ids.append(objs_to_update[j].id)
+                            remove_perm(perm,group,objs_per_group) # (just 1 query)                
+                            notify.send(sender=self,
+                                        recipient=group,
+                                        verb='Private objects you had access to have been deleted.',
+                                        level='warning',
+                                        timestamp=timezone.now(),
+                                        note_type='DeleteObject',
+                                        object_type=object_type,
+                                        object_ids=obj_ids)
+                
                         for lens in pri:
                             lens.delete()
                     message = message + '<p>%d private lenses have been deleted</p>' % (len(pri))
@@ -290,4 +328,17 @@ class LensDeleteView(TemplateView):
                 return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'})
             
 
+
+# View to give access to private lenses
+@method_decorator(login_required,name='dispatch')
+class LensGiveAccessView(TemplateView):
+    model = Lenses
+    template_name = 'lens_give_access.html'
+
+    def get(self, request, *args, **kwargs):
+        return TemplateResponse(request,'simple_message.html',context={message:'You must select which private lenses to give access to from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'})
+    
+    def post(self, request, *args, **kwargs):
+        users = list(Users.objects.all())
+        return self.render_to_response({'users':users})
 
