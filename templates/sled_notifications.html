@@ -1,3 +1,6 @@
+{% extends 'master_header.html' %}
+{% block content %}
+
 <div>
   <table>
     <thead>
@@ -17,6 +20,11 @@
     <td>{{ note.data.object_ids }}</td>
     <td>{{ note.level }}</td>
   </tr>
+  {% empty %}
+    <tr>
+      <td colspan="6">No notifications</td>
+    </tr>
   {% endfor %}
   </table>  
 </div>
+{% endblock content %}

@@ -330,7 +330,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
             ### Per group
             #####################################################
-            groups_with_access,accessible_objects = self..accessible_per_other(objs_to_update,'groups')
+            groups_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'groups')
             for i,group in enumerate(groups_with_access):
                 objs_per_group = []
                 obj_ids = []
@@ -351,7 +351,9 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################
             getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
 
-
+            # return an empty list to indicate that everything went fine (if neighbours are found, they are returned)
+            return []
+                
     def makePrivate(self,objects):
         """
         Changes the AccessLevel of the given objects to 'private'.
@@ -639,7 +641,7 @@ class ProximalLensManager(models.Manager):
         Returns:
             neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
         '''
-        qset = super().get_queryset.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
         if qset.count() > 0:
             return qset.order_by(distance)
         else:
@@ -794,7 +796,7 @@ class Lenses(SingleObject):
             self.create_name()
         super(Lenses, self).save(*args,**kwargs)
 
-    def get_DB_neighbours(self,radius)
+    def get_DB_neighbours(self,radius):
         neighbours = list(Lenses.objects.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))
         return neighbours
 
@@ -824,6 +826,9 @@ class Lenses(SingleObject):
 
 ################################################################################################################################################
 ### BEGIN: Confirmation task specific code
+class PendingManager(models.Manager):
+    def for_user(self,user):
+        return super().get_queryset().filter(status='P').filter(owner=user)
 
 class ConfirmationTask(SingleObject):
     """
@@ -864,6 +869,9 @@ class ConfirmationTask(SingleObject):
     )
     recipient_names = []
 
+    pending = PendingManager()
+    objects = models.Manager()
+    
     def __str__(self):
         return '%s_$s' % (self.task_type,self.id)
 

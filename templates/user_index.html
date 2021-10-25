@@ -65,18 +65,70 @@
     </tr>
     {% endfor %}
   </table>
-  
-  <a href="{% url 'logout'%}">LOGOUT</a>
 </div>
 
 
 
 <div class="section">
-  <h1>My Confirmation tasks</h1>
-</div>
-<div class="content container">
+  <h1>Pending Confirmation tasks</h1>
+  {% if N_tasks > 0 %}
+  <table class="sortable">
+    <thead>
+      <tr>
+	<th>Type</th>
+	<th>Created at</th>
+	<th>From</th>
+	<th>Receivers</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for recipients,task in pending_conf %}
+      <tr>
+	<td>{{ task.task_type }}</td>
+	<td>{{ task.created_at }}</td>
+	<td>{{ task.owner }}</td>
+	<td>{{ recipients }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No pending confirmation tasks</p>
+  {% endif %}
   <a href="{% url 'confirmation:list-tasks' %}">All tasks</a>
-</idv>
+</div>
+
+
+<div class="section">
+  <h1>New Notifications</h1>
+  {% if unread_notifications %}
+  <table class="sortable">
+    <thead>
+      <tr>
+	<th>Sender</th>
+	<th>Sent at</th>
+	<th>Level</th>
+	<th>Verb</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for note in unread_notifications %}
+      <tr>
+	<td>note.actor_object_id</td>
+	<td>note.timestamp</td>
+	<td>note.level</td>
+	<td>note.verb</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No new notifications</p>
+  {% endif %}
+   <a href="{% url 'sled-notifications:list-all' %}">All notifications</a>
+</div>
+
+
 
 <div class="section">
   <h1>My lenses ({{ user.getOwnedObjects.Lenses|length }}) </h1>
@@ -116,7 +168,8 @@
   </form>
 </div>
 
+<a href="{% url 'logout'%}">LOGOUT</a>
+
+
 {% endblock content %}
   
-
-<td class="td-center"><a href="{% url 'lenses:lens-detail' lens_name=lens.name %}">{{lens.name}}</td>

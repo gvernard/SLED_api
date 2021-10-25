@@ -26,7 +26,7 @@ urlpatterns = [
     path('confirmation/', include('confirmation.urls'), name='confirmation'),
     path('lenses/', include('lenses.urls'), name='lenses'),
     path('users/', include('users.urls'), name='users'),
-    path('groups/', include('groups.urls'), name='users'),
+    path('groups/', include('groups.urls'), name='groups'),
     path('register/', vregistration.register, name='register'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('notifications/', include(notifications.urls, namespace='notifications')),

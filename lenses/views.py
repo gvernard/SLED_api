@@ -119,7 +119,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
     template_name = 'lens_add_update.html'
     
     def get(self, request, *args, **kwargs):
-        return TemplateResponse(request,'simple_message.html',context={message:'You must select which lenses to update from your User profile page: <link>'})
+        return TemplateResponse(request,'simple_message.html',context={message:'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'})
 
     def post(self, request, *args, **kwargs):
         check = request.POST.get('check')
@@ -161,7 +161,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
                 myformset = LensFormSet(queryset=Lenses.objects.filter(owner=request.user).filter(id__in=ids).order_by('ra'))
                 return self.render_to_response(self.get_my_context(myformset))
             else:
-                return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your User profile page: <link>'})
+                return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'})
 
 
 
@@ -219,7 +219,7 @@ class LensDeleteView(TemplateView):
     template_name = 'lens_delete.html'
 
     def get(self, request, *args, **kwargs):
-        return TemplateResponse(request,'simple_message.html',context={message:'You must select which lenses to delete from your User profile page: <link>'})
+        return TemplateResponse(request,'simple_message.html',context={message:'You must select which lenses to delete from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'})
     
     def post(self, request, *args, **kwargs):
         confirmed = request.POST.get('confirmed')
@@ -287,7 +287,7 @@ class LensDeleteView(TemplateView):
                 context = {'lens_formset': myformset}
                 return self.render_to_response(context)
             else:
-                return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your User profile page: <link>'})
+                return TemplateResponse(request,'simple_message.html',context={'message':'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'})
             
 
 
