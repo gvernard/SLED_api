@@ -1,4 +1,4 @@
-from django.db import models
+rom django.db import models
 from django import forms
 from django.contrib.auth.models import AbstractUser, Group
 from django.utils import timezone
@@ -303,7 +303,7 @@ class Users(AbstractUser,GuardianUserMixin):
             ### Very important: check for proximity before making public.
             #####################################################            
             if object_type == 'Lenses':
-                indices,neis = Lenses.proximal.get_DB_neighbours_many(objs_to_update)
+                indices,neis = Lenses.proximate.get_DB_neighbours_many(objs_to_update)
                 if indices:
                     # Possible duplicates, return them
                     to_check = [objs_to_update[i] for i in indices]
@@ -623,7 +623,7 @@ class AccessibleLensManager(models.Manager):
         accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
         return lenses_public | accessible_private_lenses # merge and return querysets
 
-class ProximalLensManager(models.Manager):
+class ProximateLensManager(models.Manager):
     """
     Attributes:
         check_radius (`float`): A radius in arcsec, representing an area around each existing lens.
@@ -641,9 +641,9 @@ class ProximalLensManager(models.Manager):
         Returns:
             neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
         '''
-        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),lens.ra,lens.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=self.check_radius)
         if qset.count() > 0:
-            return qset.order_by(distance)
+            return qset
         else:
             return False
         
@@ -755,7 +755,7 @@ class Lenses(SingleObject):
 
     
     accessible_objects = AccessibleLensManager() # the first manager is the default one
-    proximal = ProximalLensManager()
+    proximate = ProximateLensManager()
     objects = models.Manager()
     
     class Meta():

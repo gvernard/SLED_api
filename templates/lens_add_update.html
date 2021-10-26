@@ -18,8 +18,7 @@
   To be within the check radius of existing lenses set RA= 8.368 and DEC= -5.6694
 </p>
 
-
-<form id="form-container" method="POST">
+<form id="formset" formset-prefix="{{ lens_formset.prefix }}" method="POST">
   <div class="form-div">
     {% csrf_token %}
     {{ lens_formset.management_form }}

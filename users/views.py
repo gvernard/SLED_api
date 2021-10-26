@@ -16,7 +16,6 @@ def user_profile(request):
     recipients = []
     for task in tasks:
         unames = task.get_all_recipients().values_list('username',flat=True)
-        print(unames)
         recipients.append(','.join(unames))
     zipped = zip(recipients,tasks)
 

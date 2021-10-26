@@ -14,28 +14,7 @@
   Share your secrets!
 </p>
 
-<table>
-  <thead>
-    <tr>
-      <th>Username</th>
-      <th>First name</th>
-      <th>Last name</th>
-      <th>Email</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for user in users %}
-    <tr>
-      <td>{{ user.username }}</td>
-      <td>{{ user.first_name }}</td>
-      <td>{{ user.last_name }}</td>
-      <td>{{ user.email }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
-<div style="width:800px;border:1px solid black">
+<div style="width:100%;border:1px solid black">
   <select id="users-autocomplete" class="js-example-data-ajax" multiple="multiple"></select>
 </div>
 

@@ -1,15 +1,20 @@
 $( document ).ready(function() {
+    // get the formset prefix first
+    var prefix = $('#formset').attr('formset-prefix');
+    
     // The 'row' variable that is passed after the add event corresponds to .lens-form (which gets .dynamic-form now)
     $('.copy-target').formset({
 	added: reposition,
 	deleteContainerClass: "delete-button",
-	addContainerClass: "add-button"
+	addContainerClass: "add-button",
+	prefix: prefix
     });
 
     $('.my-select2').select2({
 	placeholder: 'Select an option',
 	width: '180px'
     });
+
     //move_remove($('.lens-form'));
     //move_add_another();
 });
