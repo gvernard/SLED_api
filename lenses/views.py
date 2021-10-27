@@ -13,15 +13,39 @@ from .forms import BaseLensAddUpdateFormSet, BaseLensDeleteFormSet
 from django.forms import modelformset_factory, Textarea, Select
 
 
-# View for lens queries
-@method_decorator(login_required,name='dispatch')
-class LensQueryView(ListView):
-    model = Lenses
-    template_name = 'lens_list.html'
-    context_object_name = 'lenses'
+def query_search(request):
+    if (request.GET['ra_min']!='')&(request.GET['ra_max']!='')&(request.GET['dec_min']!='')&(request.GET['dec_max']!=''):
+        POSITION = True      
+    if POSITION:
+        ra_min, ra_max = request.GET['ra_min'], request.GET['ra_max']
+        dec_min, dec_max = request.GET['dec_min'], request.GET['dec_max']
+        
+        lenses = Lenses.accessible_objects.all(request.user).filter(ra__gte=ra_min, ra__lte=ra_max, dec__gte=dec_min, dec__lte=dec_max).order_by('ra')
+        if ra_min > ra_max:
+            print('over 360')
+            print(ra_min, ra_max)
+            lenses = (Lenses.accessible_objects.all(request.user).filter(ra__gte=ra_min, dec__gte=dec_min, dec__lte=dec_max) | Lenses.accessible_objects.all(request.user).filter(ra__lte=ra_max, dec__gte=dec_min, dec__lte=dec_max)).order_by('ra')
+    return lenses
 
-    def get_queryset(self):
-        return Lenses.accessible_objects.all(self.request.user).order_by('ra')
+# View for lens queries
+@login_required
+def LensQueryView(request):
+    '''
+    Main lens query page, allowing currently for a simple filter on the lenses table parameters
+    Eventually we want to allow simultaneous queries across multiple tables
+    '''
+    keywords = ['ra_min','ra_max','dec_min','dec_max']
+    form_values = [0, 360, -90, 90]
+    print(request.GET)
+    if all(handle in request.GET for handle in keywords) and 'submit' in request.GET:
+        lenses = query_search(request)
+        print(lenses)
+        form_values = [request.GET['ra_min'], request.GET['ra_max'], request.GET['dec_min'], request.GET['dec_max']]
+    else:
+        lenses = Lenses.accessible_objects.all(request.user).order_by('ra')
+    return render(request, 'lens_list.html', {'lenses':lenses, 'formvalues':form_values})
+
+
 
 # View for a single lens
 @method_decorator(login_required,name='dispatch')
