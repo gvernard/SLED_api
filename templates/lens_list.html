@@ -10,7 +10,7 @@
 
         <form id="form_57258" class="appnitro"  method="get" action="">
             <div class="form_description">
-                <p>Input Ra and Dec coordinates for more detailed search</p>
+                <p>Input Ra and Dec coordinates for more detailed search. To search the opposite area (i.e. across 00hours), put the larger RA as the minimum. </p>
             </div>
 
             <div>
@@ -23,10 +23,31 @@
                 <input id="dec_min" name="dec_min" class="element text medium" type="text" maxlength="255" value="{{ formvalues.2 }}"/>
                 <label class="description" for="dec_max">Dec max </label>
                 <input id="dec_max" name="dec_max" class="element text medium" type="text" maxlength="255" value="{{ formvalues.3 }}"/>
-                
+                <br>
+                <label class="description" for="n_img_min">Min number of images </label>
+                <input id="n_img_min" name="n_img_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
+                <label class="description" for="n_img_max">Max number of images </label>
+                <input id="n_img_max" name="n_img_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <br>
+                <label class="description" for="image_sep_min">Minimum einstein radius </label>
+                <input id="image_sep_min" name="image_sep_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
+                <label class="description" for="image_sep_max">Maximum einstein radius </label>
+                <input id="image_sep_max" name="image_sep_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <br>
+                <label class="description" for="z_source_min">Minimum source redshift </label>
+                <input id="z_source_min" name="z_source_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
+                <label class="description" for="z_source_max">Maximum source redshift </label>
+                <input id="z_source_max" name="z_source_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <br>
+                <label class="description" for="z_lens_min">Minimum lens redshift </label>
+                <input id="z_lens_min" name="z_lens_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
+                <label class="description" for="z_lens_max">Maximum lens redshift </label>
+                <input id="z_lens_max" name="z_lens_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <br>
+
                 <input type="hidden" name="form_id" value="57257" />
                 <input id="saveForm" class="button_text" type="submit" name="submit" value="Submit" />
-                <input id="saveForm" class="button_text" type="submit" name="download" value="Download" />
+                <!--<input id="saveForm" class="button_text" type="submit" name="download" value="Download" />-->
             </div>
         </form>
     </div>

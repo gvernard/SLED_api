@@ -14,17 +14,36 @@ from django.forms import modelformset_factory, Textarea, Select
 
 
 def query_search(request):
-    if (request.GET['ra_min']!='')&(request.GET['ra_max']!='')&(request.GET['dec_min']!='')&(request.GET['dec_max']!=''):
-        POSITION = True      
-    if POSITION:
-        ra_min, ra_max = request.GET['ra_min'], request.GET['ra_max']
-        dec_min, dec_max = request.GET['dec_min'], request.GET['dec_max']
-        
-        lenses = Lenses.accessible_objects.all(request.user).filter(ra__gte=ra_min, ra__lte=ra_max, dec__gte=dec_min, dec__lte=dec_max).order_by('ra')
-        if ra_min > ra_max:
-            print('over 360')
-            print(ra_min, ra_max)
-            lenses = (Lenses.accessible_objects.all(request.user).filter(ra__gte=ra_min, dec__gte=dec_min, dec__lte=dec_max) | Lenses.accessible_objects.all(request.user).filter(ra__lte=ra_max, dec__gte=dec_min, dec__lte=dec_max)).order_by('ra')
+    '''
+    This function performs the filtering on the lenses table, by parsing the filter values from the request
+    '''
+    keywords = ['ra_min', 'ra_max', 'dec_min', 'dec_max', 'n_img_min', 'n_img_max', 'image_sep_min', 'image_sep_max', 'z_source_min', 'z_source_max', 'z_lens_min', 'z_lens_max']
+    values = [request.GET[keyword] for keyword in keywords]
+
+    #start with available lenses
+    lenses = Lenses.accessible_objects.all(request.user)
+
+    #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
+    over_meridian = False
+    if (float(request.GET['ra_min']) > float(request.GET['ra_max'])):
+        over_meridian = True
+
+    #now apply the filter for each non-null entry 
+    for k, value in enumerate(values):
+        if value != '':
+            print(k, value, keywords[k])
+            if ('ra_' in keywords[k]) & over_meridian:
+                continue
+            if '_min' in keywords[k]:
+                args = {keywords[k].split('_min')[0]+'__gte':float(value)}
+            elif '_max' in keywords[k]:
+                args = {keywords[k].split('_max')[0]+'__lte':float(value)}
+            lenses = lenses.filter(**args).order_by('ra')
+
+    #come back to the special case where RA_min is less than 0hours
+    if over_meridian:
+        lenses = lenses.filter(ra__gte=request.GET['ra_min']) | lenses.filter(ra__lte=request.GET['ra_max'])
+
     return lenses
 
 # View for lens queries
@@ -34,13 +53,12 @@ def LensQueryView(request):
     Main lens query page, allowing currently for a simple filter on the lenses table parameters
     Eventually we want to allow simultaneous queries across multiple tables
     '''
-    keywords = ['ra_min','ra_max','dec_min','dec_max']
-    form_values = [0, 360, -90, 90]
+    keywords = ['ra_min', 'ra_max', 'dec_min', 'dec_max', 'n_img_min', 'n_img_max', 'image_sep_min', 'image_sep_max', 'z_source_min', 'z_source_max', 'z_lens_min', 'z_lens_max']
+    form_values = [0, 360, -90, 90, '', '', '', '', '', '', '', '', '', '']
     print(request.GET)
     if all(handle in request.GET for handle in keywords) and 'submit' in request.GET:
         lenses = query_search(request)
-        print(lenses)
-        form_values = [request.GET['ra_min'], request.GET['ra_max'], request.GET['dec_min'], request.GET['dec_max']]
+        form_values = [request.GET[keyword] for keyword in keywords]
     else:
         lenses = Lenses.accessible_objects.all(request.user).order_by('ra')
     return render(request, 'lens_list.html', {'lenses':lenses, 'formvalues':form_values})
