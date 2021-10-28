@@ -101,29 +101,31 @@ print()
 
 
 ########### ANOTHER TEST
-print("TEST ==== Owner makes some private lenses public")
-#public_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PUB')
+# print("TEST ==== Owner makes some private lenses public")
+# #public_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PUB')
 
-owner = users.get(username='Cameron')
-private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
-print("User ",owner," has ",len(private_lenses)," private objects")
+# owner = users.get(username='Cameron')
+# private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
+# print("User ",owner," has ",len(private_lenses)," private objects")
 
 
-ids = [private_lenses[i].id for i in range(20,25)]
-#print(ids)
-set1 = Lenses.objects.filter(pk__in=ids)
-for i in range(0,set1.count()):
-    print(set1[i],get_users_with_perms(set1[i],only_with_perms_in=['view_lenses']))
+# ids = [private_lenses[i].id for i in range(20,25)]
+# #print(ids)
+# #set1 = Lenses.objects.filter(pk__in=ids)
+# set1 = private_lenses[3:8]
+# for i in range(0,len(set1)):
+#     print(set1[i],get_users_with_perms(set1[i],only_with_perms_in=['view_lenses']))
     
-owner.makePublic(list(private_lenses[20:25]))
+# #owner.makePublic(list(private_lenses[20:25]))
+# owner.makePublic(list(set1))
 
-private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
-print("User ",owner," has ",len(private)," private objects")
-for i in range(0,set1.count()):
-    print(set1[i],get_users_with_perms(set1[i],only_with_perms_in=['view_lenses']))
+# private = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
+# print("User ",owner," has ",len(private)," private objects")
+# for i in range(0,set1.count()):
+#     print(set1[i],get_users_with_perms(set1[i],only_with_perms_in=['view_lenses']))
 
-accessible_objects_per_user()
-print()
+# accessible_objects_per_user()
+# print()
 
 ########################
 
@@ -140,7 +142,7 @@ owned_objects_per_user()
 sender = users.get(username='Cameron')
 receiver = users.filter(username='Giorgos')
 owned_lenses = sender.getOwnedObjects(["Lenses","dummy"])
-lenses_to_cede = owned_lenses["Lenses"][3:6]
+lenses_to_cede = owned_lenses["Lenses"][3:13]
 print("Lenses to cede from ",sender," to ",receiver,":",lenses_to_cede)
 print()
 mytask = sender.cedeOwnership(lenses_to_cede,receiver)

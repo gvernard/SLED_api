@@ -1,0 +1,28 @@
+<div class="content container">
+  <form id="list-form" method="POST">
+    {% csrf_token %}
+    <table class="sortable">
+      <tr>
+	<th class="th-center">Name</th>
+	<th class="th-center">Right Ascension J2000</th>
+	<th class="th-center">Declination J2000</th>
+	<th class="th-center">Lens redshift</th>
+	<th class="th-center">Source redshift</th>
+	<th class="th-center">Lens type</th>
+	<th class="th-center">Source type</th>
+      </tr>
+      {% for form in lens_formset %}
+      <tr>
+	<td>{{ form.name.value }}</td>
+	<td>{{ form.ra.value }}</td>
+	<td>{{ form.dec.value }}</td>
+	<td>{{ form.z_lens.value }}</td>
+	<td>{{ form.z_source.value }}</td>
+	<td>{{ form.lens_type.value }}</td>
+	<td>{{ form.source_type.value }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+  </form>
+</div>

@@ -1,4 +1,4 @@
-rom django.db import models
+from django.db import models
 from django import forms
 from django.contrib.auth.models import AbstractUser, Group
 from django.utils import timezone
@@ -235,21 +235,22 @@ class Users(AbstractUser,GuardianUserMixin):
             # Check that all objects are indeed private.
             flag = True
             for obj in objects:
+                print(obj.access_level)
                 if obj.access_level == 'PUB':
                     flag = False
             assert(flag),"All given objects MUST be private, but it's not the case."
-        except:
+        except AssertionError as error:
             print(error)
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print("The operation of '"+caller[1][3]+"' should not proceed")
         else:
             all_ugs = []
             ug_obj_pairs = []
-            for i in range(0,len(objs_to_update)):
+            for i in range(0,len(objects)):
                 if flag == 'users':
-                    ugs = list(objs_to_update[i].getUsersWithAccess(self))
+                    ugs = list(objects[i].getUsersWithAccess(self))
                 else:
-                    ugs = list(objs_to_update[i].getGroupssWithAccess(self))
+                    ugs = list(objects[i].getGroupsWithAccess(self))
                 if ugs:
                     all_ugs.extend(ugs)
                     for ug in ugs:
@@ -421,6 +422,10 @@ class Users(AbstractUser,GuardianUserMixin):
 
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
+
+    def getAdmin():
+        return Users.objects.filter(is_staff=True)
+
     # def deactivateUser(self,user):
     #     # See django documentation for is_active for login and permissions
     #     if self.is_staff and user.is_active:
@@ -518,7 +523,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 perm = "view_"+self._meta.db_table
                 users = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
                 if users:
-                    return users.exclude(username=self.username) # exclude the owner
+                    return users.exclude(username=self.owner.username) # exclude the owner
                 else:
                     return Users.objects.none()
 
@@ -605,16 +610,6 @@ class SledGroups(Group):
 
 
 
-
-class LensQuerySet(models.QuerySet):
-    def get_DB_neighbours(self,radius,ra,dec):
-        return self.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius).order_by(distance)
-    def accessible_objects(self,user):
-        lenses_public  = self.filter(access_level='PUB')
-        lenses_private = self.filter(access_level='PRI')
-        accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
-        return lenses_public | accessible_private_lenses # merge and return querysets
-
 class AccessibleLensManager(models.Manager):
     def all(self,user):
         # Attention: all this should result to no hits to the DB because it is supposed to work with querysets only...to check!
@@ -623,6 +618,13 @@ class AccessibleLensManager(models.Manager):
         accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
         return lenses_public | accessible_private_lenses # merge and return querysets
 
+    def in_ids(self,user,id_list):
+        lenses_public  = super().get_queryset().filter(access_level='PUB').filter(id__in=id_list)
+        lenses_private = super().get_queryset().filter(access_level='PRI').filter(id__in=id_list)
+        accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
+        return lenses_public | accessible_private_lenses # merge and return querysets
+
+    
 class ProximateLensManager(models.Manager):
     """
     Attributes:
@@ -790,11 +792,6 @@ class Lenses(SingleObject):
     def get_absolute_url(self):
         #return reverse('lenses:lens-detail',kwargs={'lens_name':self.name})
         return "bleedf"
-
-    def save(self, *args, **kwargs):
-        if self.pk is None and 'name' not in kwargs:
-            self.create_name()
-        super(Lenses, self).save(*args,**kwargs)
 
     def get_DB_neighbours(self,radius):
         neighbours = list(Lenses.objects.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))

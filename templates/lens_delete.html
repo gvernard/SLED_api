@@ -8,54 +8,31 @@
   Always careful when deleting!
 </p>
 
-<form id="form-container" method="POST">
-  <div class="form-div">
-    {% csrf_token %}
-    {{ lens_formset.management_form }}
-    {{ lens_formset.non_form_errors }}
-    <input type="hidden" name="confirmed" value="true">
-
-    <table class="master">
-      <thead>
-	<tr>
-	  <th></th>
-	  <th class="th-center">Name</th>
-	  <th class="th-center">Right Ascension J2000</th>
-	  <th class="th-center">Declination J2000</th>
-	  <th class="th-center">Info</th>
-	  <th class="th-center">Access Level</th>
-	  <th class="th-center">Users</th>
-	  <th class="th-center">Groups</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for form in lens_formset %}
-	<tr>
-	  <td><input type="checkbox" name="ids" value="{{ form.id.value }}"></td>
-	  <td>{{ form.name.value }}</td>
-	  <td>{{ form.ra.value }}</td>
-	  <td>{{ form.dec.value }}</td>
-	  <td>{{ form.info.value }}</td>
-	  <td>{{ form.access_level.value }}</td>
-	  <td>{{ form.users_with_access.value }}</td>
-	  <td>{{ form.groups_with_access.value }}</td>
-	</tr>
-	{% endfor %}
-      <tbody>
-    </table>
-
-    {% for form in lens_formset %}
-    {% for field in form %}
-    {{ field.as_hidden }}
-    {% endfor %}
-    {% endfor %}
+<div class="content">
+  <form id="ids-form" method="POST">
+    <span class="errorlist">{{ error_message }}</span>
     
+    {% include "lens_list_executive.html" with lenses=lenses %}
     <div>
       <textarea name="justification" placeholder="Justification in case public lenses are deleted" cols="60" rows="3"></textarea>
     </div>
+    
+  </form>
+</div>
 
-  </div>
-  <button type="submit">Confirm delete</button>
-</form>
+
+
+<div>
+  <button type="submit" form="ids-form">Confirm deletion</button>
+</div>
+
+<script>
+  var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
+  if( checkboxes.length > 0){
+      for(var i=0;i<checkboxes.length;i++){
+	  checkboxes[i].checked = true;
+      }
+  }
+</script>
 
 {% endblock content %}

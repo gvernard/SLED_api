@@ -18,41 +18,6 @@ class BaseLensForm(forms.ModelForm):
         }
 
 
-class BaseLensDeleteFormSet(forms.BaseModelFormSet):
-    users_with_access = forms.CharField(max_length=300,required=False)
-    groups_with_access = forms.CharField(max_length=300,required=False)
-    justification = ''
-    
-    def __init__(self, *args, justification=None,**kwargs):
-        super(BaseLensDeleteFormSet,self).__init__(*args, **kwargs)
-        self.justification = justification
-                
-    def add_fields(self,form,index):
-        super().add_fields(form,index)
-        form.fields["users_with_access"] = self.users_with_access
-        form.fields["groups_with_access"] = self.groups_with_access
-    
-    def clean(self):
-        """Checks that if there is any public lens then a justification needs to be provided for the admins"""
-        super(BaseLensDeleteFormSet,self).clean()
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-        
-        names = []
-        for i in range(0,len(self.forms)):
-            if self.forms[i].cleaned_data.get('access_level') == 'PUB':
-                names.append(self.forms[i].cleaned_data.get('name'))
-
-        print(names)
-        if names and self.justification == '':
-            message = 'A justification needs to be provided below in order to delete the following lenses: '+','.join(names)
-            raise ValidationError(message)
-
-
-    
-        
-
 
 
 class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):

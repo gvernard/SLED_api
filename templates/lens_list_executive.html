@@ -1,0 +1,42 @@
+<style>
+  .exe_summary td {margin:0px;padding:2px;}
+</style>
+
+{% csrf_token %}
+<div>
+  <table class="exe_summary sortable">
+    <tr>
+      <th></th>
+      <th>Name</th>
+      <th>Right Ascension J2000</th>
+      <th>Declination J2000</th>
+      <th>Access level</th>
+      <th>Accessible by</th>
+    </tr>
+    {% for lens in lenses %}
+    <tr>
+      <td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
+      <td>{{ lens.name }}</td>
+      <td>{{ lens.ra }}</td>
+      <td>{{ lens.dec }}</td>
+      <td>{{ lens.access_level }}</td>
+      <td>
+	{{ lens.users_with_access }} - <span style="font-style:italic">{{ lens.groups_with_access }}</span>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+
+<script>
+  var my_func = function(event) {
+      var checked_boxes = document.querySelectorAll('.content input[type="checkbox"]:checked');
+      if( checked_boxes.length == 0){
+   	  alert('You must select at least one lens!');
+   	  event.preventDefault();
+      }
+  };
+  var form = document.getElementById("ids-form")
+  form.addEventListener("submit", my_func, true);
+</script>

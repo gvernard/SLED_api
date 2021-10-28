@@ -114,10 +114,10 @@
     <tbody>
       {% for note in unread_notifications %}
       <tr>
-	<td>note.actor_object_id</td>
-	<td>note.timestamp</td>
-	<td>note.level</td>
-	<td>note.verb</td>
+	<td>{{ note.actor_object_id }}</td>
+	<td>{{ note.timestamp }}</td>
+	<td>{{ note.level }}</td>
+	<td>{{ note.verb }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -131,45 +131,27 @@
 
 
 <div class="section">
-  <h1>My lenses ({{ user.getOwnedObjects.Lenses|length }}) </h1>
+  <h1>My lenses ({{ lenses|length }}) </h1>
 </div>
-<div class="content container">
-  <form id="list-form" method="POST">
-    {% csrf_token %}
-    <table class="sortable">
-      <tr>
-	<th></th>
-	<th class="th-center">Name</th>
-	<th class="th-center">Lens redshift</th>
-	<th class="th-center">Source redshift</th>
-	<th class="th-center">Right Ascension J2000</th>
-	<th class="th-center">Declination J2000</th>
-	<th class="th-center">Access level</th>
-	<th class="th-center">Owner</th>
-      </tr>
-      {% for lens in user.getOwnedObjects.Lenses %}
-      <tr>
-	<td><input type="checkbox" name="ids" value="{{ lens.id }}"></td>
-	<td class="td-center"><a href="">{{lens.name}}</td>
-	<td class="td-center">{{lens.zlens|floatformat:2}}</td>
-	<td class="td-center">{{lens.zsource|floatformat:2}}</td>
-	<td class="td-center">{{lens.ra|floatformat:5}}</td>
-	<td class="td-center">{{lens.dec|floatformat:5}}</td>
-	<td class="td-center">{{lens.access_level}}</td>
-	<td class="td-center">{{lens.owner}}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    <button type="submit" formaction="{% url 'lenses:lens-update' %}">Update lenses</button>
-    <button type="button">Make private/public</button>
-    <button type="submit" formaction="{% url 'lenses:lens-give-access' %}">Give/revoke access</button>
-    <button type="button">Cede ownership</button>
-    <button type="submit" formaction="{% url 'lenses:lens-delete' %}">Delete lenses</button>
+
+<div class="content ">
+  <form id="ids-form" method="POST">
+    {% include "lens_list_executive.html" with lenses=lenses %}
   </form>
 </div>
 
-<a href="{% url 'logout'%}">LOGOUT</a>
+<div class="controls">
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-update' %}">Update lenses</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-give-access' %}">Give/revoke access</button>
+  <button type="button" form="ids-form">Make private/public</button>
+  <button type="button" form="ids-form">Cede ownership</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-delete' %}">Delete lenses</button>
+</div>
 
 
+<div>
+  <a href="{% url 'logout'%}">LOGOUT</a>
+</div>
+ 
 {% endblock content %}
   

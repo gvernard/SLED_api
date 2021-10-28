@@ -5,13 +5,14 @@ from django.contrib.auth.decorators import login_required
 
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
+from guardian.shortcuts import assign_perm
+from django.forms import modelformset_factory, inlineformset_factory, CheckboxInput
+
+from urllib.parse import urlparse
 
 from lenses.models import Users, Lenses, ConfirmationTask
+from .forms import BaseLensForm, BaseLensAddUpdateFormSet
 
-from django.views.decorators.cache import cache_control
-
-from .forms import BaseLensForm,BaseLensAddUpdateFormSet, BaseLensDeleteFormSet
-from django.forms import modelformset_factory, inlineformset_factory
 
 
 # View for lens queries
@@ -78,8 +79,8 @@ class AddUpdateMixin(object):
         for f in myformset.forms:
             f.initial['insert'] = ''
         existing = [None]*len(myformset)
-        for i in indices:
-            existing[i] = neis[i]
+        for i,index in enumerate(indices):
+            existing[index] = neis[i]
         context = {'lens_formset': myformset,
                    'new_existing': zip(myformset,existing)
                    }
@@ -94,17 +95,6 @@ class AddUpdateMixin(object):
     #                }
     #     return context
 
-    # def get_proximity(self,instances,cleaned_data):
-    #     existing_prox = [None]*len(instances)
-    #     flag = False
-    #     for i,lens in enumerate(instances):
-    #         neis = lens.get_DB_neighbours(16)
-    #         if len(neis) != 0 and cleaned_data[i]['insert'] == '':
-    #             flag = True
-    #             existing_prox[i] = neis
-    #             print('(%d) %s (%f,%f) - Proximity alert (%d)' % (i,lens.name,lens.ra,lens.dec,len(neis)))
-    #     return flag,existing_prox
-
 
 
 # View to update lenses
@@ -117,68 +107,87 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
         message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
         return TemplateResponse(request,'simple_message.html',context={'message':message})
 
-    def post(self, request, *args, **kwargs):
-        check = request.POST.get('check')
+    def finalize_update(self,myformset,instances,request):
+        to_update = []
+        for i,myform in enumerate(myformset.forms):
+            if myformset.cleaned_data[i]['insert'] != 'no':
+                to_update.append(instances[i])
+        print(to_update)
+        if to_update:
+            for lens in to_update:
+                lens.create_name()
+                lens.save()
+            return True 
+        else:
+            return False
+
         
-        if check:
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+
+        if referer == request.path:
             # Submitting to itself, perform all the checks
-            LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddUpdateFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
-            myformset = LensFormSet(data=request.POST)
+            LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=0)
+            myformset = LensFormSet(data=request.POST,instance=request.user)
             if myformset.has_changed() and myformset.is_valid():
                 instances = myformset.save(commit=False)
+                to_check = []
                 for i,myform in enumerate(myformset.forms):
-                    to_check = []
+                    print(myform.changed_data)
                     if 'ra' in myform.changed_data or 'dec' in myform.changed_data:
                         to_check.append(instances[i])
 
-                # Double 'if' here. First check, then if there is proximity render. If not, proceed with the update.
                 if to_check:
-                    flag,existing_prox = self.get_proximity(to_check,myformset.cleaned_data)
-                    if flag:
-                        return self.render_to_response(self.get_my_context(myformset,existing=existing_prox))
-
-                to_update = []
-                for i,myform in enumerate(myformset.forms):
-                    if myform.has_changed() and myform.cleaned_data['insert'] != 'no':
-                        to_update.append(instances[i])
-                if to_update:
-                    for lens in to_update:
-                        lens.save()
-                    return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully updated!'})
+                    indices,neis = Lenses.proximate.get_DB_neighbours_many(to_check)
+                    myformset = LensFormSet(data=request.POST,instance=request.user,required=indices)
+                    if myformset.is_valid():
+                        if self.finalize_update(myformset,instances,request):
+                            message = 'Lenses successfully updated!'
+                        else:
+                            message = 'No lenses to update.'
+                        return TemplateResponse(request,'simple_message.html',context={'message':message})
+                    else:
+                        return self.render_to_response(self.get_my_context(myformset,indices=indices,neis=neis))                        
                 else:
-                    return TemplateResponse(request,'simple_message.html',context={'message':'No lenses to update.'})
+                    if self.finalize_update(myformset,instances,request):
+                        message = 'Lenses successfully updated!'
+                    else:
+                        message = 'No lenses to update.'
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
                 return self.render_to_response(self.get_my_context(myformset))
-                
         else:
-            ids = request.POST.getlist('ids')
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            
             if ids:
-                LensFormSet = modelformset_factory(Lenses,formset=BaseLensAddUpdateFormSet,extra=0,fields=self.myfields,widgets=self.mywidgets)
-                myformset = LensFormSet(queryset=Lenses.objects.filter(owner=request.user).filter(id__in=ids).order_by('ra'))
+                LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=0)
+                myformset = LensFormSet(queryset=Lenses.accessible_objects.in_ids(request.user,ids),instance=request.user)
                 return self.render_to_response(self.get_my_context(myformset))
             else:
-                message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                # Javascript does not allow empty id submission, but check just in case.
+                message = 'No lenses to display. Select some from your user profile.'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
+        
+
 
 
 
 # View to add new lenses
-@method_decorator([login_required,cache_control(no_cache=True,must_revalidate=True)],name='dispatch')
+@method_decorator(login_required,name='dispatch')
 class LensAddView(AddUpdateMixin,TemplateView):
     model = Lenses
     template_name = 'lens_add_update.html'
 
-    
     def get(self, request, *args, **kwargs):
-        LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=1)
+        LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,exclude=('id',),extra=1)
         myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
         context = self.get_my_context(myformset)
         return self.render_to_response(context)
     
     def post(self, request, *args, **kwargs):
-        check = request.POST.get('check')
-        
-        if check:
+        referer = urlparse(request.META['HTTP_REFERER']).path
+
+        if referer == request.path:
             # Submitting to itself, perform all the checks
             LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=0)
             myformset = LensFormSet(data=request.POST)
@@ -196,7 +205,8 @@ class LensAddView(AddUpdateMixin,TemplateView):
                             lens.create_name()
                             to_insert.append(lens)
                     if to_insert:
-                        Lenses.objects.bulk_create(to_insert)
+                        new_lenses = Lenses.objects.bulk_create(to_insert)
+                        assign_perm('view_lenses',request.user,new_lenses)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         return TemplateResponse(request,'simple_message.html',context={'message':'No new lenses to insert.'})
@@ -223,111 +233,103 @@ class LensDeleteView(TemplateView):
         return TemplateResponse(request,'simple_message.html',context={'message':message})
     
     def post(self, request, *args, **kwargs):
-        confirmed = request.POST.get('confirmed')
+        referer = urlparse(request.META['HTTP_REFERER']).path
 
-        if confirmed:
-            LensDeleteFormSet = modelformset_factory(Lenses,formset=BaseLensDeleteFormSet,exclude=('owner',))
-            myformset = LensDeleteFormSet(data=request.POST,justification=request.POST.get('justification'))
+        if referer == request.path:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
 
-            if myformset.is_valid():
-                ids = request.POST.getlist('ids')
-                if ids:
-                    lenses = Lenses.objects.filter(owner=request.user).filter(id__in=ids).order_by('ra')
-                    pub = []
-                    pri = []
-                    for lens in lenses:
-                        if lens.access_level == 'PUB':
-                            pub.append(lens)
-                        else:
-                            pri.append(lens)
-                    message = ''
-                    if pub:
-                        # confirmation task to delete the public lenses
-                        cargo = {}
-                        cargo["object_type"] = pub[0]._meta.model.__name__
-                        ids = []
-                        for obj in pub:
-                            ids.append(obj.id)
-                            cargo["object_ids"] = ids
-                        cargo["comment"] = myformset.justification
-
-                        admin = Users.objects.filter(username='admin') # This line needs to be replaced with the DB admin
-                        mytask = ConfirmationTask.create_task(request.user,admin,'DeleteObject',cargo)
-                        message = message + '<p>The admins have been notified to approve the deletion of %d public lenses</p>' % (len(pub))
-                    if pri:
-                        # Here sort and notify users and groups
-
-                        ### Per user
-                        #####################################################            
-                        users_with_access,accessible_objects = self.accessible_per_other(pri,'users')
-                        for i,user in enumerate(users_with_access):
-                            objs_per_user = []
-                            obj_ids = []
-                            for j in accessible_objects[i]:
-                                objs_per_user.append(objs_to_update[j])
-                                obj_ids.append(objs_to_update[j].id)
-                            remove_perm(perm,user,objs_per_user) # Remove all the view permissions for these objects that are to be updated (just 1 query)                
-                            notify.send(sender=self,
-                                        recipient=user,
-                                        verb='Private objects you had access to have been deleted.',
-                                        level='warning',
-                                        timestamp=timezone.now(),
-                                        note_type='DeleteObject',
-                                        object_type=object_type,
-                                        object_ids=obj_ids)
-
-                        ### Per group
-                        #####################################################
-                        groups_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'groups')
-                        for i,group in enumerate(groups_with_access):
-                            objs_per_group = []
-                            obj_ids = []
-                            for j in accessible_objects[i]:
-                                objs_per_group.append(objs_to_update[j])
-                                obj_ids.append(objs_to_update[j].id)
-                            remove_perm(perm,group,objs_per_group) # (just 1 query)                
-                            notify.send(sender=self,
-                                        recipient=group,
-                                        verb='Private objects you had access to have been deleted.',
-                                        level='warning',
-                                        timestamp=timezone.now(),
-                                        note_type='DeleteObject',
-                                        object_type=object_type,
-                                        object_ids=obj_ids)
+            if ids:
+                return_message = []
+                qset = Lenses.accessible_objects.in_ids(request.user,ids)
                 
-                        for lens in pri:
-                            lens.delete()
-                    message = message + '<p>%d private lenses have been deleted</p>' % (len(pri))
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
-                else:
-                    return TemplateResponse(request,'simple_message.html',context={'message':'No lenses to delete.'})
-            else:
-                print(myformset.errors)
-                return self.render_to_response({'lens_formset':myformset})
+                pub = qset.filter(access_level='PUB')
+                if pub:
+                    justification = request.POST.get('justification')
+                    if justification:
+                        # confirmation task to delete the public lenses
+                        cargo = {'object_type': pub[0]._meta.model.__name__,
+                                 'object_ids': [],
+                                 'comment': justification}
+                        for obj in pub:
+                            cargo['object_ids'].append(obj.id)
+                        mytask = ConfirmationTask.create_task(request.user,Users.getAdmin(),'DeleteObject',cargo)
+                        return_message.append('<p>The admins have been notified to approve the deletion of %d public lenses</p>' % (len(pub)))
+                    else:
+                        lenses = qset.values()
+                        for i,lens in enumerate(qset):
+                            lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
+                            lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
+                        return self.render_to_response({'lenses':lenses,'error_message':'A justification needs to be provided below in order to delete any PUBLIC lenses.'})
+                    
+                pri = qset.filter(access_level='PRI')
+                if pri:
+                    ### Notifications per user #####################################################            
+                    users_with_access,accessible_objects = request.user.accessible_per_other(pri,'users')
+                    for i,user in enumerate(users_with_access):
+                        objs_per_user = []
+                        obj_ids = []
+                        for j in accessible_objects[i]:
+                            objs_per_user.append(pri[j])
+                            obj_ids.append(pri[j].id)
+                        remove_perm(perm,user,objs_per_user) # Remove all the view permissions for these objects that are to be updated (just 1 query)                
+                        notify.send(sender=self,
+                                    recipient=user,
+                                    verb='Private objects you had access to have been deleted.',
+                                    level='warning',
+                                    timestamp=timezone.now(),
+                                    note_type='DeleteObject',
+                                    object_type=object_type,
+                                    object_ids=obj_ids)
 
+                    ### Notifications per group #####################################################
+                    groups_with_access,accessible_objects = request.user.accessible_per_other(pri,'groups')
+                    for i,group in enumerate(groups_with_access):
+                        objs_per_group = []
+                        obj_ids = []
+                        for j in accessible_objects[i]:
+                            objs_per_group.append(pri[j])
+                            obj_ids.append(pri[j].id)
+                        remove_perm(perm,group,objs_per_group) # (just 1 query)                
+                        notify.send(sender=self,
+                                    recipient=group,
+                                    verb='Private objects you had access to have been deleted.',
+                                    level='warning',
+                                    timestamp=timezone.now(),
+                                    note_type='DeleteObject',
+                                    object_type=object_type,
+                                    object_ids=obj_ids)
+                        
+                    ### Finally, delete the private lenses
+                    for lens in pri:
+                        lens.delete()       
+                    return_message.append('<p>%d private lenses have been deleted</p>' % (len(pri)))
+                    
+                return TemplateResponse(request,'simple_message.html',context={'message':''.join(return_message)})
+                    
+            else:
+                message = 'You must select which lenses to delete from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            
         else:
-            ids = request.POST.getlist('ids')
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
             if ids:
                 # Display the lenses with info on access and the users/groups with access
-                lenses = Lenses.objects.filter(owner=request.user).filter(id__in=ids).order_by('ra')
-                initial = list(lenses.values())
-
-                for i,lens in enumerate(lenses):
-                    users = lens.getUsersWithAccess(request.user)
-                    unames = ','.join([user.username for user in users])
-                    groups = lens.getGroupsWithAccess(request.user)
-                    gnames = ','.join([group.name for group in groups])
-                    initial[i]["users_with_access"] = unames
-                    initial[i]["groups_with_access"] = gnames
-
-                LensDeleteFormSet = modelformset_factory(Lenses,formset=BaseLensDeleteFormSet,exclude=('owner',),extra=len(lenses))
-                myformset = LensDeleteFormSet(queryset=Lenses.accessible_objects.none(),initial=initial)
-                
-                context = {'lens_formset': myformset}
-                return self.render_to_response(context)
+                print(ids)
+                qset = Lenses.accessible_objects.in_ids(request.user,ids)
+                print(qset)
+                lenses = qset.values()
+                for i,lens in enumerate(qset):
+                    lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
+                    lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
+                print(lenses)
+                return self.render_to_response({'lenses': lenses})
             else:
-                message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                message = 'You must select which lenses to delete from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+
+
             
 
 
