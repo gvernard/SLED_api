@@ -82,34 +82,6 @@ class LensDetailView(DetailView):
 
     
     
-# View for any list of lenses
-# @method_decorator(login_required,name='dispatch')
-# class LensListView(ListView):
-#     model = Lenses
-#     template_name = 'lens_list.html'
-#     context_object_name = 'lenses'
-#
-#     def get_queryset(self):
-#         return Lenses.accessible_objects.all(self.request.user).order_by('ra')
-#
-#     def get_context_data(self):
-#         '''
-#         Adds the model to the context data.
-#         '''
-#         context          = super(ListView, self).get_context_data()
-#         context['model'] = self.model
-#         context['fields_to_display'] = ['name','ra','dec','z_lens','z_source','access_level']
-#         return context
-#
-#     def post(self,request,*args,**kwargs):
-#         selected = request.POST.getlist('myselect')
-#         if selected:
-#             lenses = Lenses.accessible_objects.all(request.user).filter(id__in=selected).order_by('ra')
-#         else:
-#             lenses = self.get_queryset()
-#         return render(request, self.template_name,{'lenses': lenses})
-                
-
 
 
 
@@ -129,16 +101,6 @@ class AddUpdateMixin(object):
                    }
         return context
 
-    # def get_my_context(self,myformset,**kwargs):
-    #     for f in myformset.forms:
-    #         f.initial['insert'] = ''
-    #     existing = kwargs.get('existing',[None]*len(myformset))
-    #     context = {'lens_formset': myformset,
-    #                'new_existing': zip(myformset,existing)
-    #                }
-    #     return context
-
-
 
 # View to update lenses
 @method_decorator(login_required,name='dispatch')
@@ -155,7 +117,6 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
         for i,myform in enumerate(myformset.forms):
             if myformset.cleaned_data[i]['insert'] != 'no':
                 to_update.append(instances[i])
-        print(to_update)
         if to_update:
             for lens in to_update:
                 lens.create_name()
@@ -176,7 +137,6 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
                 instances = myformset.save(commit=False)
                 to_check = []
                 for i,myform in enumerate(myformset.forms):
-                    print(myform.changed_data)
                     if 'ra' in myform.changed_data or 'dec' in myform.changed_data:
                         to_check.append(instances[i])
 
@@ -298,7 +258,7 @@ class LensDeleteView(TemplateView):
                         mytask = ConfirmationTask.create_task(request.user,Users.getAdmin(),'DeleteObject',cargo)
                         return_message.append('<p>The admins have been notified to approve the deletion of %d public lenses</p>' % (len(pub)))
                     else:
-                        lenses = qset.values()
+                        lenses = list(qset.values())
                         for i,lens in enumerate(qset):
                             lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
                             lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
@@ -357,14 +317,11 @@ class LensDeleteView(TemplateView):
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
             if ids:
                 # Display the lenses with info on access and the users/groups with access
-                print(ids)
                 qset = Lenses.accessible_objects.in_ids(request.user,ids)
-                print(qset)
-                lenses = qset.values()
+                lenses = list(qset.values())
                 for i,lens in enumerate(qset):
                     lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
                     lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
-                print(lenses)
                 return self.render_to_response({'lenses': lenses})
             else:
                 message = 'You must select which lenses to delete from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -387,5 +344,45 @@ class LensGiveAccessView(TemplateView):
         return TemplateResponse(request,'simple_message.html',context={'message':message})
     
     def post(self, request, *args, **kwargs):
-        return self.render_to_response()
+        referer = urlparse(request.META['HTTP_REFERER']).path
 
+        if referer == request.path:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            user_ids = [ pk for pk in request.POST.getlist('users') if pk.isdigit() ]
+            group_ids = [ pk for pk in request.POST.getlist('groups') if pk.isdigit() ]
+            
+            if ids and (user_ids or group_ids):
+                return_message = []
+
+                lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+
+                target_users = []
+                if user_ids:
+                    users = Users.objects.filter(id__in=user_ids)
+                    return_message.append('<p>Access given to users: %s</p>' % ','.join([user.username for user in users]))
+                    target_users.extend(users)
+                if group_ids:
+                    groups = SledGroups.objects.filter(id__in=group_ids)
+                    return_message.append('<p>Access given to groups: %s</p>' % ','.join([group.name for group in groups]))
+                    target_users.extend(groups)
+
+                request.user.giveAccess(lenses,users)
+                return TemplateResponse(request,'simple_message.html',context={'message':''.join(return_message)})
+
+            else:
+                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and users from the input below.'
+                return self.render_to_response({'lenses': lenses,'error_message':message})
+
+        else:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            if ids:
+                # Display the lenses with info on the users/groups with access
+                qset = Lenses.accessible_objects.in_ids(request.user,ids)
+                lenses = list(qset.values())
+                for i,lens in enumerate(qset):
+                    lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
+                    lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
+                return self.render_to_response({'lenses': lenses})
+            else:
+                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})

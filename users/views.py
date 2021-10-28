@@ -26,8 +26,12 @@ class UserProfileView(TemplateView):
         unread_notifications = user.notifications.unread()
             
         # Get owned lenses
-        lenses = user.getOwnedObjects()["Lenses"]
-        
+        qset = user.getOwnedObjects()["Lenses"]
+        lenses = list(qset.values())
+        for i,lens in enumerate(qset):
+            lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
+            lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
+
         context={'user':user,
                  'pending_conf':zipped,
                  'N_tasks':len(tasks),

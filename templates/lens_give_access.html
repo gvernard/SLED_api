@@ -14,8 +14,30 @@
   Share your secrets!
 </p>
 
-<div style="width:100%;border:1px solid black">
-  <select id="users-autocomplete" class="js-example-data-ajax" multiple="multiple"></select>
+<div class="content">
+  <form id="ids-form" method="POST">
+    <span class="errorlist">{{ error_message }}</span>
+    
+    <div style="width:100%;border:1px solid black">
+      <select id="users-autocomplete" class="js-example-data-ajax" name="users" multiple></select>
+    </div>
+
+    {% include "lens_list_executive.html" with lenses=lenses %}
+
+  </form>
 </div>
+
+<div>
+  <button type="submit" id="submit-btn" form="ids-form">Confirm giving access</button>
+</div>
+
+<script>
+  var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
+  if( checkboxes.length > 0){
+      for(var i=0;i<checkboxes.length;i++){
+	  checkboxes[i].checked = true;
+      }
+  }
+</script>
 
 {% endblock content %}

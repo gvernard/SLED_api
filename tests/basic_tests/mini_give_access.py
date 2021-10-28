@@ -14,7 +14,7 @@ django.setup()
 from lenses.models import Users, SledGroups, Lenses
 
 
-owner  = Users.objects.get(username='Giorgos')
+owner  = Users.objects.get(username='gvernard')
 private_lenses = Lenses.objects.filter(owner=owner).filter(access_level='PRI')
 
 other_user  = Users.objects.get(username='Cameron')

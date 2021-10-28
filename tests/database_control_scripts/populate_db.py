@@ -17,12 +17,37 @@ from lenses.models import Users, SledGroups, Lenses, SingleObject
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
 
-names = ['Cameron', 'Giorgos', 'Fred']
-print('Populating the database with the following users:', names)
+user_array = [{'username':'Cameron',
+               'first_name':'Cameron',
+               'last_name':'Lemon',
+               'email':'cameron.lemon@epfl.ch'
+               },
+              {'username':'gvernard',
+               'first_name':'Giorgos',
+               'last_name':'Vernardos',
+               'email':'georgios.vernardos@epfl.ch'
+               },
+              {'username':'Fred',
+               'first_name':'Fred',
+               'last_name':'Courbin',
+               'email':'fredcourbin@epfl.ch'
+               },
+              {'username':'herculens',
+               'first_name':'Hercules',
+               'last_name':'Demigod',
+               'email':'hercu.god@epfl.ch'
+               },
+              {'username':'gizmo',
+               'first_name':'Giz',
+               'last_name':'Mo',
+               'email':'giz.mo@epfl.ch'
+               }
+              ]
+print('Populating the database with the following users:')
 password = '123'
 
-for name in names:
-    user = Users.objects.create_user(username=name, password=password, affiliation='EPFL', email=name+'@epfl.ch')
+for user_details in user_array:
+    user = Users.objects.create_user(username=user_details['username'], password=password,first_name=user_details['first_name'],last_name=user_details['last_name'],affiliation='EPFL', email=user_details['email'])
 Users.objects.create_superuser(username='admin',password=password,email='admin@example.com')
 
 
@@ -44,7 +69,7 @@ for i, name in enumerate(groups):
 # Adding users to group, need to have set the IDs
 my_group = SledGroups.objects.get(name='Awesome Users') 
 user1 = Users.objects.get(username='Cameron')
-user2 = Users.objects.get(username='Giorgos')
+user2 = Users.objects.get(username='gvernard')
 user3 = Users.objects.get(username='Fred')
 user2.groups.add(my_group)
 user3.groups.add(my_group)

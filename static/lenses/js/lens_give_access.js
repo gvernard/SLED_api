@@ -16,11 +16,10 @@ function users_autocomplete(){
 		};
 	    },
 	    processResults: function (data, params) {
-
 		var results = []
 		$.each(data.users,function(i,user){
 		    results.push({
-			id: i,
+			id: user.id,
 			text: String(user.username),
 			first_name: String(user.first_name),
 			last_name: String(user.last_name),
@@ -63,5 +62,5 @@ function formatUser(user){
 }
 
 function formatUserSelection(user){
-    return user.full_name;
+    return user.first_name+' '+user.last_name;
 }
