@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="section">
-  <h1>List of confirmed gravitational lenses</h1>
+  <h1>Filter search query for lenses</h1>
 </div>
 
     <div class="content container">
@@ -24,25 +24,25 @@
                 <label class="description" for="dec_max">Dec max </label>
                 <input id="dec_max" name="dec_max" class="element text medium" type="text" maxlength="255" value="{{ formvalues.3 }}"/>
                 <br>
-                <label class="description" for="n_img_min">Min number of images </label>
+                <label class="description" for="n_img_min">Min. number of images </label>
                 <input id="n_img_min" name="n_img_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
-                <label class="description" for="n_img_max">Max number of images </label>
+                <label class="description" for="n_img_max">Max. number of images </label>
                 <input id="n_img_max" name="n_img_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
                 <br>
-                <label class="description" for="image_sep_min">Minimum einstein radius </label>
-                <input id="image_sep_min" name="image_sep_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
-                <label class="description" for="image_sep_max">Maximum einstein radius </label>
-                <input id="image_sep_max" name="image_sep_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <label class="description" for="image_sep_min">Min. image separation </label>
+                <input id="image_sep_min" name="image_sep_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.6 }}"/>
+                <label class="description" for="image_sep_max">Max. image separation </label>
+                <input id="image_sep_max" name="image_sep_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.7 }}"/>
                 <br>
-                <label class="description" for="z_source_min">Minimum source redshift </label>
-                <input id="z_source_min" name="z_source_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
-                <label class="description" for="z_source_max">Maximum source redshift </label>
-                <input id="z_source_max" name="z_source_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <label class="description" for="z_source_min">Min. source redshift </label>
+                <input id="z_source_min" name="z_source_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.8 }}"/>
+                <label class="description" for="z_source_max">Max. source redshift </label>
+                <input id="z_source_max" name="z_source_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.9 }}"/>
                 <br>
-                <label class="description" for="z_lens_min">Minimum lens redshift </label>
-                <input id="z_lens_min" name="z_lens_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.4 }}"/>
-                <label class="description" for="z_lens_max">Maximum lens redshift </label>
-                <input id="z_lens_max" name="z_lens_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.5 }}"/>
+                <label class="description" for="z_lens_min">Min. lens redshift </label>
+                <input id="z_lens_min" name="z_lens_min" class="element text medium" type="text" maxlength="10" value="{{ formvalues.10 }}"/>
+                <label class="description" for="z_lens_max">Max. lens redshift </label>
+                <input id="z_lens_max" name="z_lens_max" class="element text medium" type="text" maxlength="10" value="{{ formvalues.11 }}"/>
                 <br>
 
                 <input type="hidden" name="form_id" value="57257" />
@@ -83,7 +83,7 @@
 	<td class="td-center">{{lens.dec|floatformat:5}}</td>
 	<td class="td-center">{{lens.z_lens|floatformat:2}}</td>
 	<td class="td-center">{{lens.z_source|floatformat:2}}</td>
-    <td class="td-center">{{lens.nimg|floatformat:2}}</td>
+    <td class="td-center">{{lens.n_img}}</td>
     <td class="td-center">{{lens.image_sep|floatformat:2}}</td>
       </tr>
       {% endfor %}

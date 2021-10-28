@@ -59,6 +59,7 @@ def LensQueryView(request):
     if all(handle in request.GET for handle in keywords) and 'submit' in request.GET:
         lenses = query_search(request)
         form_values = [request.GET[keyword] for keyword in keywords]
+        print(form_values)
     else:
         lenses = Lenses.accessible_objects.all(request.user).order_by('ra')
     return render(request, 'lens_list.html', {'lenses':lenses, 'formvalues':form_values})
