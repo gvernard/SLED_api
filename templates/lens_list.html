@@ -70,6 +70,8 @@
 	<th class="th-center">Declination J2000</th>
 	<th class="th-center">Lens redshift</th>
 	<th class="th-center">Source redshift</th>
+    <th class="th-center">Images</th>
+    <th class="th-center">Image separation</th>
       </tr>
       {% for lens in lenses %}
       <tr>
@@ -79,8 +81,10 @@
 	<td class="td-center">{{lens.ra|floatformat:5}}</td>
 	<!--<td class="td-center">{{lens.dec_DD|floatformat:0}}:{{lens.dec_MM|floatformat:0}}:{{lens.dec_SS|floatformat:2}}</td> -->
 	<td class="td-center">{{lens.dec|floatformat:5}}</td>
-	<td class="td-center">{{lens.zlens|floatformat:2}}</td>
-	<td class="td-center">{{lens.zsource|floatformat:2}}</td>
+	<td class="td-center">{{lens.z_lens|floatformat:2}}</td>
+	<td class="td-center">{{lens.z_source|floatformat:2}}</td>
+    <td class="td-center">{{lens.nimg|floatformat:2}}</td>
+    <td class="td-center">{{lens.image_sep|floatformat:2}}</td>
       </tr>
       {% endfor %}
     </table>

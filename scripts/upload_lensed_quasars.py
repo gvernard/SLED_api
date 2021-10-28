@@ -39,9 +39,12 @@ for i in range(len(ras)):
     lens.n_img = nimg[i]
     lens.flag_confirmed = confirmed[i]
     lens.image_sep = separation[i]
+    print(z_source[i])
+    df
     try:
         z_s = float(z_source[i])
         lens.z_source = z_s
+        df
     except Exception:
         pass
     try:
@@ -53,7 +56,7 @@ for i in range(len(ras)):
         lens.access_level = SingleObject.AccessLevel.PRIVATE
     elif access[i]=='PUB':
         lens.access_level = SingleObject.AccessLevel.PUBLIC
-        
+    
     lensedquasars.append( lens )
 
 
