@@ -65,6 +65,7 @@ user2 = Users.objects.get(username='Fred')
 
 
 # Adding lenses
+'''
 N = 100
 print('Populating the database with '+str(N)+' random lenses')
 np.random.seed(666)
@@ -91,3 +92,4 @@ assign_perm('view_lenses',user1,mylenses)
 
 #lenses = Lenses.objects.all()
 
+'''
