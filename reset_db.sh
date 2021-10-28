@@ -14,4 +14,4 @@ python manage.py makemigrations
 echo "Migrate"
 python manage.py migrate
 python tests/database_control_scripts/populate_db.py
-python scripts/upload_lensed_quasars.py
+python trial_sample/upload_lensed_quasars.py
