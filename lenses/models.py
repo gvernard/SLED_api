@@ -523,7 +523,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 perm = "view_"+self._meta.db_table
                 users = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
                 if users:
-                    return users.exclude(username=self.owner.username) # exclude the owner
+                    return users.exclude(username=self.owner.username).order_by('username') # exclude the owner
                 else:
                     return Users.objects.none()
 
@@ -548,7 +548,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 #"Object is already public, no point to fetch groups with access to it."
                 return SledGroups.objects.none()
             else:
-                groups = get_groups_with_perms(self)
+                groups = get_groups_with_perms(self).order_by('name')
                 if groups:
                     return groups
                 else:

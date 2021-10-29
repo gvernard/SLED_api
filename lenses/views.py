@@ -10,7 +10,7 @@ from django.forms import modelformset_factory, inlineformset_factory, CheckboxIn
 
 from urllib.parse import urlparse
 
-from lenses.models import Users, Lenses, ConfirmationTask
+from lenses.models import Users, SledGroups, Lenses, ConfirmationTask
 from .forms import BaseLensForm, BaseLensAddUpdateFormSet
 
 
@@ -172,9 +172,6 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
         
 
-
-
-
 # View to add new lenses
 @method_decorator(login_required,name='dispatch')
 class LensAddView(AddUpdateMixin,TemplateView):
@@ -221,8 +218,6 @@ class LensAddView(AddUpdateMixin,TemplateView):
 
         else:
             self.get(*args,**kwargs)
-
-
 
 
 # View to delete lenses
@@ -329,18 +324,20 @@ class LensDeleteView(TemplateView):
 
 
 
-
-            
-
-
-# View to give access to private lenses
+# View to give/revoke access to/from private lenses
 @method_decorator(login_required,name='dispatch')
-class LensGiveAccessView(TemplateView):
+class LensGiveRevokeAccessView(TemplateView):
     model = Lenses
-    template_name = 'lens_give_access.html'
-
+    mode = None
+    message = {'give':'Access given to','revoke':'Access revoked from'}
+    template_name = 'lens_give_revoke_access.html'
+    
+    def dispatch(self, request, *args, **kwargs):
+        self.mode = self.kwargs['mode']
+        return super(LensGiveRevokeAccessView,self).dispatch(request, *args, **kwargs)
+    
     def get(self, request, *args, **kwargs):
-        message = 'You must select which private lenses to give access to from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+        message = 'You must select private lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
         return TemplateResponse(request,'simple_message.html',context={'message':message})
     
     def post(self, request, *args, **kwargs):
@@ -352,26 +349,26 @@ class LensGiveAccessView(TemplateView):
             group_ids = [ pk for pk in request.POST.getlist('groups') if pk.isdigit() ]
             
             if ids and (user_ids or group_ids):
-                return_message = []
-
                 lenses = Lenses.accessible_objects.in_ids(request.user,ids)
-
+                return_message = []
                 target_users = []
                 if user_ids:
                     users = Users.objects.filter(id__in=user_ids)
-                    return_message.append('<p>Access given to users: %s</p>' % ','.join([user.username for user in users]))
+                    return_message.append('<p>%s users: %s</p>' % (self.message[self.mode],','.join([user.username for user in users])))
                     target_users.extend(users)
                 if group_ids:
                     groups = SledGroups.objects.filter(id__in=group_ids)
-                    return_message.append('<p>Access given to groups: %s</p>' % ','.join([group.name for group in groups]))
+                    return_message.append('<p>%s groups: %s</p>' % (self.message[self.mode],','.join([group.name for group in groups])))
                     target_users.extend(groups)
 
-                request.user.giveAccess(lenses,users)
+                if self.mode == 'give':
+                    request.user.giveAccess(lenses,target_users)
+                else:
+                    request.user.revokeAccess(lenses,target_users)
                 return TemplateResponse(request,'simple_message.html',context={'message':''.join(return_message)})
-
             else:
-                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and users from the input below.'
-                return self.render_to_response({'lenses': lenses,'error_message':message})
+                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and users from below.'
+                return self.render_to_response({'lenses': lenses,'mode':self.mode,'error_message':message})
 
         else:
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
@@ -382,7 +379,30 @@ class LensGiveAccessView(TemplateView):
                 for i,lens in enumerate(qset):
                     lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
                     lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
-                return self.render_to_response({'lenses': lenses})
+                return self.render_to_response({'lenses': lenses,'mode':self.mode})
             else:
-                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                message = 'You must select private lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+# View to make lenses private
+@method_decorator(login_required,name='dispatch')
+class LensMakePrivateView(TemplateView):
+    model = Lenses
+    template_name = 'lens_make_private.html'            
+    
+    def get(self, request, *args, **kwargs):
+        pass
+    
+    def post(self, request, *args, **kwargs):
+        pass
+
+# View to make lenses public
+class LensMakePublicView(TemplateView):
+    model = Lenses
+    template_name = 'lens_make_public.html'            
+    
+    def get(self, request, *args, **kwargs):
+        pass
+    
+    def post(self, request, *args, **kwargs):
+        pass

@@ -125,8 +125,10 @@
 
 <div class="controls">
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-update' %}">Update lenses</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-give-access' %}">Give/revoke access</button>
-  <button type="button" form="ids-form">Make private/public</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-give-access' %}">Give access</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-public' %}">Make public</button>
   <button type="button" form="ids-form">Cede ownership</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-delete' %}">Delete lenses</button>
 </div>
