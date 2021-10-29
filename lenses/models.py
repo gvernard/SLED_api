@@ -8,6 +8,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.db.models import F, Func, FloatField
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.exceptions import ValidationError
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
@@ -784,7 +785,8 @@ class Lenses(SingleObject):
             raise ValidationError('The object cannot be both a lens and a contaminant.')
         if self.flag_contaminant and (image_conf or lens_type or source_type):
             raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
-        
+        if self.z_lens > self.z_source:
+            raise ValidationError('The source redshift cannot be lower than the lens redshift.')
         
     def __str__(self):
         if self.name:
