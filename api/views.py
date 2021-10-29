@@ -7,11 +7,14 @@ from rest_framework import authentication, permissions
 from .serializers import UsersSerializer, GroupsSerializer
 from lenses.models import Users, SledGroups
 
-
 class UsersAutocomplete(APIView):
+    authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self,request):
+        user = request.user
         term = request.query_params.get('q')
-        queryset = Users.objects.exclude(username__in=['AnonymousUser','admin'])
+        queryset = Users.objects.exclude(username__in=['AnonymousUser','admin',user.username])
         if term is not None:
             queryset = queryset.filter(Q(username__icontains=term) | Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(email__icontains=term))
         queryset.order_by('last_name')

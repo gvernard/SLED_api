@@ -386,7 +386,7 @@ class Users(AbstractUser,GuardianUserMixin):
         mytask = ConfirmationTask.create_task(self,admin,'MakePrivate',cargo)
         return mytask 
       
-    def cedeOwnership(self,objects,heir):
+    def cedeOwnership(self,objects,heir,reason=None):
         """
         Changes the owner of the given objects to the heir.
         
@@ -418,6 +418,7 @@ class Users(AbstractUser,GuardianUserMixin):
         for obj in objects:
             ids.append(obj.id)
         cargo["object_ids"] = ids
+        cargo["comment"] = reason
         mytask = ConfirmationTask.create_task(self,heir,'CedeOwnership',cargo)
         return mytask
 
@@ -785,8 +786,9 @@ class Lenses(SingleObject):
             raise ValidationError('The object cannot be both a lens and a contaminant.')
         if self.flag_contaminant and (image_conf or lens_type or source_type):
             raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
-        if self.z_lens > self.z_source:
-            raise ValidationError('The source redshift cannot be lower than the lens redshift.')
+        if self.z_lens and self.z_source:
+            if self.z_lens > self.z_source:
+                raise ValidationError('The source redshift cannot be lower than the lens redshift.')
         
     def __str__(self):
         if self.name:
@@ -1078,7 +1080,9 @@ class CedeOwnership(ConfirmationTask):
         if response == 'yes':
             heir = self.get_all_recipients()[0]
             #cargo = json.loads(self.cargo)
-            getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(owner=heir)
+            objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            objs.update(owner=heir)
+            assign_perm('view_lenses',heir,objs) # don't forget to assign view permission to the new owner
             notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
             notify.send(sender=heir,recipient=heir,verb='You have accepted a CedeOwnership request',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
         else:

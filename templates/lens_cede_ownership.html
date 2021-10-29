@@ -9,20 +9,18 @@
 
 <script>
   $(document).ready(function(){
-      // Create Select2 for users and groups
+      // Create Select2 for the users
       users_autocomplete("users-autocomplete");
-      groups_autocomplete("groups-autocomplete");
 
-      // Attach requirement for user or group to the submit button
+      // Attach requirement for user to the submit button
       $('#submit-btn').on('click',function(event){
-	  var users = $('#users-autocomplete').find(':selected');
-	  var groups = $('#groups-autocomplete').find(':selected');
-	  if( users.length == 0 && groups.length == 0 ){
-	      alert('You must select a user or a group!');
+	  var selections = $('#users-autocomplete').find(':selected');
+	  if( selections.length == 0 ){
+	      alert('You must select a user!');
 	      event.preventDefault();
 	  }
       });
-      
+
       // Check all the checkboxes
       var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
       if( checkboxes.length > 0){
@@ -34,40 +32,20 @@
 </script>
 
 
-{% if mode == 'give' %}
-<h1>Give access to private lenses</h1>
+<h1>Cede Ownership of lenses</h1>
 <p>
-  Share your secrets!
+  Pass the torch.
 </p>
-{% else %}
-<h1>Revoke access from private lenses</h1>
-<p>
-  Some things must remain secrete!
-</p>
-{% endif %}
-
-
 
 <div class="content">
   <form id="ids-form" method="POST">
     <span class="errorlist">{{ error_message }}</span>
 
-
     <div style="width:100%;">
       <p>
 	Users:
       </p>
-      <select id="users-autocomplete" name="users" multiple></select>
-    </div>
-
-    <br>
-    <br>
-    
-    <div style="width:100%;">
-      <p>
-	Groups:
-      </p>
-      <select id="groups-autocomplete" name="groups" multiple></select>
+      <select id="users-autocomplete" name="user"></select>
     </div>
 
     <br>
@@ -75,17 +53,15 @@
     
     {% include "lens_list_executive.html" with lenses=lenses %}
 
+    <div>
+      <textarea name="reason" placeholder="Any message for the new owner?" cols="60" rows="3"></textarea>
+    </div>
+    
   </form>
 </div>
 
 <div>
-  <button type="submit" id="submit-btn" form="ids-form">
-    {% if mode == 'give' %}
-    Give access
-    {% else %}
-    Revoke access
-    {% endif %}
-  </button>
+  <button type="submit" id="submit-btn" form="ids-form">Cede ownership</button>
 </div>
 
 {% endblock content %}

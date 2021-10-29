@@ -251,7 +251,7 @@ class LensDeleteView(TemplateView):
                         for obj in pub:
                             cargo['object_ids'].append(obj.id)
                         mytask = ConfirmationTask.create_task(request.user,Users.getAdmin(),'DeleteObject',cargo)
-                        return_message.append('<p>The admins have been notified to approve the deletion of %d public lenses</p>' % (len(pub)))
+                        return_message.append('<p>The admins have been notified to approve or reject the deletion of %d public lenses</p>' % (len(pub)))
                     else:
                         lenses = list(qset.values())
                         for i,lens in enumerate(qset):
@@ -347,9 +347,9 @@ class LensGiveRevokeAccessView(TemplateView):
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
             user_ids = [ pk for pk in request.POST.getlist('users') if pk.isdigit() ]
             group_ids = [ pk for pk in request.POST.getlist('groups') if pk.isdigit() ]
-            
+            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+
             if ids and (user_ids or group_ids):
-                lenses = Lenses.accessible_objects.in_ids(request.user,ids)
                 return_message = []
                 target_users = []
                 if user_ids:
@@ -367,8 +367,58 @@ class LensGiveRevokeAccessView(TemplateView):
                     request.user.revokeAccess(lenses,target_users)
                 return TemplateResponse(request,'simple_message.html',context={'message':''.join(return_message)})
             else:
-                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and users from below.'
+                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and users and/or groups from below.'
                 return self.render_to_response({'lenses': lenses,'mode':self.mode,'error_message':message})
+
+        else:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            if ids:
+                # Display the lenses with info on the users/groups with access
+                qset = Lenses.accessible_objects.in_ids(request.user,ids)
+                lenses = list(qset.values())
+                
+                if qset.filter(access_level='PUB').count() > 0:
+                    message = 'You are selecting public lenses! Access is only delegated for private objects.'
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                else:
+                    for i,lens in enumerate(qset):
+                        lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
+                        lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
+                    return self.render_to_response({'lenses': lenses,'mode':self.mode})
+            else:
+                message = 'You must select private lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+    
+# View to cede ownership of lenses
+@method_decorator(login_required,name='dispatch')
+class LensCedeOwnershipView(TemplateView):
+    model = Lenses
+    template_name = 'lens_cede_ownership.html'            
+    
+    def get(self, request, *args, **kwargs):
+        message = 'You must select lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+        return TemplateResponse(request,'simple_message.html',context={'message':message})
+    
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+
+        if referer == request.path:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            user_id = request.POST.get('user','asd')
+            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+            
+            if ids and user_id.isdigit():                
+                heir = Users.objects.filter(id=user_id)
+                reason = request.POST.get('reason',None)
+                request.user.cedeOwnership(lenses,heir,reason)
+                heir_dict = heir.values('first_name','last_name')[0]
+                message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            else:
+                message = 'You must select lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and a user from below.'
+                return self.render_to_response({'lenses': lenses,'error_message':message})
 
         else:
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
@@ -379,11 +429,13 @@ class LensGiveRevokeAccessView(TemplateView):
                 for i,lens in enumerate(qset):
                     lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
                     lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
-                return self.render_to_response({'lenses': lenses,'mode':self.mode})
+                return self.render_to_response({'lenses': lenses})
             else:
-                message = 'You must select private lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                message = 'You must select lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
 
+
+            
 # View to make lenses private
 @method_decorator(login_required,name='dispatch')
 class LensMakePrivateView(TemplateView):

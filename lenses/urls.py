@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from django.views.generic import TemplateView
-from lenses.views import LensDetailView, LensAddView, LensQueryView, LensUpdateView, LensDeleteView, LensGiveRevokeAccessView, LensMakePrivateView, LensMakePublicView
+from lenses.views import LensDetailView, LensAddView, LensQueryView, LensUpdateView, LensDeleteView, LensGiveRevokeAccessView, LensMakePrivateView, LensMakePublicView, LensCedeOwnershipView
 #from . import views
 
 app_name = 'lenses'
@@ -13,6 +13,7 @@ urlpatterns = [
     path('delete/',LensDeleteView.as_view(),name='lens-delete'),
     path('give-access/',LensGiveRevokeAccessView.as_view(),kwargs={'mode':'give'},name='lens-give-access'),
     path('revoke-access/',LensGiveRevokeAccessView.as_view(),kwargs={'mode':'revoke'},name='lens-revoke-access'),
+    path('cede-ownership/',LensCedeOwnershipView.as_view(),name='lens-cede-ownership'),
     path('make-private/',LensMakePrivateView.as_view(),name='lens-make-private'),
     path('make-public/',LensMakePublicView.as_view(),name='lens-make-public'),
     #path('update/<int:lens>',LensUpdateView.as_view(),name='lens-update'),

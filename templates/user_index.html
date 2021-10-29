@@ -129,7 +129,7 @@
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-public' %}">Make public</button>
-  <button type="button" form="ids-form">Cede ownership</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-cede-ownership' %}">Cede ownership</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-delete' %}">Delete lenses</button>
 </div>
 

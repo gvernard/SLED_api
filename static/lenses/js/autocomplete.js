@@ -77,7 +77,7 @@ function users_autocomplete(target_id){
 		$.each(data.users,function(i,user){
 		    results.push({
 			id: user.id,
-			text: String(user.username),
+			text: String(user.first_name)+' '+String(user.last_name),
 			first_name: String(user.first_name),
 			last_name: String(user.last_name),
 			full_name: String(user.first_name+' '+user.last_name),
@@ -119,5 +119,5 @@ function formatUser(user){
 }
 
 function formatUserSelection(user){
-    return user.first_name+' '+user.last_name;
+    return user.text;
 }
