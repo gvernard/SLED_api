@@ -229,7 +229,7 @@ class LensAddView(AddUpdateMixin,TemplateView):
 @method_decorator(login_required,name='dispatch')
 class LensDeleteView(TemplateView):
     model = Lenses
-    template_name = 'lens_delete.html'
+    template_name = 'lens_simple_interaction.html'
 
     def get(self, request, *args, **kwargs):
         message = 'You must select which lenses to delete from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -445,7 +445,7 @@ class LensCedeOwnershipView(TemplateView):
 @method_decorator(login_required,name='dispatch')
 class LensMakePrivateView(TemplateView):
     model = Lenses
-    template_name = 'lens_make_private.html'            
+    template_name = 'lens_simple_interaction.html'            
     
     def get(self, request, *args, **kwargs):
         message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -494,7 +494,7 @@ class LensMakePrivateView(TemplateView):
 # View to make lenses public
 class LensMakePublicView(TemplateView):
     model = Lenses
-    template_name = 'lens_make_public.html'            
+    template_name = 'lens_simple_interaction.html'            
     
     def get(self, request, *args, **kwargs):
         message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
