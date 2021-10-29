@@ -497,7 +497,41 @@ class LensMakePublicView(TemplateView):
     template_name = 'lens_make_public.html'            
     
     def get(self, request, *args, **kwargs):
-        pass
+        message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+        return TemplateResponse(request,'simple_message.html',context={'message':message})
+
     
     def post(self, request, *args, **kwargs):
-        pass
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        
+        if referer == request.path:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+            
+            if ids:
+                duplicates = request.user.makePublic(lenses)
+                if duplicates:
+                    # Handle duplicates
+                    pass
+                else:
+                    message = '<p>%d private lenses are know public.</p>' % (len(lenses))
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                
+            else:
+                message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                return self.render_to_response({'lenses': lenses,'error_message':message})
+
+        else:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            if ids:
+                # Display the lenses with info on the users/groups with access
+                qset = Lenses.accessible_objects.in_ids(request.user,ids)
+                lenses = list(qset.values())
+                if qset.filter(access_level='PUB').count() > 0:
+                    message = 'You are also selecting public lenses!'
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                else:
+                    return self.render_to_response({'lenses': lenses})
+            else:
+                message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})

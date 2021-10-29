@@ -236,7 +236,6 @@ class Users(AbstractUser,GuardianUserMixin):
             # Check that all objects are indeed private.
             flag = True
             for obj in objects:
-                print(obj.access_level)
                 if obj.access_level == 'PUB':
                     flag = False
             assert(flag),"All given objects MUST be private, but it's not the case."
@@ -262,6 +261,7 @@ class Users(AbstractUser,GuardianUserMixin):
             accessible_objects = []
             for ug in unique_ugs:
                     accessible_objects.append(ug_accesses_objects[ug.id])
+            print(unique_ugs,accessible_objects)
             return unique_ugs,accessible_objects
 
 
@@ -288,7 +288,6 @@ class Users(AbstractUser,GuardianUserMixin):
         objs_to_update = []
         for obj in objects:
             if obj.access_level == 'PRI':
-                obj.access_level = 'PUB'
                 objs_to_update.append(obj)
         #print(objs_to_update)
 
@@ -351,6 +350,8 @@ class Users(AbstractUser,GuardianUserMixin):
 
             # Finally, update only those objects that need to be updated in a single query
             #####################################################
+            for obj in objs_to_update:
+                obj.access_level = 'PUB'
             getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
 
             # return an empty list to indicate that everything went fine (if neighbours are found, they are returned)

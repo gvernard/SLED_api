@@ -1,0 +1,33 @@
+{% extends 'master_header.html' %}
+
+{% block content %}
+
+<h1>Make lenses public</h1>
+
+<p>
+  Share the knowledge!
+</p>
+
+<div class="content">
+  <form id="ids-form" method="POST">
+    <span class="errorlist">{{ error_message }}</span>
+    
+    {% include "lens_list_executive.html" with lenses=lenses %}
+    
+  </form>
+</div>
+
+<div>
+  <button type="submit" form="ids-form">Make public</button>
+</div>
+
+<script>
+  var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
+  if( checkboxes.length > 0){
+      for(var i=0;i<checkboxes.length;i++){
+	  checkboxes[i].checked = true;
+      }
+  }
+</script>
+
+{% endblock content %}
