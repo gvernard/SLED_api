@@ -26,17 +26,35 @@
     </tr>
     {% endfor %}
   </table>
+  <button type="button" id="toggle_all" value="select">Toggle select all</button>
 </div>
 
 
 <script>
-  var my_func = function(event) {
+  var toggle = function (e) {
+      checkboxes = document.getElementsByName('ids');
+      var new_status = e.currentTarget.getAttribute('value');
+      if( new_status == "select" ){
+	  for(var i=0;i<checkboxes.length;i++) {
+       	      checkboxes[i].checked = true;
+	  }
+	  e.currentTarget.setAttribute('value','unselect');
+      } else {
+	  for(var i=0;i<checkboxes.length;i++) {
+       	      checkboxes[i].checked = false;
+	  }
+	  e.currentTarget.setAttribute('value','select');
+      }
+  }
+  document.getElementById("toggle_all").addEventListener("click", toggle, true);
+
+  
+  var min_checked = function(e) {
       var checked_boxes = document.querySelectorAll('.content input[type="checkbox"]:checked');
-      if( checked_boxes.length == 0){
+      if( checked_boxes.length == 0 ){
    	  alert('You must select at least one lens!');
-   	  event.preventDefault();
+   	  e.preventDefault();
       }
   };
-  var form = document.getElementById("ids-form");
-  form.addEventListener("submit", my_func, true);
+  document.getElementById("ids-form").addEventListener("submit", min_checked, true);
 </script>
