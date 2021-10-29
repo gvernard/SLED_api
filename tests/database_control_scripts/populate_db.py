@@ -113,7 +113,12 @@ for i in range(N):
 
 Lenses.objects.bulk_create(mylenses)
 mylenses = Lenses.objects.all()
-assign_perm('view_lenses',user1,mylenses)
+pri = []
+for lens in mylenses:
+if lens.access_level == 'PRI':
+pri.append(lens)
+if pri:
+assign_perm('view_lenses',user1,pri)
 
 #lenses = Lenses.objects.all()
 

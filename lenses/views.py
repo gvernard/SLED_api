@@ -206,7 +206,12 @@ class LensAddView(AddUpdateMixin,TemplateView):
                             to_insert.append(lens)
                     if to_insert:
                         new_lenses = Lenses.objects.bulk_create(to_insert)
-                        assign_perm('view_lenses',request.user,new_lenses)
+                        pri = []
+                        for lens in new_lenses:
+                            if lens.access_level == 'PRI':
+                                pri.append(lens)
+                        if pri:
+                            assign_perm('view_lenses',request.user,pri)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         return TemplateResponse(request,'simple_message.html',context={'message':'No new lenses to insert.'})
@@ -367,7 +372,7 @@ class LensGiveRevokeAccessView(TemplateView):
                     request.user.revokeAccess(lenses,target_users)
                 return TemplateResponse(request,'simple_message.html',context={'message':''.join(return_message)})
             else:
-                message = 'You must select lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and users and/or groups from below.'
+                message = 'You must select private lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and users and/or groups from below.'
                 return self.render_to_response({'lenses': lenses,'mode':self.mode,'error_message':message})
 
         else:
@@ -411,8 +416,8 @@ class LensCedeOwnershipView(TemplateView):
             
             if ids and user_id.isdigit():                
                 heir = Users.objects.filter(id=user_id)
-                reason = request.POST.get('reason',None)
-                request.user.cedeOwnership(lenses,heir,reason)
+                justification = request.POST.get('justification',None)
+                request.user.cedeOwnership(lenses,heir,justification)
                 heir_dict = heir.values('first_name','last_name')[0]
                 message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
@@ -443,11 +448,49 @@ class LensMakePrivateView(TemplateView):
     template_name = 'lens_make_private.html'            
     
     def get(self, request, *args, **kwargs):
-        pass
-    
-    def post(self, request, *args, **kwargs):
-        pass
+        message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+        return TemplateResponse(request,'simple_message.html',context={'message':message})
 
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        
+        if referer == request.path:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            justification = request.POST.get('justification',None)
+            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+            
+            if ids:
+                justification = request.POST.get('justification')
+                if justification:
+                    # confirmation task to make public lenses private
+                    request.user.makePrivate(lenses,justification)
+                    message = '<p>The admins have been notified to approve or reject changing %d public lenses to private.</p>' % (len(lenses))
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                else:
+                    message = 'A justification needs to be provided below in order to make any public lenses private.'
+                    return self.render_to_response({'lenses':lenses,'error_message':message})
+            else:
+                message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                return self.render_to_response({'lenses': lenses,'error_message':message})
+
+        else:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            if ids:
+                # Display the lenses with info on the users/groups with access
+                qset = Lenses.accessible_objects.in_ids(request.user,ids)
+                lenses = list(qset.values())
+                if qset.filter(access_level='PRI').count() > 0:
+                    message = 'You are also selecting private lenses!'
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                else:
+                    return self.render_to_response({'lenses': lenses})
+            else:
+                message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+
+    
 # View to make lenses public
 class LensMakePublicView(TemplateView):
     model = Lenses

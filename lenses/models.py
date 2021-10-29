@@ -356,7 +356,7 @@ class Users(AbstractUser,GuardianUserMixin):
             # return an empty list to indicate that everything went fine (if neighbours are found, they are returned)
             return []
                 
-    def makePrivate(self,objects):
+    def makePrivate(self,objects,justification=None):
         """
         Changes the AccessLevel of the given objects to 'private'.
         
@@ -380,13 +380,13 @@ class Users(AbstractUser,GuardianUserMixin):
         for obj in objects:
             ids.append(obj.id)
         cargo["object_ids"] = ids
+        cargo["comment"] = justification
 
         # This line needs to be replaced with the DB admin
-        admin = Users.objects.filter(username='admin')
-        mytask = ConfirmationTask.create_task(self,admin,'MakePrivate',cargo)
+        mytask = ConfirmationTask.create_task(self,Users.getAdmin(),'MakePrivate',cargo)
         return mytask 
       
-    def cedeOwnership(self,objects,heir,reason=None):
+    def cedeOwnership(self,objects,heir,justification=None):
         """
         Changes the owner of the given objects to the heir.
         
@@ -418,7 +418,7 @@ class Users(AbstractUser,GuardianUserMixin):
         for obj in objects:
             ids.append(obj.id)
         cargo["object_ids"] = ids
-        cargo["comment"] = reason
+        cargo["comment"] = justification
         mytask = ConfirmationTask.create_task(self,heir,'CedeOwnership',cargo)
         return mytask
 
@@ -1050,7 +1050,7 @@ class DeleteObject(ConfirmationTask):
     def finalizeTask(self):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
-        admin = Users.objects.get(username='admin')
+        admin = Users.getAdmin().first()
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
@@ -1082,7 +1082,12 @@ class CedeOwnership(ConfirmationTask):
             #cargo = json.loads(self.cargo)
             objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             objs.update(owner=heir)
-            assign_perm('view_lenses',heir,objs) # don't forget to assign view permission to the new owner
+            pri = []
+            for lens in objs:
+                if lens.access_level == 'PRI':
+                    pri.append(lens)
+            if pri:
+                assign_perm('view_lenses',heir,pri) # don't forget to assign view permission to the new owner for the private lenses
             notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
             notify.send(sender=heir,recipient=heir,verb='You have accepted a CedeOwnership request',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
         else:
@@ -1107,7 +1112,7 @@ class MakePrivate(ConfirmationTask):
     def finalizeTask(self):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
-        admin = Users.objects.get(username='admin')
+        admin = Users.getAdmin().first()
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(access_level='PRI')
