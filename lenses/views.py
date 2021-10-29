@@ -64,7 +64,7 @@ def LensQueryView(request):
         print(form_values)
     else:
         lenses = Lenses.accessible_objects.all(request.user).order_by('ra')
-    return render(request, 'lens_list.html', {'lenses':lenses, 'formvalues':form_values})
+    return render(request, 'lens_query.html', {'lenses':lenses, 'formvalues':form_values})
 
 
 
