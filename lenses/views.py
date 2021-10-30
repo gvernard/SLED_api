@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
@@ -506,13 +507,24 @@ class LensMakePublicView(TemplateView):
         
         if referer == request.path:
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+            qset = Lenses.accessible_objects.in_ids(request.user,ids)
+            objs = list(qset)
+            lenses = list(qset.values())
+            for i,lens in enumerate(qset):
+                lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
+                lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
             
             if ids:
-                duplicates = request.user.makePublic(lenses)
+                duplicates = request.user.makePublic(objs)
                 if duplicates:
-                    # Handle duplicates
-                    pass
+                    no_prob = []
+                    to_check_ids = [obj.id for obj in duplicates]
+                    for obj in objs:
+                        if obj.id not in to_check_ids:
+                            no_prob.append(obj)
+                    request.user.makePublic(no_prob) # make the non-duplicate objects public anyway
+                    #return redirect(reverse('lenses:lens-merge-resolution',kwargs={'ids':to_check_ids}))
+                    return redirect(reverse('lenses:lens-merge-resolution'))
                 else:
                     message = '<p>%d private lenses are know public.</p>' % (len(lenses))
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
@@ -531,7 +543,21 @@ class LensMakePublicView(TemplateView):
                     message = 'You are also selecting public lenses!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:
+                    for i,lens in enumerate(qset):
+                        lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
+                        lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
                     return self.render_to_response({'lenses': lenses})
             else:
                 message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+# View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
+class LensMergeResolutionView(TemplateView):
+    model = Lenses
+    template_name = 'lens_merge_resolution.html'            
+    
+    def get(self, request, *args, **kwargs):
+        ids = kwargs.get('ids',[])
+        dum = ','.join(ids)
+        return self.render_to_response({'lenses':dum})

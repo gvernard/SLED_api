@@ -198,23 +198,20 @@ class Users(AbstractUser,GuardianUserMixin):
             checker = ObjectPermissionChecker(user)
             checker.prefetch_perms(objects)            
             object_type = objects[0]._meta.model.__name__
-            revoked_objects_per_user = []
             revoked_objects_per_user_ids = []
             for obj in objects:
                 if checker.has_perm(perm,obj):
-                    revoked_objects_per_user.append(obj)
                     revoked_objects_per_user_ids.append(obj.id)
             # if there are objects for which this user had permissions just revoked, create a notification
-            if len(revoked_objects_per_user) > 0:
-                for obj in revoked_objects_per_user:
-                    remove_perm(perm,user,obj) # (just 1 query)
+            if len(revoked_objects_per_user_ids) > 0:
+                remove_perm(perm,user,Lenses.objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
                 if isinstance(user,Users):
                     notify.send(sender=self,recipient=user,verb='Your access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
                 else:
                     notify.send(sender=self,recipient=user,verb=user.name+'\'s group access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
 
 
-    def accessible_per_other(self,objects,flag):
+    def accessible_per_other(self,objects,mode):
         """
         Given a list of PRIVATE objects OWNED by the user, this function finds who else has access to them.
         The output is arranged per username.
@@ -247,7 +244,7 @@ class Users(AbstractUser,GuardianUserMixin):
             all_ugs = []
             ug_obj_pairs = []
             for i in range(0,len(objects)):
-                if flag == 'users':
+                if mode == 'users':
                     ugs = list(objects[i].getUsersWithAccess(self))
                 else:
                     ugs = list(objects[i].getGroupsWithAccess(self))
@@ -261,7 +258,7 @@ class Users(AbstractUser,GuardianUserMixin):
             accessible_objects = []
             for ug in unique_ugs:
                     accessible_objects.append(ug_accesses_objects[ug.id])
-            print(unique_ugs,accessible_objects)
+            #print(unique_ugs,accessible_objects)
             return unique_ugs,accessible_objects
 
 
@@ -314,12 +311,10 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################            
             users_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'users')
             for i,user in enumerate(users_with_access):
-                objs_per_user = []
                 obj_ids = []
                 for j in accessible_objects[i]:
-                    objs_per_user.append(objs_to_update[j])
                     obj_ids.append(objs_to_update[j].id)
-                remove_perm(perm,user,objs_per_user) # Remove all the view permissions for these objects that are to be updated (just 1 query)                
+                remove_perm(perm,user,Lenses.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self,
                             recipient=user,
                             verb='Private objects you had access to are now public.',
@@ -333,12 +328,10 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################
             groups_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'groups')
             for i,group in enumerate(groups_with_access):
-                objs_per_group = []
                 obj_ids = []
                 for j in accessible_objects[i]:
-                    objs_per_group.append(objs_to_update[j])
                     obj_ids.append(objs_to_update[j].id)
-                remove_perm(perm,group,objs_per_group) # (just 1 query)                
+                remove_perm(perm,group,Lenses.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self,
                             recipient=group,
                             verb='Private objects you had access to are now public.',
