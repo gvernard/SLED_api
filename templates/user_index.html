@@ -2,6 +2,7 @@
 {% block content %}
 <style>
   .notifications td {margin:0px;padding:2px;}
+  .tasks td {margin:0px;padding:2px;}
 </style>
 
 
@@ -49,11 +50,11 @@
 
 
 <div class="section">
-  <h1>Pending Confirmation tasks</h1>
+  <h1>Pending Confirmation tasks ({{ N_tasks }})</h1>
 </div>
 <div>
   {% if N_tasks > 0 %}
-  <table class="sortable">
+  <table class="tasks sortable">
     <thead>
       <tr>
 	<th>Type</th>
@@ -76,12 +77,12 @@
   {% else %}
   <p>No pending confirmation tasks</p>
   {% endif %}
-  <a href="{% url 'confirmation:list-tasks' %}">All tasks</a>
+  <a href="{% url 'confirmation:list-tasks' %}">All tasks ({{ N_tasks_all }})</a>
 </div>
 
 
 <div class="section">
-  <h1>New Notifications</h1>
+  <h1>New Notifications ({{ unread_notifications|length }})</h1>
 </div>
 <div>
   {% if unread_notifications %}
@@ -97,7 +98,7 @@
     <tbody>
       {% for note in unread_notifications %}
       <tr>
-	<td>{{ note.actor_object_id }}</td>
+	<td>{{ note.actor }}</td>
 	<td>{{ note.timestamp }}</td>
 	<td>{{ note.level }}</td>
 	<td>{{ note.verb }}</td>
@@ -108,7 +109,7 @@
   {% else %}
   <p>No new notifications</p>
   {% endif %}
-   <a href="{% url 'sled-notifications:list-all' %}">All notifications</a>
+   <a href="{% url 'sled-notifications:list-all' %}">All notifications({{ N_note_all }})</a>
 </div>
 
 

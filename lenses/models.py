@@ -148,6 +148,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
         # first loop over the target_users
         for user in target_users:
+            print(type(user))
             # fetch permissions for all the objects for the given user (just 1 query)
             new_objects_per_user = []
             new_objects_per_user_ids = []
@@ -164,7 +165,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 if isinstance(user,Users):
                     notify.send(sender=self,recipient=user,verb='You have been granted access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)
                 else:
-                    notify.send(sender=self,recipient=user,verb=user.name+' has been granted group access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)            
+                    notify.send(sender=self,recipient=user,verb='Your group "'+user.name+'" has been granted access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)            
 
 
     def revokeAccess(self,objects,target_users):
@@ -829,9 +830,12 @@ class Lenses(SingleObject):
 
 ################################################################################################################################################
 ### BEGIN: Confirmation task specific code
-class PendingManager(models.Manager):
-    def for_user(self,user):
-        return super().get_queryset().filter(status='P').filter(owner=user)
+class ConfirmationTaskManager(models.Manager):
+    def pending_for_user(self,user):
+        return super().get_queryset().filter(status='P').filter(Q(owner=user)|Q(recipients__username=user.username))
+
+    def all_for_user(self,user):
+        return super().get_queryset().filter(Q(owner=user)|Q(recipients__username=user.username))
 
 class ConfirmationTask(SingleObject):
     """
@@ -872,7 +876,7 @@ class ConfirmationTask(SingleObject):
     )
     recipient_names = []
 
-    pending = PendingManager()
+    custom_manager = ConfirmationTaskManager()
     objects = models.Manager()
     
     def __str__(self):

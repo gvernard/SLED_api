@@ -15,15 +15,20 @@ class UserProfileView(TemplateView):
         user = request.user
         
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.pending.for_user(user))
+        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user))
         recipients = []
         for task in tasks:
             unames = task.get_all_recipients().values_list('username',flat=True)
             recipients.append(','.join(unames))
         zipped = zip(recipients,tasks)
-            
+        N_tasks = len(tasks)
+        N_tasks_all = ConfirmationTask.custom_manager.all_for_user(user).count()
+
+        
         # Get unread notifications
         unread_notifications = user.notifications.unread()
+        N_note_unread = unread_notifications.count()
+        N_note_all = user.notifications.read().count() + N_note_unread
             
         # Get owned lenses
         qset = user.getOwnedObjects()["Lenses"]
@@ -34,9 +39,11 @@ class UserProfileView(TemplateView):
 
         context={'user':user,
                  'pending_conf':zipped,
-                 'N_tasks':len(tasks),
+                 'N_tasks': N_tasks,
+                 'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
-                 'lenses': lenses
+                 'lenses': lenses,
+                 'N_note_all': N_note_all
                  }
         return render(request, 'user_index.html',context=context)
 
