@@ -578,3 +578,27 @@ class LensMergeResolutionView(AddUpdateMixin,TemplateView):
         else:
             message = 'You are not authorized to view this page.'
             return TemplateResponse(request,'simple_message.html',context={'message':message})   
+
+
+# View for standardized queries and (public) lens collections
+@method_decorator(login_required,name='dispatch')
+class LensMergeResolutionView(AddUpdateMixin,TemplateView):
+    model = Lenses
+    template_name = 'lens_collections.html'
+    
+    def get(self, request, *args, **kwargs):
+        ids = request.GET.getlist('ids')
+        if ids:
+            # Need to check ids, user access, etc.
+            ids = [int(x) for x in ids]
+            objs = Lenses.accessible_objects.in_ids(request.user,ids)
+            indices,neis = Lenses.proximate.get_DB_neighbours_many(objs)
+
+            existing = [None]*len(objs)
+            for i,index in enumerate(indices):
+                existing[index] = neis[i]
+        
+            return self.render_to_response({'new_existing': zip(objs,existing),'lenses':ids})
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})   

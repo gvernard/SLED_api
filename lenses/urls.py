@@ -5,9 +5,9 @@ from lenses.views import LensDetailView, LensAddView, LensQueryView, LensUpdateV
 
 app_name = 'lenses'
 urlpatterns = [
-    path('', TemplateView.as_view(template_name='lens_index.html'), name='lens-index'),
+    path('',TemplateView.as_view(template_name='lens_index.html'), name='lens-index'),
     path('query/',LensQueryView,name='lens-query'),
-    #path('list/',LensListView.as_view(),name='lens-list'),
+    path('collections/',TemplateView.as_view(template_name='lens_collections.html'),name='lens-collections'),
     path('add/',LensAddView.as_view(),name='lens-add'),
     path('update/',LensUpdateView.as_view(),name='lens-update'),
     path('delete/',LensDeleteView.as_view(),name='lens-delete'),
@@ -17,6 +17,5 @@ urlpatterns = [
     path('make-private/',LensMakePrivateView.as_view(),name='lens-make-private'),
     path('make-public/',LensMakePublicView.as_view(),name='lens-make-public'),
     path('merge-resolution/',LensMergeResolutionView.as_view(),name='lens-merge-resolution'),
-    #path('update/<int:lens>',LensUpdateView.as_view(),name='lens-update'),
     re_path('(?P<slug>[A-Za-z0-9\w|\W\- ]+)/$', LensDetailView.as_view(), name='lens-detail'),
 ]
