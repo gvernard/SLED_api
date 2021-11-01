@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 
@@ -493,6 +493,7 @@ class LensMakePrivateView(TemplateView):
 
     
 # View to make lenses public
+@method_decorator(login_required,name='dispatch')
 class LensMakePublicView(TemplateView):
     model = Lenses
     template_name = 'lens_simple_interaction.html'            
@@ -517,14 +518,17 @@ class LensMakePublicView(TemplateView):
             if ids:
                 duplicates = request.user.makePublic(objs)
                 if duplicates:
-                    no_prob = []
                     to_check_ids = [obj.id for obj in duplicates]
+                    no_prob = []
                     for obj in objs:
                         if obj.id not in to_check_ids:
                             no_prob.append(obj)
-                    request.user.makePublic(no_prob) # make the non-duplicate objects public anyway
+                    #request.user.makePublic(no_prob) # make the non-duplicate objects public anyway
                     #return redirect(reverse('lenses:lens-merge-resolution',kwargs={'ids':to_check_ids}))
-                    return redirect(reverse('lenses:lens-merge-resolution'))
+                    redirect = HttpResponseRedirect(reverse('lenses:lens-merge-resolution'))
+                    print(redirect['Location'])
+                    redirect['Location'] += '?' + '&'.join(['ids={}'.format(x) for x in to_check_ids])
+                    return redirect
                 else:
                     message = '<p>%d private lenses are know public.</p>' % (len(lenses))
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
@@ -553,11 +557,24 @@ class LensMakePublicView(TemplateView):
 
 
 # View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
-class LensMergeResolutionView(TemplateView):
+@method_decorator(login_required,name='dispatch')
+class LensMergeResolutionView(AddUpdateMixin,TemplateView):
     model = Lenses
     template_name = 'lens_merge_resolution.html'            
     
     def get(self, request, *args, **kwargs):
-        ids = kwargs.get('ids',[])
-        dum = ','.join(ids)
-        return self.render_to_response({'lenses':dum})
+        ids = request.GET.getlist('ids')
+        if ids:
+            # Need to check ids, user access, etc.
+            ids = [int(x) for x in ids]
+            objs = Lenses.accessible_objects.in_ids(request.user,ids)
+            indices,neis = Lenses.proximate.get_DB_neighbours_many(objs)
+
+            existing = [None]*len(objs)
+            for i,index in enumerate(indices):
+                existing[index] = neis[i]
+        
+            return self.render_to_response({'new_existing': zip(objs,existing),'lenses':ids})
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})   

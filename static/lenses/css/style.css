@@ -531,3 +531,11 @@ nav ul li a:hover {
 }
 
 
+
+
+
+/*  For the lens visit card  */
+.visit-card {width:550px;text-align:center;border:1px solid black}
+.visit-card table td {padding:2px;}
+.visit-card .properties {width:300px;}
+.visit-card .img-container {width:204px;height:204px;border:1px solid #777777;padding: 5px}

@@ -148,7 +148,6 @@ class Users(AbstractUser,GuardianUserMixin):
 
         # first loop over the target_users
         for user in target_users:
-            print(type(user))
             # fetch permissions for all the objects for the given user (just 1 query)
             new_objects_per_user = []
             new_objects_per_user_ids = []
@@ -1113,7 +1112,9 @@ class MakePrivate(ConfirmationTask):
         admin = Users.getAdmin().first()
         if response == 'yes':
             #cargo = json.loads(self.cargo)
-            getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).update(access_level='PRI')
+            objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            objs.update(access_level='PRI')
+            assign_perm('view_lenses',self.owner,objs) # don't forget to assign view permission to the new owner for the private lenses
             notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
         else:
             notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)

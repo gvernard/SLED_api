@@ -5,6 +5,38 @@
   Duplicates are:
 </p>
 
-{{ lenses }}
+<table class="master">
+  <thead>
+    <tr>
+      <th>
+	Lenses that require checking
+      </th>
+      <th>
+	Existing lenses
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for new_lens,existing in new_existing %}
+    
+    <tr>
+      <td valign="top">
+	{% include 'lens_visit_card.html' with lens=new_lens %}
+      </td>
+      <td valign="top">
+	{% for lens in existing %}
+	{% include 'lens_visit_card.html' with lens=lens %}
+	{% empty %}
+	No duplicates, something went wrong!
+	{% endfor %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+
+
 
 {% endblock content %}
