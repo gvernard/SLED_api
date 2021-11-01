@@ -11,15 +11,15 @@
 	<th class="th-center">Lens type</th>
 	<th class="th-center">Source type</th>
       </tr>
-      {% for form in lens_formset %}
+      {% for lens in lenses %}
       <tr>
-	<td>{{ form.name.value }}</td>
-	<td>{{ form.ra.value }}</td>
-	<td>{{ form.dec.value }}</td>
-	<td>{{ form.z_lens.value }}</td>
-	<td>{{ form.z_source.value }}</td>
-	<td>{{ form.lens_type.value }}</td>
-	<td>{{ form.source_type.value }}</td>
+	<td><a href="{% url 'lenses:lens-detail' slug=lens.name %}">{{lens.name}}</a></td>
+	<td>{{ lens.ra }}</td>
+	<td>{{ lens.dec }}</td>
+	<td>{{ lens.z_lens }}</td>
+	<td>{{ lens.z_source }}</td>
+	<td>{{ lens.lens_type }}</td>
+	<td>{{ lens.source_type }}</td>
       </tr>
       {% endfor %}
     </table>

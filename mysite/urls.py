@@ -14,10 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from registration import views as vregistration
 from home import views as vhome
 import notifications.urls
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib.staticfiles import views
 
 
 urlpatterns = [
@@ -33,4 +36,7 @@ urlpatterns = [
     path('sled_notifications/', include('sled_notifications.urls'), name='sled_notifications'),
     path("select2/", include("django_select2.urls")),
     path('api/',include('api.urls')),
+    re_path(r'^static/(?P<path>.*)$', views.serve),
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

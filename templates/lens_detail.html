@@ -1,4 +1,5 @@
 {% extends 'master_header.html' %}
+{% load static %}
 {% block content %}
     <div class="content container">
         <p class="centred_name">{{lens.name}}</p>
@@ -27,6 +28,7 @@
     
     <div class="content-container">
         <p class="centred_section_title"> IMAGING DATA </p>
+        <img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" style="width: 10%; height: auto;">
     </div>
     <div class="content container">
         <p class="centred_section_title"> SPECTROSCOPIC DATA </p>
