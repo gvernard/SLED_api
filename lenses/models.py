@@ -721,6 +721,10 @@ class Lenses(SingleObject):
                             default='',
                             help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
 
+    mugshot_name = models.CharField(blank=True,
+                                    max_length=100,
+                                    help_text='File location of the mugshot image, relative to base directory')
+
     ImageConfChoices = (
         ('CUSP','Cusp'),
         ('FOLD','Fold'),
