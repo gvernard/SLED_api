@@ -41,9 +41,29 @@ def query_search(form, user):
                 continue
             if '_min' in keywords[k]:
                 args = {keywords[k].split('_min')[0]+'__gte':float(value)}
+                lenses = lenses.filter(**args).order_by('ra')
             elif '_max' in keywords[k]:
                 args = {keywords[k].split('_max')[0]+'__lte':float(value)}
-            lenses = lenses.filter(**args).order_by('ra')
+                lenses = lenses.filter(**args).order_by('ra')
+
+            if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
+                if len(value)>0:
+                    for i in range(len(value)):
+                        print(k, value[i], keywords[k])
+                        args = {keywords[k]:value[i]}
+                        lenses_type = lenses.filter(**args)
+                        if i==0:
+                            final_lenses = lenses_type
+                        else:
+                            final_lenses |= lenses_type
+                    lenses = final_lenses.order_by('ra')
+            if ('flag_' in keywords[k]):
+                if value:
+                    if 'flag_un' in keywords[k]:
+                        keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
+                        value = False
+                    args = {keywords[k]:value}
+                    lenses = lenses.filter(**args)
 
     #come back to the special case where RA_min is less than 0hours
     if over_meridian:
@@ -65,7 +85,8 @@ def LensQueryView(request):
         if form.is_valid:
             print('form valid')
             form_values = form.cleaned_data.values()
-            input_values = [value not in [None, False] for value in form_values]
+            print(form.cleaned_data)
+            input_values = [value not in [None, False, []] for value in form_values]
             if sum(input_values) == 0:
                 return render(request, 'lens_query_updated.html', {'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})
             lenses = query_search(form.cleaned_data, request.user)

@@ -21,7 +21,9 @@ class LensQueryForm(forms.Form):
     z_lens_max = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
 
     flag_confirmed = forms.BooleanField(required=False)
+    flag_unconfirmed = forms.BooleanField(required=False)
     flag_contaminant = forms.BooleanField(required=False)
+    flag_uncontaminant = forms.BooleanField(required=False)
 
     ImageConfChoices = (
         ('CUSP','Cusp'),
@@ -32,7 +34,7 @@ class LensQueryForm(forms.Form):
         ('RING','Ring'),
         ('ARCS','Arcs')
     )
-    image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, required=False)
+    image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, required=False)# widget=forms.Select(attrs={'class':'my-select2','multiple':'multiple'}))
     
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -40,7 +42,7 @@ class LensQueryForm(forms.Form):
         ('CLUSTER','Galaxy cluster'),
         ('QUASAR','Quasar')
     )
-    lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, required=False)
+    lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, required=False) #widget=forms.Select(attrs={'class':'my-select2','multiple':'multiple'}))
     
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -50,13 +52,7 @@ class LensQueryForm(forms.Form):
         ('GRB','Gamma Ray Burst'),
         ('SN','Supernova')
     )
-    source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, required=False)
-
-    widgets = {
-            'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-            'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-            'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
-        }  
+    source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, required=False) #widget=forms.Select(attrs={'class':'my-select2','multiple':'multiple'}))
 
 
 class BaseLensForm(forms.ModelForm):

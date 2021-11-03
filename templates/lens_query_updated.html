@@ -13,7 +13,7 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 <p>
-  QUERY EXPLANATION HEERE
+  LENS QUERY PAGE
 </p>
 
 
@@ -39,21 +39,15 @@
 	  <div class="column">
 	    <table>
 	      <tr> <td> Confirmed Lens? </td> <td> {{ form.flag_confirmed }} </td> </tr> <br>
+	      <tr> <td> Not Confirmed Lens? </td> <td> {{ form.flag_unconfirmed }} </td> </tr> <br>
 	      <tr> <td> Confirmed Contaminant? </td> <td> {{ form.flag_contaminant }} </td> </tr>
+	      <tr> <td> Not Confirmed Contaminant? </td> <td> {{ form.flag_uncontaminant }} </td> </tr>
 	      <tr> <td> Lens Type </td> <td>{{ form.lens_type }}</td></tr>
+	      <tr> <td> Source Type </td> <td>{{ form.source_type }}</td></tr>
+	      <tr> <td> Configuration </td> <td>{{ form.image_conf }}</td></tr>
 	    </table>
 	  </div>
 	</td>
-
-	<td>
-	  <div class="column">
-	    <table>
-	      <tr> <td> Source Type </td> <td>{{ form.source_type }}</td></tr>
-	      <tr> <td> Configuration </td> <td>{{ form.image_conf }}</td></tr>
-		</table>
-	  </div>
-	</td>
-
 
 	    <!--<table>
 	      <tr><td>{{ form.ra_min.errors }}</td><td>{{ form.ra_min.label_tag }}</td><td>{{ form.ra_min }}</td></tr>
