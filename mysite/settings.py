@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'django_select2',
     'api',
     'rest_framework',
+    'gm2m',
 ]
 
 SITE_ID = 1

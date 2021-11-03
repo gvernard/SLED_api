@@ -17,6 +17,8 @@ from guardian.shortcuts import *
 
 from multiselectfield import MultiSelectField
 
+from gm2m import GM2MField
+
 from notifications.signals import notify
 
 
@@ -573,7 +575,7 @@ class SledGroups(Group):
         - Related to the above, it doesn't make sense to have collections of groups, so no need to use the addToCollection, etc, functions.
 
     """
-    description = models.CharField(max_length=180,null=True, blank=True)
+    description = models.CharField(max_length=200,null=True, blank=True)
     
     def __str__(self):
         return self.name
@@ -601,11 +603,128 @@ class SledGroups(Group):
 
     def __str__(self):
         return self.name
+
+
+
+    
+
+class Collection(SingleObject):
+    """
+    Describes collections of SingleObjects, e.g. lenses, through a many-to-many relationship.
+
+    Attributes:
+        name (`str`): A name for the collection.
+        description (`text`): What this collection is supposed to contain and what's its use.
+    """
+    name = models.CharField(max_length=30,
+                            help_text="A name for your collection")
+    description = models.CharField(max_length=200,
+                                   null=True,
+                                   blank=True,
+                                   help_text="A description for your collection")
+    myitems = GM2MField()
+
+    class ItemType(models.TextChoices):
+        Lenses = 'Lenses', _('Lenses')
+        Scores = 'Scores', _('Scores')
+        Models = 'Models', _('Models')
+    item_type = models.CharField(max_length=100,
+                                 choices=ItemType.choices,
+                                 help_text="The type of items that should be in the collection.")
+
+    
+    
+
+    def addItems(self,user,objects):
+        """
+        Adds the given items to the collection.
+        Needs to check that everybody with access to the collection has access to these items as well.
+
+        Args:
+            user (User): the user calling this function, who has to be the owner of the collection it acts upon.
+            objects (List[SingleObject]): A list of items to add to the collection. They have to match the collection type.
+
+        Returns:
+            items: a list of items that require access the users don't have
+            users_per_item: a list of lists. The main list matches the items above. 
+                            Each sublist contains the users with access to the collection but without access to the given items.
+                            If empty, then the collection is public (but the given items are private).
+        """
+        if not user.isOwner(self):
+            return "error"
+
+        
+        # Check if items are of the same type as the collection type
+        wrong_type = []
+        for obj in objects:
+            if obj._meta.db_table != self.item_type:
+                wrong_type.append(obj)
+        if wrong_type:
+            # Some of the objects are not of the type of the collection
+            return wrong_type
+
+        
+        # Check if some items are private
+        private_objects = []
+        for obj in objects:
+            if obj.access_level == 'PRI':
+                private_objects.append(obj)
+
+        if private_objects:
+
+            if self.access_level == 'PRI':
+                # The collection is private
+                perm = "view_"+self._meta.db_table
+                users_with_access = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
+                groups_with_access = get_groups_with_perms(self)
+
+                perm = "view_"+self.item_type
+
+                # Check if users have permissions
+                users_object_pairs = []
+                for user in users_with_access:
+                    checker = ObjectPermissionChecker(user)
+                    checker.prefetch_perms(private_objects)
+                    objs_without_access = []
+                    for i,obj in enumerate(private_objects):
+                        if not checker.has_perm(perm,obj):
+                            users_objects_pairs.append((user.id,i))
+                        
+                # Check if groups have permissions
+                groups_objects_pairs = []
+
+
+                if not users_objects_pairs and not groups_objects_pairs:
+                    # There are no users or groups without access to the given private objects, proceed by adding the given items to the collection
+                    self.myitems.add(objects)
+                    # NOTIFICATION: Send notification that the objects were added
+                    return "success"
+                else:
+                    # Re-order the users_objects and group_objects by item owner
+                    object_users = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(users_objects_pairs,key=itemgetter(1)), key = itemgetter(1))}
+            else:
+                # A public collection cannot contain private items
+                return "error_message"
+        else:
+            # All items are public, proceed by adding them to the collection
+            self.myitems.add(objects)
+            return "success"
+            # NOTIFICATION: Send notification that the objects were added
+
+        
+    def removeItem(self,user,objects):
+        if user.isOwner(self):
+            # remove objects if they are in the collection
+            self.myitems.remove(objects)
+            # NOTIFICATION: Send notification that the objects were removed
+
     
 
 
 
 
+
+            
 class AccessibleLensManager(models.Manager):
     def all(self,user):
         # Attention: all this should result to no hits to the DB because it is supposed to work with querysets only...to check!
