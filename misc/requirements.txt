@@ -10,7 +10,6 @@ configparser==5.0.2
 confusable-homoglyphs==3.2.0
 cycler==0.10.0
 decorator==5.0.9
-discum==1.2.1
 distlib==0.3.1
 Django==3.2.3
 django-appconf==1.0.5
