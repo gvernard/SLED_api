@@ -88,14 +88,22 @@ def LensQueryView(request):
             print(form.cleaned_data)
             input_values = [value not in [None, False, []] for value in form_values]
             if sum(input_values) == 0:
-                return render(request, 'lens_query_updated.html', {'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})
+                return render(request, 'lens_query.html', {'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})
             lenses = query_search(form.cleaned_data, request.user)
-            return render(request, 'lens_query_updated.html', {'lenses':lenses, 'form':LensQueryForm(initial=form.cleaned_data)})
+            return render(request, 'lens_query.html', {'lenses':lenses, 'form':LensQueryForm(initial=form.cleaned_data)})
         else:
-            return render(request, 'lens_query_updated.html', {'lenses':None, 'form':LensQueryForm})
+            return render(request, 'lens_query.html', {'lenses':None, 'form':LensQueryForm})
     else:
         lenses = None
-        return render(request, 'lens_query_updated.html', {'lenses':lenses, 'form':LensQueryForm})
+        return render(request, 'lens_query.html', {'lenses':lenses, 'form':LensQueryForm})
+
+
+def LensCollageView(request):
+    if request.method=='POST':
+        ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+        if ids:
+            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+        return render(request, 'lens_collage.html', {'lenses':lenses})
 
 
 # View for a single lens
@@ -111,8 +119,6 @@ class LensDetailView(DetailView):
 
 
     
-    
-
 
 
 

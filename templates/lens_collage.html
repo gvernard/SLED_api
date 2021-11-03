@@ -1,0 +1,15 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% block content %}
+
+<div>
+{% for lens in lenses %}
+<div class="inline-block">
+<figure><figcaption>{{lens.name}}</figcaption>
+<img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" class="img">
+</figure>
+</div>
+{% endfor %}
+</div>
+
+{% endblock content %}
