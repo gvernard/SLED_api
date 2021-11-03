@@ -4,6 +4,59 @@ from django.core.exceptions import ValidationError
 from lenses.models import Lenses
 
 from django_select2 import forms as s2forms
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+class LensQueryForm(forms.Form):
+    ra_min = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
+    ra_max = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
+    dec_min = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
+    dec_max = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
+    n_img_min = forms.IntegerField(required=False)
+    n_img_max = forms.IntegerField(required=False)
+    image_sep_min = forms.DecimalField(max_digits=4, decimal_places=2, required=False)
+    image_sep_max = forms.DecimalField(max_digits=4, decimal_places=2, required=False)
+    z_source_min = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
+    z_source_max = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
+    z_lens_min = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
+    z_lens_max = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
+
+    flag_confirmed = forms.BooleanField(required=False)
+    flag_contaminant = forms.BooleanField(required=False)
+
+    ImageConfChoices = (
+        ('CUSP','Cusp'),
+        ('FOLD','Fold'),
+        ('CROSS','Cross'),
+        ('DOUBLE','Double'),
+        ('QUAD','Quad'),
+        ('RING','Ring'),
+        ('ARCS','Arcs')
+    )
+    image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, required=False)
+    
+    LensTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('GROUP','Group of galaxies'),
+        ('CLUSTER','Galaxy cluster'),
+        ('QUASAR','Quasar')
+    )
+    lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, required=False)
+    
+    SourceTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('QUASAR','Quasar'),
+        ('GW','Gravitational Wave'),
+        ('FRB','Fast Radio Burst'),
+        ('GRB','Gamma Ray Burst'),
+        ('SN','Supernova')
+    )
+    source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, required=False)
+
+    widgets = {
+            'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+            'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+            'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
+        }  
 
 
 class BaseLensForm(forms.ModelForm):
