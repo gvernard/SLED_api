@@ -21,7 +21,7 @@ users = Users.objects.all()
 
 # (This block should be replaced by a call to cedeownership)
 # Send from Giorgos to Fred, pending
-sender = users.get(username='Giorgos')
+sender = users.get(username='gvernard')
 receivers = users.filter(username='Fred')
 task_type = 'CedeOwnership'
 cargo = {"object_type": "Lenses",
@@ -33,7 +33,7 @@ mytask = ConfirmationTask.create_task(sender,receivers,task_type,cargo)
 
 # (This block should be replaced by a call to cedeownership)
 # Send from Giorgos to Fred, complete
-sender = users.get(username='Giorgos')
+sender = users.get(username='gvernard')
 receivers = users.filter(username='Fred')
 task_type = 'CedeOwnership'
 cargo = {"object_type": "Lenses",
@@ -54,7 +54,7 @@ mytask.registerAndCheck(target_receiver,'yes','I will happily take over.')
 # (This block should be replaced by a call to cedeownership)
 # Send from Fred to Giorgos, pending
 sender = users.get(username='Fred')
-receivers = users.filter(username='Giorgos')
+receivers = users.filter(username='gvernard')
 task_type = 'CedeOwnership'
 cargo = {"object_type": "Lenses",
          "object_ids":[10],
@@ -66,7 +66,7 @@ mytask = ConfirmationTask.create_task(sender,receivers,task_type,cargo)
 # (This block should be replaced by a call to cedeownership)
 # Send from Cameron to Giorgos, pending
 sender = users.get(username='Cameron')
-receivers = users.filter(username='Giorgos')
+receivers = users.filter(username='gvernard')
 task_type = 'CedeOwnership'
 cargo = {"object_type": "Lenses",
          "object_ids":[50],
@@ -80,7 +80,7 @@ mytask = ConfirmationTask.create_task(sender,receivers,task_type,cargo)
 # (This block should be replaced by a call to cedeownership)
 # Send from Cameron to Giorgos and Fred, pending
 sender = users.get(username='Cameron')
-receivers = users.filter(Q(username='Giorgos')|Q(username='Fred'))
+receivers = users.filter(Q(username='gvernard')|Q(username='Fred'))
 task_type = 'CedeOwnership'
 cargo = {"object_type": "Lenses",
          "object_ids":[50],

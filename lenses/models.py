@@ -650,18 +650,31 @@ class Collection(SingleObject):
                             Each sublist contains the users with access to the collection but without access to the given items.
                             If empty, then the collection is public (but the given items are private).
         """
-        if not user.isOwner(self):
-            return "error"
+        if not self.isOwner(user):
+            return "Error: User is not the owner"
 
+        # If input argument is a single value, convert to list
+        if isinstance(objects,SingleObject):
+            objects = [objects]
         
         # Check if items are of the same type as the collection type
         wrong_type = []
         for obj in objects:
-            if obj._meta.db_table != self.item_type:
+            if obj._meta.model.__name__ != self.item_type:
                 wrong_type.append(obj)
         if wrong_type:
             # Some of the objects are not of the type of the collection
-            return wrong_type
+            return "Error: wrong object type"
+
+        # Check if items are already in the collection
+        ids = []
+        for obj in objects:
+            ids.append(obj.id)
+        existing = self.myitems.filter(gm2m_pk__in=ids)
+        if existing:
+            # Some items are already in the collection - ignore and proceed or return error?
+            return "Error: some/all items already in the collection"
+            
 
         
         # Check if some items are private
@@ -696,7 +709,7 @@ class Collection(SingleObject):
 
                 if not users_objects_pairs and not groups_objects_pairs:
                     # There are no users or groups without access to the given private objects, proceed by adding the given items to the collection
-                    self.myitems.add(objects)
+                    self.myitems.add(*objects)
                     # NOTIFICATION: Send notification that the objects were added
                     return "success"
                 else:
@@ -707,8 +720,8 @@ class Collection(SingleObject):
                 return "error_message"
         else:
             # All items are public, proceed by adding them to the collection
-            self.myitems.add(objects)
-            return "success"
+            self.myitems.add(*objects)
+            return "Success: all items are public, added to the collection"
             # NOTIFICATION: Send notification that the objects were added
 
         
