@@ -762,20 +762,37 @@ class ProximateLensManager(models.Manager):
     
     def get_DB_neighbours(self,lens):
         '''
-        The custom SLED model for a group of users, inheriting from the django `Group`.
+        Checks if a lens object (not yet in the database) has any PUBLIC lenses close to it. It excludes itself from the returned queryset (relevant if updating the object).
 
         Attributes:
-            user (`User`): the user for whom to query the database for all the accessible lenses.
+            lens (`Lenses`): A lens around which to search.
             
-
         Returns:
             neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
         '''
-        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),lens.ra,lens.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=self.check_radius)
+        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),lens.ra,lens.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=self.check_radius).exclude(id=lens.id)
         if qset.count() > 0:
             return qset
         else:
             return False
+
+    def get_DB_neighbours_anywhere(self,ra,dec,radius=None):
+        '''
+        Same as get_DB_neighbours but this time untied to any lens object (from the database or not).
+
+        Args:
+            ra: the RA of any point on the sky.
+            dec: the DEC of any point on the sky.
+            radius: in arcsec (optional).
+        '''
+        if not radius:
+            radius = self.check_radius
+        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius).exclude(id=lens.id)
+        if qset.count() > 0:
+            return qset
+        else:
+            return False
+        
         
     def get_DB_neighbours_many(self,lenses):
         index_list = []
