@@ -11,9 +11,48 @@ h3 {
     font-size: 12pt
 }
 
+.myImage {
+  float: left;
+  width: 10%;
+  font-family: Veranda;
+}
+.heading {
+  float:right;
+}
+
+#container {
+  text-align: center;
+}
+
+.text {
+  display: inline-block;
+  margin: 0 20px 0 20px;
+}
+
+.img {
+  margin: 0 20px 0 20px;
+  width: 100px;
+  height: 100px;
+}
+.inline-block {
+   display: inline-block;
+}
+
+figure {
+    width: 20%;
+    float: center;
+    margin: 0;
+    text-align: center;
+    padding: 0;
+}
+
+
+
 h2 {
     padding-top: 10px
 }
+
+
 
 body {
     background: #EFEFEF;

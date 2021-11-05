@@ -12,6 +12,7 @@
             <tr>
                 <th class="th-center">Right Ascension </th>
                 <th class="th-center">Declination </th>
+                <th class="th-center">Image separation</th>
                 <th class="th-center">Lens redshift</th>
                 <th class="th-center">Source redshift </th>
                 <th class="th-center">Lens owner </th>
@@ -19,6 +20,7 @@
             <tr>
                 <td class="td-center">{{lens.ra|floatformat:5}}</td>
                 <td class="td-center">{{lens.dec|floatformat:5}}</td>
+                <td class="td-center">{{lens.image_sep|floatformat:5}}</td>
                 <td class="td-center">{{lens.z_lens|floatformat:4}}</td>
                 <td class="td-center">{{lens.z_source|floatformat:4}}</td>
                 <td class="td-center">{{lens.owner}}</td>

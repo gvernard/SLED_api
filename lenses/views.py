@@ -12,40 +12,62 @@ from django.forms import modelformset_factory, inlineformset_factory, CheckboxIn
 from urllib.parse import urlparse
 
 from lenses.models import Users, SledGroups, Lenses, ConfirmationTask
-from .forms import BaseLensForm, BaseLensAddUpdateFormSet
+from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm
 
 
 
-def query_search(request):
+def query_search(form, user):
     '''
     This function performs the filtering on the lenses table, by parsing the filter values from the request
     '''
-    keywords = ['ra_min', 'ra_max', 'dec_min', 'dec_max', 'n_img_min', 'n_img_max', 'image_sep_min', 'image_sep_max', 'z_source_min', 'z_source_max', 'z_lens_min', 'z_lens_max']
-    values = [request.GET[keyword] for keyword in keywords]
+    keywords = list(form.keys())
+    values = [form[keyword] for keyword in keywords]
 
     #start with available lenses
-    lenses = Lenses.accessible_objects.all(request.user)
+    lenses = Lenses.accessible_objects.all(user)
 
     #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
     over_meridian = False
-    if (float(request.GET['ra_min']) > float(request.GET['ra_max'])):
-        over_meridian = True
+    print(form['ra_min'], form['ra_max'])
+    if (form['ra_min'] is not None)&(form['ra_max'] is not None):
+        if (float(form['ra_min']) > float(form['ra_max'])):
+            over_meridian = True
 
     #now apply the filter for each non-null entry 
     for k, value in enumerate(values):
-        if value != '':
+        if value is not None:
             print(k, value, keywords[k])
             if ('ra_' in keywords[k]) & over_meridian:
                 continue
             if '_min' in keywords[k]:
                 args = {keywords[k].split('_min')[0]+'__gte':float(value)}
+                lenses = lenses.filter(**args).order_by('ra')
             elif '_max' in keywords[k]:
                 args = {keywords[k].split('_max')[0]+'__lte':float(value)}
-            lenses = lenses.filter(**args).order_by('ra')
+                lenses = lenses.filter(**args).order_by('ra')
+
+            if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
+                if len(value)>0:
+                    for i in range(len(value)):
+                        print(k, value[i], keywords[k])
+                        args = {keywords[k]:value[i]}
+                        lenses_type = lenses.filter(**args)
+                        if i==0:
+                            final_lenses = lenses_type
+                        else:
+                            final_lenses |= lenses_type
+                    lenses = final_lenses.order_by('ra')
+            if ('flag_' in keywords[k]):
+                if value:
+                    if 'flag_un' in keywords[k]:
+                        keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
+                        value = False
+                    args = {keywords[k]:value}
+                    lenses = lenses.filter(**args)
 
     #come back to the special case where RA_min is less than 0hours
     if over_meridian:
-        lenses = lenses.filter(ra__gte=request.GET['ra_min']) | lenses.filter(ra__lte=request.GET['ra_max'])
+        lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
 
     return lenses
 
@@ -56,17 +78,32 @@ def LensQueryView(request):
     Main lens query page, allowing currently for a simple filter on the lenses table parameters
     Eventually we want to allow simultaneous queries across multiple tables
     '''
-    keywords = ['ra_min', 'ra_max', 'dec_min', 'dec_max', 'n_img_min', 'n_img_max', 'image_sep_min', 'image_sep_max', 'z_source_min', 'z_source_max', 'z_lens_min', 'z_lens_max']
-    form_values = [0, 360, -90, 90, '', '', '', '', '', '', '', '', '', '']
-    print(request.GET)
-    if all(handle in request.GET for handle in keywords) and 'submit' in request.GET:
-        lenses = query_search(request)
-        form_values = [request.GET[keyword] for keyword in keywords]
-        print(form_values)
+    if request.method=='POST':
+        print('POST FORM')
+        form = LensQueryForm(request.POST)
+        print(form)
+        if form.is_valid:
+            print('form valid')
+            form_values = form.cleaned_data.values()
+            print(form.cleaned_data)
+            input_values = [value not in [None, False, []] for value in form_values]
+            if sum(input_values) == 0:
+                return render(request, 'lens_query.html', {'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})
+            lenses = query_search(form.cleaned_data, request.user)
+            return render(request, 'lens_query.html', {'lenses':lenses, 'form':LensQueryForm(initial=form.cleaned_data)})
+        else:
+            return render(request, 'lens_query.html', {'lenses':None, 'form':LensQueryForm})
     else:
-        lenses = Lenses.accessible_objects.all(request.user).order_by('ra')
-    return render(request, 'lens_query.html', {'lenses':lenses, 'formvalues':form_values})
+        lenses = None
+        return render(request, 'lens_query.html', {'lenses':lenses, 'form':LensQueryForm})
 
+
+def LensCollageView(request):
+    if request.method=='POST':
+        ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+        if ids:
+            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+        return render(request, 'lens_collage.html', {'lenses':lenses})
 
 
 # View for a single lens
@@ -82,8 +119,6 @@ class LensDetailView(DetailView):
 
 
     
-    
-
 
 
 
