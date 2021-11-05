@@ -122,5 +122,5 @@ tests/*/*.png
 drop_all_tables.sh
 function_distance_on_sky.sql
 mysite/my.cnf
-trial_sample
+trial_sample/images/
 lenses/static/lenses/mugshots/*.png
