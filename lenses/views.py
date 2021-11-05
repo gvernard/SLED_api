@@ -155,7 +155,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
                 to_update.append(instances[i])
         if to_update:
             for lens in to_update:
-                lens.create_name()
+                #lens.create_name()
                 lens.save()
             return True 
         else:
@@ -174,6 +174,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
                 to_check = []
                 for i,myform in enumerate(myformset.forms):
                     if 'ra' in myform.changed_data or 'dec' in myform.changed_data:
+                        instances[i].create_name()
                         to_check.append(instances[i])
 
                 if to_check:
@@ -227,7 +228,7 @@ class LensAddView(AddUpdateMixin,TemplateView):
             # Submitting to itself, perform all the checks
             LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=0)
             myformset = LensFormSet(data=request.POST)
-            if myformset.has_changed() and myformset.is_valid():
+            if myformset.is_valid():
                 instances = myformset.save(commit=False)
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
                 

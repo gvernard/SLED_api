@@ -840,22 +840,21 @@ class Lenses(SingleObject):
                                  help_text="The redshift of the lens, if known.",
                                  validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                              MaxValueValidator(15,"If your lens is further than that then congrats! (but probably it's a mistake)")])
-
-    n_img = models.IntegerField(blank=True,
-                                 null=True,
-                                 verbose_name="Number of images",
-                                 help_text="The number of source images, if known.",
-                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
-                                             MaxValueValidator(15,"Wow, that's a lot of images, are you sure?")])
-
     info = models.TextField(blank=True,
                             default='',
                             help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
-
-    mugshot_name = models.CharField(blank=True,
-                                    max_length=100,
+    
+    n_img = models.IntegerField(blank=True,
+                                null=True,
+                                verbose_name="Number of images",
+                                help_text="The number of source images, if known.",
+                                validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
+                                            MaxValueValidator(15,"Wow, that's a lot of images, are you sure?")])
+    
+    mugshot_name = models.CharField(max_length=100,
+                                    blank=True,
                                     help_text='File location of the mugshot image, relative to base directory')
-
+    
     ImageConfChoices = (
         ('CUSP','Cusp'),
         ('FOLD','Fold'),

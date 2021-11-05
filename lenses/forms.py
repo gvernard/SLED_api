@@ -58,7 +58,7 @@ class LensQueryForm(forms.Form):
 class BaseLensForm(forms.ModelForm):
     class Meta:
         model = Lenses
-        fields = '__all__'
+        exclude = ['name']
         widgets = {
             'info': forms.Textarea({'placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
             'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
@@ -106,8 +106,12 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
             # Don't bother validating the formset unless each form is valid on its own
             return
 
+        ### Check if formset has changed.
+        if not self.has_changed():
+            raise ValidationError("No changes detected.")
+
+        
         ### Add a validation on the 'insert' field
-        print(self.required)
         for i in self.required:
             insert = self.forms[i].cleaned_data.get('insert')
             if insert != 'yes' and insert != 'no':
