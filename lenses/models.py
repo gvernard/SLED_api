@@ -9,6 +9,8 @@ from django.urls import reverse
 from django.db.models import F, Func, FloatField
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
@@ -606,7 +608,7 @@ class SledGroups(Group):
 
 
 
-    
+        
 
 class Collection(SingleObject):
     """
@@ -632,8 +634,8 @@ class Collection(SingleObject):
                                  choices=ItemType.choices,
                                  help_text="The type of items that should be in the collection.")
 
-    
-    
+    class Meta():
+        db_table = "collection"
 
     def addItems(self,user,objects):
         """
@@ -687,14 +689,14 @@ class Collection(SingleObject):
 
             if self.access_level == 'PRI':
                 # The collection is private
-                perm = "view_"+self._meta.db_table
-                users_with_access = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
-                groups_with_access = get_groups_with_perms(self)
-
-                perm = "view_"+self.item_type
-
+                users_with_access = list(self.getUsersWithAccess(user))
+                groups_with_access = list(self.getGroupsWithAccess(user))
+                users_with_access.append(user)
+                print('Users with access to the COLLECTION: ',users_with_access)
+                
                 # Check if users have permissions
-                users_object_pairs = []
+                perm = "view_"+self.item_type
+                users_objects_pairs = []
                 for user in users_with_access:
                     checker = ObjectPermissionChecker(user)
                     checker.prefetch_perms(private_objects)
@@ -706,7 +708,7 @@ class Collection(SingleObject):
                 # Check if groups have permissions
                 groups_objects_pairs = []
 
-
+                print(len(users_objects_pairs),len(groups_objects_pairs))
                 if not users_objects_pairs and not groups_objects_pairs:
                     # There are no users or groups without access to the given private objects, proceed by adding the given items to the collection
                     self.myitems.add(*objects)
@@ -715,9 +717,10 @@ class Collection(SingleObject):
                 else:
                     # Re-order the users_objects and group_objects by item owner
                     object_users = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(users_objects_pairs,key=itemgetter(1)), key = itemgetter(1))}
+                    return "Error: there are users that have access to the collection but not to the objects being added."
             else:
                 # A public collection cannot contain private items
-                return "error_message"
+                return "Error: a public collection cannot contain private items"
         else:
             # All items are public, proceed by adding them to the collection
             self.myitems.add(*objects)
@@ -732,6 +735,14 @@ class Collection(SingleObject):
             # NOTIFICATION: Send notification that the objects were removed
 
     
+# Assign view permission to the owner of a new collection
+@receiver(post_save,sender=Collection)
+def handle_new_collection(sender,**kwargs):
+    created = kwargs.get('created')
+    if created: # a new collection was added
+        collection = kwargs.get('instance')
+        perm = 'view_'+collection._meta.db_table
+        assign_perm(perm,collection.owner,collection)
 
 
 
