@@ -11,6 +11,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.apps import apps
 
 #see here https://django-guardian.readthedocs.io/en/stable/userguide/custom-user-model.html
 from guardian.core import ObjectPermissionChecker
@@ -677,8 +678,6 @@ class Collection(SingleObject):
             # Some items are already in the collection - ignore and proceed or return error?
             return "Error: some/all items already in the collection"
             
-
-        
         # Check if some items are private
         private_objects = []
         for obj in objects:
@@ -692,10 +691,11 @@ class Collection(SingleObject):
                 users_with_access = list(self.getUsersWithAccess(user))
                 groups_with_access = list(self.getGroupsWithAccess(user))
                 users_with_access.append(user)
-                print('Users with access to the COLLECTION: ',users_with_access)
+                print(users_with_access)
+                print('Users/Groups with access to the COLLECTION: ',users_with_access,groups_with_access)
                 
-                # Check if users have permissions
-                perm = "view_"+self.item_type
+                # Check if users and groups have "view" permission
+                perm = "view_"+apps.get_model("lenses",self.item_type)._meta.db_table
                 users_objects_pairs = []
                 for user in users_with_access:
                     checker = ObjectPermissionChecker(user)
@@ -704,11 +704,16 @@ class Collection(SingleObject):
                     for i,obj in enumerate(private_objects):
                         if not checker.has_perm(perm,obj):
                             users_objects_pairs.append((user.id,i))
-                        
-                # Check if groups have permissions
                 groups_objects_pairs = []
-
-                print(len(users_objects_pairs),len(groups_objects_pairs))
+                for group in groups_with_access:
+                    checker = ObjectPermissionChecker(group)
+                    checker.prefetch_perms(private_objects)
+                    objs_without_access = []
+                    for i,obj in enumerate(private_objects):
+                        if not checker.has_perm(perm,obj):
+                            groups_objects_pairs.append((group.id,i))                            
+                print("Users-Groups without access: ",len(users_objects_pairs),len(groups_objects_pairs))
+                
                 if not users_objects_pairs and not groups_objects_pairs:
                     # There are no users or groups without access to the given private objects, proceed by adding the given items to the collection
                     self.myitems.add(*objects)
@@ -717,7 +722,7 @@ class Collection(SingleObject):
                 else:
                     # Re-order the users_objects and group_objects by item owner
                     object_users = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(users_objects_pairs,key=itemgetter(1)), key = itemgetter(1))}
-                    return "Error: there are users that have access to the collection but not to the objects being added."
+                    return "Error: there are users or groups that have access to the collection but not to the objects being added."
             else:
                 # A public collection cannot contain private items
                 return "Error: a public collection cannot contain private items"
@@ -729,9 +734,39 @@ class Collection(SingleObject):
 
         
     def removeItem(self,user,objects):
-        if user.isOwner(self):
-            # remove objects if they are in the collection
-            self.myitems.remove(objects)
+        """
+        Remove the given items from the collection. Checks if items are of the right type.
+
+        Args:
+            user (User): the user calling this function, who has to be the owner of the collection it acts upon.
+            objects (List[SingleObject]): A list of items to remove from the collection. They have to match the collection type.
+        """
+        if not self.isOwner(user):
+            return "Error: User is not the owner"
+
+        # If input argument is a single value, convert to list
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+
+        # Check if items are of the same type as the collection type
+        wrong_type = []
+        for obj in objects:
+            if obj._meta.model.__name__ != self.item_type:
+                wrong_type.append(obj)
+        if wrong_type:
+            # Some of the objects are not of the type of the collection
+            return "Error: wrong object type"
+
+        # Check if items are already in the collection
+        ids = []
+        for obj in objects:
+            ids.append(obj.id)
+        existing = self.myitems.filter(gm2m_pk__in=ids)
+        if existing.count() != len(ids):
+            # Some items are not in the collection
+            return "Error: some/all items are not in the collection"
+        else:
+            self.myitems.remove(*list(existing))
             # NOTIFICATION: Send notification that the objects were removed
 
     

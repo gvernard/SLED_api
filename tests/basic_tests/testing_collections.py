@@ -10,7 +10,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, Lenses, Collection, ConfirmationTask
+from lenses.models import Users, Lenses, Collection, ConfirmationTask, SledGroups
 from django.contrib.auth.models import User
 
 
@@ -77,7 +77,7 @@ print(ret)
 '''
 
 
-
+'''
 ############################# Testing a private collection #############################
 mycollection = Collection(owner=geo,name="Worst",access_level='PRI',description="Aliens invaded earth in 2019 in the form of a virus.",item_type="Lenses")
 mycollection.save()
@@ -96,4 +96,103 @@ for obj in pri:
     print(obj,obj.getUsersWithAccess(cam))
 ret = mycollection.addItems(geo,pri)
 print(ret)
+
+
+# Check 2: try to add private objects with access
+print('Check 2:')
+pri = Lenses.objects.filter(access_level='PRI').order_by('ra')[:1]
+print('Owner: ',pri.values_list('owner__username',flat=True))
+cam.giveAccess(pri,geo)
+print('Users with access:')
+for obj in pri:
+    print(obj,obj.getUsersWithAccess(cam))
+ret = mycollection.addItems(geo,pri)
+print(ret)
+
+
+# Check 3: try to add private objects without access for ALL the users
+print('Check 3:')
+geo.giveAccess(mycollection,fre) # Here giveAccess should return an error because Fred doesn't have access to items currently in the collection.
+pri = Lenses.objects.filter(access_level='PRI').order_by('ra')[4:5]
+print('Owner: ',pri.values_list('owner__username',flat=True))
+cam.giveAccess(pri,geo)
+print('Users with access:')
+for obj in pri:
+    print(obj,obj.getUsersWithAccess(cam))
+ret = mycollection.addItems(geo,pri)
+print(ret)
+
+
+# Check 4: give Access to all users and add private objects
+print('Check 4:')
+users_with_access = list(mycollection.getUsersWithAccess(geo))
+users_with_access.append(geo)
+pri = Lenses.objects.filter(access_level='PRI').order_by('ra')[9:11]
+print('Owner: ',pri.values_list('owner__username',flat=True))
+cam.giveAccess(pri,users_with_access)
+print('Users with access:')
+for obj in pri:
+    print(obj,obj.getUsersWithAccess(cam))
+ret = mycollection.addItems(geo,pri)
+print(ret)
+print(mycollection.myitems.all())
+
+
+# Check 5: remove item from the collection
+print('Check 5:')
+to_remove = list(mycollection.myitems.all())[-2:]
+print(to_remove)
+mycollection.removeItem(geo,to_remove)
+print(mycollection.myitems.all())
+
+
+# Check 6: attempt to remove items that are not in the collection
+print('Check 6:')
+to_remove = list(mycollection.myitems.all())[-1:]
+to_remove.append(Lenses.objects.filter(access_level='PUB').order_by('ra')[20])
+print(to_remove)
+ret = mycollection.removeItem(geo,to_remove)
+print(ret)
+print(mycollection.myitems.all())
+'''
+
+
+
+
+############################# Testing a private collection with Group access #############################
+mycollection = Collection(owner=geo,name="Average",access_level='PRI',description="You touch my tralala.",item_type="Lenses")
+mycollection.save()
+pub = Lenses.objects.filter(access_level='PUB').order_by('ra')[4:8]
+mycollection.myitems = pub
+mycollection.save()
+print(mycollection.myitems.all())
+
+
+
+# Check 1: try to add private objects without access for ALL the users
+print('Check 1:')
+tdcosmo = SledGroups.objects.get(name='TDCOSMO')
+geo.giveAccess(mycollection,tdcosmo) # Here giveAccess should return an error because Fred doesn't have access to items currently in the collection.
+pri = Lenses.objects.filter(access_level='PRI').order_by('ra')[:1]
+print('Owner: ',pri.values_list('owner__username',flat=True))
+print('Users/Groups with access:')
+for obj in pri:
+    print(obj,obj.getUsersWithAccess(cam),obj.getGroupsWithAccess(cam))
+ret = mycollection.addItems(geo,pri)
+print(ret)
+
+
+
+# Check 2: give Access to all group users and add private objects
+print('Check 2:')
+groups_with_access = list(mycollection.getGroupsWithAccess(geo))
+pri = Lenses.objects.filter(access_level='PRI').order_by('ra')[4:6]
+print('Owner: ',pri.values_list('owner__username',flat=True))
+cam.giveAccess(pri,groups_with_access) # Important: user 'gvernard' also gains access to the objects because he is in the TDcosmo group
+print('Users/Groups with access:')
+for obj in pri:
+    print(obj,obj.getUsersWithAccess(cam),obj.getGroupsWithAccess(cam))
+ret = mycollection.addItems(geo,pri)
+print(ret)
+print(mycollection.myitems.all())
 
