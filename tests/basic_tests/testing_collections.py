@@ -2,6 +2,7 @@ import sys
 import os
 import django
 import unittest
+import inspect
 
 dirname = os.path.dirname(__file__)
 base_dir = os.path.join(dirname,'../../')
@@ -12,8 +13,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
 from lenses.models import Users, Lenses, Collection, ConfirmationTask, SledGroup
-from django.contrib.auth.models import User, Group
-from django.core.exceptions import ValidationError
+
 
 # A user to own the collection
 geo = Users.objects.get(username='gvernard')

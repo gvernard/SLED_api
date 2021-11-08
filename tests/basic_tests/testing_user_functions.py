@@ -23,6 +23,8 @@ from astropy.coordinates import SkyCoord
 import numpy as np
 
 
+
+
 ###### Do some initialization
 #users = Users.objects.exclude(username='admin')
 users = Users.objects.all()
