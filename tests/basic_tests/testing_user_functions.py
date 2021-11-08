@@ -13,7 +13,7 @@ django.setup()
 
 from lenses.models import Users, SledGroups, Lenses, ConfirmationTask
 from django.forms.models import model_to_dict
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from guardian.shortcuts import assign_perm
 from guardian.shortcuts import get_objects_for_user
 from guardian.shortcuts import get_users_with_perms
@@ -69,10 +69,10 @@ print("TEST ==== Owner gives access to private lenses")
 owner       = users.get(username='Cameron')
 other_user  = users.get(username='gvernard')
 other_user2 = users.get(username='Fred')
-some_group  = SledGroups.objects.get(name="Awesome Users")
-other_group = SledGroups.objects.get(name="TDCOSMO")
+some_group  = Group.objects.get(name="Awesome Users")
+other_group = Group.objects.get(name="TDCOSMO")
 
-private_lenses = Lenses.accessible_objects.all(owner).filter(access_level='PRI')
+private_lenses = Lenses.accessible_objects.owned(owner).filter(access_level='PRI')
 
 # simplest way: loop and give access object by object
 # for i in range(0,3):
@@ -95,7 +95,7 @@ owner.giveAccess(private_lenses[11:13],[other_group])
 accessible_objects_per_user()
 print()
 ########################
-
+sys.exit()
 
 
 
@@ -206,8 +206,8 @@ for i in range(0,private_lenses.count()):
 
 other_user = users.get(username='gvernard')
 other_user2 = users.get(username='Fred')
-some_group  = SledGroups.objects.get(name="Awesome Users")
-some_group2  = SledGroups.objects.get(name="TDCOSMO")
+some_group  = Group.objects.get(name="Awesome Users")
+some_group2  = Group.objects.get(name="TDCOSMO")
 
 # Comment and uncomment any combinations of lines below to see the effect
 #owner.revokeAccess(set_with_perms[0],[other_user])
