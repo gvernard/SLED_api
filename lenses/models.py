@@ -45,6 +45,48 @@ objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMet
 
 
 
+class SledGroups(Group):
+    """
+    The custom SLED model for a group of users, inheriting from the django `Group`.
+
+    Attributes:
+        description(`str`): A short description of the group's purpose.
+
+    Todo:
+        - Should this be a SingleObject? If so then the access_level should always be set to public and we will not be using access related functions.
+        - Related to the above, it doesn't make sense to have collections of groups, so no need to use the addToCollection, etc, functions.
+
+    """
+    description = models.CharField(max_length=200,null=True, blank=True)
+    
+    def __str__(self):
+        return self.name
+
+    class Meta():
+        db_table = "sledgroups"
+        verbose_name = "sledgroup"
+        verbose_name_plural = "sledgroups"
+
+    def getAllMembers(self):
+        """
+        Note:
+            We may want to restrict this function to the owner, or to members only
+        """
+        users = self.user_set.all()
+        return users
+        
+    def addMember(self,owner,seld_user):
+        if owner.isOwner(self) and not sled_user.groups.filter(name=self.name):
+            self.user_set.add(sled_user)
+        
+    def removeMember(self,owner,sled_user):
+        if owner.isOwner(self) and sled_user.groups.filter(name=self.name):
+            self.user_set.remove(sled_user)
+
+    def __str__(self):
+        return self.name
+
+
 
 class Users(AbstractUser,GuardianUserMixin):
     """ The class to represent registered users within SLED.
@@ -440,9 +482,79 @@ class Users(AbstractUser,GuardianUserMixin):
     #         user.save()
 
 
+
+
+
+
+
+
+    
+
+class AccessManager(models.Manager):
+    def all(self,user):
+        # Attention: all this should result to no hits to the DB because it is supposed to work with querysets only...to check!
+        public  = super().get_queryset().filter(access_level='PUB')
+        private = super().get_queryset().filter(access_level='PRI')
+        perm = 'view_'+self.model._meta.db_table
+        accessible_private = get_objects_for_user(user,perm,klass = private)
+        return public | accessible_private # merge and return querysets
+
+    def in_ids(self,user,id_list):
+        public  = super().get_queryset().filter(access_level='PUB').filter(id__in=id_list)
+        private = super().get_queryset().filter(access_level='PRI').filter(id__in=id_list)
+        perm = 'view_'+self.model._meta.db_table        
+        accessible_private = get_objects_for_user(user,perm,klass = private)
+        return public | accessible_private # merge and return querysets
+
+
+    def ugs_without_access(self,ugs,objects):
+        '''
+        Cross matches the users or groups with the given objects and returns those users or groups that do NOT have access to the given objects.
+
+        Args:
+            ugs [List(User or SledGroup)]: A list of Users or SledGroups but not both.
+            objects [List(SingleObject)]: A list of SingleObjects.
+
+        Returns:
+            object_ugs: A list of ...
+        '''
+        perm = "view_"+objects[0]._meta.db_table
+        ugs_objects_pairs = []
+        for ug in ugs:
+            checker = ObjectPermissionChecker(ug)
+            checker.prefetch_perms(objects)
+            for i,obj in enumerate(objects):
+                if not checker.has_perm(perm,obj):
+                    ugs_objects_pairs.append((ug.id,i))
+        object_ugs = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(ugs_objects_pairs,key=itemgetter(1)), key = itemgetter(1))}
+        return object_ugs
+
+    def ugs_with_access(self,ugs,objects):
+        '''
+        Cross matches the users or groups with the given objects and returns those users or groups that DO have access to the given objects.
+
+        Args:
+            ugs [List(User or SledGroup)]: A list of Users or SledGroups but not both.
+            objects [List(SingleObject)]: A list of SingleObjects.
+
+        Returns:
+            object_ugs: A list of ...
+        '''
+        perm = "view_"+objects[0]._meta.db_table
+        ugs_objects_pairs = []
+        for ug in ugs:
+            checker = ObjectPermissionChecker(ug)
+            checker.prefetch_perms(objects)
+            for i,obj in enumerate(objects):
+                if checker.has_perm(perm,obj):
+                    ugs_objects_pairs.append((ug.id,i))
+        object_ugs = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(ugs_objects_pairs,key=itemgetter(1)), key = itemgetter(1))}
+        return object_ugs
+
+    
 class AbstractModelMeta(abc.ABCMeta,type(models.Model)):
     pass
-    
+
 class SingleObject(models.Model,metaclass=AbstractModelMeta):
     """
     This is a **base** class that encapsulates all the variables and functionality that is common across all the primary models with which we populate our database.
@@ -452,20 +564,17 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
         created_at (`datetime`): The time when this object instance was created.
         modified_at (`datetime`): The time of the most recent modification/update to this object instance.
         access_level (`enum`): Determines if the object is public ('pub') or private ('pri').
-
-    Todo:
-        - We need to learn more about the ForeignKey options. E.g. when a user is deleted, a cede_responsibility should be called, see SET()?
-        - WE SHOULD RENAME THIS OWNER EVERYWHERE, since this has the attribute id in django, i.e currently need owner_id_id
     """
     
     owner = models.ForeignKey(Users,on_delete=models.CASCADE) 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
-
     class AccessLevel(models.TextChoices):
         PUBLIC = "PUB"
         PRIVATE = "PRI"
     access_level = CharField(max_length=3,choices=AccessLevel.choices,default=AccessLevel.PUBLIC,help_text="Set public or private access to this object.")
+
+    accessible_objects = AccessManager()
 
     class Meta:
         abstract = True
@@ -486,6 +595,11 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
         else:
             return False
 
+    def convertToList(self,objects):
+        if isinstance(objects,SingleObject):
+            objects = [objects]
+        return objects
+        
     def getCreatedAt(self):
         """
         Return:
@@ -566,49 +680,9 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
 
     
 
-class SledGroups(Group):
-    """
-    The custom SLED model for a group of users, inheriting from the django `Group`.
 
-    Attributes:
-        description(`str`): A short description of the group's purpose.
 
-    Todo:
-        - Should this be a SingleObject? If so then the access_level should always be set to public and we will not be using access related functions.
-        - Related to the above, it doesn't make sense to have collections of groups, so no need to use the addToCollection, etc, functions.
-
-    """
-    description = models.CharField(max_length=200,null=True, blank=True)
     
-    def __str__(self):
-        return self.name
-
-    class Meta():
-        db_table = "sledgroups"
-        verbose_name = "sledgroup"
-        verbose_name_plural = "sledgroups"
-
-    def getAllMembers(self):
-        """
-        Note:
-            We may want to restrict this function to the owner, or to members only
-        """
-        users = self.user_set.all()
-        return users
-        
-    def addMember(self,owner,seld_user):
-        if owner.isOwner(self) and not sled_user.groups.filter(name=self.name):
-            self.user_set.add(sled_user)
-        
-    def removeMember(self,owner,sled_user):
-        if owner.isOwner(self) and sled_user.groups.filter(name=self.name):
-            self.user_set.remove(sled_user)
-
-    def __str__(self):
-        return self.name
-
-
-
         
 
 class Collection(SingleObject):
@@ -638,6 +712,28 @@ class Collection(SingleObject):
     class Meta():
         db_table = "collection"
 
+    def itemsCheckType(self,objects):
+        try:
+            wrong_type = []
+            for obj in objects:
+                if obj._meta.model.__name__ != self.item_type:
+                    wrong_type.append(obj)
+            assert (len(wrong_type) == 0), "Wrong object type. The objects in the collection are: "+self.item_type
+        except AssertionError as error:
+            print(error)
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print("The operation of '"+caller[1][3]+"' should not proceed")
+
+    def itemsInCollection(self,objects):
+        ids = []
+        for obj in objects:
+            ids.append(obj.id)
+        existing = self.myitems.filter(gm2m_pk__in=ids)
+        if existing:
+            return existing
+        else:
+            return self.myitems.none()
+            
     def addItems(self,user,objects):
         """
         Adds the given items to the collection.
@@ -661,22 +757,12 @@ class Collection(SingleObject):
             objects = [objects]
         
         # Check if items are of the same type as the collection type
-        wrong_type = []
-        for obj in objects:
-            if obj._meta.model.__name__ != self.item_type:
-                wrong_type.append(obj)
-        if wrong_type:
-            # Some of the objects are not of the type of the collection
-            return "Error: wrong object type"
+        self.itemsCheckType(objects)
 
         # Check if items are already in the collection
-        ids = []
-        for obj in objects:
-            ids.append(obj.id)
-        existing = self.myitems.filter(gm2m_pk__in=ids)
+        existing = self.itemsInCollection(objects)
         if existing:
-            # Some items are already in the collection - ignore and proceed or return error?
-            return "Error: some/all items already in the collection"
+            return existing
             
         # Check if some items are private
         private_objects = []
@@ -688,40 +774,23 @@ class Collection(SingleObject):
 
             if self.access_level == 'PRI':
                 # The collection is private
-                users_with_access = list(self.getUsersWithAccess(user))
-                groups_with_access = list(self.getGroupsWithAccess(user))
-                users_with_access.append(user)
-                print(users_with_access)
-                print('Users/Groups with access to the COLLECTION: ',users_with_access,groups_with_access)
+                users_collection = list(self.getUsersWithAccess(user))
+                groups_collection = list(self.getGroupsWithAccess(user))
+                users_collection.append(user)
+                print('Users/Groups with access to the COLLECTION: ',users_collection,groups_collection)
                 
                 # Check if users and groups have "view" permission
-                perm = "view_"+apps.get_model("lenses",self.item_type)._meta.db_table
-                users_objects_pairs = []
-                for user in users_with_access:
-                    checker = ObjectPermissionChecker(user)
-                    checker.prefetch_perms(private_objects)
-                    objs_without_access = []
-                    for i,obj in enumerate(private_objects):
-                        if not checker.has_perm(perm,obj):
-                            users_objects_pairs.append((user.id,i))
-                groups_objects_pairs = []
-                for group in groups_with_access:
-                    checker = ObjectPermissionChecker(group)
-                    checker.prefetch_perms(private_objects)
-                    objs_without_access = []
-                    for i,obj in enumerate(private_objects):
-                        if not checker.has_perm(perm,obj):
-                            groups_objects_pairs.append((group.id,i))                            
-                print("Users-Groups without access: ",len(users_objects_pairs),len(groups_objects_pairs))
+                objects_users = SingleObject.accessible_objects.ugs_without_access(users_collection,private_objects)
+                objects_groups = SingleObject.accessible_objects.ugs_without_access(groups_collection,private_objects)
+                print("Users-Groups without access: ",len(objects_users),len(objects_groups))
                 
-                if not users_objects_pairs and not groups_objects_pairs:
+                if not users_collection and not groups_collection:
                     # There are no users or groups without access to the given private objects, proceed by adding the given items to the collection
                     self.myitems.add(*objects)
                     # NOTIFICATION: Send notification that the objects were added
                     return "success"
                 else:
                     # Re-order the users_objects and group_objects by item owner
-                    object_users = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(users_objects_pairs,key=itemgetter(1)), key = itemgetter(1))}
                     return "Error: there are users or groups that have access to the collection but not to the objects being added."
             else:
                 # A public collection cannot contain private items
@@ -732,7 +801,7 @@ class Collection(SingleObject):
             return "Success: all items are public, added to the collection"
             # NOTIFICATION: Send notification that the objects were added
 
-        
+
     def removeItem(self,user,objects):
         """
         Remove the given items from the collection. Checks if items are of the right type.
@@ -745,29 +814,38 @@ class Collection(SingleObject):
             return "Error: User is not the owner"
 
         # If input argument is a single value, convert to list
-        if isinstance(objects,SingleObject):
-            objects = [objects]
+        objects = self.convertToList(objects)
 
         # Check if items are of the same type as the collection type
-        wrong_type = []
-        for obj in objects:
-            if obj._meta.model.__name__ != self.item_type:
-                wrong_type.append(obj)
-        if wrong_type:
-            # Some of the objects are not of the type of the collection
-            return "Error: wrong object type"
+        self.itemsCheckType(objects)
 
         # Check if items are already in the collection
-        ids = []
-        for obj in objects:
-            ids.append(obj.id)
-        existing = self.myitems.filter(gm2m_pk__in=ids)
-        if existing.count() != len(ids):
-            # Some items are not in the collection
+        existing = self.itemsInCollection(objects)
+        if existing:
             return "Error: some/all items are not in the collection"
         else:
             self.myitems.remove(*list(existing))
             # NOTIFICATION: Send notification that the objects were removed
+
+
+    def giveAccessToUserOrGroup(self,user,ug):
+        """
+        Make sure all the given users and groups have access to all the objects.
+        If not, then return a list of objects and the users/groups without access per object.
+
+        Args:
+            user (User): the user calling this function, who has to be the owner of the collection it acts upon.
+            ug (List[User or Group]): A list of User and/or Group objects to give access to the collection.
+        """
+        pass
+
+
+    def revokeAccessFromUserOrGroup(self,user,ug):
+        pass
+
+
+    def itemsMadePrivate():
+        pass
 
     
 # Assign view permission to the owner of a new collection
@@ -783,22 +861,8 @@ def handle_new_collection(sender,**kwargs):
 
 
 
-            
-class AccessibleLensManager(models.Manager):
-    def all(self,user):
-        # Attention: all this should result to no hits to the DB because it is supposed to work with querysets only...to check!
-        lenses_public  = super().get_queryset().filter(access_level='PUB')
-        lenses_private = super().get_queryset().filter(access_level='PRI')
-        accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
-        return lenses_public | accessible_private_lenses # merge and return querysets
+        
 
-    def in_ids(self,user,id_list):
-        lenses_public  = super().get_queryset().filter(access_level='PUB').filter(id__in=id_list)
-        lenses_private = super().get_queryset().filter(access_level='PRI').filter(id__in=id_list)
-        accessible_private_lenses = get_objects_for_user(user,'view_lenses',klass = lenses_private)
-        return lenses_public | accessible_private_lenses # merge and return querysets
-
-    
 class ProximateLensManager(models.Manager):
     """
     Attributes:
@@ -810,7 +874,7 @@ class ProximateLensManager(models.Manager):
         '''
         Checks if a lens object (not yet in the database) has any PUBLIC lenses close to it. It excludes itself from the returned queryset (relevant if updating the object).
 
-        Attributes:
+        Args:
             lens (`Lenses`): A lens around which to search.
             
         Returns:
@@ -830,6 +894,9 @@ class ProximateLensManager(models.Manager):
             ra: the RA of any point on the sky.
             dec: the DEC of any point on the sky.
             radius: in arcsec (optional).
+
+        Returns:
+            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
         '''
         if not radius:
             radius = self.check_radius
@@ -839,8 +906,17 @@ class ProximateLensManager(models.Manager):
         else:
             return False
         
-        
     def get_DB_neighbours_many(self,lenses):
+        '''
+        Loops over a list of lenses and calls repeatedly get_DB_neighbours.
+
+        Args:
+            lenses [List(`Lenses`)]: A list of Lenses objects.
+
+        Returns:
+            index_list (List[int]): A list of indices to the original input list indicating those lenses that have proximate existing lenses. 
+            neis_list (List[`Lenses`]): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+        '''   
         index_list = []
         neis_list = [] # A list of non-empty querysets
         for i,lens in enumerate(lenses):
@@ -958,7 +1034,6 @@ class Lenses(SingleObject):
                             choices=SourceTypeChoices)
 
     
-    accessible_objects = AccessibleLensManager() # the first manager is the default one
     proximate = ProximateLensManager()
     objects = models.Manager()
     

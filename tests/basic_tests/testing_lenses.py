@@ -26,7 +26,7 @@ def deg2arcsec(val):
     return float(val)*3600.0
 
 
-sled_user  = Users.objects.get(username='Giorgos')
+sled_user  = Users.objects.get(username='gvernard')
 
 
 

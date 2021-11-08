@@ -43,12 +43,12 @@ user_array = [{'username':'Cameron',
                'email':'giz.mo@epfl.ch'
                }
               ]
-print('Populating the database with the following users:')
 password = '123'
 
 for user_details in user_array:
     user = Users.objects.create_user(username=user_details['username'], password=password,first_name=user_details['first_name'],last_name=user_details['last_name'],affiliation='EPFL', email=user_details['email'])
 Users.objects.create_superuser(username='admin',password=password,email='admin@example.com')
+print('Populating the database with the following users:',Users.objects.all().values_list('username',flat=True))
 
 
 #let's take a look at the fields and their values for this user

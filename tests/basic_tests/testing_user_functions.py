@@ -67,7 +67,7 @@ accessible_objects_per_user()
 ########### FIRST TEST
 print("TEST ==== Owner gives access to private lenses")
 owner       = users.get(username='Cameron')
-other_user  = users.get(username='Giorgos')
+other_user  = users.get(username='gvernard')
 other_user2 = users.get(username='Fred')
 some_group  = SledGroups.objects.get(name="Awesome Users")
 other_group = SledGroups.objects.get(name="TDCOSMO")
@@ -140,7 +140,7 @@ owned_objects_per_user()
 
 # Owner selects some objects to cede to another user (receiver)
 sender = users.get(username='Cameron')
-receiver = users.filter(username='Giorgos')
+receiver = users.filter(username='gvernard')
 owned_lenses = sender.getOwnedObjects(["Lenses","dummy"])
 lenses_to_cede = owned_lenses["Lenses"][3:13]
 print("Lenses to cede from ",sender," to ",receiver,":",lenses_to_cede)
@@ -148,7 +148,7 @@ print()
 mytask = sender.cedeOwnership(lenses_to_cede,receiver)
 
 # Receiver accepts
-target_receiver = users.get(username='Giorgos')
+target_receiver = users.get(username='gvernard')
 mytask.registerAndCheck(target_receiver,'yes','I will happily take over.')
 
 # Test for user ownership
@@ -204,7 +204,7 @@ for i in range(0,private_lenses.count()):
         print(private_lenses[i],qset)
 
 
-other_user = users.get(username='Giorgos')
+other_user = users.get(username='gvernard')
 other_user2 = users.get(username='Fred')
 some_group  = SledGroups.objects.get(name="Awesome Users")
 some_group2  = SledGroups.objects.get(name="TDCOSMO")
