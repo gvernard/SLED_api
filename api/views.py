@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions
 
 from .serializers import UsersSerializer, GroupsSerializer
-from lenses.models import Users, SledGroups
+from lenses.models import Users, SledGroup
 
 class UsersAutocomplete(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
@@ -24,7 +24,7 @@ class UsersAutocomplete(APIView):
 class GroupsAutocomplete(APIView):
     def get(self,request):
         term = request.query_params.get('q')
-        queryset = SledGroups.objects.all()
+        queryset = SledGroup.objects.all()
         if term is not None:
             queryset = queryset.filter(name__icontains=term)
         queryset.order_by('name')

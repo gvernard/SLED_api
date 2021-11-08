@@ -11,7 +11,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, Lenses, Collection, ConfirmationTask, SledGroups
+from lenses.models import Users, Lenses, Collection, ConfirmationTask, SledGroup
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
 
@@ -19,8 +19,8 @@ from django.core.exceptions import ValidationError
 geo = Users.objects.get(username='gvernard')
 fre = Users.objects.get(username='Fred')
 cam = Users.objects.get(username='Cameron')
-awe = Group.objects.get(name="Awesome Users")
-tdc = Group.objects.get(name="TDCOSMO")
+awe = SledGroup.objects.get(name="Awesome Users")
+tdc = SledGroup.objects.get(name="TDCOSMO")
 
 
 '''
@@ -213,7 +213,7 @@ class TestGroupAccessCollection(unittest.TestCase):
 
     # Check 1: try to add private objects without access for ALL the users
     def test_a_add_private_without_access(self):
-        tdcosmo = Group.objects.get(name='TDCOSMO')
+        tdcosmo = SledGroup.objects.get(name='TDCOSMO')
         geo.giveAccess(self.mycollection,tdcosmo) # Here giveAccess should return an error because Fred doesn't have access to items currently in the collection.
         pri = Lenses.objects.filter(access_level='PRI').order_by('ra')[:1]
         print()
@@ -227,7 +227,7 @@ class TestGroupAccessCollection(unittest.TestCase):
 
     # Check 2: give Access to all group users and add private objects
     def test_b_add_private_with_access(self):
-        tdcosmo = Group.objects.get(name='TDCOSMO')
+        tdcosmo = SledGroup.objects.get(name='TDCOSMO')
         geo.giveAccess(self.mycollection,tdcosmo)
         groups_with_access = list(self.mycollection.getGroupsWithAccess(geo))
         pri = Lenses.objects.filter(access_level='PRI').order_by('ra')[4:6]

@@ -45,7 +45,8 @@ objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMet
 
 
 
-class SledGroups(models.Model):
+#class SledGroups(models.Model):
+class SledGroup(Group):
     """
     The custom SLED model for a group of users, inheriting from the django `Group`.
 
@@ -57,10 +58,10 @@ class SledGroups(models.Model):
         - Related to the above, it doesn't make sense to have collections of groups, so no need to use the addToCollection, etc, functions.
 
     """
-    group = models.OneToOneField(Group,
-                                 on_delete=models.CASCADE,
-                                 primary_key=True
-                                 )
+#    group = models.OneToOneField(Group,
+#                                 on_delete=models.CASCADE,
+#                                 primary_key=True
+#                                 )
     description = models.CharField(max_length=200,null=True, blank=True)
     
     def __str__(self):
@@ -88,7 +89,7 @@ class SledGroups(models.Model):
             self.user_set.remove(sled_user)
 
     def __str__(self):
-        return self.group.name
+        return self.name
 
 
 
@@ -141,7 +142,7 @@ class Users(AbstractUser,GuardianUserMixin):
             A QuerySet to match the groups the user is a member of.
         """
         user = Users.objects.get(username=self.username)
-        groups = Group.objects.filter(user=user)
+        groups = SledGroup.objects.filter(user=user)
         return groups
 
     def checkOwnsList(self,objects):
@@ -186,7 +187,7 @@ class Users(AbstractUser,GuardianUserMixin):
         # If input arguments are single values, convert to lists
         if isinstance(objects,SingleObject):
             objects = [objects]
-        if isinstance(target_users,Users) or isinstance(target_users,Group):
+        if isinstance(target_users,Users) or isinstance(target_users,SledGroup):
             target_users = [target_users]
         if self in target_users:
             target_users.remove(self)
@@ -234,7 +235,7 @@ class Users(AbstractUser,GuardianUserMixin):
         # Check that user is the owner
         self.checkOwnsList(objects)
         # If input argument 'target_users' is a single value, convert to list
-        if isinstance(target_users,Users) or isinstance(target_users,Group):
+        if isinstance(target_users,Users) or isinstance(target_users,SledGroup):
             target_users = [target_users]
         if self in target_users:
             target_users.remove(self)
@@ -717,7 +718,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
 
         if self.access_level == 'PUB':
             #"Object is already public, no point to fetch groups with access to it."
-            return Group.objects.none()
+            return SledGroup.objects.none()
         else:
             groups = get_groups_with_perms(self)
             if groups:
@@ -725,9 +726,9 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 ids = []
                 for group in groups:
                     ids.append(group.id)
-                return Group.objects.filter(id__in=ids)
+                return SledGroup.objects.filter(id__in=ids)
             else:
-                return Group.objects.none()
+                return SledGroup.objects.none()
         
         
     
@@ -762,7 +763,8 @@ class Collection(SingleObject):
                                    blank=True,
                                    help_text="A description for your collection")
     myitems = GM2MField()
-
+    dum = models.CharField(max_length=100)
+    
     class ItemType(models.TextChoices):
         Lenses = 'Lenses', _('Lenses')
         Scores = 'Scores', _('Scores')
@@ -896,7 +898,7 @@ class Collection(SingleObject):
                 return "success"
         else:
             try:
-                assert (len(private_objects)==0),"Error: a public collection cannot contain private items"
+                assert (len(private_objects)==0),"A public collection cannot contain private items"
             except AssertionError as error:
                 caller = inspect.getouterframes(inspect.currentframe(),2)
                 print(error,"The operation of '"+caller[1][3]+"' should not proceed")

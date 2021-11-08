@@ -11,7 +11,7 @@ from django.forms import modelformset_factory, inlineformset_factory, CheckboxIn
 
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroups, Lenses, ConfirmationTask
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
 from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm
 
 
@@ -399,7 +399,7 @@ class LensGiveRevokeAccessView(TemplateView):
                     return_message.append('<p>%s users: %s</p>' % (self.message[self.mode],','.join([user.username for user in users])))
                     target_users.extend(users)
                 if group_ids:
-                    groups = SledGroups.objects.filter(id__in=group_ids)
+                    groups = SledGroup.objects.filter(id__in=group_ids)
                     return_message.append('<p>%s groups: %s</p>' % (self.message[self.mode],','.join([group.name for group in groups])))
                     target_users.extend(groups)
 

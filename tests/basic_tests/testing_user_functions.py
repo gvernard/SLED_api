@@ -11,7 +11,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroups, Lenses, ConfirmationTask
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
 from django.forms.models import model_to_dict
 from django.contrib.auth.models import User, Group
 from guardian.shortcuts import assign_perm
@@ -69,8 +69,8 @@ print("TEST ==== Owner gives access to private lenses")
 owner       = users.get(username='Cameron')
 other_user  = users.get(username='gvernard')
 other_user2 = users.get(username='Fred')
-some_group  = Group.objects.get(name="Awesome Users")
-other_group = Group.objects.get(name="TDCOSMO")
+some_group  = SledGroup.objects.get(name="Awesome Users")
+other_group = SledGroup.objects.get(name="TDCOSMO")
 
 private_lenses = Lenses.accessible_objects.owned(owner).filter(access_level='PRI')
 
@@ -206,8 +206,8 @@ for i in range(0,private_lenses.count()):
 
 other_user = users.get(username='gvernard')
 other_user2 = users.get(username='Fred')
-some_group  = Group.objects.get(name="Awesome Users")
-some_group2  = Group.objects.get(name="TDCOSMO")
+some_group  = SledGroup.objects.get(name="Awesome Users")
+some_group2  = SledGroup.objects.get(name="TDCOSMO")
 
 # Comment and uncomment any combinations of lines below to see the effect
 #owner.revokeAccess(set_with_perms[0],[other_user])

@@ -1,4 +1,4 @@
-from lenses.models import Users,SledGroups
+from lenses.models import Users,SledGroup
 from rest_framework import serializers
 
 class UsersSerializer(serializers.HyperlinkedModelSerializer):
@@ -9,5 +9,5 @@ class UsersSerializer(serializers.HyperlinkedModelSerializer):
 
 class GroupsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        model = SledGroups
+        model = SledGroup
         fields = ('id','name')

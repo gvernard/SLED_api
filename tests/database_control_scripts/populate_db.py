@@ -13,7 +13,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroups, Lenses, SingleObject
+from lenses.models import Users, SledGroup, Lenses, SingleObject
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
 from django.contrib.auth.models import Group
@@ -62,22 +62,24 @@ groups = ['Awesome Users', 'TDCOSMO']
 descriptions = ['A group for awesome users', 'Time delay cosmography with lensed quasars']
 print('Populating the database with the following groups:', groups)
 for i, name in enumerate(groups):
-    group = Group(name=name)
-    group.save()
-    sledgroup = SledGroups(group=group, description=descriptions[i])
+    # group = Group(name=name)
+    # group.save()
+    # sledgroup = SledGroup(group=group, description=descriptions[i])
+    # sledgroup.save()
+    sledgroup = SledGroup(name=name, description=descriptions[i])
     sledgroup.save()
 
 
 
 # Adding users to group, need to have set the IDs
-my_group = Group.objects.get(name='Awesome Users') 
+my_group = SledGroup.objects.get(name='Awesome Users') 
 user1 = Users.objects.get(username='Cameron')
 user2 = Users.objects.get(username='gvernard')
 user3 = Users.objects.get(username='Fred')
 user2.groups.add(my_group)
 user3.groups.add(my_group)
 
-my_group = Group.objects.get(name='TDCOSMO') 
+my_group = SledGroup.objects.get(name='TDCOSMO') 
 user1.groups.add(my_group)
 user2.groups.add(my_group)
 user3.groups.add(my_group)

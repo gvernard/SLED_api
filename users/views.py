@@ -5,7 +5,7 @@ from django.forms import inlineformset_factory
 from django.views.generic import TemplateView
 
 from django.utils.decorators import method_decorator
-from lenses.models import Users, SledGroups, Lenses, ConfirmationTask
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
 
 
 @method_decorator(login_required,name='dispatch')

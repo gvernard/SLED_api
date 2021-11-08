@@ -14,7 +14,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroups, Lenses, SingleObject
+from lenses.models import Users, SledGroup, Lenses, SingleObject
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
 
