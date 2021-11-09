@@ -16,7 +16,7 @@ django.setup()
 from lenses.models import Users, SledGroup, Lenses, SingleObject
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
-from django.contrib.auth.models import Group
+
 
 user_array = [{'username':'Cameron',
                'first_name':'Cameron',

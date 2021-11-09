@@ -1,12 +1,14 @@
 from django.db import models
 from django.db.models import Q, F, CheckConstraint
 from django.utils.timezone import make_aware
+from django.utils.dateparse import parse_datetime
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
 
 import abc
 import inspect
 import datetime
+import pytz
 from operator import itemgetter
 from itertools import groupby
 
@@ -143,12 +145,13 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
 
     accessible_objects = AccessManager()
 
+
     class Meta():
         abstract = True
         get_latest_by = ["modified_at","created_at"]
         constraints = [
-            CheckConstraint(check=Q(created_at__gt=datetime.date(2021,11,9)),name='created_recently'),
-            CheckConstraint(check=Q(modified_at__gt=F('created_at')),name='modified_after_created'),
+            #CheckConstraint(check=Q(created_at__gt=pytz.utc.localize(datetime.datetime(2021,11,11))),name='created_recently'),
+            CheckConstraint(check=Q(modified_at__gt=F('created_at')),name='modified_after_created')
         ]
 
     def isOwner(self, user):
