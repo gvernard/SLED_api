@@ -14,6 +14,22 @@ from itertools import groupby
 
 from . import SledGroup
 
+
+class Base:
+    subs = ['Users']  # Ordered list of subclass names.
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        while cls.__name__ in cls.subs:
+            cls.subs[cls.subs.index(cls.__name__)] = cls
+class Users(Base):
+    def objects(self):
+        none = 3
+
+
+
+
+
 class AccessManager(models.Manager):
     def all(self,user):
         """
@@ -222,14 +238,14 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
 
         if self.access_level == 'PUB':
             #"Object is already public, no point to fetch users with access to it."
-            return Users.objects.none()
+            return []
         else:
             perm = "view_"+self._meta.db_table
             users = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
             if users:
                 return users.exclude(username=self.owner.username).order_by('username') # exclude the owner
             else:
-                return Users.objects.none()
+                return []
 
     def getGroupsWithAccess(self,user):
         """

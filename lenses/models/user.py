@@ -11,10 +11,11 @@ from guardian.shortcuts import assign_perm, remove_perm
 from notifications.signals import notify
 
 from operator import itemgetter
+from itertools import groupby
 
 from . import SledGroup
 from . import SingleObject
-
+from . import ConfirmationTask
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
@@ -181,13 +182,14 @@ class Users(AbstractUser,GuardianUserMixin):
             checker = ObjectPermissionChecker(user)
             checker.prefetch_perms(objects)            
             object_type = objects[0]._meta.model.__name__
+            model_ref = apps.get_model(app_label="lenses",model_name=object_type)
             revoked_objects_per_user_ids = []
             for obj in objects:
                 if checker.has_perm(perm,obj):
                     revoked_objects_per_user_ids.append(obj.id)
             # if there are objects for which this user had permissions just revoked, create a notification
             if len(revoked_objects_per_user_ids) > 0:
-                remove_perm(perm,user,Lenses.objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
+                remove_perm(perm,user,model_ref.objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
                 if isinstance(user,Users):
                     notify.send(sender=self,recipient=user,verb='Your access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
                 else:
@@ -274,12 +276,14 @@ class Users(AbstractUser,GuardianUserMixin):
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
         else:
             object_type = objs_to_update[0]._meta.model.__name__
+            model_ref = apps.get_model(app_label='lenses',model_name=object_type)
             perm = "view_"+object_type
+            
             
             ### Very important: check for proximity before making public.
             #####################################################            
             if object_type == 'Lenses':
-                indices,neis = Lenses.proximate.get_DB_neighbours_many(objs_to_update)
+                indices,neis = model_ref.proximate.get_DB_neighbours_many(objs_to_update)
                 if indices:
                     # Possible duplicates, return them
                     to_check = [objs_to_update[i] for i in indices]
@@ -292,7 +296,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 obj_ids = []
                 for j in accessible_objects[i]:
                     obj_ids.append(objs_to_update[j].id)
-                remove_perm(perm,user,Lenses.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self,
                             recipient=user,
                             verb='Private objects you had access to are now public.',
@@ -309,7 +313,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 obj_ids = []
                 for j in accessible_objects[i]:
                     obj_ids.append(objs_to_update[j].id)
-                remove_perm(perm,group,Lenses.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self,
                             recipient=group,
                             verb='Private objects you had access to are now public.',
@@ -323,7 +327,7 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################
             for obj in objs_to_update:
                 obj.access_level = 'PUB'
-            getattr(lenses.models,'Lenses').objects.bulk_update(objs_to_update,['access_level'])
+            model_ref.objects.bulk_update(objs_to_update,['access_level'])
 
             # return an empty list to indicate that everything went fine (if neighbours are found, they are returned)
             return []

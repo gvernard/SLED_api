@@ -34,8 +34,16 @@ class UserProfileView(TemplateView):
         qset = user.getOwnedObjects()["Lenses"]
         lenses = list(qset.values())
         for i,lens in enumerate(qset):
-            lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
-            lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
+            users_with_access = [u for u in lens.getUsersWithAccess(request.user)]
+            if users_with_access:
+                lenses[i]["users_with_access"] = ','.join(filter(None,[u.username for u in users_with_access]))
+            else:
+                lenses[i]["users_with_access"] = ''
+            groups_with_access = [g for g in lens.getGroupsWithAccess(request.user)]
+            if groups_with_access:
+                lenses[i]["groups_with_access"] = ','.join(filter(None,[g.name for g in groups_with_access]))
+            else:
+                lenses[i]["groups_with_access"] = ''
 
         context={'user':user,
                  'pending_conf':zipped,

@@ -213,7 +213,7 @@ class Lenses(SingleObject):
     def clean(self):
         if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
-        if self.flag_contaminant and (image_conf or lens_type or source_type): # contaminant_check
+        if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
             raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
         if self.z_lens and self.z_source: # z_lens_lt_z_source
             if self.z_lens > self.z_source:

@@ -9,9 +9,12 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+from django.db.backends.signals import connection_created
+from django.dispatch import receiver
 from pathlib import Path
 import os
+import math
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -170,3 +173,24 @@ LOGOUT_REDIRECT_URL = '/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+
+### Here I load my user function to the sqlite database in every connection
+def mydistance(ra1,dec1,ra2,dec2):
+    """
+    Same implementation as in lenses.py and distance_on_sky.sql
+    """
+    dec1_rad = math.radians(float(dec1))
+    dec2_rad = math.radians(float(dec2))
+    Ddec = abs(dec1_rad - dec2_rad);
+    Dra = abs(math.radians(float(ra1)) - math.radians(float(ra2)));
+    a = math.pow(math.sin(Ddec/2.0),2) + math.cos(dec1_rad)*math.cos(dec2_rad)*math.pow(math.sin(Dra/2.0),2);
+    d = math.degrees( 2.0*math.atan2(math.sqrt(a),math.sqrt(1.0-a)) )
+    return d*3600.0
+
+@receiver(connection_created)
+def extend_sqlite(connection = None, ** kwargs):
+    if connection.vendor == "sqlite":
+        connection.connection.create_function("distance_on_sky",4,mydistance)

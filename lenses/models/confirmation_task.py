@@ -4,6 +4,8 @@ from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.urls import reverse
 from django import forms
+from django.db.models import Q
+from django.apps import apps
 
 from guardian.shortcuts import assign_perm
 
@@ -14,7 +16,6 @@ import abc
 import json
 
 from . import SingleObject
-from . import Users
 
 
 
@@ -61,7 +62,7 @@ class ConfirmationTask(SingleObject):
                               help_text="Status of the task: 'Pending' (P) or 'Completed' (C).")
     cargo = models.JSONField(help_text="A json object holding any variables that will be executed upon completion of the task.")
     recipients = models.ManyToManyField(
-        Users,
+        'Users',
         related_name='confirmation_tasks',
         through='ConfirmationResponse',
         through_fields=('confirmation_task','recipient'),
@@ -198,7 +199,7 @@ class ConfirmationTask(SingleObject):
         nhf = self.not_heard_from()
         if nhf.count() == 0:
             self.finalizeTask()
-            self.status = self.StatusType.Completed
+            self.status = "C"
             self.save()
 
     # To be overwritten by the proxy models
@@ -220,7 +221,7 @@ class ConfirmationTask(SingleObject):
      
 class ConfirmationResponse(models.Model):
     confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
-    recipient = models.ForeignKey(Users,on_delete=models.CASCADE)
+    recipient = models.ForeignKey('Users',on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
     response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.") 
     response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the recipient on the given response.") 
@@ -243,10 +244,12 @@ class DeleteObject(ConfirmationTask):
     def finalizeTask(self):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
+        from . import Users
         admin = Users.getAdmin().first()
         if response == 'yes':
             #cargo = json.loads(self.cargo)
-            getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
+            #getattr(.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
+            apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
             notify.send(sender=admin,recipient=self.owner,verb='Your request to delete public objects was accepted',level='success',timestamp=timezone.now(),note_type='DeleteObjects',task_id=self.id)
         else:
             notify.send(sender=admin,recipient=self.owner,verb='Your request to delete public objects was rejected',level='error',timestamp=timezone.now(),note_type='DeleteObjects',task_id=self.id)
@@ -273,7 +276,8 @@ class CedeOwnership(ConfirmationTask):
         if response == 'yes':
             heir = self.get_all_recipients()[0]
             #cargo = json.loads(self.cargo)
-            objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             objs.update(owner=heir)
             pri = []
             for lens in objs:
@@ -305,10 +309,12 @@ class MakePrivate(ConfirmationTask):
     def finalizeTask(self):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
+        from . import Users
         admin = Users.getAdmin().first()
         if response == 'yes':
             #cargo = json.loads(self.cargo)
-            objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             objs.update(access_level='PRI')
             assign_perm('view_lenses',self.owner,objs) # don't forget to assign view permission to the new owner for the private lenses
             notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
