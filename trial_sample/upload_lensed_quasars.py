@@ -23,6 +23,11 @@ user1 = Users.objects.get(username='Cameron')
 # Adding lenses
 print('Populating the database with known lensed quasars')
 data = Table.read('./trial_sample/lensed_quasars_uploadtable.fits')
+
+# for i in range(0,len(data['separation'])):
+#     if float(data['separation'][i]) > 20 or float(data['separation'][i]) < 0:
+#         print(data['separation'][i])
+
 ras, decs = data['RA'], data['DEC']
 names = data['Name']
 z_source, z_lens = data['z_qso'], data['z_lens']

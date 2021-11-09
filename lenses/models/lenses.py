@@ -109,7 +109,7 @@ class Lenses(SingleObject):
                                     verbose_name="Separation",
                                     help_text="An estimate of the maximum image separation or arc radius [arcsec].",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
-                                                MaxValueValidator(20,"Separation must be less than 10 arcsec.")])
+                                                MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
     z_source = models.DecimalField(blank=True,
                                    null=True,
                                    max_digits=4,
@@ -196,10 +196,18 @@ class Lenses(SingleObject):
             CheckConstraint(check=Q(z_source__range=(0,20)),name='z_source_range'),
             CheckConstraint(check=Q(ra__range=(0,360)),name='ra_range'),
             CheckConstraint(check=Q(dec__range=(-90,90)),name='dec_range'),
-            CheckConstraint(check=Q(image_sep__range=(0,20)),name='image_sep_range'),
+            CheckConstraint(check=Q(image_sep__range=(0,40)),name='image_sep_range'),
             CheckConstraint(check=Q(z_lens__lt=F('z_source')),name='z_lens_lt_z_source'),
             CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
-            CheckConstraint(check=Q(flag_contaminant=True) & (Q(image_conf__isnull!=True)|Q(lens_type__isnull!=True)|Q(source_type__isnull!=True)),name='contaminant_check'),
+            #CheckConstraint(check=Q(flag_contaminant=True) & Q(image_conf__exact='') & Q(lens_type__exact='') & Q(source_type__exact=''),name='contaminant_check'),
+            CheckConstraint(check=~( Q(flag_contaminant=True) &
+                                     (
+                                         (Q(image_conf__isnull=False) | ~Q(image_conf__exact='')) |
+                                         (Q(lens_type__isnull=False) | ~Q(lens_type__exact='')) |
+                                         (Q(source_type__isnull=False) | ~Q(source_type__exact=''))
+                                     )
+                                    ),
+                            name='contaminant_check'),
         ]
 
     def clean(self):
