@@ -4,6 +4,7 @@ from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_g
 
 import abc
 import inspect
+import datetime
 from operator import itemgetter
 from itertools import groupby
 
@@ -143,6 +144,10 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
     class Meta():
         abstract = True
         get_latest_by = ["modified_at","created_at"]
+        constraints = [
+            CheckConstraint(check=Q(created_at__gt=datetime.date(2021,11,9)),name='created_recently'),
+            CheckConstraint(check=Q(modified_at__gt=F('created_at')),name='modified_after_created'),
+        ]
 
     def isOwner(self, user):
         """

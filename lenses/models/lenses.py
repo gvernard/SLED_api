@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
-from django.db.models import F, Func, FloatField
+from django.db.models import Q, F, Func, FloatField, CheckConstraint
 
 import math
 from astropy import units as u
@@ -109,7 +109,7 @@ class Lenses(SingleObject):
                                     verbose_name="Separation",
                                     help_text="An estimate of the maximum image separation or arc radius [arcsec].",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
-                                                MaxValueValidator(10,"Separation must be less than 10 arcsec.")])
+                                                MaxValueValidator(20,"Separation must be less than 10 arcsec.")])
     z_source = models.DecimalField(blank=True,
                                    null=True,
                                    max_digits=4,
@@ -117,7 +117,7 @@ class Lenses(SingleObject):
                                    verbose_name="Z source",
                                    help_text="The redshift of the source, if known.",
                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                               MaxValueValidator(15,"If your source is further than that then congrats! (but probably it's a mistake)")])
+                                               MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
     z_lens = models.DecimalField(blank=True,
                                  null=True,
                                  max_digits=4,
@@ -125,7 +125,7 @@ class Lenses(SingleObject):
                                  verbose_name="Z lens",
                                  help_text="The redshift of the lens, if known.",
                                  validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                             MaxValueValidator(15,"If your lens is further than that then congrats! (but probably it's a mistake)")])
+                                             MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     info = models.TextField(blank=True,
                             default='',
                             help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
@@ -135,7 +135,7 @@ class Lenses(SingleObject):
                                 verbose_name="Number of images",
                                 help_text="The number of source images, if known.",
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
-                                            MaxValueValidator(15,"Wow, that's a lot of images, are you sure?")])
+                                            MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
     mugshot_name = models.CharField(max_length=100,
                                     blank=True,
@@ -183,23 +183,31 @@ class Lenses(SingleObject):
     
     proximate = ProximateLensManager()
     objects = models.Manager()
-    
+
     class Meta():
         db_table = "lenses"
-        ordering = ["ra"]
-        constraints = [
-            # Reiterate the validators
-            # z_lens must be > lens_source
-        ]
         verbose_name = "lens"
         verbose_name_plural = "lenses"
+        ordering = ["ra"]
+        # The constraints below should encompass both field Validators above, and the clean method below.
+        constraints = [
+            CheckConstraint(check=Q(n_img__range=(2,20)),name='n_img_range'),
+            CheckConstraint(check=Q(z_lens__range=(0,20)),name='z_lens_range'),
+            CheckConstraint(check=Q(z_source__range=(0,20)),name='z_source_range'),
+            CheckConstraint(check=Q(ra__range=(0,360)),name='ra_range'),
+            CheckConstraint(check=Q(dec__range=(-90,90)),name='dec_range'),
+            CheckConstraint(check=Q(image_sep__range=(0,20)),name='image_sep_range'),
+            CheckConstraint(check=Q(z_lens__lt=F('z_source')),name='z_lens_lt_z_source'),
+            CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
+            CheckConstraint(check=Q(flag_contaminant=True) & (Q(image_conf__isnull!=True)|Q(lens_type__isnull!=True)|Q(source_type__isnull!=True)),name='contaminant_check'),
+        ]
 
     def clean(self):
-        if self.flag_confirmed and self.flag_contaminant:
+        if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
-        if self.flag_contaminant and (image_conf or lens_type or source_type):
+        if self.flag_contaminant and (image_conf or lens_type or source_type): # contaminant_check
             raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
-        if self.z_lens and self.z_source:
+        if self.z_lens and self.z_source: # z_lens_lt_z_source
             if self.z_lens > self.z_source:
                 raise ValidationError('The source redshift cannot be lower than the lens redshift.')
         

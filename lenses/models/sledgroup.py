@@ -20,15 +20,15 @@ class SledGroup(Group):
 #                                 )
     description = models.CharField(max_length=200,null=True, blank=True)
     
-    def __str__(self):
-        return self.name
-
     class Meta():
         db_table = "sledgroups"
         verbose_name = "sledgroup"
         verbose_name_plural = "sledgroups"
         ordering = ["name"]
-        # constrain on the Min and Max number of users that are members
+        # constrain on the Min and Max number of users that are members?
+
+    def __str__(self):
+        return self.name
 
     def getAllMembers(self):
         """

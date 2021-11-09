@@ -29,7 +29,6 @@ class Collection(SingleObject):
                                    blank=True,
                                    help_text="A description for your collection")
     myitems = GM2MField()
-    dum = models.CharField(max_length=100)
     
     ItemTypeChoices = (
         ('Lenses','Lenses'),
@@ -44,6 +43,7 @@ class Collection(SingleObject):
         db_table = "collection"
         verbose_name = "collection"
         verbose_name_plural = "collections"
+        ordering = ["modified_at"]
         # Constrain the number of objects in a collection?
         
     def itemsOfWrongType(self,objects):

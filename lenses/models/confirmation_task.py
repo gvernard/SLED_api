@@ -72,19 +72,13 @@ class ConfirmationTask(SingleObject):
     custom_manager = ConfirmationTaskManager()
     objects = models.Manager()
     
-    def __str__(self):
-        return '%s_$s' % (self.task_type,self.id)
-
-    def get_absolute_url(self):
-        return reverse('confirmation:single_task',kwargs={'task_id':self.id})
-
     class Meta():
         db_table = "confirmation_tasks"
         verbose_name = "confirmation_task"
         verbose_name_plural = "confirmation_tasks"
-        ordering = ["modified_at","created_at"]
+        ordering = ["modified_at"]
         # constrain the number of recipients?
-
+        
     def __init__(self, *args, **kwargs):
         super(ConfirmationTask,self).__init__(*args, **kwargs)
         subclass_found = False
@@ -95,6 +89,12 @@ class ConfirmationTask(SingleObject):
                 break
         if not subclass_found:
             raise ValueError(task_type)
+
+    def __str__(self):
+        return '%s_$s' % (self.task_type,self.id)
+
+    def get_absolute_url(self):
+        return reverse('confirmation:single_task',kwargs={'task_id':self.id})
 
     def create_task(sender,users,task_type,cargo):
         """
