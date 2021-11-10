@@ -123,19 +123,29 @@
 <div class="content ">
   {% if collections %}
   <table class="collections">
-    {% for collection in collections %}
-    <tr>
-      <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
-      <td>{{ collection.item_type }}</td>
-      <td>{{ collection.description }}</td>
-      <td>{{ collection.myitems.all|length }}</td>
-    </tr>
-    {% endfor %}
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Type</th>
+	<th>Description</th>
+	<th>N. of items</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in collections %}
+      <tr>
+	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+	<td>{{ collection.item_type }}</td>
+	<td>{{ collection.description }}</td>
+	<td>{{ collection.myitems.all|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
   {% else %}
   <p>No collections to display</p>
   {% endif %}
-   <a href="{% url 'sled_collections:collections-list' %}">All collections</a>
+  <a href="{% url 'sled_collections:collections-list' %}">All collections</a>
 </div>
 
 

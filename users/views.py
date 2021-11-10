@@ -50,19 +50,20 @@ class UserProfileView(TemplateView):
                 lenses[i]["groups_with_access"] = ''
 
 
-        qset_col = owned_objects["Collection"]
-        cols = list(qset_col.values())
-        for i,col in enumerate(qset_col):
+        qset_cols = owned_objects["Collection"]
+        cols_users_with_access = [None]*len(qset_cols)
+        cols_groups_with_access = [None]*len(qset_cols)
+        for i,col in enumerate(qset_cols):
             users_with_access = [u for u in col.getUsersWithAccess(request.user)]
             if users_with_access:
-                cols[i]["users_with_access"] = ','.join(filter(None,[u.username for u in users_with_access]))
+                cols_users_with_access[i] = ','.join(filter(None,[u.username for u in users_with_access]))
             else:
-                cols[i]["users_with_access"] = ''
+                cols_users_with_access[i] = ''
             groups_with_access = [g for g in col.getGroupsWithAccess(request.user)]
             if groups_with_access:
-                cols[i]["groups_with_access"] = ','.join(filter(None,[g.name for g in groups_with_access]))
+                cols_groups_with_access[i] = ','.join(filter(None,[g.name for g in groups_with_access]))
             else:
-                cols[i]["groups_with_access"] = ''
+                cols_groups_with_access[i] = ''
 
 
                 
@@ -73,7 +74,9 @@ class UserProfileView(TemplateView):
                  'unread_notifications':unread_notifications,
                  'lenses': lenses,
                  'N_note_all': N_note_all,
-                 'collections': cols
+                 'collections': qset_cols,
+                 'collections_users': cols_users_with_access,
+                 'collections_groups': cols_groups_with_access,
                  }
         return render(request, 'user_index.html',context=context)
 

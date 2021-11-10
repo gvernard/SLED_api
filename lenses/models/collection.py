@@ -49,7 +49,7 @@ class Collection(SingleObject):
 
     def get_absolute_url(self):
         return reverse('sled_collections:collections-detail',kwargs={'pk':self.id})
-        
+
     def itemsOfWrongType(self,objects):
         """
         Ensures that the given items are all of the collection type.
