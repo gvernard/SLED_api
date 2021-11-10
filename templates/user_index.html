@@ -114,6 +114,25 @@
 
 
 
+
+<div class="section">
+  <h1>My Collections ({{ collections|length }}) </h1>
+</div>
+
+<div class="content ">
+  {% if collections %}
+  <table>
+    {% for collection in collections %}
+    <tr><td>{{ collection.name }}</td><td>{{ collection.item_type }}</td><td>{{ collection.description }}</td></tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>No collections to display</p>
+  {% endif %}
+</div>
+
+
+
 <div class="section">
   <h1>My Lenses ({{ lenses|length }}) </h1>
 </div>
@@ -126,6 +145,7 @@
 
 <div class="controls">
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-update' %}">Update lenses</button>
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-collection' %}">Make collection</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-give-access' %}">Give access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>

@@ -11,7 +11,7 @@ from django.forms import modelformset_factory, inlineformset_factory, CheckboxIn
 
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
 from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm
 
 
@@ -265,7 +265,6 @@ class LensAddView(AddUpdateMixin,TemplateView):
 # View to delete lenses
 @method_decorator(login_required,name='dispatch')
 class LensDeleteView(TemplateView):
-    model = Lenses
     template_name = 'lens_simple_interaction.html'
 
     def get(self, request, *args, **kwargs):
@@ -369,7 +368,6 @@ class LensDeleteView(TemplateView):
 # View to give/revoke access to/from private lenses
 @method_decorator(login_required,name='dispatch')
 class LensGiveRevokeAccessView(TemplateView):
-    model = Lenses
     mode = None
     message = {'give':'Access given to','revoke':'Access revoked from'}
     template_name = 'lens_give_revoke_access.html'
@@ -436,7 +434,6 @@ class LensGiveRevokeAccessView(TemplateView):
 # View to cede ownership of lenses
 @method_decorator(login_required,name='dispatch')
 class LensCedeOwnershipView(TemplateView):
-    model = Lenses
     template_name = 'lens_cede_ownership.html'            
     
     def get(self, request, *args, **kwargs):
@@ -448,7 +445,7 @@ class LensCedeOwnershipView(TemplateView):
 
         if referer == request.path:
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            user_id = request.POST.get('user','asd')
+            user_id = request.POST.get('user',None)
             lenses = Lenses.accessible_objects.in_ids(request.user,ids)
             
             if ids and user_id.isdigit():                
@@ -481,7 +478,6 @@ class LensCedeOwnershipView(TemplateView):
 # View to make lenses private
 @method_decorator(login_required,name='dispatch')
 class LensMakePrivateView(TemplateView):
-    model = Lenses
     template_name = 'lens_simple_interaction.html'            
     
     def get(self, request, *args, **kwargs):
@@ -493,11 +489,10 @@ class LensMakePrivateView(TemplateView):
         
         if referer == request.path:
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            justification = request.POST.get('justification',None)
             lenses = Lenses.accessible_objects.in_ids(request.user,ids)
             
             if ids:
-                justification = request.POST.get('justification')
+                justification = request.POST.get('justification',None)
                 if justification:
                     # confirmation task to make public lenses private
                     request.user.makePrivate(lenses,justification)
@@ -531,7 +526,6 @@ class LensMakePrivateView(TemplateView):
 # View to make lenses public
 @method_decorator(login_required,name='dispatch')
 class LensMakePublicView(TemplateView):
-    model = Lenses
     template_name = 'lens_simple_interaction.html'            
     
     def get(self, request, *args, **kwargs):
@@ -594,8 +588,7 @@ class LensMakePublicView(TemplateView):
 
 # View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
 @method_decorator(login_required,name='dispatch')
-class LensMergeResolutionView(AddUpdateMixin,TemplateView):
-    model = Lenses
+class LensMergeResolutionView(TemplateView):
     template_name = 'lens_merge_resolution.html'            
     
     def get(self, request, *args, **kwargs):
@@ -616,25 +609,46 @@ class LensMergeResolutionView(AddUpdateMixin,TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':message})   
 
 
-# View for standardized queries and (public) lens collections
+# View to create a lens collection
 @method_decorator(login_required,name='dispatch')
-class LensMergeResolutionView(AddUpdateMixin,TemplateView):
-    model = Lenses
-    template_name = 'lens_collections.html'
+class LensMakeCollectionView(TemplateView):
+    template_name = 'lens_simple_interaction.html'
     
     def get(self, request, *args, **kwargs):
-        ids = request.GET.getlist('ids')
-        if ids:
-            # Need to check ids, user access, etc.
-            ids = [int(x) for x in ids]
-            objs = Lenses.accessible_objects.in_ids(request.user,ids)
-            indices,neis = Lenses.proximate.get_DB_neighbours_many(objs)
+        message = 'You are not authorized to view this page.'
+        return TemplateResponse(request,'simple_message.html',context={'message':message})   
 
-            existing = [None]*len(objs)
-            for i,index in enumerate(indices):
-                existing[index] = neis[i]
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
         
-            return self.render_to_response({'new_existing': zip(objs,existing),'lenses':ids})
+        if referer == request.path:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            qset = Lenses.accessible_objects.in_ids(request.user,ids)
+            
+            if ids:
+                lenses = list(qset.values())
+                name = request.POST.get('name',None)
+                if name:
+                    description = request.POST.get('description',None)
+                    mycollection = Collection(owner=request.user,name=name,access_level='PUB',description=description,item_type="Lenses")
+                    mycollection.save()
+                    mycollection.myitems = qset
+                    mycollection.save()
+                    message = 'Collection "'+name+'" was successfully created!'
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                else:
+                    message = 'You must give a name to your collection'                    
+                    return self.render_to_response({'lenses': lenses,'error_message':message})                
+            else:
+                message = 'You must select lenses that you have access to.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+
         else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})   
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+            if ids:
+                qset = Lenses.accessible_objects.in_ids(request.user,ids)
+                lenses = list(qset.values())
+                return self.render_to_response({'lenses': lenses})
+            else:
+                message = 'You must select lenses that you have access to.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})

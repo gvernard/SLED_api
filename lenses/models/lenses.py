@@ -199,7 +199,6 @@ class Lenses(SingleObject):
             CheckConstraint(check=Q(image_sep__range=(0,40)),name='image_sep_range'),
             CheckConstraint(check=Q(z_lens__lt=F('z_source')),name='z_lens_lt_z_source'),
             CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
-            #CheckConstraint(check=Q(flag_contaminant=True) & Q(image_conf__exact='') & Q(lens_type__exact='') & Q(source_type__exact=''),name='contaminant_check'),
             CheckConstraint(check=~( Q(flag_contaminant=True) &
                                      (
                                          (Q(image_conf__isnull=False) | ~Q(image_conf__exact='')) |

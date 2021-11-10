@@ -18,7 +18,7 @@ from . import SingleObject
 from . import ConfirmationTask
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
-objects_with_owner = ["Lenses","ConfirmationTask"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+objects_with_owner = ["Lenses","ConfirmationTask","Collection"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 
 class Users(AbstractUser,GuardianUserMixin):
@@ -65,7 +65,7 @@ class Users(AbstractUser,GuardianUserMixin):
         objects = {}
         for table in filtered_object_types:
             model_ref = apps.get_model(app_label='lenses',model_name=table)
-            objects[table] = model_ref.objects.filter(owner__username=self.username)
+            objects[table] = model_ref.accessible_objects.owned(self)
         return objects
 
     def getGroupsIsMember(self):

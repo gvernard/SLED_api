@@ -29,11 +29,15 @@ class UserProfileView(TemplateView):
         unread_notifications = user.notifications.unread()
         N_note_unread = unread_notifications.count()
         N_note_all = user.notifications.read().count() + N_note_unread
-            
-        # Get owned lenses
-        qset = user.getOwnedObjects()["Lenses"]
-        lenses = list(qset.values())
-        for i,lens in enumerate(qset):
+
+
+        
+        # Get owned objects
+        owned_objects = user.getOwnedObjects()
+
+        qset_lenses = owned_objects["Lenses"]
+        lenses = list(qset_lenses.values())
+        for i,lens in enumerate(qset_lenses):
             users_with_access = [u for u in lens.getUsersWithAccess(request.user)]
             if users_with_access:
                 lenses[i]["users_with_access"] = ','.join(filter(None,[u.username for u in users_with_access]))
@@ -45,13 +49,31 @@ class UserProfileView(TemplateView):
             else:
                 lenses[i]["groups_with_access"] = ''
 
+
+        qset_col = owned_objects["Collection"]
+        cols = list(qset_col.values())
+        for i,col in enumerate(qset_col):
+            users_with_access = [u for u in col.getUsersWithAccess(request.user)]
+            if users_with_access:
+                cols[i]["users_with_access"] = ','.join(filter(None,[u.username for u in users_with_access]))
+            else:
+                cols[i]["users_with_access"] = ''
+            groups_with_access = [g for g in col.getGroupsWithAccess(request.user)]
+            if groups_with_access:
+                cols[i]["groups_with_access"] = ','.join(filter(None,[g.name for g in groups_with_access]))
+            else:
+                cols[i]["groups_with_access"] = ''
+
+
+                
         context={'user':user,
                  'pending_conf':zipped,
                  'N_tasks': N_tasks,
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
                  'lenses': lenses,
-                 'N_note_all': N_note_all
+                 'N_note_all': N_note_all,
+                 'collections': cols
                  }
         return render(request, 'user_index.html',context=context)
 
