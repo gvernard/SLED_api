@@ -27,6 +27,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls'), name='home'),
     path('confirmation/', include('confirmation.urls'), name='confirmation'),
+    path('sled_collections/', include('sled_collections.urls'), name='sled_collections'),
     path('lenses/', include('lenses.urls'), name='lenses'),
     path('users/', include('users.urls'), name='users'),
     path('groups/', include('groups.urls'), name='groups'),
