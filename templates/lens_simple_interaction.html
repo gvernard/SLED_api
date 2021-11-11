@@ -11,9 +11,9 @@
 {% elif view_name == 'lenses:lens-delete' %}
 <h1>Delete lenses</h1>
 <p>Always careful when deleting!</p>
-{% elif view_name == 'lenses:lens-make-collection' %}
-<h1>Make Collection</h1>
-<p>Keeping things nice and tidy</p>
+<!-- {% elif view_name == 'lenses:lens-make-collection' %} -->
+<!-- <h1>Make Collection</h1> -->
+<!-- <p>Keeping things nice and tidy</p> -->
 {% endif %}
 
 
@@ -27,11 +27,11 @@
     <div><textarea name="justification" placeholder="Justification required for making lenses private" cols="60" rows="3"></textarea></div>
     {% elif view_name == 'lenses:lens-delete' %}
     <div><textarea name="justification" placeholder="Justification in case public lenses are deleted" cols="60" rows="3"></textarea></div>
-    {% elif view_name == 'lenses:lens-make-collection' %}
-    <div>
-      <label for="name">Name</label><input name="name" type="text" placeholder="Give some meaningful name" />
-      <textarea name="description" placeholder="Give a description for your collection" cols="60" rows="3"></textarea>
-    </div>
+    <!-- {% elif view_name == 'lenses:lens-make-collection' %} -->
+    <!-- <div> -->
+    <!--   <label for="name">Name</label><input name="name" type="text" placeholder="Give some meaningful name" /> -->
+    <!--   <textarea name="description" placeholder="Give a description for your collection" cols="60" rows="3"></textarea> -->
+    <!-- </div> -->
     {% endif %}
     
   </form>
@@ -44,8 +44,8 @@
 <div><button type="submit" form="ids-form">Make public</button></div>
 {% elif view_name == 'lenses:lens-delete' %}
 <div><button type="submit" form="ids-form">Confirm deletion</button></div>
-{% elif view_name == 'lenses:lens-make-collection' %}
-<div><button type="submit" form="ids-form">Make collection</button></div>
+<!-- {% elif view_name == 'lenses:lens-make-collection' %} -->
+<!-- <div><button type="submit" form="ids-form">Make collection</button></div> -->
 {% endif %}
 
 <script>

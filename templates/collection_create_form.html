@@ -1,0 +1,35 @@
+{% extends 'master_header.html' %}
+{% block content %}
+
+
+<h1>Make Collection</h1>
+<p>Keeping things nice and tidy</p>
+
+<div class="content">
+  <form id="ids-form" method="POST">
+    {% csrf_token %}
+    <span class="errorlist">{{ error_message }}</span>
+
+    {% if items %}
+    <table>
+      {% for item in items %}
+      <tr><td>{{ item }}</td></tr>
+      {% endfor%}
+    </table>
+    {% else %}
+    <p>
+      No items to add to collection!
+    </p>
+    {% endif %}
+    
+    <div>
+      <label for="name">Name</label><input name="name" type="text" placeholder="Give some meaningful name" />
+      <textarea name="description" placeholder="Give a description for your collection" cols="60" rows="3"></textarea>
+    </div>
+    
+  </form>
+</div>
+
+<div><button type="submit" form="ids-form">Make collection</button></div>
+
+{% endblock content %}

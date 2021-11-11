@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
+from django.db import connection
 
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
@@ -242,14 +243,25 @@ class LensAddView(AddUpdateMixin,TemplateView):
                             lens.create_name()
                             to_insert.append(lens)
                     if to_insert:
-                        new_lenses = Lenses.objects.bulk_create(to_insert)
-                        pri = []
-                        for lens in new_lenses:
-                            if lens.access_level == 'PRI':
-                                pri.append(lens)
-                        if pri:
-                            assign_perm('view_lenses',request.user,pri)
-                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
+                        db_vendor = connection.vendor
+                        if db_vendor == 'sqlite':
+                            pri = []
+                            for lens in to_insert:
+                                lens.save()
+                                if lens.access_level == 'PRI':
+                                    pri.append(lens)
+                            if pri:
+                                assign_perm('view_lenses',request.user,pri)
+                            return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
+                        else:
+                            new_lenses = Lenses.objects.bulk_create(to_insert)
+                            pri = []
+                            for lens in new_lenses:
+                                if lens.access_level == 'PRI':
+                                    pri.append(lens)
+                            if pri:
+                                assign_perm('view_lenses',request.user,pri)
+                            return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         return TemplateResponse(request,'simple_message.html',context={'message':'No new lenses to insert.'})
                 else:
@@ -633,6 +645,7 @@ class LensMakeCollectionView(TemplateView):
                     mycollection = Collection(owner=request.user,name=name,access_level='PUB',description=description,item_type="Lenses")
                     mycollection.save()
                     mycollection.myitems = qset
+                    assign_perm('view_lenses',request.user,mycollection)
                     mycollection.save()
                     message = 'Collection "'+name+'" was successfully created!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
@@ -647,6 +660,7 @@ class LensMakeCollectionView(TemplateView):
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
             if ids:
                 qset = Lenses.accessible_objects.in_ids(request.user,ids)
+                print(qset)
                 lenses = list(qset.values())
                 return self.render_to_response({'lenses': lenses})
             else:

@@ -13,6 +13,7 @@
       <th>Access level</th>
       <th>Accessible by</th>
     </tr>
+    <input name="obj_type" type="hidden" value="Lenses" />
     {% for lens in lenses %}
     <tr>
       <td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
