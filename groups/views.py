@@ -50,10 +50,21 @@ def group_list(request):
 
 
 @login_required
-def group_add(request, group_name):
+def group_add(request):
     '''Returns the render of a single lens
     In particular decides which survey images/spectra to serve by checking image exists (could turn into db request?)
     Currently passes photometry from a file but need to change to database
     '''
-    groups = SledGroup.objects.all()
-    return render(request, 'group_add.html', context={'group': groups})
+    if request.POST:
+        print(request.POST)
+        #ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+        addusernames = request.POST.getlist('addusers')
+        name = request.POST['name']
+        description = request.POST['description']
+        sledgroup = SledGroup(name=name, owner=request.user, description=description)
+        sledgroup.save()
+        for username in addusernames:
+            user = Users.objects.get(pk=username)
+            sledgroup.addMember(request.user, user)
+        return render(request, 'group_detail.html', context={'group': sledgroup})        
+    return render(request, 'group_add.html')
