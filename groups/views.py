@@ -44,8 +44,14 @@ def group_list(request):
     In particular decides which survey images/spectra to serve by checking image exists (could turn into db request?)
     Currently passes photometry from a file but need to change to database
     '''
-    groups = SledGroup.objects.all()
+
+    user = request.user
+    groups = user.getGroupsIsMember()
     print(groups)
+    if request.POST:
+        name = request.POST['leaving']
+        group = SledGroup.objects.get(name=name)
+        group.removeMember(request.user, user)
     return render(request, 'group_list.html', context={'groups': groups})
 
 

@@ -8,6 +8,7 @@
             <th class="th-center">Name</th>
             <th class="th-center">Description</th>
             <th class="th-center">Group Owner</th>
+            <th class="th-center">Manage</th>
 
         </tr>
     {% for group in groups %}
@@ -15,6 +16,17 @@
             <td class="td-center"><a href="{% url 'groups:group-detail' group_name=group.name %}">{{group.name}}</td>
             <td class="td-center">{{group.description}}</td>
             <td class="td-center">{{group.owner}}</td>
+            <td class="td-center">
+            <div class="content ">
+              <form id="leavegroupbutton" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="id" name="leaving" value="{{group.name}}">
+              </form>
+            </div>
+            <div class="controls">
+            <button type="submit" form="leavegroupbutton" formaction="{% url 'groups:group-list' %}">Leave group</button>
+            </div>
+        </td>
         </tr>
     {% endfor %}
     </table>
