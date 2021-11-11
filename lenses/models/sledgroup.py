@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group
+from django.urls import reverse
 
 #class SledGroups(models.Model):
 class SledGroup(Group):
@@ -53,3 +54,6 @@ class SledGroup(Group):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        
+        return reverse('groups.views.group_detail', args=[str(self.name)])

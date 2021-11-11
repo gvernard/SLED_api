@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
-
+from django.shortcuts import redirect
 from lenses.models import Users, SledGroup, Lenses
 #def check_authenticated(user):
 #    return user.groups.filter(name='Authenticated').exists()
@@ -60,11 +60,13 @@ def group_add(request):
         #ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
         addusernames = request.POST.getlist('addusers')
         name = request.POST['name']
+        if name.strip()=='':
+            render(request, 'group_add.html')
         description = request.POST['description']
         sledgroup = SledGroup(name=name, owner=request.user, description=description)
         sledgroup.save()
         for username in addusernames:
             user = Users.objects.get(pk=username)
             sledgroup.addMember(request.user, user)
-        return render(request, 'group_detail.html', context={'group': sledgroup})        
+        return redirect('groups:group-detail', group_name=name)
     return render(request, 'group_add.html')
