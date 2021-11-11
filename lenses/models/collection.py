@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.apps import apps
+from django.urls import reverse
 
 from guardian.shortcuts import assign_perm
 from gm2m import GM2MField
@@ -45,7 +46,10 @@ class Collection(SingleObject):
         verbose_name_plural = "collections"
         ordering = ["modified_at"]
         # Constrain the number of objects in a collection?
-        
+
+    def get_absolute_url(self):
+        return reverse('sled_collections:collections-detail',kwargs={'pk':self.id})
+
     def itemsOfWrongType(self,objects):
         """
         Ensures that the given items are all of the collection type.

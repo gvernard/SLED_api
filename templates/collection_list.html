@@ -1,0 +1,34 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% block content %}
+
+
+<h1>My collections</h1>
+<div class="content ">
+  {% if collections %}
+  <table>
+    {% for collection in collections %}
+    <tr>
+      <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+      <td>{{ collection.item_type }}</td>
+      <td>{{ collection.description }}</td>
+      <td> N. items {{ collection.myitems.all|length }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>
+    No collections to show
+  </p>
+  {% endif %}
+</div>
+
+
+<ul>
+  <li>Button: Delete collections</li>
+  <li>Button: If private make public (future)</li>
+  <li>Button: Give Access (future)</li>
+  <li>Button: Revoke Access (future)</li>
+</ul>
+
+{% endblock content %}

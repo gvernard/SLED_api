@@ -1,0 +1,30 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% block content %}
+
+<div class="content ">
+  <table>
+    <tr><td>Name:</td><td>{{ collection.name }}</td></tr>
+    <tr><td>Item type:</td><td>{{ collection.item_type }}</td></tr>
+    <tr><td>Description:</td><td>{{ collection.description }}</td></tr>
+  </table>
+  <p>Items in the collection:</p>
+  <table>
+    {% for item in collection.myitems.all %}
+    <tr><td>{{ item }}</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+
+<ul>
+  <li>Update the name or the description</li>
+  <li>Button: Add items</li>
+  <li>Button: Remove items</li>
+  <li>Button: Delete collection</li>
+  <li>Button: If private make public (future)</li>
+  <li>Button: Give Access (future)</li>
+  <li>Button: Revoke Access (future)</li>
+</ul>
+
+{% endblock content %}

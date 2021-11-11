@@ -64,3 +64,6 @@ python manage.py makemigrations
 python manage.py migrate
 
 If you want to include a dummy email server, then use: python -m smtpd -n -c DebuggingServer localhost:1025
+
+
+**For Mac users, you need to install gnu-sed and then either alias sed to point to it or use gsed in reset.sh**
