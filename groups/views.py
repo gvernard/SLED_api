@@ -51,7 +51,7 @@ def group_list(request):
     if request.POST:
         name = request.POST['leaving']
         group = SledGroup.objects.get(name=name)
-        group.removeMember(request.user, user)
+        group.removeMember(group.owner, user)
     return render(request, 'group_list.html', context={'groups': groups})
 
 
