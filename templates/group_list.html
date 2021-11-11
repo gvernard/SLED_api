@@ -1,0 +1,27 @@
+{% extends 'master_header.html' %}
+{% block content %}
+
+
+<div class="content container">
+    <table class="sortable">
+        <tr>
+            <th class="th-center">Name</th>
+            <th class="th-center">Description</th>
+            <th class="th-center">Group Owner</th>
+
+        </tr>
+    {% for group in groups %}
+        <tr>
+            <td class="td-center"><a href="{% url 'groups:group-detail' group_name=group.name %}">{{group.name}}</td>
+            <td class="td-center">{{group.description}}</td>
+            <td class="td-center">{{group.owner}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+
+</div>
+
+
+
+{% endblock content %}
