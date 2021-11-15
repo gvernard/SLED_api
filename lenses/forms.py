@@ -2,8 +2,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from lenses.models import Lenses
-
-from django_select2 import forms as s2forms
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class LensQueryForm(forms.Form):

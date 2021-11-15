@@ -8,27 +8,18 @@
 <div class="content">
   <form id="ids-form" method="POST">
     {% csrf_token %}
-    <span class="errorlist">{{ error_message }}</span>
-
-    {% if items %}
-    <table>
-      {% for item in items %}
-      <tr><td>{{ item }}</td></tr>
-      {% endfor%}
-    </table>
-    {% else %}
-    <p>
-      No items to add to collection!
-    </p>
-    {% endif %}
+    {{ form.obj_type }}
+    {{ form.all_items }}
     
-    <div>
-      <label for="name">Name</label><input name="name" type="text" placeholder="Give some meaningful name" />
-      <textarea name="description" placeholder="Give a description for your collection" cols="60" rows="3"></textarea>
-    </div>
+    <table class="master">
+      <tr><td>{{ form.name.errors }}</td><td>{{ form.name.label_tag }}</td><td>{{ form.name }}</td></tr>
+      <tr><td>{{ form.description.errors }}</td><td>{{ form.description.label_tag }}</td><td>{{ form.description }}</td></tr>
+      <tr><td>{{ form.myitems.errors }}</td><td>{{ form.myitems.label_tag }}</td><td>{{ form.myitems }}</td></tr>
+    </table>
     
   </form>
 </div>
+
 
 <div><button type="submit" form="ids-form">Make collection</button></div>
 

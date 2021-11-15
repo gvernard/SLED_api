@@ -28,9 +28,9 @@ class Collection(SingleObject):
     description = models.CharField(max_length=200,
                                    null=True,
                                    blank=True,
-                                   help_text="A description for your collection")
+                                   help_text="A description for your collection"
+                                   )
     myitems = GM2MField()
-    
     ItemTypeChoices = (
         ('Lenses','Lenses'),
         ('Scores','Scores'),
