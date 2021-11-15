@@ -14,6 +14,7 @@ from django.dispatch import receiver
 from pathlib import Path
 import os
 import math
+import socket
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,7 +29,7 @@ SECRET_KEY = 'django-insecure-3#$_(o_0g=w68gw@y5anq4$yb2$b!&1_@+bk%jse$*mboql#!t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['django01.obs.unige.ch']
 
 AUTH_USER_MODEL = 'lenses.Users'
 GUARDIAN_MONKEY_PATCH = False
@@ -103,7 +104,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-which_database="local"
+which_database="remote"
 
 if which_database == "local":
     DATABASES = {
@@ -169,6 +170,25 @@ STATICFILES_DIRS = [
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+if socket.gethostname()=='django01':
+    FORCE_SCRIPT_NAME = '/Recherche/lensdb'
+    SUB_SITE = '/Recherche/lensdb'
+    URL_PREFIX = '/Recherche/lensdb'
+
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATIC_URL = '/Recherche/lensdb/static/'
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]    
+
+    LOGIN_URL = '/Recherche/lensdb/accounts/login/'
+    LOGIN_REDIRECT_URL = '/Recherche/lensdb/'
+    
+    LOGOUT_URL = '/Recherche/lensdb/accounts/login/'
+    LOGOUT_REDIRECT_URL = '/Recherche/lensdb/accounts/login/'
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
