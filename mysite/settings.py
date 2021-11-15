@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-3#$_(o_0g=w68gw@y5anq4$yb2$b!&1_@+bk%jse$*mboql#!t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['django01.obs.unige.ch']
+ALLOWED_HOSTS = ['django01.obs.unige.ch', '127.0.0.1']
 
 AUTH_USER_MODEL = 'lenses.Users'
 GUARDIAN_MONKEY_PATCH = False
