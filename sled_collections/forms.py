@@ -35,16 +35,19 @@ class CollectionForm(forms.ModelForm):
     )
     all_items = forms.CharField(widget=forms.HiddenInput)
 
-    # def clean(self):
-    #     cleaned_data = super(CollectionForm,self).clean()
-
-    #     if 'myitems' in self.changed_data:
-    #         print('all: ',self.data)
-    #         print('cleaned: ',self.cleaned_data)
-    #         print('changed: ',self.changed_data)
+    def clean(self):
+        cleaned_data = super(CollectionForm,self).clean()
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
         
-    #     if 'myitems' in cleaned_data:
-    #         if cleaned_data['myitems'].count() <= 1:
-    #             self.add_error('myitems','More than one object required')
+        ### Check if formset has changed.
+        if not self.has_changed():
+            raise ValidationError("No changes detected.")
 
+        if 'myitems' in cleaned_data:
+            if cleaned_data['myitems'].count() <= 1:
+                self.add_error('myitems','More than one object required')
+        else:
+            self.add_error('myitems','More than one object required')
         
