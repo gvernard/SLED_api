@@ -173,8 +173,8 @@ LOGOUT_REDIRECT_URL = '/'
 
 if socket.gethostname()=='django01':
     FORCE_SCRIPT_NAME = '/Recherche/lensdb'
-    SUB_SITE = '/Recherche/lensdb'
-    URL_PREFIX = '/Recherche/lensdb'
+    #SUB_SITE = '/Recherche/lensdb'
+    #URL_PREFIX = '/Recherche/lensdb'
 
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
     STATIC_URL = '/Recherche/lensdb/static/'

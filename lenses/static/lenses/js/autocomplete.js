@@ -2,7 +2,7 @@ function groups_autocomplete(target_id){
     $("#"+target_id).select2({
 	width: '100%',
 	ajax: {
-	    url: "/api/groups/",
+	    url: $("#Urlgroups").attr("data-url"),
 	    dataType: 'json',
 	    delay: 250,
 	    data: function (params) {
@@ -64,7 +64,7 @@ function users_autocomplete(target_id){
     $("#"+target_id).select2({
 	width: '100%',
 	ajax: {
-	    url: "/api/users/",
+	    url: $("#Urlusers").attr("data-url"),
 	    dataType: 'json',
 	    delay: 250,
 	    data: function (params) {
