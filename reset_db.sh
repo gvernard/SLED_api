@@ -7,13 +7,13 @@ then
     echo "Using local sqlite DB server..."
     rm db.sqlite3
     rm */migrations/0*.py
-    gsed -i '0,/which_database/{/.*which_database.*/s//which_database="local"/}' mysite/settings.py
+    sed -i '0,/which_database/{/.*which_database.*/s//which_database="local"/}' mysite/settings.py
 else
     # For the remote Mysql database server
     echo "Using remote MYSQL DB server..."
     echo "Dropping all tables"
     bash drop_all_tables.sh    
-    gsed -i '0,/which_database/{/.*which_database.*/s//which_database="remote"/}' mysite/settings.py
+    sed -i '0,/which_database/{/.*which_database.*/s//which_database="remote"/}' mysite/settings.py
 fi
 
 echo "Makemigrations"
