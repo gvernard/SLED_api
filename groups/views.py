@@ -71,6 +71,7 @@ def group_add(request):
         description = request.POST['description']
         sledgroup = SledGroup(name=name, owner=request.user, description=description)
         sledgroup.save()
+        sledgroup.addMember(request.user, request.user)
         for username in addusernames:
             user = Users.objects.get(pk=username)
             sledgroup.addMember(request.user, user)
