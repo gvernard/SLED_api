@@ -6,22 +6,33 @@ Web interface for the strong lens database
 The current version of SLED is built in python 3.7.3. It is recommended to create a new virtual environment and load the necessary packages through our compiled requirements.txt file, as so:
 
 create a new virtual environment with conda:
+```sh
 conda create -n SLED python=3.7.3
-set your current environment to this:
-conda activate SLED
-install the necessary packages in this environment:
-pip install -r requirements.txt
+```
 
+and set your current environment to this:
+```sh
+conda activate SLED
+```
+
+To install the necessary packages in this environment, first run
+```sh
+conda install mysqlclient=2.0.3
+```
+and then
+```sh
+pip install -r misc/requirements.txt
+```
 
 As the actual database we are using a remote Mysql (MariaDB) server.
-This has been set up in the 'settings.py' file and requires a 'my.cnf' file with the credentials, which, obviously, is not and must not be publicly accessible. 
+This has been set up in the 'settings.py' file and requires a 'my.cnf' file with the credentials, which, obviously, is not and must not be publicly accessible.
 Before running the server or any tests, one needs to run:
 
 ssh -f <username>@login01.astro.unige.ch -L 8888:mysql10.astro.unige.ch:4006 -N
 
 where <username> is your username for the Geneva observatory.
 This is because the Mysql server runs in the internal network and the only way to access it from the outside is through an SSH tunnel.
-This is what the above command sets up in the backround, it maps 'localhost' and a port, through the gateway server (login01) to the Mysql configured machine.
+This is what the above command sets up in the background, it maps 'localhost' and a port, through the gateway server (login01) to the Mysql configured machine.
 The SSH tunnel might be closed if the connection gets interrupted - just run it again.
 
 
