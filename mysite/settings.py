@@ -53,11 +53,10 @@ INSTALLED_APPS = [
     'registration.apps.RegistrationConfig',  
     'crispy_forms',
     'notifications',
-    'multiselectfield',
-    'django_select2',
     'api',
     'rest_framework',
     'gm2m',
+    'bootstrap_modal_forms',
 ]
 
 SITE_ID = 1

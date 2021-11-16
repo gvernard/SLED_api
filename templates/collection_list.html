@@ -1,6 +1,12 @@
 {% extends 'master_header.html' %}
 {% load static %}
+
 {% block content %}
+<div class="modal fade" tabindex="-1" role="dialog" id="delete-modal">
+  <div class="modal-dialog mt-5" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
 
 
 <h1>My collections</h1>
@@ -13,6 +19,11 @@
       <td>{{ collection.item_type }}</td>
       <td>{{ collection.description }}</td>
       <td> N. items {{ collection.myitems.all|length }}</td>
+      <td>
+        <button type="button" class="delete-collection btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
+          <span class="fa fa-trash">Delete</span>
+        </button>
+      </td>
     </tr>
     {% endfor %}
   </table>
@@ -25,10 +36,30 @@
 
 
 <ul>
-  <li>Button: Delete collections</li>
   <li>Button: If private make public (future)</li>
   <li>Button: Give Access (future)</li>
   <li>Button: Revoke Access (future)</li>
 </ul>
-
 {% endblock content %}
+
+
+{% block extrascripts %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      function deleteCollectionModalForm() {
+          $(".delete-collection").each(function () {
+              $(this).modalForm({
+		  formURL: $(this).data("form-url"),
+		  modalID: "#delete-modal",
+		  isDeleteForm: true
+	      });
+          });
+      }
+      deleteCollectionModalForm();
+  });
+</script>
+{% endblock extrascripts %}

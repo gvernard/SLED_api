@@ -8,6 +8,15 @@ from django.utils.decorators import method_decorator
 from django.apps import apps
 from django.urls import reverse,reverse_lazy
 
+from bootstrap_modal_forms.generic import (
+    BSModalLoginView,
+    BSModalFormView,
+    BSModalCreateView,
+    BSModalUpdateView,
+    BSModalReadView,
+    BSModalDeleteView
+)
+
 from .forms import CollectionForm
 from lenses.models import Collection
 from urllib.parse import urlparse
@@ -107,7 +116,6 @@ class CollectionAddView(TemplateView):
         if referer == self.request.path:
             myform = CollectionForm(data=self.request.POST,user=self.request.user)
             if myform.is_valid():
-                print('VALID')
                 instance = myform.save(commit=False)
                 instance.owner = self.request.user
                 ids = [ pk for pk in self.request.POST.getlist('myitems') if pk.isdigit() ]
@@ -131,3 +139,13 @@ class CollectionAddView(TemplateView):
             return self.render_to_response({'form': myform})
 
         
+@method_decorator(login_required,name='dispatch')
+class CollectionDeleteView(BSModalDeleteView):
+    model = Collection
+    template_name = 'collection_delete.html'
+    success_message = 'Success: Collection was deleted.'
+    success_url = reverse_lazy('sled_collections:collections-list')
+    
+    def get_queryset(self):
+        return Collection.accessible_objects.all(self.request.user)
+
