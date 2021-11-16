@@ -11,9 +11,48 @@ h3 {
     font-size: 12pt
 }
 
+.myImage {
+  float: left;
+  width: 10%;
+  font-family: Veranda;
+}
+.heading {
+  float:right;
+}
+
+#container {
+  text-align: center;
+}
+
+.text {
+  display: inline-block;
+  margin: 0 20px 0 20px;
+}
+
+.img {
+  margin: 0 20px 0 20px;
+  width: 100px;
+  height: 100px;
+}
+.inline-block {
+   display: inline-block;
+}
+
+figure {
+    width: 20%;
+    float: center;
+    margin: 0;
+    text-align: center;
+    padding: 0;
+}
+
+
+
 h2 {
     padding-top: 10px
 }
+
+
 
 body {
     background: #EFEFEF;
@@ -530,4 +569,13 @@ nav ul li a:hover {
 	margin: 0 auto;
 }
 
+
+
+
+
+/*  For the lens visit card  */
+.visit-card {width:550px;text-align:center;border:1px solid black}
+.visit-card table td {padding:2px;}
+.visit-card .properties {width:300px;}
+.visit-card .img-container {width:204px;height:204px;border:1px solid #777777;padding: 5px}
 
