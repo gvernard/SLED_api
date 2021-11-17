@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
+from django.urls import reverse
 
 import math
 from astropy import units as u
@@ -230,8 +231,7 @@ class Lenses(SingleObject):
         self.name = 'J'+c.to_string('hmsdms')
         
     def get_absolute_url(self):
-        #return reverse('lenses:lens-detail',kwargs={'lens_name':self.name})
-        return "bleedf"
+        return reverse('lenses:lens-detail',kwargs={'pk':self.id})
 
     def get_DB_neighbours(self,radius):
         neighbours = list(Lenses.objects.filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),self.ra,self.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius))

@@ -16,7 +16,7 @@
     {% for lens in lenses %}
     <tr>
       <td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
-      <td><a href="{% url 'lenses:lens-detail' slug=lens.name %}">{{lens.name}}</a></td>
+      <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
       <td>{{ lens.ra }}</td>
       <td>{{ lens.dec }}</td>
       <td>{{ lens.access_level }}</td>
