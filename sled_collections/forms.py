@@ -83,7 +83,7 @@ class CollectionForm(forms.ModelForm):
             raise ValidationError("No changes detected.")
 
         if 'myitems' in cleaned_data:
-            if cleaned_data['myitems'].count() <= 1:
+            if len(cleaned_data['myitems']) <= 1:
                 self.add_error('myitems','More than one object required')
         else:
             self.add_error('myitems','More than one object required')

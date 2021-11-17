@@ -32,11 +32,14 @@
       <td>{{ collection.description }}</td>
       <td> N. items {{ collection.myitems.all|length }}</td>
       <td>
+	<button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-query' %}">
+	  <img src="{% static 'icons/plus.svg' %}" alt="plus">
+        </button>
 	<button type="button" class="update-collection btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
-          <span class="fa fa-pencil">Edit</span>
+	  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
         </button>
         <button type="button" class="delete-collection btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
-          <span class="fa fa-trash">Delete</span>
+	  <img src="{% static 'icons/trash.svg' %}" alt="trash">
         </button>
       </td>
     </tr>
@@ -48,7 +51,6 @@
   </p>
   {% endif %}
 </div>
-
 
 <ul>
   <li>Button: If private make public (future)</li>
