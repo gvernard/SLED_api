@@ -11,4 +11,5 @@ urlpatterns = [
     path('detail/<int:pk>/', views.CollectionDetailView.as_view(), name='collections-detail'),
     path('add/', views.CollectionAddView.as_view(), name='collections-add'),
     path('delete/<int:pk>', views.CollectionDeleteView.as_view(), name='collection-delete'),
+    path('update/<int:pk>', views.CollectionUpdateView.as_view(), name='collection-update'),
 ]

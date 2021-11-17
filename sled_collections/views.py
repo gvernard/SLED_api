@@ -17,7 +17,7 @@ from bootstrap_modal_forms.generic import (
     BSModalDeleteView
 )
 
-from .forms import CollectionForm
+from .forms import *
 from lenses.models import Collection
 from urllib.parse import urlparse
 
@@ -149,3 +149,20 @@ class CollectionDeleteView(BSModalDeleteView):
     def get_queryset(self):
         return Collection.accessible_objects.all(self.request.user)
 
+@method_decorator(login_required,name='dispatch')
+class CollectionUpdateView(BSModalUpdateView):
+    model = Collection
+    template_name = 'collection_update.html'
+    form_class = CollectionForm2
+    success_message = 'Success: Collection was updated.'
+    success_url = reverse_lazy('sled_collections:collections-list')
+    
+    def get_queryset(self):
+        return Collection.accessible_objects.all(self.request.user)
+
+    def form_valid(self, form):
+        #print(form.changed_data)
+        ids = form.cleaned_data["myitems"]
+        qset = apps.get_model(app_label='lenses',model_name=form.instance.item_type).accessible_objects.in_ids(self.request.user,ids)
+        form.instance.myitems = qset
+        return super(CollectionUpdateView,self).form_valid(form)

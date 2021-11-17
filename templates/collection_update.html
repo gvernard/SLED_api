@@ -1,0 +1,51 @@
+{% load widget_tweaks %}
+
+
+<div class="modal-header">
+  <h3 class="modal-title">Update Collection</h3>
+  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
+<div class="modal-body">
+  <form method="post" id="update-form" action="">
+    {% csrf_token %}
+    <div class="container-fluid">
+      <div class="row">
+	<div class="col-12">
+	  <p>Are you sure you want to update collection named?</p>
+	</div>
+      </div>
+      <div class="row">
+	<div class="col-12">
+	  <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
+	    {% for error in form.non_field_errors %}
+	    {{ error }}
+	    {% endfor %}
+	  </div>
+	</div>
+      </div>
+      
+      {% for field in form %}
+      <div class="row">
+	<div class="form-group col-12">
+	  {% render_field field class="form-control" placeholder=field.label %}
+	</div>
+      </div>
+      <div class="row">
+	<div class="{% if field.errors %} invalid{% endif %} col-12">
+	  {% for error in field.errors %}
+	  <p class="help-block">{{ error }}</p>
+	  {% endfor %}
+	</div>
+      </div>      
+      {% endfor %}
+    </div>
+  </form>
+</div>
+
+<div class="modal-footer">
+  <button type="submit" form="update-form" class="btn btn-primary">Update</button>
+</div>
+

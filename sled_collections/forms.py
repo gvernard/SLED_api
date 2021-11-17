@@ -2,16 +2,53 @@ from django import forms
 from django.core.exceptions import ValidationError
 from lenses.models import Collection, Lenses
 from django.apps import apps
+from bootstrap_modal_forms.forms import BSModalModelForm
 
 class CustomM2M(forms.ModelMultipleChoiceField):
     def label_from_instance(self,item):
         #return "%s" % item.get_absolute_url()
         return "%s" % item.__str__()
 
+    def clean(self,item):
+        return(item)
+
+    
+class CollectionForm2(BSModalModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CollectionForm2,self).__init__(*args, **kwargs)
+        instance = kwargs.get('instance')
+        myfield = CustomM2M(
+            queryset=instance.myitems.all(),
+            widget=forms.CheckboxSelectMultiple(attrs={'checked':'checked'})
+        )
+        self.fields["myitems"] = myfield
+
+            
+    class Meta:
+        model = Collection
+        fields = ['name','description','item_type']
+        widgets = {
+            'description': forms.Textarea({'placeholder':'Provide a description for your collection.','rows':3,'cols':30})
+        }
+
+    # all_items = forms.CharField(widget=forms.HiddenInput)
+    myitems = CustomM2M(
+        queryset=None,
+        widget=forms.CheckboxSelectMultiple(attrs={'checked':'checked'})
+    )
+
+
+
+
+    
+
+            
+    
 class CollectionForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user',None)
+        self.request = kwargs.pop('request',None)
         super(CollectionForm,self).__init__(*args, **kwargs)
         data = kwargs.get('data')
         obj_type = data['obj_type']

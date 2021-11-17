@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'api',
     'rest_framework',
     'gm2m',
+    'widget_tweaks',
     'bootstrap_modal_forms',
 ]
 
