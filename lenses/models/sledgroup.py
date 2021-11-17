@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import Group
+from django.urls import reverse
 
 #class SledGroups(models.Model):
 class SledGroup(Group):
@@ -18,6 +19,7 @@ class SledGroup(Group):
 #                                 on_delete=models.CASCADE,
 #                                 primary_key=True
 #                                 )
+    owner = models.ForeignKey('Users',on_delete=models.CASCADE) 
     description = models.CharField(max_length=200,null=True, blank=True)
     
     class Meta():
@@ -38,14 +40,20 @@ class SledGroup(Group):
         users = self.user_set.all()
         return users
         
-    def addMember(self,owner,seld_user):
-        if owner.isOwner(self) and not sled_user.groups.filter(group__name=self.name):
-            self.user_set.add(sled_user)
+    def addMember(self,owner,sled_user):
+        if owner==self.owner:
+            print(sled_user, self.user_set)
+            if sled_user not in self.getAllMembers():
+                self.user_set.add(sled_user)
         
     def removeMember(self,owner,sled_user):
-        if owner.isOwner(self) and sled_user.groups.filter(group__name=self.name):
-            self.user_set.remove(sled_user)
+        if owner==self.owner:
+            if sled_user in self.getAllMembers(): 
+                self.user_set.remove(sled_user)
 
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        
+        return reverse('groups.views.group_detail', args=[str(self.name)])

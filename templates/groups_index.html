@@ -1,9 +1,14 @@
 {% extends 'master_header.html' %}
 {% block content %}
 
-    <div class="section">
-        <h1>List of User Groups</h1>
-    </div>
+<div class="section">
+  <h1>Main page for Groups</h1>
+
+  <ul>
+    <li><a href="{% url 'groups:group-list' %}">Browse my groups</a></li>
+    <li><a href="{% url 'groups:group-add' %}">Add new groups</a></li>
+  </ul>
+</div>
 
     <!--<div class="content container">
     <div id="form_container">
@@ -32,23 +37,5 @@
     </div>-->
 
 
-    <div class="content container">
-        <table class="sortable">
-            <tr>
-                <th class="th-center">Name</th>
-                <th class="th-center">Description</th>
-
-            </tr>
-        {% for group in groups %}
-            <tr>
-                <td class="td-center"><a href="{% url 'groups:group_detail' group_name=group.name %}">{{group.name}}</td>
-                <td class="td-center">{{group.description}}</td>
-
-            </tr>
-        {% endfor %}
-        </table>
-
-
-    </div>
 
 {% endblock content %}

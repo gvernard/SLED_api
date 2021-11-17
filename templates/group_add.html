@@ -1,0 +1,70 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% block content %}
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.0.6-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.0.6-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+
+{% csrf_token %}
+<div class="content container">
+    <p class="centred_name">ADD A NEW GROUP</p>
+</div>
+
+<script>
+  $(document).ready(function(){
+      // Create Select2 for users and groups
+      users_autocomplete("users-autocomplete1");
+      users_autocomplete("users-autocomplete2");
+
+      // Attach requirement for user or group to the submit button
+      $('#submit-btn').on('click',function(event){
+      var users1 = $('#users-autocomplete1').find(':selected');
+      if( users1.length == 0 ){
+          alert('You must select a user!');
+          event.preventDefault();
+      }
+      });
+      
+      // Check all the checkboxes
+      var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
+      if( checkboxes.length > 0){
+      for(var i=0;i<checkboxes.length;i++){
+          checkboxes[i].checked = true;
+      }
+      }
+  });
+</script>
+
+<div class="content">
+  <form id="ids-form" method="POST">
+    {% csrf_token %}
+
+    <span class="errorlist">{{ error_message }}</span>
+
+    Name: <input id="name" type="text" name="name" value=>
+    Description: <input id="description" type="text" name="description" value=>
+    <div style="width:100%;">
+      <p>
+    Which users to add:
+      </p>
+      <select id="users-autocomplete1" name="addusers" multiple></select>
+    </div>
+
+    <br>
+    <br>
+
+  </form>
+</div>
+
+<div>
+  <button type="submit" id="submit-btn" form="ids-form">
+    Submit
+  </button>
+</div>
+
+
+{% endblock content %}

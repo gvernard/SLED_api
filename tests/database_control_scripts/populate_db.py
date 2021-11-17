@@ -61,12 +61,13 @@ print('Populating the database with the following users:',Users.objects.all().va
 groups = ['Awesome Users', 'TDCOSMO']
 descriptions = ['A group for awesome users', 'Time delay cosmography with lensed quasars']
 print('Populating the database with the following groups:', groups)
+user1 = Users.objects.get(username='Cameron')
 for i, name in enumerate(groups):
     # group = Group(name=name)
     # group.save()
     # sledgroup = SledGroup(group=group, description=descriptions[i])
     # sledgroup.save()
-    sledgroup = SledGroup(name=name, description=descriptions[i])
+    sledgroup = SledGroup(name=name, owner=user1, description=descriptions[i])
     sledgroup.save()
 
 
