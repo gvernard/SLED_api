@@ -73,13 +73,15 @@ def query_search(form, user):
     return lenses
 
 # View for lens queries
-@login_required
-def LensQueryView(request):
+@method_decorator(login_required,name='dispatch')
+class LensQueryView(TemplateView):
     '''
     Main lens query page, allowing currently for a simple filter on the lenses table parameters
     Eventually we want to allow simultaneous queries across multiple tables
     '''
-    if request.method=='POST':
+    template_name = 'lens_query.html'
+    
+    def post(self, request, *args, **kwargs):
         print('POST FORM')
         form = LensQueryForm(request.POST)
         print(form)
@@ -89,14 +91,16 @@ def LensQueryView(request):
             print(form.cleaned_data)
             input_values = [value not in [None, False, []] for value in form_values]
             if sum(input_values) == 0:
-                return render(request, 'lens_query.html', {'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})
+                return self.render_to_response({'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})
             lenses = query_search(form.cleaned_data, request.user)
-            return render(request, 'lens_query.html', {'lenses':lenses, 'form':LensQueryForm(initial=form.cleaned_data)})
+            return self.render_to_response({'lenses':lenses, 'form':LensQueryForm(initial=form.cleaned_data)})
         else:
-            return render(request, 'lens_query.html', {'lenses':None, 'form':LensQueryForm})
-    else:
-        lenses = None
-        return render(request, 'lens_query.html', {'lenses':lenses, 'form':LensQueryForm})
+            return self.render_to_response({'lenses':None, 'form':LensQueryForm})
+
+
+    def get(self, request, *args, **kwargs):
+        lenses = Lenses.objects.none()
+        return self.render_to_response({'lenses':lenses, 'form':LensQueryForm})
 
 
 def LensCollageView(request):
