@@ -1,0 +1,46 @@
+<form id="lens-query" method="post">
+  {% csrf_token %}
+  <table class="form-table">
+    <tr>
+      
+      <td>
+	<div class="column">
+	  <table>
+	    <tr><td> {{ form.ra_min }} </td> <td> &lt; R.A. &lt; </td> <td>{{ form.ra_max }} </td></tr>
+	    <tr><td> {{ form.dec_min }} </td> <td> &lt; Dec. &lt; </td> <td>{{ form.dec_max }} </td></tr>
+	    <tr><td> {{ form.n_img_min }} </td> <td> &lt; Number of images &lt; </td> <td>{{ form.n_img_max }} </td></tr>
+	    <tr><td> {{ form.image_sep_min }} </td> <td> &lt; Image separation &lt; </td> <td>{{ form.image_sep_max }} </td></tr>
+	    <tr> <td> {{ form.z_lens_min }} </td> <td> &lt; Lens Redshift &lt; </td> <td>{{ form.z_lens_max }} </td></tr>
+	    <tr> <td> {{ form.z_source_min }} </td> <td> &lt; Source redshift &lt; </td> <td>{{ form.z_source_max }} </td></tr>
+	  </table>
+	</div>
+      </td>
+
+      <td>
+	<div class="column">
+	  <table>
+	    <tr><td> Confirmed Lens? </td> <td> {{ form.flag_confirmed }} </td></tr>
+	    <tr><td> Not Confirmed Lens? </td> <td> {{ form.flag_unconfirmed }} </td></tr>
+	    <tr><td> Confirmed Contaminant? </td> <td> {{ form.flag_contaminant }} </td></tr>
+	    <tr><td> Not Confirmed Contaminant? </td> <td> {{ form.flag_uncontaminant }} </td></tr>
+	    <tr><td> Lens Type </td> <td>{{ form.lens_type }}</td></tr>
+	    <tr><td> Source Type </td> <td>{{ form.source_type }}</td></tr>
+	    <tr><td> Configuration </td> <td>{{ form.image_conf }}</td></tr>
+	  </table>
+	</div>
+      </td>
+
+      <!--<table>
+	  <tr><td>{{ form.ra_min.errors }}</td><td>{{ form.ra_min.label_tag }}</td><td>{{ form.ra_min }}</td></tr>
+	  <tr><td>{{ form.ra_max.errors }}</td><td>{{ form.ra_max.label_tag }}</td><td>{{ form.ra_max }}</td></tr>
+	  <tr><td>{{ form.dec.errors }}</td><td>{{ form.dec.label_tag }}</td><td>{{ form.dec }}</td></tr>
+	  <tr><td>{{ form.image_sep.errors }}</td><td>{{ form.image_sep.label_tag }}</td><td>{{ form.image_sep }}</td></tr>
+	  <tr><td>{{ form.z_lens.errors }}</td><td>{{ form.z_lens.label_tag }}</td><td>{{ form.z_lens }}</td></tr>
+	  <tr><td>{{ form.z_source.errors }}</td><td>{{ form.z_source.label_tag }}</td><td>{{ form.z_source }}</td></tr>
+	  <tr><td>{{ form.flag_confirmed.errors }}</td><td>{{ form.flag_confirmed.label_tag }}</td><td>{{ form.flag_confirmed }}</td></tr>
+	  <tr><td>{{ form.flag_contaminant.errors }}</td><td>{{ form.flag_contaminant.label_tag }}</td><td>{{ form.flag_contaminant }}</td></tr>
+	  <tr><td>{{ form.access_level.errors }}</td><td>{{ form.access_level.label_tag }}</td><td>{{ form.access_level }}</td></tr>
+      </table>-->
+    </tr>
+  </table>
+</form>

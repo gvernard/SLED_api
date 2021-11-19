@@ -2,8 +2,13 @@
 {% load static %}
 
 {% block content %}
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal-large">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content"></div>
+  </div>
+</div>
 <div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
-  <div class="modal-dialog mt-5" role="document">
+  <div class="modal-dialog">
     <div class="modal-content"></div>
   </div>
 </div>
@@ -32,7 +37,7 @@
       <td>{{ collection.description }}</td>
       <td> N. items {{ collection.myitems.all|length }}</td>
       <td>
-	<button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-query' %}">
+	<button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-add-items' collection.pk %}">
 	  <img src="{% static 'icons/plus.svg' %}" alt="plus">
         </button>
 	<button type="button" class="update-collection btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
@@ -78,52 +83,20 @@
       }
       deleteCollectionModalForm();
 
-
-
-      // Update book asynchronous button
-      // message
-      var asyncSuccessMessageUpdate = [
-          "<div ",
-          "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
-          "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
-          "Success: Book was updated.",
-          "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
-          "<span aria-hidden='true'>&times;</span>",
-          "</button>",
-          "</div>",
-          "<script>",
-          "$('.alert').fadeTo(2000, 500).slideUp(500, function () {$('.alert').slideUp(500).remove();});",
-            "<\/script>"
-      ].join("");
-      
-      // modal form
       function updateCollectionModalForm() {
           $(".update-collection").each(function () {
               $(this).modalForm({
                   formURL: $(this).data("form-url"),
- 		  modalID: "#id-modal",
-                  asyncUpdate: false,
-                  asyncSettings: {
-                      closeOnSubmit: false,
-                      successMessage: asyncSuccessMessageUpdate,
-                      dataUrl: "books/",
-                      dataElementId: "#books-table",
-                      dataKey: "table",
-                      addModalFormFunction: reinstantiateModalForms
-                  }
+ 		  modalID: "#id-modal"
               });
           });
       }
       updateCollectionModalForm();
       
-      function reinstantiateModalForms() {
-          updateCollectionModalForm();
-          deleteCollectionModalForm();
-      }
-
       $(".alert").fadeTo(2000, 500).slideUp(500, function () {
           $(".alert").slideUp(500);
       });
+      
   });
-  </script>
+</script>
 {% endblock extrascripts %}

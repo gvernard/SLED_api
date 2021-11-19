@@ -11,37 +11,14 @@ class CustomM2M(forms.ModelMultipleChoiceField):
 
     def clean(self,item):
         return(item)
-
     
 class CollectionForm2(BSModalModelForm):
-    def __init__(self, *args, **kwargs):
-        super(CollectionForm2,self).__init__(*args, **kwargs)
-        instance = kwargs.get('instance')
-        myfield = CustomM2M(
-            queryset=instance.myitems.all(),
-            widget=forms.CheckboxSelectMultiple(attrs={'checked':'checked'})
-        )
-        self.fields["myitems"] = myfield
-
-            
     class Meta:
         model = Collection
-        fields = ['name','description','item_type']
+        fields = ['name','description']
         widgets = {
             'description': forms.Textarea({'placeholder':'Provide a description for your collection.','rows':3,'cols':30})
         }
-
-    # all_items = forms.CharField(widget=forms.HiddenInput)
-    myitems = CustomM2M(
-        queryset=None,
-        widget=forms.CheckboxSelectMultiple(attrs={'checked':'checked'})
-    )
-
-
-
-
-    
-
             
     
 class CollectionForm(forms.ModelForm):

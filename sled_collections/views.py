@@ -17,6 +17,7 @@ from bootstrap_modal_forms.generic import (
     BSModalDeleteView
 )
 
+from lenses.forms import LensQueryForm
 from .forms import *
 from lenses.models import Collection
 from urllib.parse import urlparse
@@ -36,8 +37,6 @@ class CollectionListView(ListView):
         context['collections'] = self.object_list
         return context
 
-    
-
 @method_decorator(login_required,name='dispatch')
 class CollectionDetailView(DetailView):
     model = Collection
@@ -55,13 +54,49 @@ class CollectionDetailView(DetailView):
             message = "You are not the owner of this collection!"
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
+    def post(self, *args, **kwargs):
+        referer = urlparse(self.request.META['HTTP_REFERER']).path
+
+        if referer == self.request.path:
+            self.object = self.get_object()
+            context = super(CollectionDetailView,self).get_context_data(**kwargs)
+            collection_id = self.request.POST.get('collection_id')
+            col = Collection.accessible_objects.get(pk=collection_id)
+            obj_ids = self.request.POST.getlist('ids',None)
+            if obj_ids:
+                objects = apps.get_model(app_label='lenses',model_name=col.item_type).accessible_objects.in_ids(self.request.user,obj_ids)
+                res = col.removeItems(self.request.user,objects)
+                if res != "success":
+                    context['error_message'] = res                
+            return self.render_to_response(context)
+        else:
+            message = "Not authorized action!"
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+    
+@method_decorator(login_required,name='dispatch')
+class CollectionDeleteView(BSModalDeleteView):
+    model = Collection
+    template_name = 'collection_delete.html'
+    success_message = 'Success: Collection was deleted.'
+    success_url = reverse_lazy('sled_collections:collections-list')
+    
+    def get_queryset(self):
+        return Collection.accessible_objects.all(self.request.user)
+
+@method_decorator(login_required,name='dispatch')
+class CollectionUpdateView(BSModalUpdateView):
+    model = Collection
+    template_name = 'collection_update.html'
+    form_class = CollectionForm2
+    success_message = 'Success: Collection was updated.'
+    
+    def get_queryset(self):
+        return Collection.accessible_objects.all(self.request.user)
 
 
 
 
-
-
-
+    
        
 @method_decorator(login_required,name='dispatch')
 class CollectionCreateView(CreateView):
@@ -139,30 +174,14 @@ class CollectionAddView(TemplateView):
             return self.render_to_response({'form': myform})
 
         
+    
+    
 @method_decorator(login_required,name='dispatch')
-class CollectionDeleteView(BSModalDeleteView):
-    model = Collection
-    template_name = 'collection_delete.html'
-    success_message = 'Success: Collection was deleted.'
+class CollectionAddItemsView(BSModalFormView):
+    template_name = 'lens_query_modal.html'
+    form_class = LensQueryForm
+    success_message = 'Success: Items added to collection.'
     success_url = reverse_lazy('sled_collections:collections-list')
     
-    def get_queryset(self):
-        return Collection.accessible_objects.all(self.request.user)
-
-@method_decorator(login_required,name='dispatch')
-class CollectionUpdateView(BSModalUpdateView):
-    model = Collection
-    template_name = 'collection_update.html'
-    form_class = CollectionForm2
-    success_message = 'Success: Collection was updated.'
-    success_url = reverse_lazy('sled_collections:collections-list')
-    
-    def get_queryset(self):
-        return Collection.accessible_objects.all(self.request.user)
-
-    def form_valid(self, form):
-        #print(form.changed_data)
-        ids = form.cleaned_data["myitems"]
-        qset = apps.get_model(app_label='lenses',model_name=form.instance.item_type).accessible_objects.in_ids(self.request.user,ids)
-        form.instance.myitems = qset
-        return super(CollectionUpdateView,self).form_valid(form)
+    # def get_queryset(self):
+    #     return Collection.accessible_objects.all(self.request.user)
