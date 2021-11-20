@@ -1,28 +1,51 @@
 {% extends 'master_header.html' %}
 {% load static %}
+
 {% block content %}
+<!-- Message div -->
+<div>
+  {% if messages %}
+  {% for message in messages %}
+  {% if message.tags %}
+  <div style="border-radius:0;" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% else %}
+  <div style="border-radius:0;">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+</div>
 
-
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-<script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
-<script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_add.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_visit_card.css' %}"/>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Modal divs -->
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content"></div>
+  </div>
+</div>
 
 <p>
   LENS QUERY PAGE
 </p>
 
-{% include "lens_query_fields.html" %}    
-
+<form id="lens-query" method="POST">
+  {% csrf_token %}
+  {% include "lens_query_fields.html" %}    
+</form>
 <button type="submit" form="lens-query">Submit</button>
 
 
 <div class="content">
   <form id="ids-form" method="POST">
+    {% csrf_token %}
     <span class="errorlist">{{ error_message }}</span>
     {% include "lens_list_executive.html" with lenses=lenses %}    
   </form>
@@ -31,8 +54,49 @@
 <div class="controls">
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-collection' %}">Make collection</button>
+  <button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collections-list2' %}">
+    <img src="{% static 'icons/plus.svg' %}" alt="plus">
+    Add to collection
+  </button>
 </div>
 
 <!-- <script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script> -->
 
 {% endblock content %}
+
+
+{% block extrascripts %}
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+
+<script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
+<script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_add.css' %}"/>
+<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_visit_card.css' %}"/>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+
+<script type="text/javascript">
+  $(document).ready(function() {
+      
+      function addItemsCollectionModalForm() {
+          $(".add-items").each(function () {
+              $(this).modalForm({
+                  formURL: $(this).data("form-url"),
+ 		  modalID: "#id-modal",
+		  asyncUpdate: false
+              });
+          });
+      }
+      addItemsCollectionModalForm();
+      
+      $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+          $(".alert").slideUp(500);
+      });
+      
+  });
+</script>
+{% endblock extrascripts %}

@@ -2,11 +2,6 @@
 {% load static %}
 
 {% block content %}
-<div class="modal fade" tabindex="-1" role="dialog" id="id-modal-large">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content"></div>
-  </div>
-</div>
 <div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
   <div class="modal-dialog">
     <div class="modal-content"></div>
@@ -37,9 +32,7 @@
       <td>{{ collection.description }}</td>
       <td> N. items {{ collection.myitems.all|length }}</td>
       <td>
-	<button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-add-items' collection.pk %}">
-	  <img src="{% static 'icons/plus.svg' %}" alt="plus">
-        </button>
+	<a href="{% url 'lenses:lens-query' %}">Add items</a>
 	<button type="button" class="update-collection btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
 	  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
         </button>

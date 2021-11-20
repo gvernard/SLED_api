@@ -81,7 +81,8 @@
 <div class="content">
   <p>Items in the collection:</p>
   <form id="ids-form" method="POST">
-    <input type="hidden" name="collection_id" value="{{collection.id}}">
+    {% csrf_token %}
+    <input type="hidden" name="collection_id" id="collection_id" value="{{collection.id}}">
     <span class="errorlist">{{ error_message }}</span>
     {% if collection.item_type == 'Lenses' %}
     {% include "lens_list_executive.html" with lenses=collection.myitems.all %}
@@ -90,18 +91,15 @@
     {% endif %}
   </form>
   <div>
+    <button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-add-items' collection.pk %}">
+      <img src="{% static 'icons/plus.svg' %}" alt="plus">
+      Add items
+    </button>
     <button type="button" class="remove-items btn btn-sm btn-danger" data-toggle="modal" data-target="#id-modal-remove-items">
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Remove selected
     </button>
   </div>
-</div>
-
-<div class="content">
-  <button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-add-items' collection.pk %}">
-    <img src="{% static 'icons/plus.svg' %}" alt="plus">
-    Add items
-  </button>
 </div>
 {% endblock content %}
 
@@ -134,16 +132,6 @@
       }
       updateCollectionModalForm();
 
-      function addItemsCollectionModalForm() {
-          $(".add-items").each(function () {
-              $(this).modalForm({
-                  formURL: $(this).data("form-url"),
- 		  modalID: "#id-modal-large"
-              });
-          });
-      }
-      addItemsCollectionModalForm();
-
       $(".alert").fadeTo(2000, 500).slideUp(500, function () {
           $(".alert").slideUp(500);
       });
@@ -161,7 +149,9 @@
               $("#id-modal-remove-items").find('.modal-body').html(str);
 	  }
       });
-
+	  
+      $('#toggle_all').remove();
+      
   });
 </script>
 {% endblock extrascripts %}

@@ -82,13 +82,12 @@ class LensQueryView(TemplateView):
     template_name = 'lens_query.html'
     
     def post(self, request, *args, **kwargs):
-        print('POST FORM')
+        #print('POST FORM')
         form = LensQueryForm(request.POST)
-        print(form)
-        if form.is_valid:
-            print('form valid')
+        if form.is_valid():
+            #print('form valid')
             form_values = form.cleaned_data.values()
-            print(form.cleaned_data)
+            #print(form.cleaned_data)
             input_values = [value not in [None, False, []] for value in form_values]
             if sum(input_values) == 0:
                 return self.render_to_response({'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})

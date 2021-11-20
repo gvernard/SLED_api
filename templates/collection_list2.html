@@ -1,0 +1,24 @@
+<h1>My collections</h1>
+<div class="content ">
+  {% if collections %}
+  <table>
+    {% for collection in collections %}
+    <tr>
+      <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+      <td>{{ collection.item_type }}</td>
+      <td>{{ collection.description }}</td>
+      <td> N. items {{ collection.myitems.all|length }}</td>
+      <td>
+	<button type="submit" form="ids-form" formaction="{% url 'sled_collections:collection-add-items' collection.pk %}">Add</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>
+    No collections to show
+  </p>
+  {% endif %}
+</div>
+<div class="controls">
+</div>

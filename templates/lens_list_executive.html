@@ -1,9 +1,11 @@
-<style>
-  .exe_summary td {margin:0px;padding:2px;}
-</style>
+<!-- <style> -->
+<!--   .exe_summary td {margin:0px;padding:2px;} -->
+<!-- </style> -->
 
-{% csrf_token %}
+<!-- {% csrf_token %} -->
+
 <div>
+  <input name="obj_type" type="hidden" value="Lenses" />
   <table class="exe_summary sortable">
     <tr>
       <th></th>
@@ -13,7 +15,6 @@
       <th>Access level</th>
       <th>Accessible by</th>
     </tr>
-    <input name="obj_type" type="hidden" value="Lenses" />
     {% for lens in lenses %}
     <tr>
       <td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>

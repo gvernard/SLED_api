@@ -7,6 +7,7 @@ from . import views
 app_name = 'sled_collections'
 urlpatterns = [
     path('', views.CollectionListView.as_view(), name='collections-list'),
+    path('list/', views.CollectionListView2.as_view(), name='collections-list2'),
     path('detail/',RedirectView.as_view(url='/sled_collections/',permanent=False),name='redirect-detail'),
     path('detail/<int:pk>/', views.CollectionDetailView.as_view(), name='collections-detail'),
     path('add/', views.CollectionAddView.as_view(), name='collections-add'),
