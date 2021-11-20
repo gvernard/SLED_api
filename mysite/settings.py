@@ -54,11 +54,12 @@ INSTALLED_APPS = [
     'registration.apps.RegistrationConfig',  
     'crispy_forms',
     'notifications',
-    'multiselectfield',
-    'django_select2',
     'api',
     'rest_framework',
     'gm2m',
+    'widget_tweaks',
+    'bootstrap_modal_forms',
+    'sled_collections',
 ]
 
 SITE_ID = 1
@@ -97,6 +98,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 

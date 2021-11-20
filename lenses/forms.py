@@ -2,8 +2,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from lenses.models import Lenses
-
-from django_select2 import forms as s2forms
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 class LensQueryForm(forms.Form):
@@ -53,8 +51,13 @@ class LensQueryForm(forms.Form):
         ('SN','Supernova')
     )
     source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, required=False) #widget=forms.Select(attrs={'class':'my-select2','multiple':'multiple'}))
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request',None)
+        super(LensQueryForm,self).__init__(*args, **kwargs)
 
 
+    
 class BaseLensForm(forms.ModelForm):
     class Meta:
         model = Lenses

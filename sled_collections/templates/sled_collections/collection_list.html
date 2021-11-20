@@ -1,0 +1,95 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+  <div class="modal-dialog">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+<div>
+  {% if messages %}
+  {% for message in messages %}
+  <div style="border-radius:0;" {% if message.tags %} class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert" {% endif %}>
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endfor %}
+  {% endif %}
+</div>
+
+<h1>My collections</h1>
+<div class="content ">
+  {% if collections %}
+  <table>
+    {% for collection in collections %}
+    <tr>
+      <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+      <td>{{ collection.item_type }}</td>
+      <td>{{ collection.description }}</td>
+      <td> N. items {{ collection.myitems.all|length }}</td>
+      <td>
+	<a href="{% url 'lenses:lens-query' %}">Add items</a>
+	<button type="button" class="update-collection btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
+	  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+        </button>
+        <button type="button" class="delete-collection btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
+	  <img src="{% static 'icons/trash.svg' %}" alt="trash">
+        </button>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>
+    No collections to show
+  </p>
+  {% endif %}
+</div>
+
+<ul>
+  <li>Button: If private make public (future)</li>
+  <li>Button: Give Access (future)</li>
+  <li>Button: Revoke Access (future)</li>
+</ul>
+{% endblock content %}
+
+
+{% block extrascripts %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      function deleteCollectionModalForm() {
+          $(".delete-collection").each(function () {
+              $(this).modalForm({
+		  formURL: $(this).data("form-url"),
+		  modalID: "#id-modal",
+		  isDeleteForm: true
+	      });
+          });
+      }
+      deleteCollectionModalForm();
+
+      function updateCollectionModalForm() {
+          $(".update-collection").each(function () {
+              $(this).modalForm({
+                  formURL: $(this).data("form-url"),
+ 		  modalID: "#id-modal"
+              });
+          });
+      }
+      updateCollectionModalForm();
+      
+      $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+          $(".alert").slideUp(500);
+      });
+      
+  });
+</script>
+{% endblock extrascripts %}

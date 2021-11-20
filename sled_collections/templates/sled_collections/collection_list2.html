@@ -1,8 +1,3 @@
-{% extends 'master_header.html' %}
-{% load static %}
-{% block content %}
-
-
 <h1>My collections</h1>
 <div class="content ">
   {% if collections %}
@@ -13,6 +8,9 @@
       <td>{{ collection.item_type }}</td>
       <td>{{ collection.description }}</td>
       <td> N. items {{ collection.myitems.all|length }}</td>
+      <td>
+	<button type="submit" form="ids-form" formaction="{% url 'sled_collections:collection-add-items' collection.pk %}">Add</button>
+      </td>
     </tr>
     {% endfor %}
   </table>
@@ -22,13 +20,5 @@
   </p>
   {% endif %}
 </div>
-
-
-<ul>
-  <li>Button: Delete collections</li>
-  <li>Button: If private make public (future)</li>
-  <li>Button: Give Access (future)</li>
-  <li>Button: Revoke Access (future)</li>
-</ul>
-
-{% endblock content %}
+<div class="controls">
+</div>

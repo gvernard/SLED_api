@@ -6,7 +6,7 @@ from lenses.views import LensDetailView, LensAddView, LensQueryView, LensCollage
 app_name = 'lenses'
 urlpatterns = [
     path('',TemplateView.as_view(template_name='lens_index.html'), name='lens-index'),
-    path('query/',LensQueryView,name='lens-query'),
+    path('query/',LensQueryView.as_view(),name='lens-query'),
     path('all-collections/',TemplateView.as_view(template_name='lens_all_collections.html'),name='lens-all-collections'),
     path('add/',LensAddView.as_view(),name='lens-add'),
     path('update/',LensUpdateView.as_view(),name='lens-update'),

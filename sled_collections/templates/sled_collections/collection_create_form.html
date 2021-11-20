@@ -1,0 +1,26 @@
+{% extends 'master_header.html' %}
+{% block content %}
+
+
+<h1>Make Collection</h1>
+<p>Keeping things nice and tidy</p>
+
+<div class="content">
+  <form id="ids-form" method="POST">
+    {% csrf_token %}
+    {{ form.obj_type }}
+    {{ form.all_items }}
+    
+    <table class="master">
+      <tr><td>{{ form.name.errors }}</td><td>{{ form.name.label_tag }}</td><td>{{ form.name }}</td></tr>
+      <tr><td>{{ form.description.errors }}</td><td>{{ form.description.label_tag }}</td><td>{{ form.description }}</td></tr>
+      <tr><td>{{ form.myitems.errors }}</td><td>{{ form.myitems.label_tag }}</td><td>{{ form.myitems }}</td></tr>
+    </table>
+    
+  </form>
+</div>
+
+
+<div><button type="submit" form="ids-form">Make collection</button></div>
+
+{% endblock content %}
