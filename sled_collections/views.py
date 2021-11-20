@@ -28,7 +28,7 @@ from random import randint
 class CollectionListView(ListView):
     model = Collection
     allow_empty = True
-    template_name = 'collection_list.html'
+    template_name = 'sled_collections/collection_list.html'
     paginate_by = 100  # if pagination is desired
     
     def get_queryset(self):
@@ -42,7 +42,7 @@ class CollectionListView(ListView):
 @method_decorator(login_required,name='dispatch')
 class CollectionDetailView(DetailView):
     model = Collection
-    template_name = 'collection_detail.html'
+    template_name = 'sled_collections/collection_detail.html'
 
     def get_queryset(self):
         return self.model.accessible_objects.owned(self.request.user)
@@ -77,7 +77,7 @@ class CollectionDetailView(DetailView):
 @method_decorator(login_required,name='dispatch')
 class CollectionDeleteView(BSModalDeleteView):
     model = Collection
-    template_name = 'collection_delete.html'
+    template_name = 'sled_collections/collection_delete.html'
     success_message = 'Success: Collection was deleted.'
     success_url = reverse_lazy('sled_collections:collections-list')
     
@@ -87,7 +87,7 @@ class CollectionDeleteView(BSModalDeleteView):
 @method_decorator(login_required,name='dispatch')
 class CollectionUpdateView(BSModalUpdateView):
     model = Collection
-    template_name = 'collection_update.html'
+    template_name = 'sled_collections/collection_update.html'
     form_class = CollectionForm2
     success_message = 'Success: Collection was updated.'
     
@@ -97,7 +97,7 @@ class CollectionUpdateView(BSModalUpdateView):
 @method_decorator(login_required,name='dispatch')
 class CollectionListView2(ListView):
     model = Collection
-    template_name = 'collection_list2.html'
+    template_name = 'sled_collections/collection_list2.html'
     #form_class = CollectionForm2
 
     def get_queryset(self):
@@ -143,7 +143,7 @@ class CollectionAddItemsView(DetailView):
 class CollectionCreateView(CreateView):
     model = Collection
     form_class = CollectionForm
-    template_name = "collection_create_form.html"
+    template_name = "sled_collections/collection_create_form.html"
     success_url = reverse_lazy('sled_collections:collections-list')
     
     def get_form_kwargs(self):
@@ -179,7 +179,7 @@ class CollectionCreateView(CreateView):
 @method_decorator(login_required,name='dispatch')
 class CollectionAddView(TemplateView):
     model = Collection
-    template_name = "collection_create_form.html"
+    template_name = "sled_collections/collection_create_form.html"
     
     def get(self, request, *args, **kwargs):
         message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'

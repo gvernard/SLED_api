@@ -91,10 +91,12 @@
     {% endif %}
   </form>
   <div>
-    <button type="button" class="add-items btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-add-items' collection.pk %}">
-      <img src="{% static 'icons/plus.svg' %}" alt="plus">
-      Add items
-    </button>
+    <form action="{% url 'lenses:lens-query' %}">
+      <button type="submit" class="add-items btn btn-sm btn-primary" >
+	<img src="{% static 'icons/plus.svg' %}" alt="plus">
+	Add items
+      </button>
+    </form>
     <button type="button" class="remove-items btn btn-sm btn-danger" data-toggle="modal" data-target="#id-modal-remove-items">
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Remove selected

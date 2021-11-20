@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'gm2m',
     'widget_tweaks',
     'bootstrap_modal_forms',
+    'sled_collections',
 ]
 
 SITE_ID = 1
@@ -96,6 +97,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
