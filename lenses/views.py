@@ -79,7 +79,7 @@ class LensQueryView(TemplateView):
     Main lens query page, allowing currently for a simple filter on the lenses table parameters
     Eventually we want to allow simultaneous queries across multiple tables
     '''
-    template_name = 'lens_query.html'
+    template_name = 'lenses/lens_query.html'
     
     def post(self, request, *args, **kwargs):
         #print('POST FORM')
@@ -107,14 +107,14 @@ def LensCollageView(request):
         ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
         if ids:
             lenses = Lenses.accessible_objects.in_ids(request.user,ids)
-        return render(request, 'lens_collage.html', {'lenses':lenses})
+        return render(request, 'lenses/lens_collage.html', {'lenses':lenses})
 
 
 # View for a single lens
 @method_decorator(login_required,name='dispatch')
 class LensDetailView(DetailView):
     model = Lenses
-    template_name = 'lens_detail.html'
+    template_name = 'lenses/lens_detail.html'
     context_object_name = 'lens'
     slug_field = 'name'
     
@@ -146,7 +146,7 @@ class AddUpdateMixin(object):
 @method_decorator(login_required,name='dispatch')
 class LensUpdateView(AddUpdateMixin,TemplateView):
     model = Lenses
-    template_name = 'lens_add_update.html'
+    template_name = 'lenses/lens_add_update.html'
     
     def get(self, request, *args, **kwargs):
         message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -217,7 +217,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
 @method_decorator(login_required,name='dispatch')
 class LensAddView(AddUpdateMixin,TemplateView):
     model = Lenses
-    template_name = 'lens_add_update.html'
+    template_name = 'lenses/lens_add_update.html'
 
     def get(self, request, *args, **kwargs):
         LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,exclude=('id',),extra=1)
@@ -280,7 +280,7 @@ class LensAddView(AddUpdateMixin,TemplateView):
 # View to delete lenses
 @method_decorator(login_required,name='dispatch')
 class LensDeleteView(TemplateView):
-    template_name = 'lens_simple_interaction.html'
+    template_name = 'lenses/lens_simple_interaction.html'
 
     def get(self, request, *args, **kwargs):
         message = 'You must select which lenses to delete from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -385,7 +385,7 @@ class LensDeleteView(TemplateView):
 class LensGiveRevokeAccessView(TemplateView):
     mode = None
     message = {'give':'Access given to','revoke':'Access revoked from'}
-    template_name = 'lens_give_revoke_access.html'
+    template_name = 'lenses/lens_give_revoke_access.html'
     
     def dispatch(self, request, *args, **kwargs):
         self.mode = self.kwargs['mode']
@@ -449,7 +449,7 @@ class LensGiveRevokeAccessView(TemplateView):
 # View to cede ownership of lenses
 @method_decorator(login_required,name='dispatch')
 class LensCedeOwnershipView(TemplateView):
-    template_name = 'lens_cede_ownership.html'            
+    template_name = 'lenses/lens_cede_ownership.html'            
     
     def get(self, request, *args, **kwargs):
         message = 'You must select lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -493,7 +493,7 @@ class LensCedeOwnershipView(TemplateView):
 # View to make lenses private
 @method_decorator(login_required,name='dispatch')
 class LensMakePrivateView(TemplateView):
-    template_name = 'lens_simple_interaction.html'            
+    template_name = 'lenses/lens_simple_interaction.html'            
     
     def get(self, request, *args, **kwargs):
         message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -541,7 +541,7 @@ class LensMakePrivateView(TemplateView):
 # View to make lenses public
 @method_decorator(login_required,name='dispatch')
 class LensMakePublicView(TemplateView):
-    template_name = 'lens_simple_interaction.html'            
+    template_name = 'lenses/lens_simple_interaction.html'            
     
     def get(self, request, *args, **kwargs):
         message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
@@ -604,7 +604,7 @@ class LensMakePublicView(TemplateView):
 # View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
 @method_decorator(login_required,name='dispatch')
 class LensMergeResolutionView(TemplateView):
-    template_name = 'lens_merge_resolution.html'            
+    template_name = 'lenses/lens_merge_resolution.html'            
     
     def get(self, request, *args, **kwargs):
         ids = request.GET.getlist('ids')
@@ -627,7 +627,7 @@ class LensMergeResolutionView(TemplateView):
 # View to create a lens collection
 @method_decorator(login_required,name='dispatch')
 class LensMakeCollectionView(TemplateView):
-    template_name = 'lens_simple_interaction.html'
+    template_name = 'lenses/lens_simple_interaction.html'
     
     def get(self, request, *args, **kwargs):
         message = 'You are not authorized to view this page.'

@@ -12,11 +12,7 @@
 <link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_visit_card.css' %}"/>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
-{% if request.resolver_match.url_name == 'lens-add' %}
-<h1>Add new lenses</h1>
-{% else %}
 <h1>Update lenses</h1>
-{% endif %}
 
 <p>
   To be within the check radius of existing lenses set RA= 8.368 and DEC= -5.6694
@@ -26,7 +22,8 @@
   <div class="form-div">
     {% csrf_token %}
     {{ lens_formset.management_form }}
-    {{ lens_formset.non_form_errors }}
+    {{ lens_formset.non_field_errors }}
+    <input type="hidden" name="check" value="true">
     
     <table class="master">
       {% for form,existing in new_existing %}
@@ -68,7 +65,6 @@
 		<td>
 		  <div class="column">
 		    <table>
-		      <tr><td>{{ form.n_img.errors }}</td><td>{{ form.n_img.label_tag }}</td><td>{{ form.n_img }}</td></tr>
 		      <tr><td>{{ form.lens_type.errors }}</td><td>{{ form.lens_type.label_tag }}</td><td>{{ form.lens_type }}</td></tr>
 		      <tr><td>{{ form.source_type.errors }}</td><td>{{ form.source_type.label_tag }}</td><td>{{ form.source_type }}</td></tr>
 		      <tr><td>{{ form.image_conf.errors }}</td><td>{{ form.image_conf.label_tag }}</td><td>{{ form.image_conf }}</td></tr>
@@ -82,8 +78,7 @@
 		<td>
 		  <div class="column">
 		    <table>
-		      <tr><td colspan="3"><div class="lens-mugshot"><img src="{% static 'lenses/mugshots/'%}{{form.mugshot_name.value}}" style="width: 100%; height: auto;"></div></td></tr>
-		      <tr><td>{{ form.mugshot_name.errors }}</td><td>{{ form.mugshot_name.label_tag }}</td><td>{{ form.mugshot_name }}</td></tr>
+		      <tr><td><div class="lens-mugshot"><img src="" alt="Lens image" /></div></td></tr>
 		    </table>
 		  </div>
 		</td>
@@ -107,7 +102,7 @@
 	  
 	  {% if existing %}
 	  {% for lens in existing %}
-	  {% include 'lens_visit_card.html' with lens=lens %}
+	  {% include 'lenses/lens_visit_card.html' with lens=lens %}
 	  {% endfor %}
 	  {% endif %}
 	  

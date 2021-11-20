@@ -51,8 +51,8 @@
 
 <div class="content">
   <form id="ids-form" method="POST">
+    {% csrf_token %}
     <span class="errorlist">{{ error_message }}</span>
-
 
     <div style="width:100%;">
       <p>
@@ -74,7 +74,7 @@
     <br>
     <br>
     
-    {% include "lens_list_executive.html" with lenses=lenses %}
+    {% include "lenses/lens_list_executive.html" with lenses=lenses %}
 
   </form>
 </div>

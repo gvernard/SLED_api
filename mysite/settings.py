@@ -107,7 +107,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-which_database="remote"
+which_database="local"
 
 if which_database == "local":
     DATABASES = {

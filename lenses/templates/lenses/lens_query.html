@@ -38,7 +38,7 @@
 
 <form id="lens-query" method="POST">
   {% csrf_token %}
-  {% include "lens_query_fields.html" %}    
+  {% include "lenses/lens_query_fields.html" %}    
 </form>
 <button type="submit" form="lens-query">Submit</button>
 
@@ -47,7 +47,7 @@
   <form id="ids-form" method="POST">
     {% csrf_token %}
     <span class="errorlist">{{ error_message }}</span>
-    {% include "lens_list_executive.html" with lenses=lenses %}    
+    {% include "lenses/lens_list_executive.html" with lenses=lenses %}    
   </form>
 </div>
 

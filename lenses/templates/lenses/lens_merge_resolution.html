@@ -21,11 +21,11 @@
     
     <tr>
       <td valign="top">
-	{% include 'lens_visit_card.html' with lens=new_lens %}
+	{% include 'lenses/lens_visit_card.html' with lens=new_lens %}
       </td>
       <td valign="top">
 	{% for lens in existing %}
-	{% include 'lens_visit_card.html' with lens=lens %}
+	{% include 'lenses/lens_visit_card.html' with lens=lens %}
 	{% empty %}
 	No duplicates, something went wrong!
 	{% endfor %}

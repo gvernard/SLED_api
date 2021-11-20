@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
-
+<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 <script>
   $(document).ready(function(){
       // Create Select2 for the users
@@ -39,6 +39,7 @@
 
 <div class="content">
   <form id="ids-form" method="POST">
+    {% csrf_token %}
     <span class="errorlist">{{ error_message }}</span>
 
     <div style="width:100%;">
@@ -51,7 +52,7 @@
     <br>
     <br>
     
-    {% include "lens_list_executive.html" with lenses=lenses %}
+    {% include "lenses/lens_list_executive.html" with lenses=lenses %}
 
     <div>
       <textarea name="justification" placeholder="Any message for the new owner?" cols="60" rows="3"></textarea>

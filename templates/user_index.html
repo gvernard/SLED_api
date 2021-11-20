@@ -156,7 +156,8 @@
 
 <div class="content ">
   <form id="ids-form" method="POST">
-    {% include "lens_list_executive.html" with lenses=lenses %}
+    {% csrf_token %}
+    {% include "lenses/lens_list_executive.html" with lenses=lenses %}
   </form>
 </div>
 
