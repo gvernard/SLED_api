@@ -1,0 +1,82 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+  <div class="modal-dialog">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+<div>
+  <table>
+    <thead>
+      <th>Sender</th>
+      <th>Recipient</th>
+      <th>Type</th>
+      <th>Description</th>
+      <th>Objects</th>
+      <th>Level</th>
+      <th>Read</th>
+      <th></th>
+    </thead>
+    <tbody>
+      {% for note in notes %}
+      <tr>
+	<td>{{ note.actor }}</td>
+	<td>{{ note.recipient }}</td>
+	<td>{{ note.data.note_type }}</td>
+	<td>{{ note.verb }}</td>
+	<td>{{ note.data.object_ids }}</td>
+	<td>{{ note.level }}</td>
+	{% if note.unread %}
+	<td class="unread">Unread</td>
+	{% else %}
+	<td class="read">Read</td>
+	{% endif %}
+	<td>
+	  <button type="button" class="view-note btn btn-sm btn-primary" data-form-url="{% url 'sled_notifications:notifications-detail' note.pk %}">
+	    <img src="{% static 'icons/eye-fill.svg' %}" alt="eye">
+	    Read
+          </button>
+	</td>
+      </tr>
+      {% empty %}
+      <tr>
+	<td colspan="7">No notifications</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock content %}
+
+
+{% block extrascripts %}
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<style>
+  .read {color:green;}
+  .unread {color:red;}
+</style>
+<script type="text/javascript">
+  $(document).ready(function() {
+
+      function viewNotificationModalForm() {
+          $(".view-note").each(function () {
+	      $(this).on("click", function(){
+		  $(this).closest('td').prev().text('Read').removeClass('unread').addClass('read');
+	      });
+               $(this).modalForm({
+                   formURL: $(this).data("form-url"),
+ 	   	   modalID: "#id-modal"
+               });
+          });
+      }
+      viewNotificationModalForm();
+
+  });
+</script>
+{% endblock extrascripts %}

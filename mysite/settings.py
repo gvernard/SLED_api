@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'bootstrap_modal_forms',
     'sled_collections',
+    'sled_notifications',
     'sled_tasks',
 ]
 
