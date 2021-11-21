@@ -22,7 +22,9 @@ class UserProfileView(TemplateView):
             recipients.append(','.join(unames))
         zipped = zip(recipients,tasks)
         N_tasks = len(tasks)
-        N_tasks_all = ConfirmationTask.custom_manager.all_for_user(user).count()
+        N_owned = ConfirmationTask.accessible_objects.owned(user).count()
+        N_recipient = ConfirmationTask.custom_manager.all_as_recipient(user).count()
+        N_tasks_all = N_owned + N_recipient
 
         
         # Get unread notifications

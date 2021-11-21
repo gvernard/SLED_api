@@ -26,7 +26,7 @@ from django.contrib.staticfiles import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls'), name='home'),
-    path('confirmation/', include('confirmation.urls'), name='confirmation'),
+    path('sled_tasks/', include('sled_tasks.urls'), name='sled_tasks'),
     path('lenses/', include('lenses.urls'), name='lenses'),
     path('users/', include('users.urls'), name='users'),
     path('groups/', include('groups.urls'), name='groups'),

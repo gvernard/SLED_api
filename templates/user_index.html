@@ -51,7 +51,7 @@
 
 
 <div class="section">
-  <h1>Pending Confirmation Tasks ({{ N_tasks }})</h1>
+  <h1>Pending Tasks ({{ N_tasks }})</h1>
 </div>
 <div>
   {% if N_tasks > 0 %}
@@ -78,7 +78,7 @@
   {% else %}
   <p>No pending confirmation tasks</p>
   {% endif %}
-  <a href="{% url 'confirmation:list-tasks' %}">All tasks ({{ N_tasks_all }})</a>
+  <a href="{% url 'sled_tasks:tasks-list' %}">All tasks ({{ N_tasks_all }})</a>
 </div>
 
 

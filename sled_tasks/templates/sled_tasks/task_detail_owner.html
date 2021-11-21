@@ -1,0 +1,70 @@
+{% extends 'master_header.html' %}
+{% block content %}
+<div class="content container">
+
+  {% if task.status == "P" %}
+  <p style="font-weight:bold;color:red">
+    Pending
+  </p>
+  {% else %}
+  <p style="font-weight:bold;color:green">
+    Completed
+  </p>
+  {% endif %}
+
+  <div class="details">
+    <table>
+      <tr><td>Task:</td><td>{{ task.task_type }}</td></tr>
+      <tr><td>Cargo:</td><td>
+	  {{ task.cargo }}
+      </td></tr>
+      <tr><td>Created at:</td><td>{{ task.created_at }}</td></tr>
+      <tr><td>Modified at:</td><td>{{ task.modified_at }}</td></tr>
+      <tr><td>Allowed responses:</td><td>{{ allowed }}</td></tr>
+      <tr><td>Sender comment:</td><td>{{ task.cargo.comment }}</td></tr>
+    </table>
+  </div>
+
+  
+  <div class="heard_from">
+    <p>
+      Heard from:
+    </p>
+    {% for response in hf %}
+    <table>
+      <thead>
+	<tr><th>User name</th><th>Response</th><th>At</th><th>Comment</th><tr>
+      </thead>
+      <tbody>
+	<tr>
+	  <td>{{ response.name }}</td>
+	  <td>{{ response.response }}</td>
+	  <td>{{ response.created_at }}</td>
+	  <td>{{ response.response_comment }}</td>
+	</tr>
+      </tbody>
+    </table>
+    {% empty %}
+    <p>Nobody</p>
+    {% endfor %}
+  </div>
+
+
+  <div class="not_heard_from">
+    <p>
+      Not heard from:
+    </p>
+    {% for receiver in nhf %}
+    <table>
+      <tr><td>{{ receiver }}</td></tr>
+    </table>
+    {% empty %}
+    <p>
+      Everybody responded
+    </p>
+    {% endfor %}
+  </div>
+  
+</div>
+
+{% endblock content %}

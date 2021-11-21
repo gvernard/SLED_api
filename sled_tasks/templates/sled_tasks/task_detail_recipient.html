@@ -1,8 +1,6 @@
 {% extends 'master_header.html' %}
 {% block content %}
 <div class="content container">
-
-  {% if owned %}
   
   {% if task.status == "P" %}
   <p style="font-weight:bold;color:red">
@@ -14,65 +12,8 @@
   </p>
   {% endif %}
 
-  <div class="details">
-    <table>
-      <tr><td>Task:</td><td>{{ task.task_type }}</td></tr>
-      <tr><td>Cargo:</td><td>
-	  {{ task.cargo }}
-      </td></tr>
-      <tr><td>Created at:</td><td>{{ task.created_at }}</td></tr>
-      <tr><td>Modified at:</td><td>{{ task.modified_at }}</td></tr>
-      <tr><td>Allowed responses:</td><td>{{ allowed }}</td></tr>
-      <tr><td>Sender comment:</td><td>{{ task.cargo.comment }}</td></tr>
-    </table>
-  </div>
-  
-  <div class="heard_from">
-    <p>
-      Heard from:
-    </p>
-    {% if hf %}
-    <table>
-      <thead>
-	<tr><th>User name</th><th>Response</th><th>At</th><th>Comment</th><tr>
-      </thead>
-      {% for response in hf %}
-      <tr>
-	<td>{{ response.name }}</td>
-	<td>{{ response.response }}</td>
-	<td>{{ response.created_at }}</td>
-	<td>{{ response.response_comment }}</td>
-      </tr>
-      {% endfor %}
-    </table>
-    {% else %}
-    <p>Nobody</p>
-    {% endif %}
-  </div>
-
-  <div class="not_heard_from">
-    <p>
-      Not heard from:
-    </p>
-    {% if nhf %}
-    <table>
-      {% for receiver in nhf %}
-      <tr><td>{{ receiver }}</td></tr>
-      {% endfor %}
-    </table>
-    {% else %}
-    <p>
-      Everybody responded
-    </p>
-    {% endif %}
-  </div>
-
-
-  {% else %}
-  
   <p class="title">Task type: <span class="highlight">{{task.task_type}}</span></p>
   
-
   {% if db_response.response %}
   <p style="font-weight:bold">
     You have responded to this task at: {{ db_response.created_at }}
@@ -87,8 +28,8 @@
       &ldquo;{{ comment }}&rdquo;
     </div>
     {% endif %}
-
-
+    
+    
     {% if comment %}    
 
     {% if task.task_type == "CedeOwnership" %}
@@ -110,9 +51,9 @@
   </div>
   
   <table>
-    {% for link in links %}
+    {% for obj in objects %}
     <tr>
-      <td><a href="{{ link.link }}" target="_blank">{{ link.name }}</a></td>
+      <td><a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a></td>
     </tr>
     {% endfor %}    
   </table>
@@ -123,15 +64,14 @@
   <p>Do you authorize this action?</p>
   {% endif %}
   
-  <form method="post">
+  <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
+    <input type="hidden" name="task_id" value="{{task.id}}">
     {% if not db_response.response %}
     <input type="submit" value="Submit">
     {% endif %}
   </form>
-
-  {% endif %}
   
 </div>
 

@@ -26,8 +26,8 @@ class ConfirmationTaskManager(models.Manager):
     def pending_for_user(self,user):
         return super().get_queryset().filter(status='P').filter(Q(owner=user)|Q(recipients__username=user.username))
 
-    def all_for_user(self,user):
-        return super().get_queryset().filter(Q(owner=user)|Q(recipients__username=user.username))
+    def all_as_recipient(self,user):
+        return super().get_queryset().filter(Q(recipients__username=user.username))
 
 class ConfirmationTask(SingleObject):
     """
@@ -92,7 +92,7 @@ class ConfirmationTask(SingleObject):
             raise ValueError(task_type)
 
     def __str__(self):
-        return '%s_$s' % (self.task_type,self.id)
+        return '%s_%s' % (self.task_type,str(self.id))
 
     def get_absolute_url(self):
         return reverse('confirmation:single_task',kwargs={'task_id':self.id})
@@ -184,7 +184,7 @@ class ConfirmationTask(SingleObject):
         """
         Registers the given users response to the confirmation task
         """
-        if user.username not in self.recipient_names:
+        if user not in self.recipients.all():
             raise ValueError(self.recipient_names,user.username) # Need custom exception here
         if response not in self.allowed_responses(): 
             raise ValueError(response) # Need custom exception here
@@ -273,8 +273,8 @@ class CedeOwnership(ConfirmationTask):
     def finalizeTask(self,**kwargs):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
+        heir = self.get_all_recipients()[0]
         if response == 'yes':
-            heir = self.get_all_recipients()[0]
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])

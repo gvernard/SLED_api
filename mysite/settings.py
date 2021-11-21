@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'bootstrap_modal_forms',
     'sled_collections',
+    'sled_tasks',
 ]
 
 SITE_ID = 1
