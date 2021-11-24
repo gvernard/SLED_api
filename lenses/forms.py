@@ -4,6 +4,35 @@ from django.core.exceptions import ValidationError
 from lenses.models import Lenses
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
+
+class CustomM2M(forms.ModelMultipleChoiceField):
+    def label_from_instance(self,item):
+        #return "%s" % item.get_absolute_url()
+        return "%s" % item.__str__()
+
+    def clean(self,item):
+        return(item)
+    
+class dum_form(BSModalModelForm):
+    class Meta:
+        model = Lenses
+        exclude = ['name']
+        widgets = {
+            'info': forms.Textarea({'placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
+            'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+            'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+            'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
+        }
+
+class dummer_form(BSModalForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Justification in case public lenses are deleted.','rows':3,'cols':30}))
+                
+    class Meta:
+        fields = ['ids','justification']
+
+        
 class LensQueryForm(forms.Form):
     ra_min = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
     ra_max = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
