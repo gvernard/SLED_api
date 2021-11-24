@@ -144,7 +144,7 @@
 	      name = $(this).parent().parent().find('a').text();
 	      names.push('<li>'+name+'</li>');
 	  });
-	  if( names.length == 0){
+	  if( names.length == 0 ){
               $("#id-modal-remove-items").find('.modal-body').html('You need to select at least one item!');
 	  } else {
 	      str = '<ul>' + names.join('') + '</ul>';
