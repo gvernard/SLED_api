@@ -126,3 +126,4 @@ trial_sample/images/
 lenses/static/lenses/mugshots/*.png
 static/css/*
 static/js/*
+static/icons/*

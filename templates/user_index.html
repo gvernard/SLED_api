@@ -2,13 +2,6 @@
 {% load static %}
 
 {% block content %}
-<style>
-  .notifications td {margin:0px;padding:2px;}
-  .tasks td {margin:0px;padding:2px;}
-  .collections td {margin:0px;padding:2px;}
-</style>
-
-
 <!-- Modal div -->
 <div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
@@ -174,15 +167,25 @@
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-public' %}">Make public</button>
-  <button type="button" class="process-lenses cede-ownership btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
+  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>  
+  <button type="button" class="process-lenses make-private btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
+    <img src="{% static 'icons/lock-fill.svg' %}" alt="trash">
+    Make private
+  </button>
+
+  <!-- Dangerous buttons - revealing sensitive information if not used properly -->
+  <button type="button" class="process-lenses make-public btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-make-public' %}">
     <img src="{% static 'icons/people-fill.svg' %}" alt="trash">
+    Make public
+  </button>
+  <button type="button" class="process-lenses cede-ownership btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
+    <img src="{% static 'icons/forward-fill.svg' %}" alt="trash">
     Cede ownership
   </button>
   <button type="button" class="process-lenses delete-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete lenses
   </button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
 </div>
 {% endblock content %}
 
@@ -190,6 +193,12 @@
 {% block extrastyles %}
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+  .notifications td {margin:0px;padding:2px;}
+  .tasks td {margin:0px;padding:2px;}
+  .collections td {margin:0px;padding:2px;}
+  .exe_summary td {margin:0px;padding:2px;}
+</style>
 {% endblock extrastyles %}
 
 

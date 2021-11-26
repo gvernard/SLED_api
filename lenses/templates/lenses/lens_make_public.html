@@ -1,0 +1,22 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+Make lenses public?
+{% endblock title %}
+
+{% block content %}
+<div>
+  <ul>
+    {% for lens in lenses %}
+    <li>{{ lens }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+{{ form.ids }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-danger">Make public</button>
+{% endblock action_button %}

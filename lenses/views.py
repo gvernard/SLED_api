@@ -16,30 +16,33 @@ from django.contrib import messages
 from urllib.parse import urlparse
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
-from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm, LensDeleteForm, LensCedeOwnershipForm
+#from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm, LensDeleteForm, LensCedeOwnershipForm
+from . import forms
 
 from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView
+from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
 
-
-
-
-@method_decorator(login_required,name='dispatch')
-class LensCedeOwnershipView(BSModalFormView):
-    template_name = 'lenses/lens_cede_ownership.html'
-    form_class = LensCedeOwnershipForm
-    success_message = 'to be overriden'
+class CreateUpdateAjaxMixin(object):
+    """
+    Mixin which passes or saves object based on request type.
+    """
+    def save(self, commit=True):
+        if not self.request.is_ajax():
+            instance = super(CreateUpdateAjaxMixin, self).save(commit=commit)
+           # write your custom code here and don't forget to save the instance once more
+        else:
+            instance = super(CreateUpdateAjaxMixin, self).save(commit=False)
+        return instance
     
+# Mixin inherited by all the views that are based on Modals
+class ModalIdsBaseMixin(BSModalFormView,CreateUpdateAjaxMixin):
     def get_initial(self):
         ids = self.request.GET.getlist('ids')
         ids_str = ','.join(ids)
         return {'ids': ids_str}
-
-    def get_success_url(self):
-        messages.add_message(self.request, messages.SUCCESS,self.success_message)
-        return reverse('users:user-profile')
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         ids = self.request.GET.getlist('ids')
@@ -48,45 +51,37 @@ class LensCedeOwnershipView(BSModalFormView):
         return context
 
     def form_valid(self,form):
-        return_message = []
+        if not is_ajax(self.request.META):
+            self.my_form_valid(form)
+        response = super().form_valid(form)
+        return response
+
+
+@method_decorator(login_required,name='dispatch')
+class LensCedeOwnershipView(ModalIdsBaseMixin):
+    template_name = 'lenses/lens_cede_ownership.html'
+    form_class = forms.LensCedeOwnershipForm
+    success_url = reverse_lazy('users:user-profile')
+    
+    def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         heir = form.cleaned_data['heir']
         heir = Users.objects.filter(id=heir.id)
         justification = form.cleaned_data['justification']
-        self.request.user.cedeOwnership(lenses,heir,justification)
-
+        self.request.user.cedeOwnership(lenses,heir,justification)        
         heir_dict = heir.values('first_name','last_name')[0]
-        self.success_message = 'User <strong>%s %s</strong> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
-        response = super().form_valid(form)
-        return response
-
+        message = 'User <strong>%s %s</strong> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+        messages.add_message(self.request,messages.SUCCESS,message)
 
             
 @method_decorator(login_required,name='dispatch')
-class LensDeleteView(BSModalFormView):
+class LensDeleteView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_delete.html'
-    form_class = LensDeleteForm
-    success_message = 'to be overriden'
+    form_class = forms.LensDeleteForm
+    success_url = reverse_lazy('users:user-profile')
     
-    def get_initial(self):
-        ids = self.request.GET.getlist('ids')
-        ids_str = ','.join(ids)
-        return {'ids': ids_str}
-
-    def get_success_url(self):
-        messages.add_message(self.request, messages.SUCCESS,self.success_message)
-        return reverse('users:user-profile')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        ids = self.request.GET.getlist('ids')
-        ids_str = ','.join(ids)
-        context['lenses'] = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        return context
-
-    def form_valid(self,form):
-        return_message = []
+    def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
         justification = form.cleaned_data['justification']
         qset = Lenses.accessible_objects.in_ids(self.request.user,ids)
@@ -100,7 +95,8 @@ class LensDeleteView(BSModalFormView):
             for obj in pub:
                 cargo['object_ids'].append(obj.id)
             mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
-            return_message.append('The admins have been notified to approve or reject the deletion of %d public lenses.' % (len(pub)))
+            message = 'The admins have been notified to approve or reject the deletion of %d public lenses.' % (len(pub))
+            messages.add_message(self.request,messages.SUCCESS,message)
                    
         pri = qset.filter(access_level='PRI')
         if pri:
@@ -143,16 +139,34 @@ class LensDeleteView(BSModalFormView):
             ### Finally, delete the private lenses
             for lens in pri:
                 lens.delete()       
-            return_message.append('%d private lenses have been deleted.' % (len(pri)))
-
-        self.success_message = ' '.join(return_message)
-        response = super().form_valid(form)
-        return response
+            message = '%d private lenses have been deleted.' % (len(pri))
+            messages.add_message(self.request,messages.SUCCESS,message)
 
 
 
+@method_decorator(login_required,name='dispatch')
+class LensMakePublicView(ModalIdsBaseMixin):
+    template_name = 'lenses/lens_make_public.html'            
+    form_class = forms.LensMakePublicForm
+    success_url = reverse_lazy('users:user-profile')
 
+    def my_form_valid(self,form):
+        ids = form.cleaned_data['ids'].split(',')
+        lenses = list(Lenses.accessible_objects.in_ids(self.request.user,ids))
+        print('view: ',lenses)
+        duplicates = self.request.user.makePublic(lenses)
+        if duplicates:
+            #request.user.makePublic(no_prob) # make the non-duplicate objects public anyway
+            #return redirect(reverse('lenses:lens-merge-resolution',kwargs={'ids':to_check_ids}))
+            redirect = HttpResponseRedirect(reverse('lenses:lens-merge-resolution'))
+            print(redirect['Location'])
+            redirect['Location'] += '?' + '&'.join(['ids={}'.format(x) for x in duplicates])
+            return redirect
+        else:
+            message = '<p>%d private lenses are know public.</p>' % (len(lenses))
+            messages.add_message(self.request,messages.SUCCESS,message)
 
+                
 
 
 
@@ -164,12 +178,6 @@ class LensDeleteView(BSModalFormView):
 
 
     
-
-
-
-
-
-
 def query_search(form, user):
     '''
     This function performs the filtering on the lenses table, by parsing the filter values from the request
@@ -236,23 +244,23 @@ class LensQueryView(TemplateView):
     
     def post(self, request, *args, **kwargs):
         #print('POST FORM')
-        form = LensQueryForm(request.POST)
+        form = forms.LensQueryForm(request.POST)
         if form.is_valid():
             #print('form valid')
             form_values = form.cleaned_data.values()
             #print(form.cleaned_data)
             input_values = [value not in [None, False, []] for value in form_values]
             if sum(input_values) == 0:
-                return self.render_to_response({'lenses':None, 'form':LensQueryForm(initial=form.cleaned_data)})
+                return self.render_to_response({'lenses':None, 'form':forms.LensQueryForm(initial=form.cleaned_data)})
             lenses = query_search(form.cleaned_data, request.user)
-            return self.render_to_response({'lenses':lenses, 'form':LensQueryForm(initial=form.cleaned_data)})
+            return self.render_to_response({'lenses':lenses, 'form':forms.LensQueryForm(initial=form.cleaned_data)})
         else:
-            return self.render_to_response({'lenses':None, 'form':LensQueryForm})
+            return self.render_to_response({'lenses':None, 'form':forms.LensQueryForm})
 
 
     def get(self, request, *args, **kwargs):
         lenses = Lenses.objects.none()
-        return self.render_to_response({'lenses':lenses, 'form':LensQueryForm})
+        return self.render_to_response({'lenses':lenses, 'form':forms.LensQueryForm})
 
 
 def LensCollageView(request):
@@ -324,7 +332,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
 
         if referer == request.path:
             # Submitting to itself, perform all the checks
-            LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=0)
+            LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
             myformset = LensFormSet(data=request.POST,instance=request.user)
             if myformset.has_changed() and myformset.is_valid():
                 instances = myformset.save(commit=False)
@@ -357,7 +365,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
             ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
             
             if ids:
-                LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=0)
+                LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
                 myformset = LensFormSet(queryset=Lenses.accessible_objects.in_ids(request.user,ids),instance=request.user)
                 return self.render_to_response(self.get_my_context(myformset))
             else:
@@ -373,7 +381,7 @@ class LensAddView(AddUpdateMixin,TemplateView):
     template_name = 'lenses/lens_add_update.html'
 
     def get(self, request, *args, **kwargs):
-        LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,exclude=('id',),extra=1)
+        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,exclude=('id',),extra=1)
         myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
         context = self.get_my_context(myformset)
         return self.render_to_response(context)
@@ -383,7 +391,7 @@ class LensAddView(AddUpdateMixin,TemplateView):
 
         if referer == request.path:
             # Submitting to itself, perform all the checks
-            LensFormSet = inlineformset_factory(Users,Lenses,formset=BaseLensAddUpdateFormSet,form=BaseLensForm,extra=0)
+            LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
             myformset = LensFormSet(data=request.POST)
             if myformset.is_valid():
                 instances = myformset.save(commit=False)
@@ -554,67 +562,6 @@ class LensMakePrivateView(TemplateView):
 
 
     
-# View to make lenses public
-@method_decorator(login_required,name='dispatch')
-class LensMakePublicView(TemplateView):
-    template_name = 'lenses/lens_simple_interaction.html'            
-    
-    def get(self, request, *args, **kwargs):
-        message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-        return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-    
-    def post(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-        
-        if referer == request.path:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            qset = Lenses.accessible_objects.in_ids(request.user,ids)
-            objs = list(qset)
-            lenses = list(qset.values())
-            for i,lens in enumerate(qset):
-                lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
-                lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
-            
-            if ids:
-                duplicates = request.user.makePublic(objs)
-                if duplicates:
-                    to_check_ids = [obj.id for obj in duplicates]
-                    no_prob = []
-                    for obj in objs:
-                        if obj.id not in to_check_ids:
-                            no_prob.append(obj)
-                    #request.user.makePublic(no_prob) # make the non-duplicate objects public anyway
-                    #return redirect(reverse('lenses:lens-merge-resolution',kwargs={'ids':to_check_ids}))
-                    redirect = HttpResponseRedirect(reverse('lenses:lens-merge-resolution'))
-                    print(redirect['Location'])
-                    redirect['Location'] += '?' + '&'.join(['ids={}'.format(x) for x in to_check_ids])
-                    return redirect
-                else:
-                    message = '<p>%d private lenses are know public.</p>' % (len(lenses))
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
-                
-            else:
-                message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-                return self.render_to_response({'lenses': lenses,'error_message':message})
-
-        else:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            if ids:
-                # Display the lenses with info on the users/groups with access
-                qset = Lenses.accessible_objects.in_ids(request.user,ids)
-                lenses = list(qset.values())
-                if qset.filter(access_level='PUB').count() > 0:
-                    message = 'You are also selecting public lenses!'
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
-                else:
-                    for i,lens in enumerate(qset):
-                        lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
-                        lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
-                    return self.render_to_response({'lenses': lenses})
-            else:
-                message = 'You must select private lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
 
 
 # View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user

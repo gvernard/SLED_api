@@ -12,6 +12,7 @@ from notifications.signals import notify
 
 from operator import itemgetter
 from itertools import groupby
+import inspect
 
 from . import SledGroup
 from . import SingleObject
@@ -98,7 +99,8 @@ class Users(AbstractUser,GuardianUserMixin):
         except AssertionError as error:
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
-
+            raise
+            
     def giveAccess(self,objects,target_users):
         """
         Gives access to the primary object(s) that are owned by the user to a list of users or groups.
@@ -223,6 +225,7 @@ class Users(AbstractUser,GuardianUserMixin):
         except AssertionError as error:
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
+            raise
         else:
             all_ugs = []
             ug_obj_pairs = []
@@ -267,13 +270,13 @@ class Users(AbstractUser,GuardianUserMixin):
         for obj in objects:
             if obj.access_level == 'PRI':
                 objs_to_update.append(obj)
-        #print(objs_to_update)
 
         try:
             assert (len(objs_to_update)>0),"All objects are already public"
         except AssertionError as error:
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
+            raise
         else:
             object_type = objs_to_update[0]._meta.model.__name__
             model_ref = apps.get_model(app_label='lenses',model_name=object_type)
@@ -387,7 +390,8 @@ class Users(AbstractUser,GuardianUserMixin):
             print(error)
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print("The operation of '"+caller[1][3]+"' should not proceed")
-
+            raise
+        
         cargo = {}
         cargo["object_type"] = objects[0]._meta.model.__name__
         ids = []
