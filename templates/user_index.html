@@ -17,184 +17,155 @@
   </div>
 </div>
 
-<!-- Message div -->
-<div>
-  {% if messages %}
-  {% for message in messages %}
-  {% if message.tags %}
-  <div style="border-radius:0;" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  {% else %}
-  <div style="border-radius:0;">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  {% endif %}
-  {% endfor %}
-  {% endif %}
-</div>
-
-        
-
-
-
 
 <div class="section">
   <h1>User Profile page</h1>
 </div>
 
+
 <div class="section">
   <h1>My details</h1>
+
+  <div class="content container">
+    <table class="sortable">
+      <tr>
+	<th class="th-center">Name</th>
+	<th class="th-center">Affiliation</th>    
+      </tr>
+      <tr>
+	<td class="td-center">{{user.username}}</td>
+	<td class="td-center">{{user.affiliation}}</td>
+      </tr>
+    </table>
+  </div>
 </div>
-<div class="content container">
-  <table class="sortable">
-    <tr>
-      <th class="th-center">Name</th>
-      <th class="th-center">Affiliation</th>    
-    </tr>
-    <tr>
-      <td class="td-center">{{user.username}}</td>
-      <td class="td-center">{{user.affiliation}}</td>
-    </tr>
-  </table>
-</div>
+
 
 <div class="section">
   <h1>My Groups</h1>
+  <div class="content container">
+    <table class="sortable">
+      <tr>
+	<th class="th-center">Name</th>
+	<th class="th-center">Description</th>  
+      </tr>
+      {% for group in user.getGroupsIsMember %}
+      <tr>
+	<td class="td-center"><a href="{% url 'groups:group-detail' group_name=group.name %}">{{group.name}}</td>
+	<td class="td-center">{{group.description}}</td>  
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
 </div>
-<div class="content container">
-  <table class="sortable">
-    <tr>
-      <th class="th-center">Name</th>
-      <th class="th-center">Description</th>  
-    </tr>
-    {% for group in user.getGroupsIsMember %}
-    <tr>
-      <td class="td-center"><a href="{% url 'groups:group-detail' group_name=group.name %}">{{group.name}}</td>
-      <td class="td-center">{{group.description}}</td>  
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-
 
 
 <div class="section">
   <h1>Pending Tasks ({{ N_tasks }})</h1>
-</div>
-<div>
-  {% if N_tasks > 0 %}
-  <table class="tasks sortable">
-    <thead>
-      <tr>
-	<th>Type</th>
-	<th>Created at</th>
-	<th>From</th>
-	<th>Receivers</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for recipients,task in pending_conf %}
-      <tr>
-	<td>{{ task.task_type }}</td>
-	<td>{{ task.created_at }}</td>
-	<td>{{ task.owner }}</td>
-	<td>{{ recipients }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>No pending confirmation tasks</p>
-  {% endif %}
-  <a href="{% url 'sled_tasks:tasks-list' %}">All tasks ({{ N_tasks_all }})</a>
+  <div>
+    {% if N_tasks > 0 %}
+    <table class="tasks sortable">
+      <thead>
+	<tr>
+	  <th>Type</th>
+	  <th>Created at</th>
+	  <th>From</th>
+	  <th>Receivers</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for recipients,task in pending_conf %}
+	<tr>
+	  <td>{{ task.task_type }}</td>
+	  <td>{{ task.created_at }}</td>
+	  <td>{{ task.owner }}</td>
+	  <td>{{ recipients }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No pending confirmation tasks</p>
+    {% endif %}
+    <a href="{% url 'sled_tasks:tasks-list' %}">All tasks ({{ N_tasks_all }})</a>
+  </div>
 </div>
 
 
 <div class="section">
   <h1>New Notifications ({{ unread_notifications|length }})</h1>
+  <div>
+    {% if unread_notifications %}
+    <table class="notifications sortable">
+      <thead>
+	<tr>
+	  <th>Sender</th>
+	  <th>Sent at</th>
+	  <th>Level</th>
+	  <th>Verb</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for note in unread_notifications %}
+	<tr>
+	  <td>{{ note.actor }}</td>
+	  <td>{{ note.timestamp }}</td>
+	  <td>{{ note.level }}</td>
+	  <td>{{ note.verb }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No new notifications</p>
+    {% endif %}
+    <a href="{% url 'sled_notifications:notifications-list' %}">All notifications({{ N_note_all }})</a>
+  </div>
 </div>
-<div>
-  {% if unread_notifications %}
-  <table class="notifications sortable">
-    <thead>
-      <tr>
-	<th>Sender</th>
-	<th>Sent at</th>
-	<th>Level</th>
-	<th>Verb</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for note in unread_notifications %}
-      <tr>
-	<td>{{ note.actor }}</td>
-	<td>{{ note.timestamp }}</td>
-	<td>{{ note.level }}</td>
-	<td>{{ note.verb }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>No new notifications</p>
-  {% endif %}
-   <a href="{% url 'sled_notifications:notifications-list' %}">All notifications({{ N_note_all }})</a>
-</div>
-
-
 
 
 <div class="section">
   <h1>My Collections ({{ collections|length }}) </h1>
+  <div class="content ">
+    {% if collections %}
+    <table class="collections">
+      <thead>
+	<tr>
+	  <th>Name</th>
+	  <th>Type</th>
+	  <th>Description</th>
+	  <th>N. of items</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for collection in collections %}
+	<tr>
+	  <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+	  <td>{{ collection.item_type }}</td>
+	  <td>{{ collection.description }}</td>
+	  <td>{{ collection.myitems.all|length }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p>No collections to display</p>
+    {% endif %}
+    <a href="{% url 'sled_collections:collections-list' %}">All collections</a>
+  </div>
 </div>
-
-<div class="content ">
-  {% if collections %}
-  <table class="collections">
-    <thead>
-      <tr>
-	<th>Name</th>
-	<th>Type</th>
-	<th>Description</th>
-	<th>N. of items</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for collection in collections %}
-      <tr>
-	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
-	<td>{{ collection.item_type }}</td>
-	<td>{{ collection.description }}</td>
-	<td>{{ collection.myitems.all|length }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>No collections to display</p>
-  {% endif %}
-  <a href="{% url 'sled_collections:collections-list' %}">All collections</a>
-</div>
-
 
 
 <div class="section">
   <h1>My Lenses ({{ lenses|length }}) </h1>
+  <div class="content ">
+    <form id="ids-form" method="POST">
+      {% csrf_token %}
+      {% include "lenses/lens_list_executive.html" with lenses=lenses %}
+    </form>
+  </div>
 </div>
 
-<div class="content ">
-  <form id="ids-form" method="POST">
-    {% csrf_token %}
-    {% include "lenses/lens_list_executive.html" with lenses=lenses %}
-  </form>
-</div>
 
 <div class="controls">
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-update' %}">Update lenses</button>
@@ -203,30 +174,36 @@
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-public' %}">Make public</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-cede-ownership' %}">Cede ownership</button>
-  <button type="button" class="delete-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">
+  <button type="button" class="process-lenses cede-ownership btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
+    <img src="{% static 'icons/people-fill.svg' %}" alt="trash">
+    Cede ownership
+  </button>
+  <button type="button" class="process-lenses delete-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete lenses
   </button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
 </div>
-
-
-<div>
-  <a href="{% url 'logout'%}">LOGOUT</a>
-</div>
-
-
 {% endblock content %}
-  
-{% block extrascripts %}
+
+
+{% block extrastyles %}
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
 <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $(".delete-lenses").click(function (){
+      $.fn.modal.Constructor.prototype._enforceFocus = function() {};
+      
+      $(".process-lenses").click(function (){
 	  // Construct get query string
 	  var values = [];
 	  $('.content input[type="checkbox"]:checked').each(function (){

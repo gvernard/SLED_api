@@ -1,7 +1,7 @@
 # forms.py
 from django import forms
 from django.core.exceptions import ValidationError
-from lenses.models import Lenses
+from lenses.models import Lenses,Users
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
@@ -25,12 +25,21 @@ class dum_form(BSModalModelForm):
             'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
         }
 
-class dummer_form(BSModalForm):
+class LensDeleteForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Justification in case public lenses are deleted.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for deleting these lenses.','rows':3,'cols':30}))
                 
     class Meta:
         fields = ['ids','justification']
+
+class LensCedeOwnershipForm(BSModalForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+    #heir_id = forms.ChoiceField(label='User',choices=[])
+    heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
+                
+    class Meta:
+        fields = ['ids','justification','heir_id']
 
         
 class LensQueryForm(forms.Form):

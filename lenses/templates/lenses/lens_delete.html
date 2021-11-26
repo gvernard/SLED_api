@@ -1,27 +1,26 @@
-<form method="post" action="">
-  {% csrf_token %}
-  
-  <div class="modal-header">
-    <h5 class="modal-title">Delete Lenses?</h5>
-    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  
-  <div class="modal-body">
-    <ul>
+{% extends "modal_base.html" %}
+
+{% block title %}
+Delete lenses?
+{% endblock title %}
+
+{% block content %}
+<div>
+  <ul>
     {% for lens in lenses %}
     <li>{{ lens }}</li>
     {% endfor %}
-    </ul>
+  </ul>
+</div>
 
-    {{ form.ids }}
-    {{ form.justification }}
-  </div>
-  
-  <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-  </div>
-  
-</form>
+<div>
+  {{ form.justification }}
+</div>
+
+{{ form.ids }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-danger">Delete</button>
+{% endblock action_button %}

@@ -1,41 +1,69 @@
 {% load static %}
 <!DOCTYPE html>
-<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/style.css' %}"/>
 
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <title>Strong Gravitational Lens database</title>
 
-<!-- <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"> 
-	 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"> -->
-	 
-	 <!--<link href="https://fonts.googleapis.com/css?family=Bitter|Open+Sans" rel="stylesheet"> -->
-	 <!--<script src="{% static 'lenses/js/sorttable.js' %}"></script>-->
-	 <!--<link rel="shortcut icon" type="image/x-icon" href="{% static 'IPT2017/IPT_logo.png' %}" />-->
-	 {% block extrascripts %}
-	 {% endblock extrascripts %}
-	 <title>Strong Gravitational Lens database</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'lenses/css/style.css' %}"/>
+
+    <!-- <script src="{% static 'lenses/js/sorttable.js' %}"></script> -->
+
+    {% block extrastyles %}
+    {% endblock extrastyles %}
+    
+    {% block extrascripts %}
+    {% endblock extrascripts %}
   </head>
+
   <body>
     
-    <div class="topmenu">
+    <!-- Message div -->
+    <div>
+      {% if messages %}
+      {% for message in messages %}
+      {% if message.tags %}
+      <div style="border-radius:0;" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
+	{{ message }}
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	  <span aria-hidden="true">&times;</span>
+	</button>
+      </div>
+      {% else %}
+      <div style="border-radius:0;">
+	{{ message }}
+	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+	  <span aria-hidden="true">&times;</span>
+	</button>
+      </div>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+    </div>
+
+
+    <!-- Top navigation bar -->
+    <div class="">
       <h1>
         <table>
 	  <tr>
-          {% with url_name=request.resolver_match.url_name %}
+            {% with url_name=request.resolver_match.url_name %}
             {% with url_base=request.get_full_path %}
-            <td class="td-center1{% if url_name in 'homepage,' %}selected{% endif %}"><a href="{% url 'home:homepage' %}">Home</a></td>
-            <td class="td-center1{% if '/lenses/' in url_base %}selected{% endif %}"><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
-            <td class="td-center1{% if '/groups/' in url_base %}selected{% endif %}"><a href="{% url 'groups:index' %}">Groups</a></td>
-            <td class="td-center1{% if '/users/' in url_base %}selected{% endif %}">
-            {% endwith %}
-          {% endwith %}
+            <td class="{% if url_name in 'homepage,' %}selected{% endif %}"><a href="{% url 'home:homepage' %}">Home</a></td>
+            <td class="{% if '/lenses/' in url_base %}selected{% endif %}"><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
+            <td class="{% if '/groups/' in url_base %}selected{% endif %}"><a href="{% url 'groups:index' %}">Groups</a></td>
+            <td class="{% if '/users/' in url_base %}selected{% endif %}">
 	      {% if user.is_authenticated %}
-              <a href="{% url 'users:user-profile'%}">{{user.username}}</a>
+              <a href="{% url 'users:user-profile' %}">{{ user.username }}</a>
+	      &nbsp;
+	      (<a href="{% url 'logout'%}">LOGOUT</a>)
               {% else %}
               <a href="{% url 'login'%}">Login</a>
               {% endif %}
 	    </td>
+            {% endwith %}
+            {% endwith %}
 	  </tr>
 	</table>
       </h1>

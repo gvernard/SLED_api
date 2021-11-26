@@ -16,11 +16,157 @@ from django.contrib import messages
 from urllib.parse import urlparse
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
-from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm, dummer_form
+from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm, LensDeleteForm, LensCedeOwnershipForm
 
 from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView
 
 from notifications.signals import notify
+
+
+
+
+@method_decorator(login_required,name='dispatch')
+class LensCedeOwnershipView(BSModalFormView):
+    template_name = 'lenses/lens_cede_ownership.html'
+    form_class = LensCedeOwnershipForm
+    success_message = 'to be overriden'
+    
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        return {'ids': ids_str}
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS,self.success_message)
+        return reverse('users:user-profile')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        context['lenses'] = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        return context
+
+    def form_valid(self,form):
+        return_message = []
+        ids = form.cleaned_data['ids'].split(',')
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        heir = form.cleaned_data['heir']
+        heir = Users.objects.filter(id=heir.id)
+        justification = form.cleaned_data['justification']
+        self.request.user.cedeOwnership(lenses,heir,justification)
+
+        heir_dict = heir.values('first_name','last_name')[0]
+        self.success_message = 'User <strong>%s %s</strong> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+        response = super().form_valid(form)
+        return response
+
+
+            
+@method_decorator(login_required,name='dispatch')
+class LensDeleteView(BSModalFormView):
+    template_name = 'lenses/lens_delete.html'
+    form_class = LensDeleteForm
+    success_message = 'to be overriden'
+    
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        return {'ids': ids_str}
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS,self.success_message)
+        return reverse('users:user-profile')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        context['lenses'] = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        return context
+
+    def form_valid(self,form):
+        return_message = []
+        ids = form.cleaned_data['ids'].split(',')
+        justification = form.cleaned_data['justification']
+        qset = Lenses.accessible_objects.in_ids(self.request.user,ids)
+                
+        pub = qset.filter(access_level='PUB')
+        if pub:
+            # confirmation task to delete the public lenses
+            cargo = {'object_type': pub[0]._meta.model.__name__,
+                     'object_ids': [],
+                     'comment': justification}
+            for obj in pub:
+                cargo['object_ids'].append(obj.id)
+            mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
+            return_message.append('The admins have been notified to approve or reject the deletion of %d public lenses.' % (len(pub)))
+                   
+        pri = qset.filter(access_level='PRI')
+        if pri:
+            object_type = pri[0]._meta.model.__name__
+            model_ref = apps.get_model(app_label='lenses',model_name=object_type)
+            perm = "view_"+object_type
+
+            ### Notifications per user #####################################################            
+            users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
+            for i,user in enumerate(users_with_access):
+                obj_ids = []
+                for j in accessible_objects[i]:
+                    obj_ids.append(pri[j].id)
+                remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                notify.send(sender=self.request.user,
+                            recipient=user,
+                            verb='Private objects you had access to have been deleted.',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            note_type='DeleteObject',
+                            object_type=object_type,
+                            object_ids=obj_ids)
+
+            ### Notifications per group #####################################################
+            groups_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'groups')
+            for i,group in enumerate(groups_with_access):
+                obj_ids = []
+                for j in accessible_objects[i]:
+                    obj_ids.append(pri[j].id)
+                remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # (just 1 query)
+                notify.send(sender=self.request.user,
+                            recipient=group,
+                            verb='Private objects you had access to have been deleted.',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            note_type='DeleteObject',
+                            object_type=object_type,
+                            object_ids=obj_ids)
+                        
+            ### Finally, delete the private lenses
+            for lens in pri:
+                lens.delete()       
+            return_message.append('%d private lenses have been deleted.' % (len(pri)))
+
+        self.success_message = ' '.join(return_message)
+        response = super().form_valid(form)
+        return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
 
 
 
@@ -284,95 +430,11 @@ class LensAddView(AddUpdateMixin,TemplateView):
             self.get(*args,**kwargs)
 
 
-            
-@method_decorator(login_required,name='dispatch')
-class LensDeleteView(BSModalFormView):
-    form_class = dummer_form
-    template_name = 'lenses/lens_delete.html'
-    success_message = 'to be overriden'
+
+
+
+
     
-    def get_initial(self):
-        ids = self.request.GET.getlist('ids')
-        ids_str = ','.join(ids)
-        return {'ids': ids_str}
-
-    def get_success_url(self):
-        messages.add_message(self.request, messages.SUCCESS,self.success_message)
-        return reverse('users:user-profile')
-
-    def form_valid(self,form):
-        return_message = []
-        ids = form.cleaned_data['ids'].split(',')
-        justification = form.cleaned_data['justification']
-        qset = Lenses.accessible_objects.in_ids(self.request.user,ids)
-                
-        pub = qset.filter(access_level='PUB')
-        if pub:
-            # confirmation task to delete the public lenses
-            cargo = {'object_type': pub[0]._meta.model.__name__,
-                     'object_ids': [],
-                     'comment': justification}
-            for obj in pub:
-                cargo['object_ids'].append(obj.id)
-            mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
-            return_message.append('The admins have been notified to approve or reject the deletion of %d public lenses.' % (len(pub)))
-                   
-        pri = qset.filter(access_level='PRI')
-        if pri:
-            object_type = pri[0]._meta.model.__name__
-            model_ref = apps.get_model(app_label='lenses',model_name=object_type)
-            perm = "view_"+object_type
-
-            ### Notifications per user #####################################################            
-            users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
-            for i,user in enumerate(users_with_access):
-                obj_ids = []
-                for j in accessible_objects[i]:
-                    obj_ids.append(pri[j].id)
-                remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                notify.send(sender=self.request.user,
-                            recipient=user,
-                            verb='Private objects you had access to have been deleted.',
-                            level='warning',
-                            timestamp=timezone.now(),
-                            note_type='DeleteObject',
-                            object_type=object_type,
-                            object_ids=obj_ids)
-
-            ### Notifications per group #####################################################
-            groups_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'groups')
-            for i,group in enumerate(groups_with_access):
-                obj_ids = []
-                for j in accessible_objects[i]:
-                    obj_ids.append(pri[j].id)
-                remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # (just 1 query)
-                notify.send(sender=self.request.user,
-                            recipient=group,
-                            verb='Private objects you had access to have been deleted.',
-                            level='warning',
-                            timestamp=timezone.now(),
-                            note_type='DeleteObject',
-                            object_type=object_type,
-                            object_ids=obj_ids)
-                        
-            ### Finally, delete the private lenses
-            for lens in pri:
-                lens.delete()       
-            return_message.append('%d private lenses have been deleted.' % (len(pri)))
-
-        self.success_message = ' '.join(return_message)
-        print(self.success_message)
-        response = super().form_valid(form)
-        print('response: ',response) 
-        return response
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        ids = self.request.GET.getlist('ids')
-        ids_str = ','.join(ids)
-        context['lenses'] = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        return context
-
 
 
 # View to give/revoke access to/from private lenses
@@ -438,50 +500,9 @@ class LensGiveRevokeAccessView(TemplateView):
             else:
                 message = 'You must select private lenses from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-
-    
-# View to cede ownership of lenses
-@method_decorator(login_required,name='dispatch')
-class LensCedeOwnershipView(TemplateView):
-    template_name = 'lenses/lens_cede_ownership.html'            
-    
-    def get(self, request, *args, **kwargs):
-        message = 'You must select lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-        return TemplateResponse(request,'simple_message.html',context={'message':message})
-    
-    def post(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-
-        if referer == request.path:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            user_id = request.POST.get('user',None)
-            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
             
-            if ids and user_id.isdigit():                
-                heir = Users.objects.filter(id=user_id)
-                justification = request.POST.get('justification',None)
-                request.user.cedeOwnership(lenses,heir,justification)
-                heir_dict = heir.values('first_name','last_name')[0]
-                message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
-            else:
-                message = 'You must select lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>, and a user from below.'
-                return self.render_to_response({'lenses': lenses,'error_message':message})
 
-        else:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            if ids:
-                # Display the lenses with info on the users/groups with access
-                qset = Lenses.accessible_objects.in_ids(request.user,ids)
-                lenses = list(qset.values())
-                for i,lens in enumerate(qset):
-                    lenses[i]["users_with_access"] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(request.user)]) )
-                    lenses[i]["groups_with_access"] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(request.user)]) )
-                return self.render_to_response({'lenses': lenses})
-            else:
-                message = 'You must select lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            
 
 
             
