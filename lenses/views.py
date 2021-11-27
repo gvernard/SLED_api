@@ -16,6 +16,7 @@ from django.contrib import messages
 from urllib.parse import urlparse
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
+<<<<<<< HEAD
 #from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm, LensDeleteForm, LensCedeOwnershipForm
 from . import forms
 
@@ -216,6 +217,13 @@ class LensGiveRevokeAccessView2(ModalIdsBaseMixin):
 
 
             
+=======
+from .forms import BaseLensForm, BaseLensAddUpdateFormSet, LensQueryForm, dummer_form
+
+from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView
+
+from notifications.signals import notify
+>>>>>>> b73fcb9578174735cd0637b3ac9273827e6dedc4
 
 
 
@@ -485,9 +493,100 @@ class LensAddView(AddUpdateMixin,TemplateView):
             self.get(*args,**kwargs)
 
 
+<<<<<<< HEAD
 
 
 
+=======
+            
+@method_decorator(login_required,name='dispatch')
+class LensDeleteView(BSModalFormView):
+    form_class = dummer_form
+    template_name = 'lenses/lens_delete.html'
+    success_message = 'to be overriden'
+    
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        return {'ids': ids_str}
+
+    def get_success_url(self):
+        messages.add_message(self.request, messages.SUCCESS,self.success_message)
+        return reverse('users:user-profile')
+
+    def form_valid(self,form):
+        return_message = []
+        ids = form.cleaned_data['ids'].split(',')
+        justification = form.cleaned_data['justification']
+        qset = Lenses.accessible_objects.in_ids(self.request.user,ids)
+                
+        pub = qset.filter(access_level='PUB')
+        if pub:
+            # confirmation task to delete the public lenses
+            cargo = {'object_type': pub[0]._meta.model.__name__,
+                     'object_ids': [],
+                     'comment': justification}
+            for obj in pub:
+                cargo['object_ids'].append(obj.id)
+            mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
+            return_message.append('The admins have been notified to approve or reject the deletion of %d public lenses.' % (len(pub)))
+                   
+        pri = qset.filter(access_level='PRI')
+        if pri:
+            object_type = pri[0]._meta.model.__name__
+            model_ref = apps.get_model(app_label='lenses',model_name=object_type)
+            perm = "view_"+object_type
+
+            ### Notifications per user #####################################################            
+            users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
+            for i,user in enumerate(users_with_access):
+                obj_ids = []
+                for j in accessible_objects[i]:
+                    obj_ids.append(pri[j].id)
+                remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                notify.send(sender=self.request.user,
+                            recipient=user,
+                            verb='Private objects you had access to have been deleted.',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            note_type='DeleteObject',
+                            object_type=object_type,
+                            object_ids=obj_ids)
+
+            ### Notifications per group #####################################################
+            groups_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'groups')
+            for i,group in enumerate(groups_with_access):
+                obj_ids = []
+                for j in accessible_objects[i]:
+                    obj_ids.append(pri[j].id)
+                remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # (just 1 query)
+                notify.send(sender=self.request.user,
+                            recipient=group,
+                            verb='Private objects you had access to have been deleted.',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            note_type='DeleteObject',
+                            object_type=object_type,
+                            object_ids=obj_ids)
+                        
+            ### Finally, delete the private lenses
+            for lens in pri:
+                lens.delete()       
+            return_message.append('%d private lenses have been deleted.' % (len(pri)))
+
+        self.success_message = ' '.join(return_message)
+        print(self.success_message)
+        response = super().form_valid(form)
+        print('response: ',response) 
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        context['lenses'] = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        return context
+>>>>>>> b73fcb9578174735cd0637b3ac9273827e6dedc4
 
     
 

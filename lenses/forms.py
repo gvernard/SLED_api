@@ -25,14 +25,13 @@ class dum_form(BSModalModelForm):
             'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
         }
 
-
-        
 class LensDeleteForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for deleting these lenses.','rows':3,'cols':30}))
                 
     class Meta:
         fields = ['ids','justification']
+
 
 class LensMakePublicForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
@@ -75,8 +74,8 @@ class LensGiveRevokeAccessForm(BSModalForm):
         if not users and not groups:
             self.add_error('__all__',"Select at least one User and/or Group.")
 
-        
-        
+
+            
         
 class LensQueryForm(forms.Form):
     ra_min = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
