@@ -19,12 +19,12 @@
       <td>{{ lens.dec }}</td>
       <td>{{ lens.access_level }}</td>
       <td>
-	{{ lens.getUsersWithAccessNoOwner|join:"," }} - <span style="font-style:italic">{{ lens.getGroupsWithAccessNoOwner|join:"," }}</span>
+	{{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
       </td>
     </tr>
     {% endfor %}
   </table>
-  <button type="button" id="toggle_all" value="select">Toggle select all</button>
+  <button type="button" class="btn btn-sm btn-light" id="toggle_all" value="select">Toggle select all</button>
 </div>
 
 

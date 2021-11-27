@@ -1,16 +1,10 @@
 {% extends "modal_base.html" %}
 
 {% block title %}
-Make lenses public?
+Make collection?
 {% endblock title %}
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
-
 <div>
   <ul>
     {% for lens in lenses %}
@@ -19,10 +13,18 @@ Make lenses public?
   </ul>
 </div>
 
+<div>
+  {{ form.name }}
+</div>
+
+<div>
+  {{ form.description }}
+</div>
+
 {{ form.ids }}
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-danger">Make public</button>
+<button type="submit" class="btn btn-sm btn-primary">Make collection</button>
 {% endblock action_button %}

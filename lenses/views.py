@@ -72,7 +72,7 @@ class LensCedeOwnershipView(ModalIdsBaseMixin):
         self.request.user.cedeOwnership(lenses,heir,justification)        
         heir_dict = heir.values('first_name','last_name')[0]
         message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
-        messages.add_message(self.request,messages.SUCCESS,message)
+        messages.add_message(self.request,messages.WARNING,message)
 
             
 @method_decorator(login_required,name='dispatch')
@@ -170,20 +170,9 @@ class LensGiveRevokeAccessView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_give_revoke_access.html'
     form_class = forms.LensGiveRevokeAccessForm
     success_url = reverse_lazy('users:user-profile')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        lenses = context['lenses'] # a queryset
-        users = [None]*len(lenses)
-        groups = [None]*len(lenses)
-        for i,lens in enumerate(lenses):
-            users[i] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(self.request.user)]) )
-            groups[i] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(self.request.user)]) )
-        zipped = zip(lenses,users,groups)
-        context['zipped'] = zipped
-        return context
     
     def my_form_valid(self,form):
+        print()
         ids = form.cleaned_data['ids'].split(',')
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         users = form.cleaned_data['users']
@@ -193,19 +182,75 @@ class LensGiveRevokeAccessView(ModalIdsBaseMixin):
         group_ids = [g.id for g in groups]
         groups = SledGroup.objects.filter(id__in=group_ids)
         target_users = list(users) + list(groups)
-        self.request.user.giveAccess(lenses,target_users)
 
-        ug_message = []
-        if len(users) > 0:
-            ug_message.append('Users: %s' % (','.join([user.username for user in users])))   
-        if len(groups) > 0:
-            ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))   
-        message = 'Access to %d lenses given to %s' % (len(lenses),' and '.join(ug_message))
+        mode = self.kwargs['mode']         
+        if mode == 'give':
+            self.request.user.giveAccess(lenses,target_users)
+            ug_message = []
+            if len(users) > 0:
+                ug_message.append('Users: %s' % (','.join([user.username for user in users])))   
+            if len(groups) > 0:
+                ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))   
+            message = 'Access to %d lenses given to %s' % (len(lenses),' and '.join(ug_message))
+            messages.add_message(self.request,messages.SUCCESS,message)
+        elif mode == 'revoke':
+            self.request.user.revokeAccess(lenses,target_users)
+            ug_message = []
+            if len(users) > 0:
+                ug_message.append('Users: %s' % (','.join([user.username for user in users])))   
+            if len(groups) > 0:
+                ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))   
+            message = 'Access to %d lenses revoked from %s' % (len(lenses),' and '.join(ug_message))
+            messages.add_message(self.request,messages.SUCCESS,message)
+        else:
+            messages.add_message(self.request,messages.ERROR,'Unknown action! Can either be <em>give</em> or <em>revoke</em>.')
+
+
+@method_decorator(login_required,name='dispatch')
+class LensMakePrivateView(ModalIdsBaseMixin):
+    template_name = 'lenses/lens_make_private.html'
+    form_class = forms.LensMakePrivateForm
+    success_url = reverse_lazy('users:user-profile')
+    
+    def my_form_valid(self,form):
+        ids = form.cleaned_data['ids'].split(',')
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        justification = form.cleaned_data['justification']
+        self.request.user.makePrivate(lenses,justification)
+        message = 'The admins have been notified to approve or reject changing %d public lenses to private.' % (len(lenses))
         messages.add_message(self.request,messages.WARNING,message)
 
 
 
-            
+# View to create a lens collection
+@method_decorator(login_required,name='dispatch')
+class LensMakeCollectionView(ModalIdsBaseMixin):
+    template_name = 'lenses/lens_make_collection.html'
+    form_class = forms.LensMakeCollectionForm
+    success_url = reverse_lazy('users:user-profile')
+
+    def my_form_valid(self,form):
+        ids = form.cleaned_data['ids'].split(',')
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        name = form.cleaned_data['name']
+        description = form.cleaned_data['description']
+        mycollection = Collection(owner=self.request.user,name=name,access_level='PUB',description=description,item_type="Lenses")
+        mycollection.save()
+        mycollection.myitems = lenses
+        mycollection.save()
+        assign_perm('view_collection',self.request.user,mycollection)
+        messages.add_message(self.request,messages.SUCCESS,'Collection <b>"'+name+'"</b> was successfully created!')
+
+
+
+
+
+
+
+
+        
+
+        
 
 
 
@@ -296,7 +341,6 @@ class LensQueryView(TemplateView):
         else:
             return self.render_to_response({'lenses':None, 'form':forms.LensQueryForm})
 
-
     def get(self, request, *args, **kwargs):
         lenses = Lenses.objects.none()
         return self.render_to_response({'lenses':lenses, 'form':forms.LensQueryForm})
@@ -320,10 +364,6 @@ class LensDetailView(DetailView):
     
     def get_queryset(self):
         return Lenses.accessible_objects.all(self.request.user)
-
-
-    
-
 
 
 # This is a 'Mixin' class, used to carry variables and functions that are common to LensAddView and LensUpdateView.
@@ -478,66 +518,6 @@ class LensAddView(AddUpdateMixin,TemplateView):
 
 
             
-
-    
-
-
-            
-
-            
-
-
-            
-# View to make lenses private
-@method_decorator(login_required,name='dispatch')
-class LensMakePrivateView(TemplateView):
-    template_name = 'lenses/lens_simple_interaction.html'            
-    
-    def get(self, request, *args, **kwargs):
-        message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-        return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-    def post(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-        
-        if referer == request.path:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
-            
-            if ids:
-                justification = request.POST.get('justification',None)
-                if justification:
-                    # confirmation task to make public lenses private
-                    request.user.makePrivate(lenses,justification)
-                    message = '<p>The admins have been notified to approve or reject changing %d public lenses to private.</p>' % (len(lenses))
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
-                else:
-                    message = 'A justification needs to be provided below in order to make any public lenses private.'
-                    return self.render_to_response({'lenses':lenses,'error_message':message})
-            else:
-                message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-                return self.render_to_response({'lenses': lenses,'error_message':message})
-
-        else:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            if ids:
-                # Display the lenses with info on the users/groups with access
-                qset = Lenses.accessible_objects.in_ids(request.user,ids)
-                lenses = list(qset.values())
-                if qset.filter(access_level='PRI').count() > 0:
-                    message = 'You are also selecting private lenses!'
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
-                else:
-                    return self.render_to_response({'lenses': lenses})
-            else:
-                message = 'You must select public lenses that you own from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-
-
-    
-
-
 # View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
 @method_decorator(login_required,name='dispatch')
 class LensMergeResolutionView(TemplateView):
@@ -561,48 +541,3 @@ class LensMergeResolutionView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':message})   
 
 
-# View to create a lens collection
-@method_decorator(login_required,name='dispatch')
-class LensMakeCollectionView(TemplateView):
-    template_name = 'lenses/lens_simple_interaction.html'
-    
-    def get(self, request, *args, **kwargs):
-        message = 'You are not authorized to view this page.'
-        return TemplateResponse(request,'simple_message.html',context={'message':message})   
-
-    def post(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-        
-        if referer == request.path:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            qset = Lenses.accessible_objects.in_ids(request.user,ids)
-            
-            if ids:
-                lenses = list(qset.values())
-                name = request.POST.get('name',None)
-                if name:
-                    description = request.POST.get('description',None)
-                    mycollection = Collection(owner=request.user,name=name,access_level='PUB',description=description,item_type="Lenses")
-                    mycollection.save()
-                    mycollection.myitems = qset
-                    assign_perm('view_lenses',request.user,mycollection)
-                    mycollection.save()
-                    message = 'Collection "'+name+'" was successfully created!'
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
-                else:
-                    message = 'You must give a name to your collection'                    
-                    return self.render_to_response({'lenses': lenses,'error_message':message})                
-            else:
-                message = 'You must select lenses that you have access to.'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-        else:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-            if ids:
-                qset = Lenses.accessible_objects.in_ids(request.user,ids)
-                print(qset)
-                lenses = list(qset.values())
-                return self.render_to_response({'lenses': lenses})
-            else:
-                message = 'You must select lenses that you have access to.'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})

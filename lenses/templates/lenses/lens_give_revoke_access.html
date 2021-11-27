@@ -27,13 +27,13 @@ Give access to Users and Groups?
 
 <div>
   <table>
-    {% for lens,users_wa,groups_wa in zipped %}
+    {% for lens in lenses %}
     <tr>
       <td>
 	{{ lens }}
       </td>
       <td>
-	{{ users_wa }} - <em>{{ groups_wa }}</em>
+	{{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
       </td>
     </tr>
     {% endfor %}

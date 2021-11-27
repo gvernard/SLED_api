@@ -161,17 +161,32 @@
 
 
 <div class="controls">
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-update' %}">Update lenses</button>
-  <button type="submit" form="ids-form" formaction="{% url 'sled_collections:collections-add' %}">Make collection</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>  
-  <button type="button" class="process-lenses make-private btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
-    <img src="{% static 'icons/lock-fill.svg' %}" alt="trash">
-    Make private
+
+  <!-- Neutral buttons - they don't change the database -->
+  <button type="submit" class="update btn btn-sm btn-secondary" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
+    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+    Update lenses
+  </button>
+  <button type="button" class="process-lenses make-collection btn btn-sm btn-secondary" data-form-url="{% url 'lenses:lens-make-collection' %}">
+    <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+    Make collection
+  </button>
+  <button type="submit" class="collage btn btn-sm btn-secondary" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">
+    <img src="{% static 'icons/images.svg' %}" alt="image collage">
+    Collage
   </button>
 
-  <!-- Dangerous buttons - revealing sensitive information if not used properly -->
+  <!-- Action buttons - performing some action without any danger of exposing sensitive information -->
+  <button type="button" class="process-lenses make-private btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
+    <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+    Make private
+  </button>
+  <button type="button" class="process-lenses revoke-access btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-revoke-access' %}">
+    <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+    Revoke access
+  </button>
+
+  <!-- Dangerous action buttons - revealing sensitive information if not used properly -->
   <button type="button" class="process-lenses give-access btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-give-access' %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Give access

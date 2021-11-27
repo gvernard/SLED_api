@@ -330,7 +330,7 @@ class Users(AbstractUser,GuardianUserMixin):
             output = {'success':True,'message': '<p>%d private %s are know public.</p>' % (len(target_objs),object_type),'duplicates':[]}
             return output
                 
-    def makePrivate(self,objects,justification=None):
+    def makePrivate(self,qset,justification=None):
         """
         Changes the AccessLevel of the given objects to 'private'.
         
@@ -342,16 +342,13 @@ class Users(AbstractUser,GuardianUserMixin):
         Returns:
             task: A confirmation task
         """
-        # If input argument is a single value, convert to list
-        if isinstance(objects,SingleObject):
-            objects = [objects]
         # Check that user is the owner
-        self.checkOwnsList(objects)
+        self.checkOwnsList(list(qset))
 
         cargo = {}
-        cargo["object_type"] = objects[0]._meta.model.__name__
+        cargo["object_type"] = qset.model.__name__
         ids = []
-        for obj in objects:
+        for obj in qset:
             ids.append(obj.id)
         cargo["object_ids"] = ids
         cargo["comment"] = justification
