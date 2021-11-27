@@ -12,7 +12,7 @@ urlpatterns = [
     path('update/',views.LensUpdateView.as_view(),name='lens-update'),
     path('collage/',views.LensCollageView,name='lens-collage'),
     path('delete/',views.LensDeleteView.as_view(),name='lens-delete'),
-    path('give-access/',views.LensGiveRevokeAccessView.as_view(),kwargs={'mode':'give'},name='lens-give-access'),
+    path('give-access/',views.LensGiveRevokeAccessView2.as_view(),kwargs={'mode':'give'},name='lens-give-access'),
     path('revoke-access/',views.LensGiveRevokeAccessView.as_view(),kwargs={'mode':'revoke'},name='lens-revoke-access'),
     path('cede-ownership/',views.LensCedeOwnershipView.as_view(),name='lens-cede-ownership'),
     path('make-private/',views.LensMakePrivateView.as_view(),name='lens-make-private'),

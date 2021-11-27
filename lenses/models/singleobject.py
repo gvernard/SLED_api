@@ -235,7 +235,9 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
             queryset(`Users`): a queryset with all the users that have view access to the object. An empty queryset if none.
         """
         self.assertOwner(user)
+        return self.getUsersWithAccessNoOwner()
 
+    def getUsersWithAccessNoOwner(self):
         if self.access_level == 'PUB':
             #"Object is already public, no point to fetch users with access to it."
             return []
@@ -243,10 +245,12 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
             perm = "view_"+self._meta.db_table
             users = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
             if users:
-                return users.exclude(username=self.owner.username).order_by('username') # exclude the owner
+                return list(users.exclude(username=self.owner.username).order_by('username')) # exclude the owner
             else:
                 return []
+        
 
+            
     def getGroupsWithAccess(self,user):
         """
         Checks which groups have view access the the object.
@@ -258,10 +262,12 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
             queryset(`Groups`): a queryset with all the groups that have view access to the object. An empty queryset if none.
         """
         self.assertOwner(user)
-
+        return self.getGroupsWithAccessNoOwner()
+        
+    def getGroupsWithAccessNoOwner(self):
         if self.access_level == 'PUB':
             #"Object is already public, no point to fetch groups with access to it."
-            return SledGroup.objects.none()
+            return []
         else:
             groups = get_groups_with_perms(self)
             if groups:
@@ -269,10 +275,9 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 ids = []
                 for group in groups:
                     ids.append(group.id)
-                return SledGroup.objects.filter(id__in=ids)
+                return list(SledGroup.objects.filter(id__in=ids))
             else:
-                return SledGroup.objects.none()
-        
+                return []
         
     
     # def getOwnerInfo():

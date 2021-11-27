@@ -163,10 +163,8 @@
 <div class="controls">
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-update' %}">Update lenses</button>
   <button type="submit" form="ids-form" formaction="{% url 'sled_collections:collections-add' %}">Make collection</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-give-access' %}">Give access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-public' %}">Make public</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>  
   <button type="button" class="process-lenses make-private btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
     <img src="{% static 'icons/lock-fill.svg' %}" alt="trash">
@@ -174,12 +172,16 @@
   </button>
 
   <!-- Dangerous buttons - revealing sensitive information if not used properly -->
+  <button type="button" class="process-lenses give-access btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-give-access' %}">
+    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+    Give access
+  </button>
   <button type="button" class="process-lenses make-public btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-make-public' %}">
-    <img src="{% static 'icons/people-fill.svg' %}" alt="trash">
+    <img src="{% static 'icons/people-fill.svg' %}" alt="people">
     Make public
   </button>
   <button type="button" class="process-lenses cede-ownership btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
-    <img src="{% static 'icons/forward-fill.svg' %}" alt="trash">
+    <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
     Cede ownership
   </button>
   <button type="button" class="process-lenses delete-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">

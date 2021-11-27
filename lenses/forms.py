@@ -1,7 +1,7 @@
 # forms.py
 from django import forms
 from django.core.exceptions import ValidationError
-from lenses.models import Lenses,Users
+from lenses.models import Lenses, Users, SledGroup
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
@@ -42,13 +42,41 @@ class LensMakePublicForm(BSModalForm):
 
 class LensCedeOwnershipForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
-    #heir_id = forms.ChoiceField(label='User',choices=[])
     heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
                 
     class Meta:
-        fields = ['ids','justification','heir_id']
+        fields = ['ids','justification','heir']
 
+class LensGiveRevokeAccessForm(BSModalForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+    users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
+    groups = forms.ModelMultipleChoiceField(label='Groups',queryset=SledGroup.objects.all(),required=False)
+    #justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
+                
+    class Meta:
+        fields = ['ids','users','groups']
+        
+    def clean(self):
+        """Checks that no two new lenses are within a proximity radius."""
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        # All lenses MUST be private
+        ids = self.cleaned_data.get('ids').split(',')
+        qset = Lenses.objects.filter(id__in=ids).filter(access_level='PUB')
+        if qset.count() > 0:
+            self.add_error('__all__',"You are selecting public lenses! Access is only delegated for private objects.")
+
+        # At least one User or Group must be selected
+        users = self.cleaned_data.get('users')
+        groups = self.cleaned_data.get('groups')
+        if not users and not groups:
+            self.add_error('__all__',"Select at least one User and/or Group.")
+
+        
+        
         
 class LensQueryForm(forms.Form):
     ra_min = forms.DecimalField(max_digits=7, decimal_places=4, required=False)

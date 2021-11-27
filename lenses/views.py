@@ -50,11 +50,21 @@ class ModalIdsBaseMixin(BSModalFormView,CreateUpdateAjaxMixin):
         context['lenses'] = Lenses.accessible_objects.in_ids(self.request.user,ids)
         return context
 
+    def form_invalid(self,form):
+        response = super().form_invalid(form)
+        return response
+
     def form_valid(self,form):
         if not is_ajax(self.request.META):
-            self.my_form_valid(form)
-        response = super().form_valid(form)
-        return response
+            redirect = self.my_form_valid(form)
+            if redirect:
+                return redirect
+            else:
+                response = super().form_valid(form)
+                return response
+        else:
+            response = super().form_valid(form)
+            return response
 
 
 @method_decorator(login_required,name='dispatch')
@@ -143,7 +153,6 @@ class LensDeleteView(ModalIdsBaseMixin):
             messages.add_message(self.request,messages.SUCCESS,message)
 
 
-
 @method_decorator(login_required,name='dispatch')
 class LensMakePublicView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_make_public.html'            
@@ -152,23 +161,61 @@ class LensMakePublicView(ModalIdsBaseMixin):
 
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
-        lenses = list(Lenses.accessible_objects.in_ids(self.request.user,ids))
-        print('view: ',lenses)
-        duplicates = self.request.user.makePublic(lenses)
-        if duplicates:
-            #request.user.makePublic(no_prob) # make the non-duplicate objects public anyway
-            #return redirect(reverse('lenses:lens-merge-resolution',kwargs={'ids':to_check_ids}))
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        output = self.request.user.makePublic(lenses)
+        
+        if output['success']:
+            messages.add_message(self.request,messages.SUCCESS,output['message'])
+        elif output['duplicates']:
             redirect = HttpResponseRedirect(reverse('lenses:lens-merge-resolution'))
-            print(redirect['Location'])
-            redirect['Location'] += '?' + '&'.join(['ids={}'.format(x) for x in duplicates])
+            #print(redirect['Location'])
+            redirect['Location'] += '?' + '&'.join(['ids={}'.format(x.id) for x in output['duplicates']])
             return redirect
         else:
-            message = '<p>%d private lenses are know public.</p>' % (len(lenses))
-            messages.add_message(self.request,messages.SUCCESS,message)
-
-                
+            messages.add_message(self.request,messages.ERROR,output['message'])
 
 
+@method_decorator(login_required,name='dispatch')
+class LensGiveRevokeAccessView2(ModalIdsBaseMixin):
+    template_name = 'lenses/lens_give_revoke_access.html'
+    form_class = forms.LensGiveRevokeAccessForm
+    success_url = reverse_lazy('users:user-profile')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        lenses = context['lenses'] # a queryset
+        users = [None]*len(lenses)
+        groups = [None]*len(lenses)
+        for i,lens in enumerate(lenses):
+            users[i] = ','.join(filter(None,[user.username for user in lens.getUsersWithAccess(self.request.user)]) )
+            groups[i] = ','.join(filter(None,[group.name for group in lens.getGroupsWithAccess(self.request.user)]) )
+        zipped = zip(lenses,users,groups)
+        context['zipped'] = zipped
+        return context
+    
+    def my_form_valid(self,form):
+        ids = form.cleaned_data['ids'].split(',')
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        users = form.cleaned_data['users']
+        user_ids = [u.id for u in users]
+        users = Users.objects.filter(id__in=user_ids)
+        groups = form.cleaned_data['groups']
+        group_ids = [g.id for g in groups]
+        groups = SledGroup.objects.filter(id__in=group_ids)
+        target_users = list(users) + list(groups)
+        self.request.user.giveAccess(lenses,target_users)
+
+        ug_message = []
+        if len(users) > 0:
+            ug_message.append('Users: %s' % (','.join([user.username for user in users])))   
+        if len(groups) > 0:
+            ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))   
+        message = 'Access to %d lenses given to %s' % (len(lenses),' and '.join(ug_message))
+        messages.add_message(self.request,messages.WARNING,message)
+
+
+
+            
 
 
 

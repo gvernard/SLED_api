@@ -1,7 +1,3 @@
-<!-- <style> -->
-<!--   .exe_summary td {margin:0px;padding:2px;} -->
-<!-- </style> -->
-
 <!-- {% csrf_token %} -->
 
 <div>
@@ -23,7 +19,7 @@
       <td>{{ lens.dec }}</td>
       <td>{{ lens.access_level }}</td>
       <td>
-	{{ lens.users_with_access }} - <span style="font-style:italic">{{ lens.groups_with_access }}</span>
+	{{ lens.getUsersWithAccessNoOwner|join:"," }} - <span style="font-style:italic">{{ lens.getGroupsWithAccessNoOwner|join:"," }}</span>
       </td>
     </tr>
     {% endfor %}

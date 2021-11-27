@@ -247,58 +247,53 @@ class Users(AbstractUser,GuardianUserMixin):
             #print(unique_ugs,accessible_objects)
             return unique_ugs,accessible_objects
         
-    def makePublic(self,objects):
+    def makePublic(self,qset):
         """
         Changes the access_level of the given objects to private.
 
         First makes sure that the user owns all the objects, then updates only those objects that are private with a single query to the database.
 
         Args:
-            objects(List[SingleObject]): A list of primary objects of a specific type.
+            objects(queryset <SingleObject>): A queryset of primary objects of a specific type.
 
         Returns:
-            to_check(List[SingleObject]): A subset of the input objects, those that have close neighbours already existing in the database (possible duplicates)
+            A dictionary with the following entries:
+            success (Bool): True if the operation was successful, False otherwise.
+            message (str): A success or error message.
+            duplicates (list[SingleObject]): A subset of the input objects, those that have close neighbours already existing in the database (possible duplicates)
         """
-        # If input argument is a single value, convert to list
-        if isinstance(objects,SingleObject):
-            objects = [objects]
         # Check that user is the owner
-        self.checkOwnsList(objects)
+        self.checkOwnsList(list(qset))
 
         # Loop over the list, act only on those objects that are private
-        objs_to_update = []
-        for obj in objects:
-            if obj.access_level == 'PRI':
-                objs_to_update.append(obj)
+        target_objs = qset.filter(access_level__exact='PRI')
 
-        try:
-            assert (len(objs_to_update)>0),"All objects are already public"
-        except AssertionError as error:
-            caller = inspect.getouterframes(inspect.currentframe(),2)
-            print(error,"The operation of '"+caller[1][3]+"' should not proceed")
-            raise
+        if target_objs.count() == 0:
+            output = {'success':False,'message':"All objects are already public",'duplicates':[]}
+            return output
         else:
-            object_type = objs_to_update[0]._meta.model.__name__
+            object_type = target_objs.model.__name__
             model_ref = apps.get_model(app_label='lenses',model_name=object_type)
             perm = "view_"+object_type
-            
+            target_objs = list(target_objs)
             
             ### Very important: check for proximity before making public.
             #####################################################            
             if object_type == 'Lenses':
-                indices,neis = model_ref.proximate.get_DB_neighbours_many(objs_to_update)
+                indices,neis = model_ref.proximate.get_DB_neighbours_many(target_objs)
                 if indices:
                     # Possible duplicates, return them
-                    to_check = [objs_to_update[i] for i in indices]
-                    return to_check
+                    to_check = [target_objs[i] for i in indices]
+                    output = {'success':False,'message':'Existing public lenses too close - possible duplicates.','duplicates':to_check}
+                    return output
             
             ### Per user
             #####################################################            
-            users_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'users')
+            users_with_access,accessible_objects = self.accessible_per_other(target_objs,'users')
             for i,user in enumerate(users_with_access):
                 obj_ids = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(objs_to_update[j].id)
+                    obj_ids.append(target_objs[j].id)
                 remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self,
                             recipient=user,
@@ -311,11 +306,11 @@ class Users(AbstractUser,GuardianUserMixin):
 
             ### Per group
             #####################################################
-            groups_with_access,accessible_objects = self.accessible_per_other(objs_to_update,'groups')
+            groups_with_access,accessible_objects = self.accessible_per_other(target_objs,'groups')
             for i,group in enumerate(groups_with_access):
                 obj_ids = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(objs_to_update[j].id)
+                    obj_ids.append(target_objs[j].id)
                 remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self,
                             recipient=group,
@@ -328,12 +323,12 @@ class Users(AbstractUser,GuardianUserMixin):
 
             # Finally, update only those objects that need to be updated in a single query
             #####################################################
-            for obj in objs_to_update:
+            for obj in target_objs:
                 obj.access_level = 'PUB'
-            model_ref.objects.bulk_update(objs_to_update,['access_level'])
+            model_ref.objects.bulk_update(target_objs,['access_level'])
 
-            # return an empty list to indicate that everything went fine (if neighbours are found, they are returned)
-            return []
+            output = {'success':True,'message': '<p>%d private %s are know public.</p>' % (len(target_objs),object_type),'duplicates':[]}
+            return output
                 
     def makePrivate(self,objects,justification=None):
         """

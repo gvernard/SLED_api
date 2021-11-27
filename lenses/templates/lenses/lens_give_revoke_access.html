@@ -1,92 +1,57 @@
-{% extends 'master_header.html' %}
-{% load static %}
-{% block content %}
+{% extends "modal_base.html" %}
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+{% block title %}
+Give access to Users and Groups?
+{% endblock title %}
+
+
+{% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 <input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
-<script>
-  $(document).ready(function(){
-      // Create Select2 for users and groups
-      users_autocomplete("users-autocomplete");
-      groups_autocomplete("groups-autocomplete");
 
-      // Attach requirement for user or group to the submit button
-      $('#submit-btn').on('click',function(event){
-	  var users = $('#users-autocomplete').find(':selected');
-	  var groups = $('#groups-autocomplete').find(':selected');
-	  if( users.length == 0 && groups.length == 0 ){
-	      alert('You must select a user or a group!');
-	      event.preventDefault();
-	  }
-      });
-      
-      // Check all the checkboxes
-      var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
-      if( checkboxes.length > 0){
-	  for(var i=0;i<checkboxes.length;i++){
-	      checkboxes[i].checked = true;
-	  }
-      }
-  });
-</script>
-
-
-{% if mode == 'give' %}
-<h1>Give access to private lenses</h1>
-<p>
-  Share your secrets!
-</p>
-{% else %}
-<h1>Revoke access from private lenses</h1>
-<p>
-  Some things must remain secrete!
-</p>
-{% endif %}
-
-
-
-<div class="content">
-  <form id="ids-form" method="POST">
-    {% csrf_token %}
-    <span class="errorlist">{{ error_message }}</span>
-
-    <div style="width:100%;">
-      <p>
-	Users:
-      </p>
-      <select id="users-autocomplete" name="users" multiple></select>
-    </div>
-
-    <br>
-    <br>
-    
-    <div style="width:100%;">
-      <p>
-	Groups:
-      </p>
-      <select id="groups-autocomplete" name="groups" multiple></select>
-    </div>
-
-    <br>
-    <br>
-    
-    {% include "lenses/lens_list_executive.html" with lenses=lenses %}
-
-  </form>
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
 </div>
 
 <div>
-  <button type="submit" id="submit-btn" form="ids-form">
-    {% if mode == 'give' %}
-    Give access
-    {% else %}
-    Revoke access
-    {% endif %}
-  </button>
+  {{ form.users }}
 </div>
 
+<br>
+
+<div>
+  {{ form.groups }}
+</div>
+
+<div>
+  <table>
+    {% for lens,users_wa,groups_wa in zipped %}
+    <tr>
+      <td>
+	{{ lens }}
+      </td>
+      <td>
+	{{ users_wa }} - <em>{{ groups_wa }}</em>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{{ form.ids }}
 {% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-danger">Give access</button>
+{% endblock action_button %}
+
+
+{% block extrascripts %}
+<script>
+  users_autocomplete("id_users");
+  groups_autocomplete("id_groups");
+</script>
+{% endblock extrascripts %}

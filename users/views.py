@@ -38,19 +38,19 @@ class UserProfileView(TemplateView):
         owned_objects = user.getOwnedObjects()
 
         qset_lenses = owned_objects["Lenses"]
-        lenses_users_with_access = [None]*len(qset_lenses)
-        lenses_groups_with_access = [None]*len(qset_lenses)
-        for i,lens in enumerate(qset_lenses):
-            users_with_access = [u for u in lens.getUsersWithAccess(request.user)]
-            if users_with_access:
-                lenses_users_with_access[i] = ','.join(filter(None,[u.username for u in users_with_access]))
-            else:
-                lenses_users_with_access[i] = ''
-            groups_with_access = [g for g in lens.getGroupsWithAccess(request.user)]
-            if groups_with_access:
-                lenses_groups_with_access[i] = ','.join(filter(None,[g.name for g in groups_with_access]))
-            else:
-                lenses_groups_with_access[i] = ''
+        # lenses_users_with_access = [None]*len(qset_lenses)
+        # lenses_groups_with_access = [None]*len(qset_lenses)
+        # for i,lens in enumerate(qset_lenses):
+        #     users_with_access = [u for u in lens.getUsersWithAccess(request.user)]
+        #     if users_with_access:
+        #         lenses_users_with_access[i] = ','.join(filter(None,[u.username for u in users_with_access]))
+        #     else:
+        #         lenses_users_with_access[i] = ''
+        #     groups_with_access = [g for g in lens.getGroupsWithAccess(request.user)]
+        #     if groups_with_access:
+        #         lenses_groups_with_access[i] = ','.join(filter(None,[g.name for g in groups_with_access]))
+        #     else:
+        #         lenses_groups_with_access[i] = ''
 
 
         qset_cols = owned_objects["Collection"]
