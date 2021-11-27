@@ -11,41 +11,6 @@
 </div>
 
 
-<!-- Modal div -->
-<div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-    </div>
-  </div>
-</div>
-
-<!-- Message div -->
-<div>
-  {% if messages %}
-  {% for message in messages %}
-  {% if message.tags %}
-  <div style="border-radius:0;" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  {% else %}
-  <div style="border-radius:0;">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  {% endif %}
-  {% endfor %}
-  {% endif %}
-</div>
-
-        
-
-
-
 
 <div class="section">
   <h1>User Profile page</h1>
@@ -200,7 +165,6 @@
   <button type="submit" form="ids-form" formaction="{% url 'sled_collections:collections-add' %}">Make collection</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-revoke-access' %}">Revoke access</button>
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-private' %}">Make private</button>
-<<<<<<< HEAD
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>  
   <button type="button" class="process-lenses make-private btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
     <img src="{% static 'icons/lock-fill.svg' %}" alt="trash">
@@ -224,20 +188,10 @@
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete lenses
   </button>
-=======
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-make-public' %}">Make public</button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-cede-ownership' %}">Cede ownership</button>
-  <button type="button" class="delete-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">
-    <img src="{% static 'icons/trash.svg' %}" alt="trash">
-    Delete lenses
-  </button>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
->>>>>>> b73fcb9578174735cd0637b3ac9273827e6dedc4
 </div>
 {% endblock content %}
 
 
-<<<<<<< HEAD
 {% block extrastyles %}
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -261,23 +215,7 @@
       $.fn.modal.Constructor.prototype._enforceFocus = function() {};
       
       $(".process-lenses").click(function (){
-=======
-<div>
-  <a href="{% url 'logout'%}">LOGOUT</a>
-</div>
 
-
-{% endblock content %}
-  
-{% block extrascripts %}
-<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
-<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      $(".delete-lenses").click(function (){
->>>>>>> b73fcb9578174735cd0637b3ac9273827e6dedc4
 	  // Construct get query string
 	  var values = [];
 	  $('.content input[type="checkbox"]:checked').each(function (){
