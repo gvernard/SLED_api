@@ -21,8 +21,9 @@ import notifications.urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles import views
-
-
+from registration.forms import UserLoginForm
+from django.contrib.auth import views as auth_views
+ 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls'), name='home'),
@@ -31,7 +32,12 @@ urlpatterns = [
     path('users/', include('users.urls'), name='users'),
     path('groups/', include('groups.urls'), name='groups'),
     path('register/', vregistration.register, name='register'),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('login/', auth_views.LoginView.as_view(
+            template_name="login.html",
+            authentication_form=UserLoginForm
+            ), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='login.html'), name='logout'),
+    #path('accounts/', include('django.contrib.auth.urls')),
     path('notifications/', include(notifications.urls, namespace='notifications')),
     path('sled_notifications/', include('sled_notifications.urls'), name='sled_notifications'),
     path("select2/", include("django_select2.urls")),
