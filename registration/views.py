@@ -21,9 +21,10 @@ def register(response):
 
     return render(response, "register.html", {"form":form}) 
 
-
+'''
 # Create your views here.
 def login(response):
+    print('shit')
     #if someone is posting their form data, redirect them to (home for now)
     if response.method == "POST":
         print('SOMEONE IS TRYING TO LOGIN')
@@ -37,3 +38,4 @@ def login(response):
         form = UserLoginForm()
 
     return render(response, "login.html", {"form":form}) 
+'''
