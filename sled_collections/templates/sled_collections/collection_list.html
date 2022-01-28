@@ -8,19 +8,6 @@
   </div>
 </div>
 
-<div>
-  {% if messages %}
-  {% for message in messages %}
-  <div style="border-radius:0;" {% if message.tags %} class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert" {% endif %}>
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  {% endfor %}
-  {% endif %}
-</div>
-
 <h1>My collections</h1>
 <div class="content ">
   {% if collections %}

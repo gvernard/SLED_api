@@ -23,6 +23,7 @@
     <tbody>
       {% for note in notes %}
       <tr>
+	<td>{{ note.timestamp }}</td>
 	<td>{{ note.actor }}</td>
 	<td>{{ note.recipient }}</td>
 	<td>{{ note.data.note_type }}</td>

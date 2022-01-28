@@ -1,6 +1,5 @@
 function groups_autocomplete(target_id){
     $("#"+target_id).select2({
-	width: '100%',
 	ajax: {
 	    url: "/api/groups/",
 	    dataType: 'json',
@@ -29,6 +28,7 @@ function groups_autocomplete(target_id){
 	    },
 	    cache: true
 	},
+	width: '100%',
 	placeholder: 'Search for a group',
 	minimumInputLength: 1,
 	templateResult: formatGroup,
@@ -62,7 +62,6 @@ function formatGroupSelection(group){
 
 function users_autocomplete(target_id){
     $("#"+target_id).select2({
-	width: '100%',
 	ajax: {
 	    url: "/api/users/",
 	    dataType: 'json',
@@ -94,10 +93,11 @@ function users_autocomplete(target_id){
 	    },
 	    cache: true
 	},
+	width: '100%',
 	placeholder: 'Search for a user',
 	minimumInputLength: 1,
 	templateResult: formatUser,
-	templateSelection: formatUserSelection
+	templateSelection: formatUserSelection,
     });
 }
 

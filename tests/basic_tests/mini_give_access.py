@@ -11,7 +11,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroups, Lenses, SingleObject
+from lenses.models import Users, SledGroup, Lenses, SingleObject
 from guardian.shortcuts import assign_perm
 
 
@@ -42,8 +42,8 @@ private_lenses = Lenses.objects.filter(owner=owner).filter(access_level='PRI')
 
 other_user  = Users.objects.get(username='Cameron')
 other_user2 = Users.objects.get(username='Fred')
-some_group  = SledGroups.objects.get(name="Awesome Users")
-some_group2 = SledGroups.objects.get(name="TDCOSMO")
+some_group  = SledGroup.objects.get(name="Awesome Users")
+some_group2 = SledGroup.objects.get(name="TDCOSMO")
 
 owner.giveAccess(private_lenses[0],[other_user,other_user2])
 owner.giveAccess(private_lenses[1],[other_user])
