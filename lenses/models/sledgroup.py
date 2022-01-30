@@ -55,5 +55,4 @@ class SledGroup(Group):
         return self.name
 
     def get_absolute_url(self):
-        
-        return reverse('groups.views.group_detail', args=[str(self.name)])
+        return reverse('groups:group-detail',kwargs={'pk':self.id})

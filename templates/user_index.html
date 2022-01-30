@@ -44,7 +44,7 @@
       </tr>
       {% for group in user.getGroupsIsMember %}
       <tr>
-	<td class="td-center"><a href="{% url 'groups:group-detail' group_name=group.name %}">{{group.name}}</td>
+	<td class="td-center"><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
 	<td class="td-center">{{group.description}}</td>  
       </tr>
       {% endfor %}

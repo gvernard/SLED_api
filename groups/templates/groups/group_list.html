@@ -1,5 +1,11 @@
 {% extends 'master_header.html' %}
+
 {% block content %}
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+  <div class="modal-dialog">
+    <div class="modal-content"></div>
+  </div>
+</div>
 
 
 <div class="content container">
@@ -13,7 +19,7 @@
         </tr>
     {% for group in groups %}
         <tr>
-            <td class="td-center"><a href="{% url 'groups:group-detail' group_name=group.name %}">{{group.name}}</td>
+            <td class="td-center"><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
             <td class="td-center">{{group.description}}</td>
             <td class="td-center">{{group.owner}}</td>
             <td class="td-center">
