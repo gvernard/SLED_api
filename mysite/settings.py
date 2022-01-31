@@ -41,7 +41,7 @@ EMAIL_PORT = 1025
 
 INSTALLED_APPS = [
     'lenses.apps.LensesConfig',
-    'groups.apps.GroupsConfig',
+    'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
     'users.apps.UsersConfig',
     'django.contrib.admin',

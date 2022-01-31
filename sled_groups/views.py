@@ -24,7 +24,7 @@ from bootstrap_modal_forms.utils import is_ajax
 @method_decorator(login_required,name='dispatch')
 class GroupDetailView(DetailView):
     model = SledGroup
-    template_name = 'groups/group_detail.html'
+    template_name = 'sled_groups/group_detail.html'
 
     def get_queryset(self):
         return self.request.user.getGroupsIsMember()
@@ -50,11 +50,11 @@ class GroupDetailView(DetailView):
                 for username in removeusernames:
                     user = Users.objects.get(pk=username)
                     self.object.removeMember(self.request.user,user)
-                return redirect('groups:group-detail',pk=self.object.id)
+                return redirect('sled_groups:group-detail',pk=self.object.id)
             else:
                 # This is for leaving the group, the only action a member can perform
                 self.request.user.leaveGroup(self.object)
-                return redirect('groups:group-list')                
+                return redirect('sled_groups:group-list')                
         else:
             message = "Not authorized action!"
             return TemplateResponse(request,'simple_message.html',context={'message':message})
@@ -64,7 +64,7 @@ class GroupDetailView(DetailView):
 class GroupListView(ListView):
     model = SledGroup
     allow_empty = True
-    template_name = 'groups/group_list.html'
+    template_name = 'sled_groups/group_list.html'
     paginate_by = 10  # if pagination is desired
 
     def get_queryset(self):
@@ -79,9 +79,9 @@ class GroupListView(ListView):
 @method_decorator(login_required,name='dispatch')
 class GroupDeleteView(BSModalDeleteView):
     model = SledGroup
-    template_name = 'groups/group_delete.html'
+    template_name = 'sled_groups/group_delete.html'
     success_message = 'Success: Group was deleted.'
-    success_url = reverse_lazy('groups:group-list')
+    success_url = reverse_lazy('sled_groups:group-list')
     context_object_name = 'group'
     
     def get_queryset(self):
@@ -91,7 +91,7 @@ class GroupDeleteView(BSModalDeleteView):
 @method_decorator(login_required,name='dispatch')
 class GroupUpdateView(BSModalUpdateView):
     model = SledGroup
-    template_name = 'groups/group_update.html'
+    template_name = 'sled_groups/group_update.html'
     form_class = SledGroupForm
     success_message = 'Success: Group was updated.'
     
@@ -101,7 +101,7 @@ class GroupUpdateView(BSModalUpdateView):
 
 @method_decorator(login_required,name='dispatch')
 class GroupCedeOwnershipView(BSModalFormView):
-    template_name = 'groups/group_cede_ownership.html'
+    template_name = 'sled_groups/group_cede_ownership.html'
     form_class = GroupCedeOwnershipForm
 
     def get_initial(self):
@@ -135,14 +135,15 @@ class GroupCedeOwnershipView(BSModalFormView):
         return response
 
     def get_success_url(self):
-        return reverse_lazy('groups:group-detail',kwargs={'pk':self.group_id})
+        return reverse_lazy('sled_groups:group-list')
+        #return reverse_lazy('sled_groups:group-detail',kwargs={'pk':self.group_id})
 
 
 @method_decorator(login_required,name='dispatch')
 class GroupAddView(BSModalFormView):
-    template_name = 'groups/group_add.html'
+    template_name = 'sled_groups/group_add.html'
     form_class = GroupAddForm
-    success_url = reverse_lazy('groups:group-list')
+    success_url = reverse_lazy('sled_groups:group-list')
 
     def form_invalid(self,form):
         response = super().form_invalid(form)

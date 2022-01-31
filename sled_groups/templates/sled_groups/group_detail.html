@@ -49,15 +49,15 @@
   <p> Owner: {{ group.owner }}</p>
 
   {% if  group.owner == user %}
-  <button type="button" id="delete-group" class="btn btn-sm btn-danger" data-form-url="{% url 'groups:group-delete' group.pk %}">
+  <button type="button" id="delete-group" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-delete' group.pk %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete
   </button>
-  <button type="button" id="update-group" class="btn btn-sm btn-primary" data-form-url="{% url 'groups:group-update' group.pk %}">
+  <button type="button" id="update-group" class="btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-update' group.pk %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Update
   </button>
-  <button type="button" id="cede-ownership" class="btn btn-sm btn-danger" data-form-url="{% url 'groups:group-cede-ownership' %}">
+  <button type="button" id="cede-ownership" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-cede-ownership' %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Cede ownership
   </button>

@@ -2,11 +2,11 @@ from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 from . import views
 
-app_name = 'groups'
+app_name = 'sled_groups'
 urlpatterns = [
     path('', views.GroupListView.as_view(), name='group-list'),
     path('list/', views.GroupListView.as_view(), name='group-list'),
-    path('detail/',RedirectView.as_view(url='/groups/',permanent=False),name='redirect-detail'),
+    path('detail/',RedirectView.as_view(url='/sled_groups/',permanent=False),name='redirect-detail'),
     path('detail/<int:pk>', views.GroupDetailView.as_view(), name='group-detail'),
     path('add/', views.GroupAddView.as_view(), name='group-add'),
     path('delete/<int:pk>', views.GroupDeleteView.as_view(), name='group-delete'),

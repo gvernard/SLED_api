@@ -30,7 +30,7 @@ urlpatterns = [
     path('sled_tasks/', include('sled_tasks.urls'), name='sled_tasks'),
     path('lenses/', include('lenses.urls'), name='lenses'),
     path('users/', include('users.urls'), name='users'),
-    path('groups/', include('groups.urls'), name='groups'),
+    path('sled_groups/', include('sled_groups.urls'), name='sled_groups'),
     path('register/', vregistration.register, name='register'),
     path('login/', auth_views.LoginView.as_view(
             template_name="registration/login.html",
