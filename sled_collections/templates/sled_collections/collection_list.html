@@ -2,40 +2,38 @@
 {% load static %}
 
 {% block content %}
+<!-- This modal is required to display messages when redirecting here, e.g. when deleting a collection -->
 <div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
   <div class="modal-dialog">
     <div class="modal-content"></div>
   </div>
 </div>
 
+
+
 <h1>My collections</h1>
-<div class="content ">
+
+<div>
   {% if collections %}
   <table>
-    {% for collection in collections %}
-    <tr>
-      <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
-      <td>{{ collection.item_type }}</td>
-      <td>{{ collection.description }}</td>
-      <td> N. items {{ collection.myitems.all|length }}</td>
-      <td>
-	<div style="float:left;margin-right:4px;">
-	  <form action="{% url 'lenses:lens-query' %}">
-	    <button type="submit" class="add-items btn btn-sm btn-primary" >
-	      <img src="{% static 'icons/plus.svg' %}" alt="plus">
-	      Add items
-	    </button>
-	  </form>
-	</div>
-	<button type="button" class="update-collection btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
-	  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-        </button>
-        <button type="button" class="delete-collection btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
-	  <img src="{% static 'icons/trash.svg' %}" alt="trash">
-        </button>
-      </td>
-    </tr>
-    {% endfor %}
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Item type</th>
+	<th>Description</th>
+	<th>Number of items</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in collections %}
+      <tr>
+	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+	<td>{{ collection.item_type }}</td>
+	<td>{{ collection.description }}</td>
+	<td> N. items {{ collection.myitems.all|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
   {% else %}
   <p>
@@ -43,47 +41,5 @@
   </p>
   {% endif %}
 </div>
-
-<ul>
-  <li>Button: If private make public (future)</li>
-  <li>Button: Give Access (future)</li>
-  <li>Button: Revoke Access (future)</li>
-</ul>
 {% endblock content %}
 
-
-{% block extrascripts %}
-<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
-<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
-<script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-      function deleteCollectionModalForm() {
-          $(".delete-collection").each(function () {
-              $(this).modalForm({
-		  formURL: $(this).data("form-url"),
-		  modalID: "#id-modal",
-		  isDeleteForm: true
-	      });
-          });
-      }
-      deleteCollectionModalForm();
-
-      function updateCollectionModalForm() {
-          $(".update-collection").each(function () {
-              $(this).modalForm({
-                  formURL: $(this).data("form-url"),
- 		  modalID: "#id-modal"
-              });
-          });
-      }
-      updateCollectionModalForm();
-      
-      $(".alert").fadeTo(2000, 500).slideUp(500, function () {
-          $(".alert").slideUp(500);
-      });
-      
-  });
-</script>
-{% endblock extrascripts %}

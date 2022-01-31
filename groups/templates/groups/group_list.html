@@ -1,6 +1,8 @@
 {% extends 'master_header.html' %}
+{% load static %}
 
 {% block content %}
+<!-- This modal is required to display messages when redirecting here, e.g. when deleting a group -->
 <div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
   <div class="modal-dialog">
     <div class="modal-content"></div>
@@ -8,38 +10,65 @@
 </div>
 
 
-<div class="content container">
-    <table class="sortable">
-        <tr>
-            <th class="th-center">Name</th>
-            <th class="th-center">Description</th>
-            <th class="th-center">Group Owner</th>
-            <th class="th-center">Manage</th>
 
-        </tr>
-    {% for group in groups %}
-        <tr>
-            <td class="td-center"><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
-            <td class="td-center">{{group.description}}</td>
-            <td class="td-center">{{group.owner}}</td>
-            <td class="td-center">
-            <div class="content ">
-              <form id="leavegroupbutton" method="POST">
-                    {% csrf_token %}
-                    <input type="hidden" id="id" name="leaving" value="{{group.name}}">
-              </form>
-            </div>
-            <div class="controls">
-            <button type="submit" form="leavegroupbutton" formaction="{% url 'groups:group-list' %}">Leave group</button>
-            </div>
-        </td>
-        </tr>
-    {% endfor %}
-    </table>
+<h1>My Groups</h1>
 
+<div>
+  {% if groups %}
+  <table>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Description</th>
+	<th>Owner</th>
+      <th>Number of members</th>
+      </tr>
+    </thead>
 
+    <tbody>
+      {% for group in groups %}
+      <tr>
+	<td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
+	<td>{{ group.description }}</td>
+	<td>{{ group.owner }}</td>
+	<td>{{ group.user_set.all|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No groups to show
+  </p>
+  {% endif %}
 </div>
 
-
-
+<button type="button" id="create-new-group" class="btn btn-sm btn-secondary" data-form-url="{% url 'groups:group-add' %}">
+  <img src="{% static 'icons/folder-fill.svg' %}" alt="group">
+  Create new group
+</button>
 {% endblock content %}
+
+
+{% block extrastyles %}
+<!-- THe line below is to style the drop down auto-complete text input -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- The line below is to style the buttons  -->
+<link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      $("#create-new-group").modalForm({
+	  formURL: $("#create-new-group").data("form-url"),
+ 	  modalID: "#id-modal"
+      });
+  });
+</script>
+{% endblock extrascripts %}

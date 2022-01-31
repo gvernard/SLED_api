@@ -4,6 +4,7 @@ from django.utils.timezone import make_aware
 from django.utils.dateparse import parse_datetime
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
+from django.contrib.auth.models import Group
 
 import abc
 import inspect
@@ -11,8 +12,6 @@ import datetime
 import pytz
 from operator import itemgetter
 from itertools import groupby
-
-from . import SledGroup
 
 
 class Base:
@@ -22,9 +21,11 @@ class Base:
         super().__init_subclass__(**kwargs)
         while cls.__name__ in cls.subs:
             cls.subs[cls.subs.index(cls.__name__)] = cls
+
 class Users(Base):
     def objects(self):
         none = 3
+
 
 
 
@@ -275,7 +276,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 ids = []
                 for group in groups:
                     ids.append(group.id)
-                return list(SledGroup.objects.filter(id__in=ids))
+                return list(Group.objects.filter(id__in=ids))
             else:
                 return []
         

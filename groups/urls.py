@@ -1,16 +1,15 @@
 from django.urls import path, re_path
-
+from django.views.generic.base import RedirectView
 from . import views
-
 
 app_name = 'groups'
 urlpatterns = [
-    path('', views.index, name='index'),
-    #re_path('list/$', views.group_list, name='group-list'),
+    path('', views.GroupListView.as_view(), name='group-list'),
     path('list/', views.GroupListView.as_view(), name='group-list'),
-    re_path('add/', views.group_add, name='group-add'),
-    #re_path('(?P<group_name>[A-Za-z0-9\w|\W\- ]+)/$', views.group_detail, name='group-detail'),
+    path('detail/',RedirectView.as_view(url='/groups/',permanent=False),name='redirect-detail'),
     path('detail/<int:pk>', views.GroupDetailView.as_view(), name='group-detail'),
+    path('add/', views.GroupAddView.as_view(), name='group-add'),
     path('delete/<int:pk>', views.GroupDeleteView.as_view(), name='group-delete'),
     path('update/<int:pk>', views.GroupUpdateView.as_view(), name='group-update'),
+    path('cede-ownership/',views.GroupCedeOwnershipView.as_view(),name='group-cede-ownership'),
 ]

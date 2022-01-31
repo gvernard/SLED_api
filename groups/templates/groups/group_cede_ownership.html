@@ -1,45 +1,40 @@
-{% extends 'modal_base.html' %}
+{% extends "modal_base.html" %}
 
 {% block title %}
-Create new group?
+Cede ownership?
 {% endblock title %}
+
 
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
+<div>
+  {{ form.heir }}
 </div>
 
 <div>
-  {{ form.name }}
+  {{ form.justification }}
 </div>
 
-<div>
-  {{ form.description }}
-</div>
-
-<div>
-  {{ form.users }}
-</div>
+{{ form.group_id }}
 {% endblock content %}
+<input type="hidden" name="group_id" value="3">
+
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Create</button>
+<button type="submit" class="btn btn-sm btn-danger">Cede ownership</button>
 {% endblock action_button %}
 
 
 {% block extrascripts %}
 <script>
-  users_autocomplete("id_users");
-  $('#id_users').select2({
+  users_autocomplete('id_heir');
+  $('#id_heir').select2({
       width: '100%',
       placeholder: 'Search for a user',
       minimumInputLength: 1,
       dropdownParent: $('#id-modal')
   });
+  
 </script>
 {% endblock extrascripts %}
-

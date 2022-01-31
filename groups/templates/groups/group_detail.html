@@ -9,13 +9,11 @@
 <input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
 
 <!-- Modal divs -->
-<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
-  <div class="modal-dialog">
+<div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
     <div class="modal-content"></div>
   </div>
 </div>
-
-
 {% if  group.owner != user %}
 <div class="modal fade" tabindex="-1" role="dialog" id="id-modal-leave">
   <div class="modal-dialog">
@@ -58,6 +56,10 @@
   <button type="button" id="update-group" class="btn btn-sm btn-primary" data-form-url="{% url 'groups:group-update' group.pk %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Update
+  </button>
+  <button type="button" id="cede-ownership" class="btn btn-sm btn-danger" data-form-url="{% url 'groups:group-cede-ownership' %}">
+    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+    Cede ownership
   </button>
   {% else %}
   <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#id-modal-leave">
@@ -165,8 +167,15 @@
  	  modalID: "#id-modal"
       });
 
-      $(".alert").fadeTo(2000, 500).slideUp(500, function () {
-          $(".alert").slideUp(500);
+      
+      $("#cede-ownership").click(function(){
+	  var dum = window.location.href.split('/');
+	  var get_str = '?group_id=' + dum[dum.length-1];
+	  var new_form_url = $("#cede-ownership").data("form-url") + get_str;
+	  $(this).modalFormTrigger({
+	      formURL: new_form_url,
+ 	      modalID: "#id-modal"
+	  });
       });
 
   });

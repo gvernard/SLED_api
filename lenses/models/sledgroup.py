@@ -2,8 +2,10 @@ from django.db import models
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
+from . import SingleObject
+
 #class SledGroups(models.Model):
-class SledGroup(Group):
+class SledGroup(Group,SingleObject):
     """
     The custom SLED model for a group of users, inheriting from the django `Group`.
 
@@ -19,7 +21,7 @@ class SledGroup(Group):
 #                                 on_delete=models.CASCADE,
 #                                 primary_key=True
 #                                 )
-    owner = models.ForeignKey('Users',on_delete=models.CASCADE) 
+    #owner = models.ForeignKey('Users',on_delete=models.CASCADE) 
     description = models.CharField(max_length=200,null=True, blank=True)
     
     class Meta():
