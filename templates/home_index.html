@@ -2,19 +2,13 @@
 {% load static %}
 
 {% block content %}
-<header id="hero" class="jb-hero-3">
-  <div class="jb-flex-container-4 jb-container">
-    <div>
-      <p class="jb-heading-1">Welcome to the Strong Lensing Database</p>
-    </div>
-    <div class="jb-hero-image-mask"><img src="{% static 'images/JB_Homepage_Grid.png' %}" sizes="(max-width: 479px) 92vw, (max-width: 767px) 95vw, (max-width: 991px) 341.09375px, 503.453125px"
-        srcset="{% static 'images/JB_Homepage_Grid.png' %} 500w, {% static 'images/JB_Homepage_Grid.png' %} 800w, {% static 'images/JB_Homepage_Grid.png' %} 1098w" alt="" class="jb-hero-image-1">
-    </div>
-  </div>
-  <div class="jb-container-2 jb-container">
-    <img src="{% static 'images/JB_Homepage_EPFL.png' %}" loading="lazy" width="100" alt="" class="jb-image-1">
-    <img src="{% static 'images/JB_Homepage_ERC.png' %}" loading="lazy" width="75" alt="" class="jb-image-1">
-    <img src="{% static 'images/JB_Homepage_EU.png' %}" loading="lazy" height="65" alt="" class="jb-image-1">
-  </div>
-</header>
+<div class="jb-homepage-container">
+  <p>Welcome to the Strong Lensing Database</p>
+  <img src="{% static 'images/JB_Homepage_Grid.png' %}" alt="">
+</div>
+<div class="jb-container">
+  <img src="{% static 'images/JB_Homepage_EPFL.png' %}" loading="lazy" width="100" alt="">
+  <img src="{% static 'images/JB_Homepage_ERC.png' %}" loading="lazy" width="75" alt="">
+  <img src="{% static 'images/JB_Homepage_EU.png' %}" loading="lazy" height="65" alt="">
+</div>
 {% endblock %}
