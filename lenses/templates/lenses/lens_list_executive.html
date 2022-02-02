@@ -2,27 +2,31 @@
 
 <div>
   <input name="obj_type" type="hidden" value="Lenses" />
-  <table class="exe_summary sortable">
-    <tr>
-      <th></th>
-      <th>Name</th>
-      <th>Right Ascension J2000</th>
-      <th>Declination J2000</th>
-      <th>Access level</th>
-      <th>Accessible by</th>
-    </tr>
-    {% for lens in lenses %}
-    <tr>
-      <td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
-      <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
-      <td>{{ lens.ra }}</td>
-      <td>{{ lens.dec }}</td>
-      <td>{{ lens.access_level }}</td>
-      <td>
-	{{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
-      </td>
-    </tr>
-    {% endfor %}
+  <table id="exe_summary">
+    <thead>
+      <tr>
+	<th></th>
+	<th>Name</th>
+	<th>Right Ascension J2000</th>
+	<th>Declination J2000</th>
+	<th>Access level</th>
+	<th>Accessible by</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lens in lenses %}
+      <tr>
+	<td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
+	<td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
+	<td>{{ lens.ra }}</td>
+	<td>{{ lens.dec }}</td>
+	<td>{{ lens.access_level }}</td>
+	<td>
+	  {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
   </table>
   <button type="button" class="btn btn-sm btn-light" id="toggle_all" value="select">Toggle select all</button>
 </div>
@@ -48,7 +52,7 @@
 
   
   var min_checked = function(e) {
-      var checked_boxes = document.querySelectorAll('.content input[type="checkbox"]:checked');
+      var checked_boxes = document.querySelectorAll('#exe_summary input[type="checkbox"]:checked');
       if( checked_boxes.length == 0 ){
    	  alert('You must select at least one lens!');
    	  e.preventDefault();

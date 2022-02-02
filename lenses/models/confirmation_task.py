@@ -26,6 +26,9 @@ class ConfirmationTaskManager(models.Manager):
     def pending_for_user(self,user):
         return super().get_queryset().filter(status='P').filter(Q(owner=user)|Q(recipients__username=user.username))
 
+    def completed_for_user(self,user):
+        return super().get_queryset().filter(status='C').filter(Q(owner=user)|Q(recipients__username=user.username))
+
     def all_as_recipient(self,user):
         return super().get_queryset().filter(Q(recipients__username=user.username))
 
@@ -77,7 +80,7 @@ class ConfirmationTask(SingleObject):
         db_table = "confirmation_tasks"
         verbose_name = "confirmation_task"
         verbose_name_plural = "confirmation_tasks"
-        ordering = ["modified_at"]
+        ordering = ["-status","-modified_at"]
         # constrain the number of recipients?
         
     def __init__(self, *args, **kwargs):

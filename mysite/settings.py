@@ -41,6 +41,7 @@ EMAIL_PORT = 1025
 
 INSTALLED_APPS = [
     'lenses.apps.LensesConfig',
+    'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
     'users.apps.UsersConfig',
     'django.contrib.admin',
@@ -173,6 +174,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+
+LOGIN_URL = '/login/'
+LOGOUT_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
@@ -187,11 +191,11 @@ if socket.gethostname()=='django01':
         os.path.join(BASE_DIR, 'static'),
     ]    
 
-    LOGIN_URL = '/Recherche/lensdb/accounts/login/'
+    LOGIN_URL = '/Recherche/lensdb/registration/login/'
     LOGIN_REDIRECT_URL = '/Recherche/lensdb/'
     
-    LOGOUT_URL = '/Recherche/lensdb/accounts/login/'
-    LOGOUT_REDIRECT_URL = '/Recherche/lensdb/accounts/login/'
+    LOGOUT_URL = '/Recherche/lensdb/registration/login/'
+    LOGOUT_REDIRECT_URL = '/Recherche/lensdb/registration/login/'
 
 
 # Default primary key field type

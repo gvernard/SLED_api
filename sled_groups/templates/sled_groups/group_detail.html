@@ -1,0 +1,181 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+
+{% block content %}
+
+<!-- Hidden elements needed for the user and group autocomplete -->
+<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+<input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
+
+<!-- Modal divs -->
+<div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content"></div>
+  </div>
+</div>
+{% if  group.owner != user %}
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal-leave">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+	<h5 class="modal-title">Are you sure you want to leave this group?</h5>
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	  <span aria-hidden="true">&times;</span>
+	</button>
+      </div>
+      <div class="modal-footer">
+	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	<form id="dum-form" method="POST">
+	  {% csrf_token %}
+	</form>
+	<button type="submit" form="dum-form" class="btn btn-danger">Leave</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+
+
+<h1>{{ group.name }}</h1>
+
+<hr>
+
+<!-- Div with some information about the group and different actions for users or the owner -->
+<div>
+  <p> Description: {{ group.description }}</p>
+  <p> Owner: {{ group.owner }}</p>
+
+  {% if  group.owner == user %}
+  <button type="button" id="delete-group" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-delete' group.pk %}">
+    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+    Delete
+  </button>
+  <button type="button" id="update-group" class="btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-update' group.pk %}">
+    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+    Update
+  </button>
+  <button type="button" id="cede-ownership" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-cede-ownership' %}">
+    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+    Cede ownership
+  </button>
+  {% else %}
+  <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#id-modal-leave">
+    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+    Leave group
+  </button>
+  {% endif %}
+</div>
+
+<hr>
+
+<!-- List of users in the group -->
+<div>
+  <p>List of group members</p>
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Affiliation</th>
+    </tr>
+    {% for user in group.getAllMembers %}
+    <tr>
+      <td>{{user.username}}</td>
+      <td>{{user.affiliation}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<hr>
+
+<!-- Actions for the group owner -->
+{% if  group.owner == user %}
+<div>
+  <p> ADD/Remove USERS</p>
+  
+  <form id="ids-form" method="POST" action="">
+    {% csrf_token %}
+    <span class="errorlist">{{ error_message }}</span>
+    <div>
+      <p>Add Users:</p>
+      <select id="users-autocomplete1" name="addusers" multiple></select>
+    </div>
+    <div>
+      <p>Remove Users:</p>
+      <select id="users-autocomplete2" name="removeusers" multiple></select>
+    </div>
+  </form>
+
+  <button type="submit" id="submit-btn" form="ids-form">Submit</button>
+</div>
+{% endif %}
+
+<hr>
+{% endblock content %}
+
+
+{% block extrastyles %}
+<!-- THe line below is to style the drop down auto-complete text input -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+
+      // Create Select2 for users and groups
+      users_autocomplete("users-autocomplete1");
+      users_autocomplete("users-autocomplete2");
+      
+      // Attach requirement for user or group to the submit button
+      $('#submit-btn').on('click',function(event){
+          var users1 = $('#users-autocomplete1').find(':selected');
+          var users2 = $('#users-autocomplete2').find(':selected');
+          if( users1.length == 0 && users2.length==0 ){
+              alert('You must select a user!');
+              event.preventDefault();
+          }
+      });
+      
+      // Check all the checkboxes
+      var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
+      if( checkboxes.length > 0){
+          for(var i=0;i<checkboxes.length;i++){
+              checkboxes[i].checked = true;
+          }
+      }
+
+      // Modals
+      $('#delete-group').modalForm({
+ 	  formURL: $('#delete-group').data("form-url"),
+ 	  modalID: "#id-modal",
+ 	  isDeleteForm: true
+      });
+      
+      $("#update-group").modalForm({
+          formURL: $("#update-group").data("form-url"),
+ 	  modalID: "#id-modal"
+      });
+
+      
+      $("#cede-ownership").click(function(){
+	  var dum = window.location.href.split('/');
+	  var get_str = '?group_id=' + dum[dum.length-1];
+	  var new_form_url = $("#cede-ownership").data("form-url") + get_str;
+	  $(this).modalFormTrigger({
+	      formURL: new_form_url,
+ 	      modalID: "#id-modal"
+	  });
+      });
+
+  });
+</script>
+{% endblock extrascripts %}

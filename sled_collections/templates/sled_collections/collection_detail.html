@@ -1,29 +1,8 @@
 {% extends 'master_header.html' %}
 {% load static %}
-{% block content %}
 
-<!-- Message div -->
-<div>
-  {% if messages %}
-  {% for message in messages %}
-  {% if message.tags %}
-  <div style="border-radius:0;" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  {% else %}
-  <div style="border-radius:0;">
-    {{ message }}
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  {% endif %}
-  {% endfor %}
-  {% endif %}
-</div>
+
+{% block content %}
 
 <!-- Modal divs -->
 <div class="modal fade" tabindex="-1" role="dialog" id="id-modal-large">
@@ -55,34 +34,42 @@
 </div>
 
 
+<h1>{{ collection.name }}</h1>
 
+<hr>
 
-<div class="content">
-  <table>
-    <tr><td>Name:</td><td>{{ collection.name }}</td></tr>
-    <tr><td>Item type:</td><td>{{ collection.item_type }}</td></tr>
-    <tr><td>Description:</td><td>{{ collection.description }}</td></tr>
-  </table>
-  <button type="button" class="update-collection btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
+<!-- Div with some information about the collection and different actions for users or the owner -->
+<div>
+  <p>Item type: {{ collection.item_type }}</p>
+  <p>Description: {{ collection.description }}</p>
+
+  {% if  collection.owner == user %}
+  <button type="button" id="update-collection" class="btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Update
   </button>
-  <button type="button" class="delete-collection btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
+  <button type="button" id="delete-collection" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete
   </button>
+
+  Some notes here:
   <ul>
     <li>Button: If private make public (future)</li>
     <li>Button: Give Access (future)</li>
     <li>Button: Revoke Access (future)</li>
   </ul>
+  {% endif %}
 </div>
 
-<div class="content">
+<hr>
+
+<!-- List of items in the collection -->
+<div>
   <p>Items in the collection:</p>
   <form id="ids-form" method="POST">
     {% csrf_token %}
-    <input type="hidden" name="collection_id" id="collection_id" value="{{collection.id}}">
+    <input type="hidden" name="collection_id" id="collection_id" value="{{ collection.id }}">
     <span class="errorlist">{{ error_message }}</span>
     {% if collection.item_type == 'Lenses' %}
     {% include "lenses/lens_list_executive.html" with lenses=collection.myitems.all %}
@@ -90,55 +77,58 @@
     <p> Unknown item type </p>
     {% endif %}
   </form>
-  <div style="float:left;margin-right:4px;">
-    <form action="{% url 'lenses:lens-query' %}">
-      <button type="submit" class="add-items btn btn-sm btn-primary" >
-	<img src="{% static 'icons/plus.svg' %}" alt="plus">
-	Add items
-      </button>
-    </form>
-  </div>
-  <button type="button" class="remove-items btn btn-sm btn-danger" data-toggle="modal" data-target="#id-modal-remove-items">
+</div>
+
+<hr>
+
+<!-- Actions for the group owner -->
+{% if  collection.owner == user %}
+<div>
+  <form id="add-items-form" action="{% url 'lenses:lens-query' %}">
+    <button type="submit" form="add-items-form" class="btn btn-sm btn-primary" >
+      <img src="{% static 'icons/plus.svg' %}" alt="plus">
+      Add items
+    </button>
+  </form>
+  <button type="button" id="remove-items" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#id-modal-remove-items">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Remove selected
   </button>
 </div>
+{% endif %}
+
+<hr>
 {% endblock content %}
 
 
-{% block extrascripts %}
+{% block extrastyles %}
+<!-- The line below is to style the buttons  -->
 <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
 <script src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      function deleteCollectionModalForm() {
-          $(".delete-collection").each(function () {
-              $(this).modalForm({
-		  formURL: $(this).data("form-url"),
-		  modalID: "#id-modal",
-		  isDeleteForm: true
-	      });
-          });
-      }
-      deleteCollectionModalForm();
+      $("#delete-collection").modalForm({
+	  formURL: $("#delete-collection").data("form-url"),
+	  modalID: "#id-modal",
+	  isDeleteForm: true
+      });
 
-      function updateCollectionModalForm() {
-          $(".update-collection").each(function () {
-              $(this).modalForm({
-                  formURL: $(this).data("form-url"),
- 		  modalID: "#id-modal"
-              });
-          });
-      }
-      updateCollectionModalForm();
+      $("#update-collection").modalForm({
+          formURL: $("#update-collection").data("form-url"),
+ 	  modalID: "#id-modal"
+      });
 
       $(".alert").fadeTo(2000, 500).slideUp(500, function () {
           $(".alert").slideUp(500);
       });
 
-      $(".remove-items").click(function (e) {
+      $("#remove-items").click(function (e) {
 	  var names = [];
           $("input[name='ids']:checked").each(function(){
 	      name = $(this).parent().parent().find('a').text();

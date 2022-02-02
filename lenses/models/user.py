@@ -69,6 +69,11 @@ class Users(AbstractUser,GuardianUserMixin):
             objects[table] = model_ref.accessible_objects.owned(self)
         return objects
 
+    def leaveGroup(self,group):
+        if self!=group.owner:
+            if self in group.getAllMembers(): 
+                group.user_set.remove(self)
+    
     def getGroupsIsMember(self):
         """
         Provides access to all the Groups that the user is a member of.
