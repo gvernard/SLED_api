@@ -173,14 +173,14 @@
 
 
 <div>
-  <!-- The button class 'process-lenses' is required for functionality  -->
+  <!-- The button class 'sled-process-lenses' is required for functionality  -->
   
   <!-- Neutral buttons - they don't change the database -->
   <button type="submit" id="update" class="btn btn-sm btn-secondary" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Update lenses
   </button>
-  <button type="button" id="make-collection" class="process-lenses btn btn-sm btn-secondary" data-form-url="{% url 'lenses:lens-make-collection' %}">
+  <button type="button" id="make-collection" class="sled-process-lenses btn btn-sm btn-secondary" data-form-url="{% url 'lenses:lens-make-collection' %}">
     <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
     Make collection
   </button>
@@ -190,29 +190,29 @@
   </button>
   
   <!-- Action buttons - performing some action without any danger of exposing sensitive information -->
-  <button type="button" id="make-private" class="process-lenses btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
+  <button type="button" id="make-private" class="sled-process-lenses btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
     <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
     Make private
   </button>
-  <button type="button" id="revoke-access" class="process-lenses btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-revoke-access' %}">
+  <button type="button" id="revoke-access" class="sled-process-lenses btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-revoke-access' %}">
     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
     Revoke access
   </button>
   
   <!-- Dangerous action buttons - revealing sensitive information if not used properly -->
-  <button type="button" id="give-access" class="process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-give-access' %}">
+  <button type="button" id="give-access" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-give-access' %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Give access
   </button>
-  <button type="button" id="make-public" class="process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-make-public' %}">
+  <button type="button" id="make-public" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-make-public' %}">
     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
     Make public
   </button>
-  <button type="button" id="cede-ownership" class="process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
+  <button type="button" id="cede-ownership" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
     Cede ownership
   </button>
-  <button type="button" id="delete-lenses" class="process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">
+  <button type="button" id="delete-lenses" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete lenses
   </button>
@@ -232,7 +232,7 @@
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $(".process-lenses").click(function (){
+      $(".sled-process-lenses").click(function (){
 
 	  // Construct get query string
 	  var values = [];
