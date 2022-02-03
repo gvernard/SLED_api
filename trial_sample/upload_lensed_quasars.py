@@ -76,15 +76,24 @@ for i in range(len(ras)):
     if lens.n_img==4:
         lens.image_conf = 'QUAD'
 
-    lensedquasars.append( lens )
-
     #copy the image to the relevant place
-    os.system('cp ./trial_sample/images/'+names[i]+'.png ./lenses/static/lenses/mugshots/')
-
-
+    #os.system('cp ./trial_sample/images/'+names[i]+'.png ./lenses/static/lenses/mugshots/')
+    
+    lensedquasars.append( lens )
+    
 Lenses.objects.bulk_create(lensedquasars)
 lensedquasars = Lenses.objects.all()
 assign_perm('view_lenses', user1, lensedquasars)
+
+
+for lens in lensedquasars:
+    fname = str(lens.id) + '.png'
+    os.system('cp ./trial_sample/images/'+lens.name+'.png ./media/lenses/' + fname)
+    lens.mugshot.name = '/lenses/' + fname
+    lens.save()
+
+
+
 
 #lenses = Lenses.objects.all()
 

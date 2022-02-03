@@ -6,6 +6,7 @@
     <thead>
       <tr>
 	<th></th>
+	<th>Mugshot</th>
 	<th>Name</th>
 	<th>Right Ascension J2000</th>
 	<th>Declination J2000</th>
@@ -17,6 +18,7 @@
       {% for lens in lenses %}
       <tr>
 	<td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
+	<td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
 	<td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
 	<td>{{ lens.ra }}</td>
 	<td>{{ lens.dec }}</td>
@@ -31,6 +33,9 @@
   <button type="button" class="btn btn-sm btn-light" id="toggle_all" value="select">Toggle select all</button>
 </div>
 
+<style>
+  .sled-mugshot-icon {width:70px;height:70px;}
+</style>
 
 <script>
   var toggle = function (e) {

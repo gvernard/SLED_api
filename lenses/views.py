@@ -412,7 +412,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
         if referer == request.path:
             # Submitting to itself, perform all the checks
             LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
-            myformset = LensFormSet(data=request.POST,instance=request.user)
+            myformset = LensFormSet(data=request.POST,files=request.FILES,instance=request.user)
             if myformset.has_changed() and myformset.is_valid():
                 instances = myformset.save(commit=False)
                 to_check = []
@@ -423,7 +423,7 @@ class LensUpdateView(AddUpdateMixin,TemplateView):
 
                 if to_check:
                     indices,neis = Lenses.proximate.get_DB_neighbours_many(to_check)
-                    myformset = LensFormSet(data=request.POST,instance=request.user,required=indices)
+                    myformset = LensFormSet(data=request.POST,files=request.FILES,instance=request.user,required=indices)
                     if myformset.is_valid():
                         if self.finalize_update(myformset,instances,request):
                             message = 'Lenses successfully updated!'
@@ -471,13 +471,13 @@ class LensAddView(AddUpdateMixin,TemplateView):
         if referer == request.path:
             # Submitting to itself, perform all the checks
             LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
-            myformset = LensFormSet(data=request.POST)
+            myformset = LensFormSet(data=request.POST,files=request.FILES)
             if myformset.is_valid():
                 instances = myformset.save(commit=False)
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
                 
                 # Set the possible duplicate indices and call validate again to check the insert fields - this requires a new formset
-                myformset = LensFormSet(data=request.POST,required=indices)
+                myformset = LensFormSet(data=request.POST,files=request.FILES,required=indices)
                 if myformset.is_valid():
                     to_insert = []
                     for i,lens in enumerate(instances):
