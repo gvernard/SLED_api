@@ -30,7 +30,8 @@
     
     <div class="content-container">
         <p class="centred_section_title"> IMAGING DATA </p>
-        <img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" style="width: 10%; height: auto;">
+        <!-- <img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" style="width: 10%; height: auto;"> -->
+        <img src="{{ lens.mugshot.url }}" style="width: 10%; height: auto;">
     </div>
     <div class="content container">
         <p class="centred_section_title"> SPECTROSCOPIC DATA </p>

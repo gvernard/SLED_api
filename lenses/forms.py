@@ -189,6 +189,7 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                                choices=mychoices,
                                widget=forms.RadioSelect)
     required = []
+
     
     def __init__(self, required=[], *args, **kwargs):
         super(BaseLensAddUpdateFormSet,self).__init__(*args, **kwargs)
@@ -207,7 +208,7 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
         if any(self.errors):
             # Don't bother validating the formset unless each form is valid on its own
             return
-
+        
         ### Check if formset has changed.
         if not self.has_changed():
             raise ValidationError("No changes detected.")

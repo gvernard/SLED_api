@@ -6,7 +6,7 @@
 {% for lens in lenses %}
 <div class="inline-block">
 <figure><figcaption>{{lens.name}}</figcaption>
-<img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" class="img">
+<img src="{{ lens.mugshot.url }}" class="img">
 </figure>
 </div>
 {% endfor %}
