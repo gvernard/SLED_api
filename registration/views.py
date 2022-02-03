@@ -19,7 +19,7 @@ def register(response):
         print('someone is on the register page')
         form = RegisterForm()
 
-    return render(response, "register.html", {"form":form}) 
+    return render(response, "registration/register.html", {"form":form}) 
 
 '''
 # Create your views here.
