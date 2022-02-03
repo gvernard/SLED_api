@@ -2,84 +2,101 @@
 <!DOCTYPE html>
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Strong Gravitational Lens database</title>
 
-    <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}"/>
-    <!-- <script src="{% static 'lenses/js/sorttable.js' %}"></script> -->
+<head>
+  <meta charset="UTF-8">
+  <title>Strong Gravitational Lens database</title>
 
-    <!-- The line below is required to style the message -->
-    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
-    {% block extrastyles %}
-    {% endblock extrastyles %}
-    
-    <script type="text/javascript" src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
-    {% block extrascripts %}
-    {% endblock extrascripts %}
-  </head>
+  <!-- <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" /> -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/jb_style.css' %}" />
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    WebFont.load({
+      google: {
+        families: ["Basic:regular"]
+      }
+    });
+  </script>
+  <script src="https://use.typekit.net/pkl4bli.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    try {
+      Typekit.load();
+    } catch (e) {}
+  </script>
+  <!-- <script src="{% static 'lenses/js/sorttable.js' %}"></script> -->
 
-  <body>
-    
-    <!-- Message div -->
-    <div>
-      {% if messages %}
-      {% for message in messages %}
-      {% if message.tags %}
-      <div style="border-radius:0;" id="alert-message" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
-	{{ message }}
-	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-	  <span aria-hidden="true">&times;</span>
-	</button>
-      </div>
-      {% else %}
-      <div style="border-radius:0;">
-	{{ message }}
-	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-	  <span aria-hidden="true">&times;</span>
-	</button>
-      </div>
-      {% endif %}
-      {% endfor %}
-      {% endif %}
+
+  <!-- The line below is required to style the message -->
+  <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+  {% block extrastyles %}
+  {% endblock extrastyles %}
+
+  <script type="text/javascript" src="{% static 'js/jquery-3.2.1.min.js' %}"></script>
+  {% block extrascripts %}
+  {% endblock extrascripts %}
+</head>
+
+<body>
+
+  <!-- Message div -->
+  <div>
+    {% if messages %}
+    {% for message in messages %}
+    {% if message.tags %}
+    <div style="border-radius:0;" id="alert-message" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-    <script type="text/javascript">
-      $("#alert-message").fadeTo(2000, 500).slideUp(500, function () {
-          $("#alert-message").slideUp(500);
-      });      
-    </script>
-
-    
-
-    <!-- Top navigation bar -->
-    <div>
-      <h1>
-        <table>
-	  <tr>
-            {% with url_name=request.resolver_match.url_name %}
-            {% with url_base=request.get_full_path %}
-            <td class="{% if url_name in 'homepage,' %}selected{% endif %}"><a href="{% url 'home:homepage' %}">Home</a></td>
-            <td class="{% if '/lenses/' in url_base %}selected{% endif %}"><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
-            <td class="{% if '/sled_groups/' in url_base %}selected{% endif %}"><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
-            <td class="{% if '/users/' in url_base %}selected{% endif %}">
-	      {% if user.is_authenticated %}
-              <a href="{% url 'users:user-profile' %}">{{ user.username }}</a>
-	      &nbsp;
-	      (<a href="{% url 'logout'%}">LOGOUT</a>)
-              {% else %}
-              <a href="{% url 'login'%}">Login</a>
-              {% endif %}
-	    </td>
-            {% endwith %}
-            {% endwith %}
-	  </tr>
-	</table>
-      </h1>
+    {% else %}
+    <div style="border-radius:0;">
+      {{ message }}
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-    
-    {% block content %}
-    {% endblock %}
-    
-  </body>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+  </div>
+  <script type="text/javascript">
+    $("#alert-message").fadeTo(2000, 500).slideUp(500, function() {
+      $("#alert-message").slideUp(500);
+    });
+  </script>
+
+
+
+  <!-- Top navigation bar -->
+  <div>
+    <h1>
+      <table>
+        <tr>
+          {% with url_name=request.resolver_match.url_name %}
+          {% with url_base=request.get_full_path %}
+          <td class="{% if url_name in 'homepage,' %}selected{% endif %}"><a href="{% url 'home:homepage' %}">Home</a></td>
+          <td class="{% if '/lenses/' in url_base %}selected{% endif %}"><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
+          <td class="{% if '/sled_groups/' in url_base %}selected{% endif %}"><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
+          <td class="{% if '/users/' in url_base %}selected{% endif %}">
+            {% if user.is_authenticated %}
+            <a href="{% url 'users:user-profile' %}">{{ user.username }}</a>
+            &nbsp;
+            (<a href="{% url 'logout'%}">LOGOUT</a>)
+            {% else %}
+            <a href="{% url 'login'%}">Login</a>
+            {% endif %}
+          </td>
+          {% endwith %}
+          {% endwith %}
+        </tr>
+      </table>
+    </h1>
+  </div>
+
+  {% block content %}
+  {% endblock %}
+
+</body>
+
 </html>
-
