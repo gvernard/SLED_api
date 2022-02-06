@@ -17,8 +17,10 @@ else
 fi
 
 echo "Cleanup lens mugshots and temporary uploads"
-rm media/lenses/*
-rm -r media/temporary/*
+rm -r media
+mkdir media
+mkdir media/lenses
+mkdir media/temporary
 
 echo "Makemigrations"
 python manage.py makemigrations
