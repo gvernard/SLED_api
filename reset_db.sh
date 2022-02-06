@@ -16,6 +16,10 @@ else
     gsed -i '0,/which_database/{/.*which_database.*/s//which_database="remote"/}' mysite/settings.py
 fi
 
+echo "Cleanup lens mugshots and temporary uploads"
+rm media/lenses/*
+rm -r media/temporary/*
+
 echo "Makemigrations"
 python manage.py makemigrations
 

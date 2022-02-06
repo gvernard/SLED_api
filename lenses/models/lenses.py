@@ -3,6 +3,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
 from django.urls import reverse
+from django.conf import settings
+import os
 
 import math
 from astropy import units as u
@@ -219,7 +221,21 @@ class Lenses(SingleObject):
         if self.z_lens and self.z_source: # z_lens_lt_z_source
             if self.z_lens > self.z_source:
                 raise ValidationError('The source redshift cannot be lower than the lens redshift.')
+
+    def save(self,*args,**kwargs):
+	# Call save first, to create a primary key
+        super(Lenses,self).save(*args,**kwargs)
         
+        fname = '/'+self.mugshot.name
+        sled_fname = '/lenses/' + str( self.pk ) + '.png'
+        
+        # Create new file and remove old one
+        if fname != sled_fname:
+            os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+            self.mugshot.name = sled_fname
+            super(Lenses,self).save(*args,**kwargs)
+
+
     def __str__(self):
         if self.name:
             return self.name

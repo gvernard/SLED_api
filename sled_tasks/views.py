@@ -40,7 +40,7 @@ class TaskDetailOwnerView(DetailView):
         context['allowed'] = ' or '.join( self.object.allowed_responses() )
         context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
         context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
-        print(context)
+        #print(context)
         return context
 
 

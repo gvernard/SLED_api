@@ -1,22 +1,39 @@
 import json                    
 import requests
+from requests.auth import HTTPBasicAuth
 
 
-url = "http://httpbin.org/post"
+# Specify the URL for the request to be sent
+url = "http://127.0.0.1:8000/api/upload-lenses/"
+
+# Specify the directory where the mugshot for each lens is found
+mugshot_dir = "lens_mugshots/"
+
+# Specify the json file with the lens properties
+lenses_json_file = 'lenses_to_upload.json'
 
 
 
+# Opening the JSON file with the lens properties
+f = open(lenses_json_file)
+lenses = json.load(f)
+f.close()
+data_lenses = {'lenses':json.dumps(lenses)}
 
-mugshot_files = {
-    "test_file_1": open("my_file.txt", "rb"),
-    "test_file_2": open("my_file_2.txt", "rb"),
-    "test_file_3": open("my_file_3.txt", "rb")
-}
 
-test_response = requests.post(test_url, files = test_files)
+# Creating a dict with the images
+mugshot_files = {}
+for lens in lenses:
+    mugshot_files[lens["mugshot"]] = open(mugshot_dir + lens["mugshot"], "rb")
 
-if test_response.ok:
+    
+# Sending the request 
+r = requests.post(url,files=mugshot_files,data=data_lenses,auth = HTTPBasicAuth('gvernard','123'))
+
+
+# Printing the response of the request
+if r.ok:
     print("Upload completed successfully!")
-    print(test_response.text)
 else:
     print("Something went wrong!")
+print(r.text)

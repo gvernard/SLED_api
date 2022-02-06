@@ -6,7 +6,8 @@ from . import views
 # Additionally, we include login URLs for the browsable API.
 app_name = 'api'
 urlpatterns = [
-    path('users/', views.UsersAutocomplete.as_view(),name="users-view"),
-    path('groups/', views.GroupsAutocomplete.as_view(),name="groups-view"),
+    path('users/', views.UsersAutocomplete.as_view(), name="users-view"),
+    path('groups/', views.GroupsAutocomplete.as_view(), name="groups-view"),
+    path('upload-lenses/', views.UploadLenses.as_view(), name="upload-lenses-view"),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

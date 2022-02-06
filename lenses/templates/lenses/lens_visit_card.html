@@ -1,11 +1,10 @@
 {% load static %}
-<div class="visit-card">
+<div>
   <table>
     <tr>
       <td>
-	<!-- Lens parameters -->
 	<h3>{{ lens.name }}</h3>
-	<table class="properties">
+	<table>
 	  <tr><td>RA:</td><td>{{ lens.ra }}</td></tr>
 	  <tr><td>DEC:</td><td>{{ lens.dec }}</td></tr>
 	  <tr><td>Created at:</td><td>{{ lens.created_at }}</td></tr>
@@ -16,8 +15,8 @@
       </td>
       <td>
 	<!-- Lens image -->
-	<div class="img-container">
-	  <img src="{{ lens.mugshot.url }}" style="width: 10%; height: auto;">
+	<div>
+	  <img class="sled-mugshot-image" src="{{ lens.mugshot.url }}">
 	</div>
       </td>
     </tr>
