@@ -72,7 +72,11 @@
 		<td>
 		  <div>
 		    <table>
+		      {% if form.instance.mugshot %}
+		      <tr><td colspan="3"><img class="sled-mugshot-image" src="{{ form.instance.mugshot.url }}" alt="Mugshot"></td></tr>
+		      {% else %}
 		      <tr><td colspan="3"><img class="sled-mugshot-image" src=""></td></tr>
+		      {% endif %}
 		      <tr><td>{{ form.mugshot.errors }}</td><td>{{ form.mugshot.label_tag }}</td><td>{{ form.mugshot }}</td></tr>
 		    </table>
 		  </div>
@@ -117,8 +121,10 @@
 
 
 {% block extrascripts %}
+{% if request.resolver_match.url_name == 'lens-add' %}
 <script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
+{% endif %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
@@ -134,6 +140,15 @@
       $(document).on("change","input[name*='mugshot']",function(){
 	  var $img = $(this).parent().parent().parent().find('img');
 	  readURL(this,$img);
+      });
+
+      $('.my-select2').each(function(index,element){
+	  $(element).attr('multiple','multiple');
+	  $(element).find('option')[0].remove();
+      });
+      $('.my-select2').select2({
+	  multiple: true,
+	  placeholder: 'Select an option'
       });
   });
 </script>

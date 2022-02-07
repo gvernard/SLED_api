@@ -354,43 +354,61 @@ class ResolveDuplicates(ConfirmationTask):
                 reject_indices.append(int(response['index']))
         #print(reject_indices)
 
-        # Second, keep only those lenses marked for saving
-        lenses = []
-        for i,obj in enumerate(serializers.deserialize("json",self.cargo)):
-            if i not in reject_indices: 
-                obj.object.owner = self.owner
-                obj.object.create_name()
-                obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
-                lenses.append(obj.object)
-            else:
-                # Remove uploaded image
-                os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + obj.object.mugshot.name)
-
-        # Save lenses in the database
-        db_vendor = connection.vendor
-        if db_vendor == 'sqlite':
-            pri = []
-            for lens in lenses:
-                lens.save()
-                if lens.access_level == 'PRI':
-                    pri.append(lens)
-            if pri:
-                assign_perm('view_lenses',self.owner,pri)
-        else:
-            lenses = Lenses.objects.bulk_create(lenses)
-            # Here I need to upload and rename the images accordingly.
-            pri = []
-            for lens in lenses:
-                if lens.access_level == 'PRI':
-                    pri.append(lens)
-            if pri:
-                assign_perm('view_lenses',self.owner,pri)
+        mode = self.cargo['mode']
         
+        if mode == "makePublic":
+            ids = []
+            for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
+                if i not in reject_indices:
+                    ids.append(obj.object.pk)
+            lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,ids)
+            output = self.owner.makePublic(lenses)
+        else:
+            # Keep only lenses marked to save
+            lenses = []
+            for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
+                if i not in reject_indices:
+                    obj.object.owner = self.owner
+                    obj.object.create_name()
+                    if not obj.object.pk:
+                        obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
+                    lenses.append(obj.object)
+                else:
+                    # Remove uploaded image
+                    if not obj.object.pk:
+                        os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + obj.object.mugshot.name)
+
+            # Save lenses in the database
+            db_vendor = connection.vendor
+            if db_vendor == 'sqlite':
+                pri = []
+                for lens in lenses:
+                    lens.save()
+                    if lens.access_level == 'PRI':
+                        pri.append(lens)
+                if pri:
+                    assign_perm('view_lenses',self.owner,pri)
+            else:
+                lenses = Lenses.objects.bulk_create(lenses)
+                # Here I need to upload and rename the images accordingly.
+                pri = []
+                for lens in lenses:
+                    if lens.access_level == 'PRI':
+                        pri.append(lens)
+                if pri:
+                    assign_perm('view_lenses',self.owner,pri)
+
+                    
         #  Create a collection
-        mycollection = Collection(owner=self.owner,name="Worst",access_level='PRI',description="Aliens invaded earth in 2019 in the form of a virus.",item_type="Lenses")
-        mycollection.save()
-        mycollection.myitems = lenses
-        mycollection.save()
+        # Nlenses = len(lenses)
+        # mycollection = Collection(owner=self.owner,
+        #                           name="Added "+str(Nlenses)+" lenses",
+        #                           access_level='PRI',
+        #                           description=str(Nlenses) + " added on the " + str(timezone.now().date()),
+        #                           item_type="Lenses")
+        # mycollection.save()
+        # mycollection.myitems = lenses
+        # mycollection.save()
         
 ### END: Confirmation task specific code
 ################################################################################################################################################
