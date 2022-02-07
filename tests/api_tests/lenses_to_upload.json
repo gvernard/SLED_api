@@ -1,0 +1,12 @@
+[
+    {
+	"ra": 88,
+	"dec": 88,
+	"mugshot": "this_lens.png"
+    },
+    {
+	"ra": 99,
+	"dec": 99,
+	"mugshot": "that_lens.png"
+    }
+]

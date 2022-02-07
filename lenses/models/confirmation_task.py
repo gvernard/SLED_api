@@ -1,11 +1,13 @@
-from django.db import models
+from django.db import models,connection
 from django.utils import timezone
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
+from django.core import serializers
 from django.urls import reverse
 from django import forms
-from django.db.models import Q
+from django.db.models import Q,F,Count
 from django.apps import apps
+from django.conf import settings
 
 from guardian.shortcuts import assign_perm
 
@@ -14,8 +16,9 @@ from notifications.signals import notify
 
 import abc
 import json
+import os
 
-from . import SingleObject
+from . import SingleObject, Collection
 
 
 
@@ -50,7 +53,8 @@ class ConfirmationTask(SingleObject):
     TaskTypeChoices = (
         ('CedeOwnership','Cede ownership'),
         ('MakePrivate','Make private'),
-        ('DeleteObject','Delete public object')
+        ('DeleteObject','Delete public object'),
+        ('ResolveDuplicates','Resolve duplicate objects')
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -325,6 +329,68 @@ class MakePrivate(ConfirmationTask):
             notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
         
 
+class ResolveDuplicates(ConfirmationTask):
+    class Meta:
+        proxy = True
 
+    responses_allowed = []
+    
+    class myForm(forms.Form):
+        pass
+    
+    def allowed_responses(self):
+        return self.responses_allowed
+
+    def getForm(self):
+        return self.myForm()
+
+    def finalizeTask(self):
+        # First find the lenses that where selected as duplicates (to be rejected)
+        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
+        responses = json.loads(obj_responses['response'])
+        reject_indices = []
+        for response in responses:
+            if response['insert'] == 'no':
+                reject_indices.append(int(response['index']))
+        #print(reject_indices)
+
+        # Second, keep only those lenses marked for saving
+        lenses = []
+        for i,obj in enumerate(serializers.deserialize("json",self.cargo)):
+            if i not in reject_indices: 
+                obj.object.owner = self.owner
+                obj.object.create_name()
+                obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
+                lenses.append(obj.object)
+            else:
+                # Remove uploaded image
+                os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + obj.object.mugshot.name)
+
+        # Save lenses in the database
+        db_vendor = connection.vendor
+        if db_vendor == 'sqlite':
+            pri = []
+            for lens in lenses:
+                lens.save()
+                if lens.access_level == 'PRI':
+                    pri.append(lens)
+            if pri:
+                assign_perm('view_lenses',self.owner,pri)
+        else:
+            lenses = Lenses.objects.bulk_create(lenses)
+            # Here I need to upload and rename the images accordingly.
+            pri = []
+            for lens in lenses:
+                if lens.access_level == 'PRI':
+                    pri.append(lens)
+            if pri:
+                assign_perm('view_lenses',self.owner,pri)
+        
+        #  Create a collection
+        mycollection = Collection(owner=self.owner,name="Worst",access_level='PRI',description="Aliens invaded earth in 2019 in the form of a virus.",item_type="Lenses")
+        mycollection.save()
+        mycollection.myitems = lenses
+        mycollection.save()
+        
 ### END: Confirmation task specific code
 ################################################################################################################################################

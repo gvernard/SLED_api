@@ -7,6 +7,29 @@ from rest_framework import authentication, permissions
 from .serializers import UsersSerializer, GroupsSerializer
 from lenses.models import Users, SledGroup
 
+import json
+
+class UploadLenses(APIView):
+    authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self,request):
+        user = request.user
+        lenses = json.loads(request.data['lenses'])
+
+        print(len(lenses))
+        print(lenses)
+
+
+        for lens in lenses:
+            file_obj = request.FILES[lens['mugshot']]
+            
+
+        
+        return Response({"data":"ok"})
+        # serializer = UsersSerializer(queryset,many=True)
+        # return Response({"users":serializer.data})
+
 class UsersAutocomplete(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
     permission_classes = [permissions.IsAuthenticated]
