@@ -171,6 +171,11 @@ class BaseLensForm(forms.ModelForm):
 
 
 
+
+
+
+        
+
 class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
     """
     The basic formset used to add and update lenses.
@@ -213,7 +218,6 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
         if not self.has_changed():
             raise ValidationError("No changes detected.")
 
-        
         ### Add a validation on the 'insert' field
         for i in self.required:
             insert = self.forms[i].cleaned_data.get('insert')
@@ -221,6 +225,67 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                 message = 'An answer is required here!'
                 self.forms[i].add_error('insert',message)
             
+        ### Check proximity here
+        check_radius = 16 # arcsec
+        for i in range(0,len(self.forms)-1):
+            form1 = self.forms[i]
+            ra1 = form1.cleaned_data.get('ra')
+            dec1 = form1.cleaned_data.get('dec')
+
+            other_forms = []
+            for j in range(i+1,len(self.forms)):
+                form2 = self.forms[j]
+                ra2 = form2.cleaned_data.get('ra')
+                dec2 = form2.cleaned_data.get('dec')
+
+                if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
+                    other_forms.append(j)
+
+            if len(other_forms) > 0:
+                strs = [str(i+1) for i in other_forms]
+                message = 'This Lens is too close to Lens '+str(','.join(strs)+'. This probably indicates a possible duplicate and submission is not allowed.')
+                self.forms[i].add_error('__all__',message)
+
+
+class ResolveDuplicatesForm(forms.Form):
+    mychoices = (
+        ('no','No, this is a duplicate, ignore it'),
+        ('yes','Yes, insert to the database anyway')
+    )
+    insert = forms.ChoiceField(required=True,
+                               label='Submit this lens?',
+                               choices=mychoices,
+                               widget=forms.RadioSelect)
+    index = forms.CharField(widget=forms.HiddenInput())
+        
+
+
+
+    
+class NewBaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
+    """
+    The basic formset used to add and update lenses.
+
+    Attributes:
+        requried(list[int]): An array of indices of those forms that are possible duplicates, and therefore require a user response for 'insert'.
+                             This array will be used upon formset validation in clean() to make sure the user has responed.  
+    """
+    def __init__(self, *args, **kwargs):
+        super(NewBaseLensAddUpdateFormSet,self).__init__(*args, **kwargs)
+        for form in self.forms:
+            form.empty_permitted = False
+
+    def clean(self):
+        """Checks that no two new lenses are within a proximity radius."""
+        super(NewBaseLensAddUpdateFormSet,self).clean()
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+        
+        ### Check if formset has changed.
+        if not self.has_changed():
+            raise ValidationError("No changes detected.")
+
         ### Check proximity here
         check_radius = 16 # arcsec
         for i in range(0,len(self.forms)-1):

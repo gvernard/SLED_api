@@ -14,117 +14,155 @@
 </p>
 
 <form id="formset" formset-prefix="{{ lens_formset.prefix }}" method="POST" enctype="multipart/form-data">
-  <div class="form-div">
+  <div>
     {% csrf_token %}
     {{ lens_formset.management_form }}
     {{ lens_formset.non_form_errors }}
-    
-    <table class="master">
-      {% for form,existing in new_existing %}
-      
-      <tr class="copy-target">
-	<td>
-	  
-	  <div class="lens-form">
-	    <table class="controls">
-	      <tr>
-		<td><h3>Lens {{ forloop.counter }}</h3></td>
-		<td class="delete-button"></td>
-	      </tr>
-	    </table>
 
-	    {{ form.non_field_errors }}
-	    {{ form.id }}
-	    
-	    <table class="form-table">
-	      <tr>
-		<!-- First column -->
-		<td>
-		  <div class="column">
-		    <table>
-		      <tr><td>{{ form.ra.errors }}</td><td>{{ form.ra.label_tag }}</td><td>{{ form.ra }}</td></tr>
-		      <tr><td>{{ form.dec.errors }}</td><td>{{ form.dec.label_tag }}</td><td>{{ form.dec }}</td></tr>
-		      <tr><td>{{ form.image_sep.errors }}</td><td>{{ form.image_sep.label_tag }}</td><td>{{ form.image_sep }}</td></tr>
-		      <tr><td>{{ form.z_lens.errors }}</td><td>{{ form.z_lens.label_tag }}</td><td>{{ form.z_lens }}</td></tr>
-		      <tr><td>{{ form.z_source.errors }}</td><td>{{ form.z_source.label_tag }}</td><td>{{ form.z_source }}</td></tr>
-		      <tr><td>{{ form.flag_confirmed.errors }}</td><td>{{ form.flag_confirmed.label_tag }}</td><td>{{ form.flag_confirmed }}</td></tr>
-		      <tr><td>{{ form.flag_contaminant.errors }}</td><td>{{ form.flag_contaminant.label_tag }}</td><td>{{ form.flag_contaminant }}</td></tr>
-		      <tr><td>{{ form.access_level.errors }}</td><td>{{ form.access_level.label_tag }}</td><td>{{ form.access_level }}</td></tr>
-		    </table>
-		  </div>
-		</td>
+    <table id="sled-lenses-table">
+      {% for form in lens_formset.forms %}
+      <tr class="sled-copy-target">
+        <td>
+
+          <div>
+            <table>
+              <tr>
+                <td>
+                  <h3 class="sled-lens-counter">Lens {{ forloop.counter }}</h3>
+                </td>
+                <td class="sled-delete-button"></td>
+              </tr>
+            </table>
+
+            {{ form.non_field_errors }}
+            {{ form.id }}
+
+            <table>
+              <tr>
+                <!-- First column -->
+                <td>
+                  <div>
+                    <table>
+                      <tr>
+                        <td>{{ form.ra.errors }}</td>
+                        <td>{{ form.ra.label_tag }}</td>
+                        <td>{{ form.ra }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.dec.errors }}</td>
+                        <td>{{ form.dec.label_tag }}</td>
+                        <td>{{ form.dec }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.image_sep.errors }}</td>
+                        <td>{{ form.image_sep.label_tag }}</td>
+                        <td>{{ form.image_sep }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.z_lens.errors }}</td>
+                        <td>{{ form.z_lens.label_tag }}</td>
+                        <td>{{ form.z_lens }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.z_source.errors }}</td>
+                        <td>{{ form.z_source.label_tag }}</td>
+                        <td>{{ form.z_source }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.flag_confirmed.errors }}</td>
+                        <td>{{ form.flag_confirmed.label_tag }}</td>
+                        <td>{{ form.flag_confirmed }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.flag_contaminant.errors }}</td>
+                        <td>{{ form.flag_contaminant.label_tag }}</td>
+                        <td>{{ form.flag_contaminant }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.access_level.errors }}</td>
+                        <td>{{ form.access_level.label_tag }}</td>
+                        <td>{{ form.access_level }}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </td>
 
 
-		<!-- Second column -->
-		<td>
-		  <div class="column">
-		    <table>
-		      <tr><td>{{ form.n_img.errors }}</td><td>{{ form.n_img.label_tag }}</td><td>{{ form.n_img }}</td></tr>
-		      <tr><td>{{ form.lens_type.errors }}</td><td>{{ form.lens_type.label_tag }}</td><td>{{ form.lens_type }}</td></tr>
-		      <tr><td>{{ form.source_type.errors }}</td><td>{{ form.source_type.label_tag }}</td><td>{{ form.source_type }}</td></tr>
-		      <tr><td>{{ form.image_conf.errors }}</td><td>{{ form.image_conf.label_tag }}</td><td>{{ form.image_conf }}</td></tr>
-		      <tr><td>{{ form.info.errors }}</td><td colspan="2">{{ form.info }}</td></tr>
-		    </table>
-		  </div>
-		</td>
+                <!-- Second column -->
+                <td>
+                  <div>
+                    <table>
+                      <tr>
+                        <td>{{ form.n_img.errors }}</td>
+                        <td>{{ form.n_img.label_tag }}</td>
+                        <td>{{ form.n_img }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.lens_type.errors }}</td>
+                        <td>{{ form.lens_type.label_tag }}</td>
+                        <td>{{ form.lens_type }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.source_type.errors }}</td>
+                        <td>{{ form.source_type.label_tag }}</td>
+                        <td>{{ form.source_type }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.image_conf.errors }}</td>
+                        <td>{{ form.image_conf.label_tag }}</td>
+                        <td>{{ form.image_conf }}</td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.info.errors }}</td>
+                        <td colspan="2">{{ form.info }}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </td>
 
 
-		<!-- Fourth column -->
-		<td>
-		  <div class="column">
-		    <table>
-		      {% if form.instance.mugshot %}
-		      <tr><td colspan="3"><img class="sled-mugshot-image" src="{{form.instance.mugshot.url}}"></td></tr>
-		      {% else %}
-		      <tr><td colspan="3"><img class="sled-mugshot-image" src=""></td></tr>
-		      {% endif %}
-		      <tr><td>{{ form.mugshot.errors }}</td><td>{{ form.mugshot.label_tag }}</td><td>{{ form.mugshot }}</td></tr>
-		    </table>
-		  </div>
-		</td>
+                <!-- Fourth column -->
+                <td>
+                  <div>
+                    <table>
+                      <tr>
+                        <td colspan="3"><img class="sled-mugshot-image" src=""></td>
+                      </tr>
+                      <tr>
+                        <td>{{ form.mugshot.errors }}</td>
+                        <td>{{ form.mugshot.label_tag }}</td>
+                        <td>{{ form.mugshot }}</td>
+                      </tr>
+                    </table>
+                  </div>
+                </td>
 
-		
-	      </tr>
-	    </table>
-	  </div>
-	  
-	</td>
-	<td>
 
-	  {% if existing %}
-	  {{ form.insert.errors }}
-	  {{ form.insert.label_tag }}
-	  {{ form.insert }}
-	  {% endif %}
-	  
-	</td>
-	<td>
-	  
-	  {% if existing %}
-	  {% for lens in existing %}
-	  {% include 'lenses/lens_visit_card.html' with lens=lens %}
-	  {% endfor %}
-	  {% endif %}
-	  
-	</td>
+              </tr>
+            </table>
+          </div>
+
+        </td>
       </tr>
       {% endfor %}
     </table>
-    
+
   </div>
-  
-  
-  
-  <div class="button-div">
+
+
+
+  <div>
     <table>
       <tr>
-	{% if request.resolver_match.url_name == 'lens-add' %}
-	<td><div class="add-button"></div></td>
-	<td><button id="toggle-access-level" type="button">Toggle access_level all</button></td>
-	<td><button type="submit">Create Lenses</button></td>
-	{% else %}
-	<td><button type="submit">Update</button></td>
-	{% endif %}	
+        {% if request.resolver_match.url_name == 'lens-add' %}
+        <td>
+          <div class="sled-add-button"></div>
+        </td>
+        <td><button id="toggle-access-level" type="button">Toggle access_level all</button></td>
+        <td><button type="submit">Create Lenses</button></td>
+        {% else %}
+        <td><button type="submit">Update</button></td>
+        {% endif %}
       </tr>
     </table>
   </div>
@@ -134,12 +172,7 @@
 
 
 {% block extrastyles %}
-<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_add.css' %}"/>
-<link rel="stylesheet" type="text/css" href="{% static 'lenses/css/lens_visit_card.css' %}"/>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-<style>
-  .sled-mugshot-image {width:250px;height:250px;}
-</style>
 {% endblock extrastyles %}
 
 
@@ -150,19 +183,19 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      function readURL(input,$img) {
-	  if (input.files && input.files[0]) {
-              var reader = new FileReader();
-              reader.onload = function (e) {
-		  $img.attr('src', e.target.result);
-              }
-              reader.readAsDataURL(input.files[0]);
-	  }
+    function readURL(input, $img) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          $img.attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
       }
-      $("input[name*='mugshot']").change(function(){
-	  var $img = $(this).parent().parent().parent().find('img');
-	  readURL(this,$img);
-      });
+    }
+    $(document).on("change", "input[name*='mugshot']", function() {
+      var $img = $(this).parent().parent().parent().find('img');
+      readURL(this, $img);
+    });
   });
 </script>
 {% endblock extrascripts %}
