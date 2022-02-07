@@ -25,3 +25,36 @@
   height: 100%;
   padding-left: 25px;
 }
+
+.jb-navbar-container {
+  margin: auto;
+  max-width: 940px;
+  padding-top: 20px;
+}
+
+.jb-navbar {
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+.jb-navbar a {
+  font-family: basic-sans, sans-serif;
+  color: #000;
+  font-size: 20px;
+  text-decoration: none;
+  padding: 5px;
+  margin-left: 40px;
+}
+
+.jb-navbar-login {
+  color: #ACACAC !important;
+  margin-left: 40px;
+  float: right;
+}
+
+.jb-nav-brand {
+  position: relative;
+  float: left;
+  color: #333333;
+  padding-top: 20 px;
+}

@@ -64,7 +64,7 @@
 
 
   <!-- Top navigation bar -->
-  <div>
+  <!-- <div>
     <h1>
       <table>
         <tr>
@@ -87,6 +87,29 @@
         </tr>
       </table>
     </h1>
+  </div> -->
+
+
+  <div class="jb-navbar-container">
+    <a href="#" class="jb-nav-brand"><img src="{% static 'images/JB_Master Header_Logo.png' %}" loading="lazy" width="248" alt=""></a>
+    <div class="jb-navbar">
+      <nav role="navigation">
+        {% with url_name=request.resolver_match.url_name %}
+        {% with url_base=request.get_full_path %}
+        <a href="{% url 'home:homepage' %}">Home</a>
+        <a href="{% url 'lenses:lens-index' %}">Lenses</a>
+        <!-- <a href="{% if '/sled_groups/' in url_base %}selected{% endif %}"></a> -->
+        <a href="{% url 'sled_groups:group-list' %}">Groups</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'users:user-profile' %}">{{ user.username }}</a>
+        <a href="{% url 'logout'%}" class="jb-navbar-login"><span class="text-span">Logout</span></a>
+        {% else %}
+        <a href="{% url 'login'%}" class="jb-navbar-login"><span class="text-span">Login</span></a>
+        {% endif %}
+        {% endwith %}
+        {% endwith %}
+      </nav>
+    </div>
   </div>
 
   {% block content %}
