@@ -1,12 +1,34 @@
 [
     {
-	"ra": 88,
-	"dec": 88,
-	"mugshot": "this_lens.png"
+	"access_level": "PUB",
+	"ra": 33.0000,
+	"dec": 33.0000,
+	"flag_confirmed": false,
+	"flag_contaminant": false,
+	"image_sep": null,
+	"z_source": null,
+	"z_lens": null,
+	"info": "",
+	"n_img": null,
+	"mugshot": "this_lens.png",
+	"image_conf": null,
+	"lens_type": null,
+	"source_type": null
     },
-    {
-	"ra": 99,
-	"dec": 99,
-	"mugshot": "that_lens.png"
+        {
+	"access_level": "PUB",
+	"ra": 44.0000,
+	"dec": 44.0000,
+	"flag_confirmed": false,
+	"flag_contaminant": false,
+	"image_sep": null,
+	"z_source": null,
+	"z_lens": null,
+	"info": "",
+	"n_img": null,
+	"mugshot": "that_lens.png",
+	"image_conf": null,
+	"lens_type": null,
+	"source_type": null
     }
 ]

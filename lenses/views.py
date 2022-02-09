@@ -28,6 +28,10 @@ from bootstrap_modal_forms.utils import is_ajax
 from notifications.signals import notify
 
 
+#=============================================================================================================================
+### BEGIN: Modal views
+#=============================================================================================================================
+
 
 # Mixin inherited by all the views that are based on Modals
 class ModalIdsBaseMixin(BSModalFormView):
@@ -155,19 +159,19 @@ class LensMakePublicView(ModalIdsBaseMixin):
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        output = self.request.user.makePublic(lenses)
+        indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
 
-        if output['success']:
+        if len(indices) == 0:
+            output = self.request.user.makePublic(lenses)
             messages.add_message(self.request,messages.SUCCESS,output['message'])
-        elif output['duplicates']:
-            # Create ResolveDuplicates task here
-            redirect = HttpResponseRedirect(reverse('lenses:resolve-duplicates',kwargs={'pk':666}))
-            #redirect = HttpResponseRedirect(reverse('lenses:lens-merge-resolution'))
-            #print(redirect['Location'])
-            redirect['Location'] += '?' + '&'.join(['ids={}'.format(x.id) for x in output['duplicates']])
-            return redirect
         else:
-            messages.add_message(self.request,messages.ERROR,output['message'])
+            # Create ResolveDuplicates task here
+            for lens in lenses:
+                lens.access_level = 'PRI'
+            cargo = {'mode':'makePublic','objects':serializers.serialize('json',lenses)}
+            receiver = Users.objects.filter(id=self.request.user.id) # receiver must be a queryset
+            mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
+            return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
 
 
 @method_decorator(login_required,name='dispatch')
@@ -246,6 +250,289 @@ class LensMakeCollectionView(ModalIdsBaseMixin):
         messages.add_message(self.request,messages.SUCCESS,'Collection <b>"'+name+'"</b> was successfully created!')
 
 
+#=============================================================================================================================
+### END: Modal views
+#=============================================================================================================================
+
+
+
+#=============================================================================================================================
+### BEGIN: Non-modal views (to add and update lenses and handle duplicates)
+#=============================================================================================================================
+
+# View for a single lens
+@method_decorator(login_required,name='dispatch')
+class LensDetailView(DetailView):
+    model = Lenses
+    template_name = 'lenses/lens_detail.html'
+    context_object_name = 'lens'
+
+    def get_queryset(self):
+        return Lenses.accessible_objects.all(self.request.user)
+
+
+# View to add new lenses
+@method_decorator(login_required,name='dispatch')
+class LensAddView(TemplateView):
+    model = Lenses
+    template_name = 'lenses/lens_add_update.html'
+
+    def make_collection(self,lenses,user):
+        # Create a collection
+        Nlenses = len(lenses)
+        mycollection = Collection(owner=user,
+                                  name="Added "+str(Nlenses)+" lenses",
+                                  access_level='PRI',
+                                  description=str(Nlenses) + " added on the " + str(timezone.now().date()),
+                                  item_type="Lenses")
+        mycollection.save()
+        mycollection.myitems = lenses
+        mycollection.save()
+
+    def get(self, request, *args, **kwargs):
+        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,exclude=('id',),extra=1)
+        myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
+        context = {'lens_formset': myformset}
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+
+        if referer == request.path:
+            # Submitting to itself, perform all the checks
+            LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
+            myformset = LensFormSet(data=request.POST,files=request.FILES)
+            if myformset.is_valid():
+
+                # Set the possible duplicate indices and call validate again to check the insert fields - this requires a new formset
+                instances = myformset.save(commit=False)
+                indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
+
+                if len(indices) == 0:
+                    # Set owner and name
+                    for i,lens in enumerate(instances):
+                        instances[i].owner = request.user
+                        instances[i].create_name()
+
+                    # Insert in the database
+                    db_vendor = connection.vendor
+                    if db_vendor == 'sqlite':
+                        pri = []
+                        for lens in instances:
+                            lens.save()
+                            if lens.access_level == 'PRI':
+                                pri.append(lens)
+                        if pri:
+                            assign_perm('view_lenses',request.user,pri)
+                        self.make_collection(instances,request.user)
+                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
+                    else:
+                        new_lenses = Lenses.objects.bulk_create(instances)
+                        # Here I need to upload and rename the images accordingly.
+                        pri = []
+                        for lens in new_lenses:
+                            if lens.access_level == 'PRI':
+                                pri.append(lens)
+                        if pri:
+                            assign_perm('view_lenses',request.user,pri)
+                        self.make_collection(instances,request.user)
+                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
+                else:
+                    # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
+                    path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+                    for i,lens in enumerate(instances):
+                        input_field_name = myformset.forms[i]['mugshot'].html_name
+                        f = request.FILES[input_field_name]
+                        with open(path + lens.mugshot.name,'wb+') as destination:
+                            for chunk in f.chunks():
+                                destination.write(chunk)
+                    cargo = {'mode':'add','objects':serializers.serialize('json',instances)}
+                    receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
+                    mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
+                    return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
+            else:
+                # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
+                # path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
+                # if not os.path.exists(path):
+                #     os.makedirs(path)
+                # for form in myformset.forms:
+                #     if form.instance.mugshot:
+                #         input_field_name = form['mugshot'].html_name
+                #         f = request.FILES[input_field_name]
+                #         with open(path + form.instance.mugshot.name,'wb+') as destination:
+                #            for chunk in f.chunks():
+                #                destination.write(chunk)
+                #         form.instance.mugshot = '/temporary/' + self.request.user.username + '/' + form.instance.mugshot.name
+
+                context = {'lens_formset': myformset}
+                return self.render_to_response(context)
+
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+# View to update lenses
+@method_decorator(login_required,name='dispatch')
+class LensUpdateView(TemplateView):
+    model = Lenses
+    template_name = 'lenses/lens_add_update.html'
+
+    def get(self, request, *args, **kwargs):
+        message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+        return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
+
+        if referer == request.path:
+            # Submitting to itself, perform all the checks
+            myformset = LensFormSet(data=request.POST,files=request.FILES,instance=request.user)
+
+            if myformset.has_changed() and myformset.is_valid():
+
+                instances = myformset.save(commit=False)
+                indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
+
+                if len(indices) == 0:
+                    for i,lens in enumerate(instances):
+                        if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
+                            lens.create_name()
+                        lens.save()
+                    message = 'Lenses successfully updated!'
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                else:
+                    # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
+                    path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+                    for i,lens in enumerate(instances):
+                        if 'mugshot' in myformset.forms[i].changed_data:
+                            input_field_name = myformset.forms[i]['mugshot'].html_name
+                            f = request.FILES[input_field_name]
+                            with open(path + lens.mugshot.name,'wb+') as destination:
+                                for chunk in f.chunks():
+                                    destination.write(chunk)
+                            lens.mugshot.name = 'temporary/' + self.request.user.username + '/' + lens.mugshot.name
+                    cargo = {'mode':'update','objects':serializers.serialize('json',instances)}
+                    receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
+                    mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
+                    return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
+            else:
+                context = {'lens_formset': myformset}
+                return self.render_to_response(context)
+        else:
+            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+
+            if ids:
+                myformset = LensFormSet(queryset=Lenses.accessible_objects.in_ids(request.user,ids),instance=request.user)
+                context = {'lens_formset': myformset}
+                return self.render_to_response(context)
+            else:
+                message = 'No lenses to display. Select some from your user profile.'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+# View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
+@method_decorator(login_required,name='dispatch')
+class LensResolveDuplicatesView(TemplateView):
+    template_name = 'lenses/lens_resolve_duplicates.html'
+
+    def get_objs_and_existing(self,task,user):
+        #cargo = json.loads(task.cargo)
+        if "ids" in task.cargo:
+            # Need to check ids, user access, etc.
+            ids = [int(x) for x in cargo['ids']]
+            objs = Lenses.accessible_objects.in_ids(user,ids)
+        else:
+            objs = []
+            for obj in serializers.deserialize("json",task.cargo['objects']):
+                lens = obj.object
+                new_mugshot_name = 'temporary/' + user.username + '/' + lens.mugshot.name
+                if os.path.isfile(settings.MEDIA_ROOT + '/' + new_mugshot_name):
+                    lens.mugshot = new_mugshot_name
+                objs.append(lens)
+
+        indices,neis = Lenses.proximate.get_DB_neighbours_many(objs)
+        existing = [None]*len(objs)
+        for i,index in enumerate(indices):
+            existing[index] = neis[i]
+
+        return objs,indices,existing
+
+    def get(self, request, *args, **kwargs):
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if request.user == task.owner:
+            objs,indices,existing = self.get_objs_and_existing(task,request.user)
+
+            formset_initial = []
+            for i,index in enumerate(indices):
+                formset_initial.append({'index':index})
+
+            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0)
+            myformset = FormSetFactory(initial=formset_initial)
+
+            form_array = [None]*len(objs)
+            for i,index in enumerate(indices):
+                form_array[index] = myformset.forms[i]
+
+            context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
+            return self.render_to_response(context)
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if not task:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if referer == request.path and request.user == task.owner:
+            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0)
+            myformset = FormSetFactory(data=request.POST)
+            if myformset.is_valid():
+                # Hack to pass the insert_form responses to the task
+                my_response = json.dumps(myformset.cleaned_data)
+                task.responses_allowed = [my_response]
+                task.registerResponse(request.user,my_response,'Some comment')
+                task.finalizeTask()
+                task.delete()
+                message = 'Duplicates resolved!'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            else:
+                objs,indices,existing = self.get_objs_and_existing(task,request.user)
+
+                form_array = [None]*len(objs)
+                for i,index in enumerate(indices):
+                    form_array[index] = myformset.forms[i]
+
+                context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
+                return self.render_to_response(context)
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+#=============================================================================================================================
+### END: Non-modal views
+#=============================================================================================================================
 
 
 
@@ -260,9 +547,12 @@ class LensMakeCollectionView(ModalIdsBaseMixin):
 
 
 
-
-
-
+def LensCollageView(request):
+    if request.method=='POST':
+        ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+        if ids:
+            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
+        return render(request, 'lenses/lens_collage.html', {'lenses':lenses})
 
 
 
@@ -348,298 +638,3 @@ class LensQueryView(TemplateView):
     def get(self, request, *args, **kwargs):
         lenses = Lenses.objects.none()
         return self.render_to_response({'lenses':lenses, 'form':forms.LensQueryForm})
-
-
-def LensCollageView(request):
-    if request.method=='POST':
-        ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-        if ids:
-            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
-        return render(request, 'lenses/lens_collage.html', {'lenses':lenses})
-
-
-# View for a single lens
-@method_decorator(login_required,name='dispatch')
-class LensDetailView(DetailView):
-    model = Lenses
-    template_name = 'lenses/lens_detail.html'
-    context_object_name = 'lens'
-    slug_field = 'name'
-
-    def get_queryset(self):
-        return Lenses.accessible_objects.all(self.request.user)
-
-
-
-
-
-
-
-# This is a 'Mixin' class, used to carry variables and functions that are common to LensAddView and LensUpdateView.
-class AddUpdateMixin(object):
-    def get_my_context(self,myformset,**kwargs):
-        indices = kwargs.get('indices',[])
-        neis = kwargs.get('neis',[])
-        for f in myformset.forms:
-            f.initial['insert'] = ''
-        existing = [None]*len(myformset)
-        for i,index in enumerate(indices):
-            existing[index] = neis[i]
-        context = {'lens_formset': myformset,
-                   'new_existing': zip(myformset,existing)
-                   }
-        return context
-
-
-# View to update lenses
-@method_decorator(login_required,name='dispatch')
-class LensUpdateView(AddUpdateMixin,TemplateView):
-    model = Lenses
-    template_name = 'lenses/lens_add_update.html'
-
-    def get(self, request, *args, **kwargs):
-        message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-        return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-    def finalize_update(self,myformset,instances,request):
-        to_update = []
-        for i,myform in enumerate(myformset.forms):
-            if myformset.cleaned_data[i]['insert'] != 'no':
-                to_update.append(instances[i])
-        if to_update:
-            for lens in to_update:
-                #lens.create_name()
-                lens.save()
-            return True
-        else:
-            return False
-
-
-    def post(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-
-        if referer == request.path:
-            # Submitting to itself, perform all the checks
-            LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
-            myformset = LensFormSet(data=request.POST,files=request.FILES,instance=request.user)
-            if myformset.has_changed() and myformset.is_valid():
-                instances = myformset.save(commit=False)
-                to_check = []
-                for i,myform in enumerate(myformset.forms):
-                    if 'ra' in myform.changed_data or 'dec' in myform.changed_data:
-                        instances[i].create_name()
-                        to_check.append(instances[i])
-
-                if to_check:
-                    indices,neis = Lenses.proximate.get_DB_neighbours_many(to_check)
-                    myformset = LensFormSet(data=request.POST,files=request.FILES,instance=request.user,required=indices)
-                    if myformset.is_valid():
-                        if self.finalize_update(myformset,instances,request):
-                            message = 'Lenses successfully updated!'
-                        else:
-                            message = 'No lenses to update.'
-                        return TemplateResponse(request,'simple_message.html',context={'message':message})
-                    else:
-                        return self.render_to_response(self.get_my_context(myformset,indices=indices,neis=neis))
-                else:
-                    if self.finalize_update(myformset,instances,request):
-                        message = 'Lenses successfully updated!'
-                    else:
-                        message = 'No lenses to update.'
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
-            else:
-                return self.render_to_response(self.get_my_context(myformset))
-        else:
-            ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-
-            if ids:
-                LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
-                myformset = LensFormSet(queryset=Lenses.accessible_objects.in_ids(request.user,ids),instance=request.user)
-                return self.render_to_response(self.get_my_context(myformset))
-            else:
-                # Javascript does not allow empty id submission, but check just in case.
-                message = 'No lenses to display. Select some from your user profile.'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-
-# View to add new lenses
-@method_decorator(login_required,name='dispatch')
-class LensAddView(TemplateView):
-    model = Lenses
-    template_name = 'lenses/lens_add_update.html'
-
-    def get(self, request, *args, **kwargs):
-        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,exclude=('id',),extra=1)
-        myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
-        context = {'lens_formset': myformset}
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-
-        if referer == request.path:
-            # Submitting to itself, perform all the checks
-            LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
-            myformset = LensFormSet(data=request.POST,files=request.FILES)
-            if myformset.is_valid():
-
-                # Set the possible duplicate indices and call validate again to check the insert fields - this requires a new formset
-                instances = myformset.save(commit=False)
-                indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
-
-                if len(indices) == 0:
-                    for i,lens in enumerate(instances):
-                        instances[i].owner = request.user
-                        instances[i].create_name()
-
-                    db_vendor = connection.vendor
-                    if db_vendor == 'sqlite':
-                        pri = []
-                        for lens in instances:
-                            lens.save()
-                            if lens.access_level == 'PRI':
-                                pri.append(lens)
-                        if pri:
-                            assign_perm('view_lenses',request.user,pri)
-                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
-                    else:
-                        new_lenses = Lenses.objects.bulk_create(instances)
-                        # Here I need to upload and rename the images accordingly.
-                        pri = []
-                        for lens in new_lenses:
-                            if lens.access_level == 'PRI':
-                                pri.append(lens)
-                        if pri:
-                            assign_perm('view_lenses',request.user,pri)
-                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
-                else:
-                    # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                    path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                    if not os.path.exists(path):
-                        os.makedirs(path)
-                    for i,lens in enumerate(instances):
-                        input_field_name = myformset.forms[i]['mugshot'].html_name
-                        f = request.FILES[input_field_name]
-                        with open(path + lens.mugshot.name,'wb+') as destination:
-                            for chunk in f.chunks():
-                                destination.write(chunk)
-                    cargo = serializers.serialize('json',instances,fields=('ra','dec','mugshot')) #### ATTENTION: update this one with all the fields
-                    receiver = Users.objects.filter(id=request.user.id)
-                    mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
-                    return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
-            else:
-                # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                # path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                # if not os.path.exists(path):
-                #     os.makedirs(path)
-                # for form in myformset.forms:
-                #     if form.instance.mugshot:
-                #         input_field_name = form['mugshot'].html_name
-                #         f = request.FILES[input_field_name]
-                #         with open(path + form.instance.mugshot.name,'wb+') as destination:
-                #            for chunk in f.chunks():
-                #                destination.write(chunk)
-                #         form.instance.mugshot = '/temporary/' + self.request.user.username + '/' + form.instance.mugshot.name
-
-                context = {'lens_formset': myformset}
-                return self.render_to_response(context)
-
-        else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-
-
-# View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
-@method_decorator(login_required,name='dispatch')
-class LensResolveDuplicatesView(TemplateView):
-    template_name = 'lenses/lens_resolve_duplicates.html'
-
-
-    def get_objs_and_existing(self,task,user):
-        cargo = json.loads(task.cargo)
-        if "ids" in cargo:
-            # Need to check ids, user access, etc.
-            ids = [int(x) for x in cargo['ids']]
-            objs = Lenses.accessible_objects.in_ids(user,ids)
-        else:
-            objs = []
-            for obj in serializers.deserialize("json",task.cargo):
-                lens = obj.object
-                lens.mugshot = 'temporary/' + user.username + '/' + lens.mugshot.name
-                objs.append(lens)
-
-        indices,neis = Lenses.proximate.get_DB_neighbours_many(objs)
-        existing = [None]*len(objs)
-        for i,index in enumerate(indices):
-            existing[index] = neis[i]
-
-        return objs,indices,existing
-
-
-    def get(self, request, *args, **kwargs):
-        task_id = self.kwargs['pk']
-        try:
-            task = ConfirmationTask.objects.get(pk=task_id)
-        except ConfirmationTask.DoesNotExist:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-        if request.user == task.owner:
-            objs,indices,existing = self.get_objs_and_existing(task,request.user)
-
-            formset_initial = []
-            for i,index in enumerate(indices):
-                formset_initial.append({'index':index})
-
-            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0)
-            myformset = FormSetFactory(initial=formset_initial)
-
-            form_array = [None]*len(objs)
-            for i,index in enumerate(indices):
-                form_array[index] = myformset.forms[i]
-
-            context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
-            return self.render_to_response(context)
-        else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-
-    def post(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-        task_id = self.kwargs['pk']
-        try:
-            task = ConfirmationTask.objects.get(pk=task_id)
-        except ConfirmationTask.DoesNotExist:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-        if not task:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-        if referer == request.path and request.user == task.owner:
-            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0)
-            myformset = FormSetFactory(data=request.POST)
-            if myformset.is_valid():
-                # Hack to pass the insert_form responses to the task
-                my_response = json.dumps(myformset.cleaned_data)
-                task.responses_allowed = [my_response]
-                task.registerResponse(request.user,my_response,'Some comment')
-                task.finalizeTask()
-                task.delete()
-                message = 'Duplicates resolved!'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
-            else:
-                objs,indices,existing = self.get_objs_and_existing(task,request.user)
-
-                form_array = [None]*len(objs)
-                for i,index in enumerate(indices):
-                    form_array[index] = myformset.forms[i]
-
-                context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
-                return self.render_to_response(context)
-        else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})

@@ -284,13 +284,13 @@ class Users(AbstractUser,GuardianUserMixin):
             
             ### Very important: check for proximity before making public.
             #####################################################            
-            if object_type == 'Lenses':
-                indices,neis = model_ref.proximate.get_DB_neighbours_many(target_objs)
-                if indices:
-                    # Possible duplicates, return them
-                    to_check = [target_objs[i] for i in indices]
-                    output = {'success':False,'message':'Existing public lenses too close - possible duplicates.','duplicates':to_check}
-                    return output
+            # if object_type == 'Lenses':
+            #     indices,neis = model_ref.proximate.get_DB_neighbours_many(target_objs)
+            #     if indices:
+            #         # Possible duplicates, return them
+            #         to_check = [target_objs[i] for i in indices]
+            #         output = {'success':False,'message':'Existing public lenses too close - possible duplicates.','duplicates':to_check}
+            #         return output
             
             ### Per user
             #####################################################            
