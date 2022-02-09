@@ -12,16 +12,6 @@ $( document ).ready(function() {
 	addContainerClass: "sled-add-button",
 	prefix: prefix
     });
-
-    $('.my-select2').each(function(index,element){
-	$(element).attr('multiple','multiple');
-	$(element).find('option')[0].remove();
-    });
-    $('.my-select2').select2({
-	width: '180px',
-	multiple: true,
-	placeholder: 'Select an option'
-    });
 });
 
 function reset_counter(row){
@@ -40,7 +30,7 @@ function reposition(form_div){
 	$(element).find('option')[0].remove();
     });
     $('.my-select2').select2({
-	width: '180px',
+	multiple: true,
 	placeholder: 'Select an option'
     });
     counter = counter + 1;

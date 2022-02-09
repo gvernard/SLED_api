@@ -125,9 +125,15 @@
                 <td>
                   <div>
                     <table>
+                      {% if form.instance.mugshot %}
+                      <tr>
+                        <td colspan="3"><img class="sled-mugshot-image" src="{{ form.instance.mugshot.url }}" alt="Mugshot"></td>
+                      </tr>
+                      {% else %}
                       <tr>
                         <td colspan="3"><img class="sled-mugshot-image" src=""></td>
                       </tr>
+                      {% endif %}
                       <tr>
                         <td>{{ form.mugshot.errors }}</td>
                         <td>{{ form.mugshot.label_tag }}</td>
@@ -178,24 +184,34 @@
 
 
 {% block extrascripts %}
+{% if request.resolver_match.url_name == 'lens-add' %}
 <script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
+{% endif %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-    function readURL(input, $img) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          $img.attr('src', e.target.result);
-        }
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-    $(document).on("change", "input[name*='mugshot']", function() {
-      var $img = $(this).parent().parent().parent().find('img');
-      readURL(this, $img);
-    });
-  });
+        function readURL(input, $img) {
+          if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              $img.attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+          }
+          $(document).on("change", "input[name*='mugshot']", function() {
+            var $img = $(this).parent().parent().parent().find('img');
+            readURL(this, $img);
+          });
+
+          $('.my-select2').each(function(index, element) {
+            $(element).attr('multiple', 'multiple');
+            $(element).find('option')[0].remove();
+          });
+          $('.my-select2').select2({
+            multiple: true,
+            placeholder: 'Select an option'
+          });
+        });
 </script>
 {% endblock extrascripts %}

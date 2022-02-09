@@ -88,7 +88,7 @@ assign_perm('view_lenses', user1, lensedquasars)
 
 for lens in lensedquasars:
     fname = 'upload_'+str(lens.id) + '.png'
-    os.system('cp ./trial_sample/images/'+lens.name+'.png ./media/lenses/' + fname)
+    os.system('cp ../images_of_quasars/'+lens.name+'.png ./media/lenses/' + fname)
     lens.mugshot.name = 'lenses/' + fname
     lens.save()
 
