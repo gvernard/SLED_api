@@ -11,211 +11,228 @@
 
 
 
-<div class="section">
-  <h1>User Profile page</h1>
-</div>
+<!-- <div class="jb-container">
+  <div class="jb-test-1">
+    <h1 class="jb-heading-1">User Profile</h1>
+  </div>
+  <div class="jb-test-2">
+    <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
+  </div> -->
 
-
-<div class="section">
-  <h1>My details</h1>
-  <div>
-    <table>
-      <thead>
-	<tr>
-	  <th>Name</th>
-	  <th>Affiliation</th>    
-	</tr>
-      </thead>
-      <tbody>
-	<tr>
-	  <td>{{ user.username }}</td>
-	  <td>{{ user.affiliation }}</td>
-	</tr>
-      </tbody>
-    </table>
+<div class="jb-container">
+  <div class="jb-float-child-1">
+    <h1 class="jb-heading-1">User Profile</h1>
+  </div>
+  <div class="jb-float-child-2">
+    <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
   </div>
 </div>
 
+<br>
 
-<div class="section">
-  <h1>My Groups</h1>
+<div class="jb-container">
+
   <div>
-    {% if user.getGroupsIsMember|length > 0 %}
-    <table>
-      <thead>
-	<tr>
-	  <th>Name</th>
-	  <th>Description</th>  
-	</tr>
-      </thead>
-      <tbody>
-	{% for group in user.getGroupsIsMember %}
-	<tr>
-	  <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
-	  <td>{{group.description}}</td>  
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>No groups to display</p>
-    {% endif %}
-    <a href="{% url 'sled_groups:group-list' %}">All my groups</a>
+    <h1 class="jb-heading-2">My Details</h1>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th class="th-center">Name</th>
+            <th>Affiliation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ user.username }}</td>
+            <td>{{ user.affiliation }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
 
 
-<div class="section">
-  <h1>Pending Tasks ({{ N_tasks }})</h1>
   <div>
-    {% if N_tasks > 0 %}
-    <table>
-      <thead>
-	<tr>
-	  <th>Type</th>
-	  <th>Created at</th>
-	  <th>From</th>
-	  <th>Receivers</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for recipients,task in pending_conf %}
-	<tr>
-	  <td>{{ task.task_type }}</td>
-	  <td>{{ task.created_at }}</td>
-	  <td>{{ task.owner }}</td>
-	  <td>{{ recipients }}</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>No pending confirmation tasks</p>
-    {% endif %}
-    <a href="{% url 'sled_tasks:tasks-list' %}">All tasks ({{ N_tasks_all }})</a>
+    <h1 class="jb-heading-2">My Groups</h1>
+    <div>
+      {% if user.getGroupsIsMember|length > 0 %}
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for group in user.getGroupsIsMember %}
+          <tr>
+            <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
+            <td>{{group.description}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No groups to display</p>
+      {% endif %}
+      <a href="{% url 'sled_groups:group-list' %}">All my groups</a>
+    </div>
   </div>
-</div>
 
 
-<div class="section">
-  <h1>New Notifications ({{ unread_notifications|length }})</h1>
   <div>
-    {% if unread_notifications %}
-    <table>
-      <thead>
-	<tr>
-	  <th>Sender</th>
-	  <th>Sent at</th>
-	  <th>Level</th>
-	  <th>Verb</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for note in unread_notifications %}
-	<tr>
-	  <td>{{ note.actor }}</td>
-	  <td>{{ note.timestamp }}</td>
-	  <td>{{ note.level }}</td>
-	  <td>{{ note.verb }}</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>No new notifications</p>
-    {% endif %}
-    <a href="{% url 'sled_notifications:notifications-list' %}">All notifications({{ N_note_all }})</a>
+    <h1 class="jb-heading-2">Pending Tasks ({{ N_tasks }})</h1>
+    <div>
+      {% if N_tasks > 0 %}
+      <table>
+        <thead>
+          <tr>
+            <th>Type</th>
+            <th>Created at</th>
+            <th>From</th>
+            <th>Receivers</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for recipients,task in pending_conf %}
+          <tr>
+            <td>{{ task.task_type }}</td>
+            <td>{{ task.created_at }}</td>
+            <td>{{ task.owner }}</td>
+            <td>{{ recipients }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="jb-paragraph-2">No pending confirmation tasks</p>
+      {% endif %}
+      <a href="{% url 'sled_tasks:tasks-list' %}">All tasks ({{ N_tasks_all }})</a>
+    </div>
   </div>
-</div>
 
 
-<div class="section">
-  <h1>My Collections ({{ collections|length }}) </h1>
   <div>
-    {% if collections %}
-    <table>
-      <thead>
-	<tr>
-	  <th>Name</th>
-	  <th>Type</th>
-	  <th>Description</th>
-	  <th>N. of items</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for collection in collections %}
-	<tr>
-	  <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
-	  <td>{{ collection.item_type }}</td>
-	  <td>{{ collection.description }}</td>
-	  <td>{{ collection.myitems.all|length }}</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p>No collections to display</p>
-    {% endif %}
-    <a href="{% url 'sled_collections:collections-list' %}">All collections</a>
+    <h1 class="jb-heading-2">New Notifications ({{ unread_notifications|length }})</h1>
+    <div>
+      {% if unread_notifications %}
+      <table>
+        <thead>
+          <tr>
+            <th>Sender</th>
+            <th>Sent at</th>
+            <th>Level</th>
+            <th>Verb</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for note in unread_notifications %}
+          <tr>
+            <td>{{ note.actor }}</td>
+            <td>{{ note.timestamp }}</td>
+            <td>{{ note.level }}</td>
+            <td>{{ note.verb }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="jb-paragraph-2">No new notifications</p>
+      {% endif %}
+      <a href="{% url 'sled_notifications:notifications-list' %}">All notifications({{ N_note_all }})</a>
+    </div>
   </div>
-</div>
 
 
-<div class="section">
-  <h1>My Lenses ({{ lenses|length }}) </h1>
   <div>
-    <form id="ids-form" method="POST">
-      {% csrf_token %}
-      {% include "lenses/lens_list_executive.html" with lenses=lenses %}
-    </form>
+    <h1 class="jb-heading-2">My Collections ({{ collections|length }}) </h1>
+    <div>
+      {% if collections %}
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>N. of items</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for collection in collections %}
+          <tr>
+            <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+            <td>{{ collection.item_type }}</td>
+            <td>{{ collection.description }}</td>
+            <td>{{ collection.myitems.all|length }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="jb-paragraph-2">No collections to display</p>
+      {% endif %}
+      <a href="{% url 'sled_collections:collections-list' %}">All collections</a>
+    </div>
   </div>
-</div>
 
 
-<div>
-  <!-- The button class 'sled-process-lenses' is required for functionality  -->
-  
-  <!-- Neutral buttons - they don't change the database -->
-  <button type="submit" id="update" class="btn btn-sm btn-secondary" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
-    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-    Update lenses
-  </button>
-  <button type="button" id="make-collection" class="sled-process-lenses btn btn-sm btn-secondary" data-form-url="{% url 'lenses:lens-make-collection' %}">
-    <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
-    Make collection
-  </button>
-  <button type="submit" id="collage" class="btn btn-sm btn-secondary" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">
-    <img src="{% static 'icons/images.svg' %}" alt="image collage">
-    Collage
-  </button>
-  
-  <!-- Action buttons - performing some action without any danger of exposing sensitive information -->
-  <button type="button" id="make-private" class="sled-process-lenses btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-make-private' %}">
-    <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
-    Make private
-  </button>
-  <button type="button" id="revoke-access" class="sled-process-lenses btn btn-sm btn-primary" data-form-url="{% url 'lenses:lens-revoke-access' %}">
-    <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-    Revoke access
-  </button>
-  
-  <!-- Dangerous action buttons - revealing sensitive information if not used properly -->
-  <button type="button" id="give-access" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-give-access' %}">
-    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-    Give access
-  </button>
-  <button type="button" id="make-public" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-make-public' %}">
-    <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-    Make public
-  </button>
-  <button type="button" id="cede-ownership" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
-    <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
-    Cede ownership
-  </button>
-  <button type="button" id="delete-lenses" class="sled-process-lenses btn btn-sm btn-danger" data-form-url="{% url 'lenses:lens-delete' %}">
-    <img src="{% static 'icons/trash.svg' %}" alt="trash">
-    Delete lenses
-  </button>
+  <div>
+    <h1 class="jb-heading-2">My Lenses ({{ lenses|length }}) </h1>
+    <div>
+      <form id="ids-form" method="POST">
+        {% csrf_token %}
+        {% include "lenses/lens_list_executive.html" with lenses=lenses %}
+      </form>
+    </div>
+  </div>
+
+
+  <div>
+    <!-- The button class 'sled-process-lenses' is required for functionality  -->
+
+    <!-- Neutral buttons - they don't change the database -->
+    <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
+      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      Update lenses
+    </button>
+    <button type="button" id="make-collection" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-collection' %}">
+      <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+      Make collection
+    </button>
+    <button type="submit" id="collage" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">
+      <img src="{% static 'icons/images.svg' %}" alt="image collage">
+      Collage
+    </button>
+
+    <!-- Action buttons - performing some action without any danger of exposing sensitive information -->
+    <button type="button" id="make-private" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-private' %}">
+      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+      Make private
+    </button>
+    <button type="button" id="revoke-access" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-revoke-access' %}">
+      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+      Revoke access
+    </button>
+
+    <!-- Dangerous action buttons - revealing sensitive information if not used properly -->
+    <button type="button" id="give-access" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-give-access' %}">
+      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      Give access
+    </button>
+    <button type="button" id="make-public" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
+      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+      Make public
+    </button>
+    <button type="button" id="cede-ownership" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
+      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+      Cede ownership
+    </button>
+    <button type="button" id="delete-lenses" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
+      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      Delete lenses
+    </button>
+  </div>
 </div>
 {% endblock content %}
 
@@ -226,38 +243,37 @@
 
 
 {% block extrascripts %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $(".sled-process-lenses").click(function (){
+    $(".sled-process-lenses").click(function() {
 
-	  // Construct get query string
-	  var values = [];
-	  $('#exe_summary input[type="checkbox"]:checked').each(function (){
-	      values.push( 'ids='+$(this).val() );
-	  });
-
-	  if( values.length == 0){
-              alert('You need to select at least one item!');
-	  } else {
-	      var get_str = '?'+values.join('&')+'&';
-	      
-	      // Fetch only the first part of the URL (without any GET arguments)
-	      var url = $(this).data('form-url').split('?');
-	      var url_core = url[0];
-
-	      // Trigger modal
-	      var new_form_url = url_core+get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
- 		  modalID: "#id-modal"
-	      });
-	  }
-	  
+      // Construct get query string
+      var values = [];
+      $('#exe_summary input[type="checkbox"]:checked').each(function() {
+        values.push('ids=' + $(this).val());
       });
+
+      if (values.length == 0) {
+        alert('You need to select at least one item!');
+      } else {
+        var get_str = '?' + values.join('&') + '&';
+
+        // Fetch only the first part of the URL (without any GET arguments)
+        var url = $(this).data('form-url').split('?');
+        var url_core = url[0];
+
+        // Trigger modal
+        var new_form_url = url_core + get_str;
+        $(this).modalFormTrigger({
+          formURL: new_form_url,
+          modalID: "#id-modal"
+        });
+      }
+
+    });
   });
 </script>
 {% endblock extrascripts %}

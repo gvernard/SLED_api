@@ -11,27 +11,26 @@
 
 
 
-<h1>My Groups</h1>
-
-<div>
+<div class="jb-container">
+  <h1 class="jb-heading-1">My Groups</h1>
   {% if groups %}
-  <table>
+  <table class="jb-table">
     <thead>
       <tr>
-	<th>Name</th>
-	<th>Description</th>
-	<th>Owner</th>
-      <th>Number of members</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Owner</th>
+        <th>Number of members</th>
       </tr>
     </thead>
 
     <tbody>
       {% for group in groups %}
       <tr>
-	<td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
-	<td>{{ group.description }}</td>
-	<td>{{ group.owner }}</td>
-	<td>{{ group.user_set.all|length }}</td>
+        <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
+        <td>{{ group.description }}</td>
+        <td>{{ group.owner }}</td>
+        <td>{{ group.user_set.all|length }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -41,12 +40,12 @@
     No groups to show
   </p>
   {% endif %}
-</div>
 
-<button type="button" id="create-new-group" class="btn btn-sm btn-secondary" data-form-url="{% url 'sled_groups:group-add' %}">
-  <img src="{% static 'icons/folder-fill.svg' %}" alt="group">
-  Create new group
-</button>
+  <button type="button" id="create-new-group" class="jb-button-1" data-form-url="{% url 'sled_groups:group-add' %}">
+    <img src="{% static 'icons/folder-fill.svg' %}" alt="group">
+    Create new group
+  </button>
+</div>
 {% endblock content %}
 
 
@@ -63,10 +62,10 @@
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $("#create-new-group").modalForm({
-	  formURL: $("#create-new-group").data("form-url"),
- 	  modalID: "#id-modal"
-      });
+    $("#create-new-group").modalForm({
+      formURL: $("#create-new-group").data("form-url"),
+      modalID: "#id-modal"
+    });
   });
 </script>
 {% endblock extrascripts %}

@@ -5,27 +5,27 @@
   <table id="exe_summary">
     <thead>
       <tr>
-	<th></th>
-	<th>Mugshot</th>
-	<th>Name</th>
-	<th>Right Ascension J2000</th>
-	<th>Declination J2000</th>
-	<th>Access level</th>
-	<th>Accessible by</th>
+        <th></th>
+        <th>Mugshot</th>
+        <th>Name</th>
+        <th>Right Ascension J2000</th>
+        <th>Declination J2000</th>
+        <th>Access level</th>
+        <th>Accessible by</th>
       </tr>
     </thead>
     <tbody>
       {% for lens in lenses %}
       <tr>
-	<td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
-	<td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
-	<td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
-	<td>{{ lens.ra }}</td>
-	<td>{{ lens.dec }}</td>
-	<td>{{ lens.access_level }}</td>
-	<td>
-	  {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
-	</td>
+        <td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
+        <td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
+        <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
+        <td>{{ lens.ra }}</td>
+        <td>{{ lens.dec }}</td>
+        <td>{{ lens.access_level }}</td>
+        <td>
+          {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -34,30 +34,30 @@
 </div>
 
 <script>
-  var toggle = function (e) {
-      checkboxes = document.getElementsByName('ids');
-      var new_status = e.currentTarget.getAttribute('value');
-      if( new_status == "select" ){
-	  for(var i=0;i<checkboxes.length;i++) {
-       	      checkboxes[i].checked = true;
-	  }
-	  e.currentTarget.setAttribute('value','unselect');
-      } else {
-	  for(var i=0;i<checkboxes.length;i++) {
-       	      checkboxes[i].checked = false;
-	  }
-	  e.currentTarget.setAttribute('value','select');
+  var toggle = function(e) {
+    checkboxes = document.getElementsByName('ids');
+    var new_status = e.currentTarget.getAttribute('value');
+    if (new_status == "select") {
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = true;
       }
+      e.currentTarget.setAttribute('value', 'unselect');
+    } else {
+      for (var i = 0; i < checkboxes.length; i++) {
+        checkboxes[i].checked = false;
+      }
+      e.currentTarget.setAttribute('value', 'select');
+    }
   }
   document.getElementById("toggle_all").addEventListener("click", toggle, true);
 
-  
+
   var min_checked = function(e) {
-      var checked_boxes = document.querySelectorAll('#exe_summary input[type="checkbox"]:checked');
-      if( checked_boxes.length == 0 ){
-   	  alert('You must select at least one lens!');
-   	  e.preventDefault();
-      }
+    var checked_boxes = document.querySelectorAll('#exe_summary input[type="checkbox"]:checked');
+    if (checked_boxes.length == 0) {
+      alert('You must select at least one lens!');
+      e.preventDefault();
+    }
   };
   document.getElementById("ids-form").addEventListener("submit", min_checked, true);
 </script>

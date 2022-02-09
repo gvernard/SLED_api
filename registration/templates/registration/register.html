@@ -17,55 +17,54 @@
 
 
 {% block content %}
-  <div class="sign-up-wrap w-container">
-    <div class="w-form">
+<div class="jb-sign-up-wrap jb-container">
+  <div class="jb-form">
 
-    <form id="email-form" class="form-2" method="post" action="{% url 'register' %}">
-      <img src="{% static 'images/0SLED_Logo-Login.png' %}" loading="lazy" width="40" alt="" class="image-7">
+    <form id="email-form" class="jb-form-1" method="post" action="{% url 'register' %}">
+      <img src="{% static 'images/JB_Login_SLED-Logo.png' %}" loading="lazy" width="40" alt="" class="jb-image-1">
       {% csrf_token %}
 
 
-     <!--{{ form.as_p }}-->
+      <!--{{ form.as_p }}-->
 
 
       {{ form.non_field_errors }}
-      <div class="form-group">
-          <label for="{{ form.username.id_for_label }}">Username*:</label>
-          {{ form.username }}
-          {{ form.username.errors }}
+      <div class="jb-form">
+        <label for="{{ form.username.id_for_label }}">Username*:</label>
+        {{ form.username }}
+        {{ form.username.errors }}
       </div>
 
-      <div class="form-group">
-          <label for="{{ form.email.id_for_label }}">Email*:</label>
-          {{ form.email }}
-          {{ form.email.errors }}
+      <div class="jb-form">
+        <label for="{{ form.email.id_for_label }}">Email*:</label>
+        {{ form.email }}
+        {{ form.email.errors }}
       </div>
 
-      <div class="form-group">
-          <label for="{{ form.password1.id_for_label }}">Password*:</label>
-          {{ form.password1 }}
-          {{ form.password1.errors }}
+      <div class="jb-form">
+        <label for="{{ form.password1.id_for_label }}">Password*:</label>
+        {{ form.password1 }}
+        {{ form.password1.errors }}
       </div>
 
-      <div class="form-group">
-          <label for="{{ form.password2.id_for_label }}">Password confirmation*:</label>
-          {{ form.password2 }}
-          {{ form.password2.errors }}
+      <div class="jb-form">
+        <label for="{{ form.password2.id_for_label }}">Password confirmation*:</label>
+        {{ form.password2 }}
+        {{ form.password2.errors }}
       </div>
 
-      <div class="form-group">
-          <label for="{{ form.affiliation.id_for_label }}">Affiliation*:</label>
-          {{ form.affiliation }}
-          {{ form.affiliation.errors }}
+      <div class="jb-form">
+        <label for="{{ form.affiliation.id_for_label }}">Affiliation*:</label>
+        {{ form.affiliation }}
+        {{ form.affiliation.errors }}
       </div>
 
-      <br>
-  	<input type="submit" value="Register" data-wait="Please wait..." class="submit-button-2 w-button">
-  </form> 
-    </div>
+      <input type="submit" value="Register" data-wait="Please wait..." class="jb-submit-button w-button">
+    </form>
   </div>
+</div>
 
-    <!--<div class="sign-up-wrap w-container">
+<!--<div class="sign-up-wrap w-container">
       <div class="w-form">
 
         <form id="email-form" name="email-form" data-name="Email Form" method="post" class="form-2">
@@ -81,13 +80,13 @@
       </div>
     </div>-->
 
-    <script type="text/javascript">
-      $('form').each(function() {
-          if (!$(this).is('[action]')) {
-              $(this).attr('action', '/');
-          }
-      });
-      // $('#id_username').addClass('text-field',"w-input").attr({"data-name":'Name'});
-    </script>
+<script type="text/javascript">
+  $('form').each(function() {
+    if (!$(this).is('[action]')) {
+      $(this).attr('action', '/');
+    }
+  });
+  // $('#id_username').addClass('text-field',"w-input").attr({"data-name":'Name'});
+</script>
 
 {% endblock %}

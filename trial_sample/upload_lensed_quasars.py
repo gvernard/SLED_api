@@ -78,9 +78,9 @@ for i in range(len(ras)):
 
     #copy the image to the relevant place
     #os.system('cp ./trial_sample/images/'+names[i]+'.png ./lenses/static/lenses/mugshots/')
-    
+
     lensedquasars.append( lens )
-    
+
 Lenses.objects.bulk_create(lensedquasars)
 lensedquasars = Lenses.objects.all()
 assign_perm('view_lenses', user1, lensedquasars)
@@ -96,4 +96,3 @@ for lens in lensedquasars:
 
 
 #lenses = Lenses.objects.all()
-

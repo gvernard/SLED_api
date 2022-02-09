@@ -3,21 +3,37 @@
   <table>
     <tr>
       <td>
-	<h3>{{ lens.name }}</h3>
-	<table>
-	  <tr><td>RA:</td><td>{{ lens.ra }}</td></tr>
-	  <tr><td>DEC:</td><td>{{ lens.dec }}</td></tr>
-	  <tr><td>Created at:</td><td>{{ lens.created_at }}</td></tr>
-	  <tr><td>Info:</td><td>{{ lens.info }}</td></tr>
-	  <tr><td colspan="2">Contact owner</td></tr>
-	  <tr><td colspan="2">Linked papers</td></tr>
-	</table>
+        <h3>{{ lens.name }}</h3>
+        <table>
+          <tr>
+            <td>RA:</td>
+            <td>{{ lens.ra }}</td>
+          </tr>
+          <tr>
+            <td>DEC:</td>
+            <td>{{ lens.dec }}</td>
+          </tr>
+          <tr>
+            <td>Created at:</td>
+            <td>{{ lens.created_at }}</td>
+          </tr>
+          <tr>
+            <td>Info:</td>
+            <td>{{ lens.info }}</td>
+          </tr>
+          <tr>
+            <td colspan="2">Contact owner</td>
+          </tr>
+          <tr>
+            <td colspan="2">Linked papers</td>
+          </tr>
+        </table>
       </td>
       <td>
-	<!-- Lens image -->
-	<div>
-	  <img class="sled-mugshot-image" src="{{ lens.mugshot.url }}">
-	</div>
+        <!-- Lens image -->
+        <div>
+          <img class="sled-mugshot-image" src="{{ lens.mugshot.url }}">
+        </div>
       </td>
     </tr>
   </table>
