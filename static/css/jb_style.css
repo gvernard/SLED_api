@@ -1,60 +1,301 @@
-.jb-container {
-  margin: auto;
-  max-width: 940px;
-}
+  .h1 {
+    font-family: basic-sans, sans-serif;
+  }
 
-.jb-homepage-container {
-  display: flex;
-  flex-direction: row;
-  margin: auto;
-  max-width: 940px;
-  margin-top: 75px;
-}
+  .jb-container {
+    margin: auto;
+    max-width: 940px;
+    font-family: basic-sans, sans-serif;
+  }
 
-.jb-homepage-container p {
-  margin: auto;
-  font-family: basic-sans, sans-serif;
-  color: #000;
-  font-size: 40px;
-  line-height: 50px;
-  font-weight: 700;
-}
+  .jb-container a {
+    color: #6F73DD;
+    text-decoration: none;
+  }
 
-.jb-homepage-container img {
-  width: 100%;
-  height: 100%;
-  padding-left: 25px;
-}
+  .jb-container h1 {
+    text-decoration: none;
+  }
 
-.jb-navbar-container {
-  margin: auto;
-  max-width: 940px;
-  padding-top: 20px;
-}
+  .jb-homepage-container {
+    display: flex;
+    flex-direction: row;
+    margin: auto;
+    max-width: 940px;
+    margin-top: 75px;
+  }
 
-.jb-navbar {
-  padding-top: 20px;
-  padding-bottom: 10px;
-}
+  .jb-homepage-container p {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 40px;
+    line-height: 50px;
+    font-weight: 700;
+  }
 
-.jb-navbar a {
-  font-family: basic-sans, sans-serif;
-  color: #000;
-  font-size: 20px;
-  text-decoration: none;
-  padding: 5px;
-  margin-left: 40px;
-}
+  .jb-homepage-container img {
+    width: 100%;
+    height: 100%;
+    padding-left: 25px;
+  }
 
-.jb-navbar-login {
-  color: #ACACAC !important;
-  margin-left: 40px;
-  float: right;
-}
+  .jb-navbar-container {
+    margin: auto;
+    max-width: 940px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
 
-.jb-nav-brand {
-  position: relative;
-  float: left;
-  color: #333333;
-  padding-top: 20 px;
-}
+  .jb-navbar {
+    padding-top: 20px;
+    padding-bottom: 10px;
+  }
+
+  .jb-navbar a {
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 20px;
+    text-decoration: none;
+    padding: 5px;
+    margin-left: 40px;
+  }
+
+  .jb-navbar-login {
+    color: #ACACAC !important;
+    margin-left: 40px;
+    float: right;
+  }
+
+  .jb-nav-brand {
+    position: relative;
+    float: left;
+    color: #333333;
+    padding-top: 20 px;
+  }
+
+  .jb-heading-1 {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 40px;
+    font-weight: 700;
+    padding-top: 75px;
+  }
+
+  .jb-heading-2 {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 25px;
+    line-height: 50px;
+    font-weight: 500;
+  }
+
+  .jb-heading-3 {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 40px;
+    font-weight: 700;
+    padding-top: 20px;
+  }
+
+  .jb-div-block-1 {
+    display: flex;
+    max-width: 940px;
+    padding-top: 20px;
+    margin: auto;
+    align-items: center;
+  }
+
+  .jb-div-block-2 {
+    display: flex;
+    max-width: 940px;
+    margin: auto;
+    align-items: center;
+  }
+
+  .jb-div-block-3 {
+    display: flex;
+    min-width: 450px;
+    margin: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+    margin-left: auto;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    flex-direction: column;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+    border: 2px solid #acacac;
+  }
+
+  .jb-div-block-3:hover {
+    border: 2px solid #6F73DE;
+    text-decoration: none;
+  }
+
+  .jb-button-1 {
+    font-family: basic-sans, sans-serif;
+    position: static;
+    display: inline;
+    min-width: 125px;
+    margin-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    clear: none;
+    background-color: #6F73DD;
+    color: #FFFFFF;
+    font-size: 18px;
+  }
+
+  .jb-sign-up-wrap {
+    max-height: none;
+    max-width: 500px;
+    margin-top: 100px;
+    background-color: #000;
+    color: #fff;
+  }
+
+  .jb-image-1 {
+    position: static;
+    display: block;
+    max-height: 75%;
+    max-width: 75%;
+    min-height: auto;
+    min-width: auto;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 0px 0px 10px;
+    padding-bottom: 30px;
+    float: none;
+    clear: right;
+    object-position: 50% 50%;
+  }
+
+  .jb-form {
+    margin: 0 0 15px;
+    color: #fff;
+  }
+
+  .jb-form-done {
+    display: none;
+    padding: 20px;
+    text-align: center;
+    background-color: #dddddd;
+  }
+
+  .jb-form-fail {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #ffdede;
+  }
+
+  .jb-form-1 {
+    padding: 60px 40px 40px;
+  }
+
+  .jb-form .field-label {
+    margin-bottom: 10px;
+    padding-top: 5px;
+    color: #acacac;
+    font-size: 18px;
+    font-weight: 400;
+    border: 1px solid #acacac;
+    background-color: hsla(0, 0%, 100%, 0);
+    min-width: 420px;
+    padding-left: 8px;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus, {
+    outline: none;
+    padding-left: 8px;
+  }
+
+  .jb-submit-button {
+    position: static;
+    display: block;
+    min-width: 200px;
+    margin-top: 20px;
+    margin-right: auto;
+    margin-left: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    clear: none;
+    background-color: #fff;
+    color: #000;
+    font-size: 18px;
+  }
+
+  .jb-paragraph-1 {
+    padding-top: 20px;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .jb-paragraph-1 a {
+    color: #ACACAC;
+    text-decoration: none;
+  }
+
+  .jb-paragraph-2 {
+    color: #ACACAC;
+  }
+
+  .jb-image-2 {
+    margin-top: auto;
+    max-height: 125px;
+    max-width: 125px;
+    padding-top: 25px;
+  }
+
+  .jb-float-child-1 {
+    width: 90%;
+    float: left;
+  }
+
+  .jb-float-child-2 {
+    width: 10%;
+    float: right;
+  }
+
+  table {
+    width: 100%;
+    table-layout: auto;
+    border-collapse: collapse;
+  }
+
+  th {
+    color: #ACACAC;
+    font-weight: 300;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  table td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-top: 1px solid #ACACAC;
+  }
+
+  .jb-submit-button-1 {
+    position: static;
+    display: inline;
+    min-width: 125px;
+    margin-top: 10px;
+    margin-right: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    clear: none;
+    background-color: #6F73DD;
+    color: #FFFFFF;
+    font-size: 15px;
+  }
