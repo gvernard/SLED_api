@@ -1,15 +1,29 @@
 {% extends 'master_header.html' %}
+{% load static %}
 {% block content %}
 
-<div class="section">
-  <h1>Main page for Lenses</h1>
-
-  <ul>
-    <li><a href="{% url 'lenses:lens-query' %}">Query lenses</a></li>
-    <li><a href="{% url 'lenses:lens-all-collections' %}">Browse collections</a></li>
-    <li><a href="{% url 'lenses:lens-add' %}">Add new lenses</a></li>
-    <li><a href="{% url 'users:user-profile' %}">Manage your lenses</a></li>
-  </ul>
+<div class="jb-container">
+  <h1 class="jb-heading-1">Lenses</h1>
+</div>
+<div class="jb-div-block-1">
+  <a href="{% url 'lenses:lens-query' %}" class='jb-div-block-3'>
+    <img src="{% static 'images/JB_Lenses_Query.png' %}" loading="lazy" width="100" height="100" alt="">
+    <h1 class="jb-heading-2">Query lenses</h1>
+  </a>
+  <a href="{% url 'lenses:lens-all-collections' %}" class='jb-div-block-3'>
+    <img src="{% static 'images/JB_Lenses_Browse.png' %}" loading="lazy" width="100" height="100" alt="">
+    <h1 class="jb-heading-2">Browse collections</h1>
+  </a>
+</div>
+<div class="jb-div-block-2">
+  <a href="{% url 'lenses:lens-add' %}" class='jb-div-block-3'>
+    <img src="{% static 'images/JB_Lenses_Add-New.png' %}" loading="lazy" width="100" height="100" alt="">
+    <h1 class="jb-heading-2">Add new lenses</h1>
+  </a>
+  <a href="{% url 'users:user-profile' %}" class='jb-div-block-3'>
+    <img src="{% static 'images/JB_Lenses_Manage.png' %}" loading="lazy" width="100" height="100" alt="">
+    <h1 class="jb-heading-2">Manage your lenses</h1>
+  </a>
 </div>
 
 {% endblock content %}
