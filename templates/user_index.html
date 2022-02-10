@@ -196,7 +196,7 @@
       <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
       Update lenses
     </button>
-    <button type="button" id="make-collection" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-collection' %}">
+    <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-collection' %}">
       <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
       Make collection
     </button>
@@ -206,29 +206,29 @@
     </button>
 
     <!-- Action buttons - performing some action without any danger of exposing sensitive information -->
-    <button type="button" id="make-private" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-private' %}">
+    <button type="button" id="make-private" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-private' %}">
       <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
       Make private
     </button>
-    <button type="button" id="revoke-access" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-revoke-access' %}">
+    <button type="button" id="revoke-access" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-revoke-access' %}">
       <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
       Revoke access
     </button>
 
     <!-- Dangerous action buttons - revealing sensitive information if not used properly -->
-    <button type="button" id="give-access" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-give-access' %}">
+    <button type="button" id="give-access" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-give-access' %}">
       <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
       Give access
     </button>
-    <button type="button" id="make-public" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
+    <button type="button" id="make-public" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
       <img src="{% static 'icons/people-fill.svg' %}" alt="people">
       Make public
     </button>
-    <button type="button" id="cede-ownership" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
+    <button type="button" id="cede-ownership" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
       <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
       Cede ownership
     </button>
-    <button type="button" id="delete-lenses" class="jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
+    <button type="button" id="delete-lenses" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Delete lenses
     </button>
@@ -244,6 +244,7 @@
 
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
