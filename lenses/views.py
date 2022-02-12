@@ -290,7 +290,7 @@ class LensAddView(TemplateView):
         mycollection.save()
 
     def get(self, request, *args, **kwargs):
-        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,exclude=('id',),extra=1)
+        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,exclude=('id',),extra=1)
         myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
         context = {'lens_formset': myformset}
         return self.render_to_response(context)
@@ -300,7 +300,7 @@ class LensAddView(TemplateView):
 
         if referer == request.path:
             # Submitting to itself, perform all the checks
-            LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
+            LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
             myformset = LensFormSet(data=request.POST,files=request.FILES)
             if myformset.is_valid():
 
@@ -386,7 +386,7 @@ class LensUpdateView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         referer = urlparse(request.META['HTTP_REFERER']).path
-        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.NewBaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
+        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
 
         if referer == request.path:
             # Submitting to itself, perform all the checks
