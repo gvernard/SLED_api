@@ -1,8 +1,8 @@
 [
     {
 	"access_level": "PUB",
-	"ra": 33.0000,
-	"dec": 33.0000,
+	"ra": 51,
+	"dec": 51,
 	"flag_confirmed": false,
 	"flag_contaminant": false,
 	"image_sep": null,
@@ -17,8 +17,8 @@
     },
         {
 	"access_level": "PUB",
-	"ra": 44.0000,
-	"dec": 44.0000,
+	"ra": 52,
+	"dec": 52,
 	"flag_confirmed": false,
 	"flag_contaminant": false,
 	"image_sep": null,
