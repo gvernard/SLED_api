@@ -20,7 +20,6 @@ class GroupCedeOwnershipForm(BSModalForm):
     class Meta:
         fields = ['group_id','justification','heir']
 
-
 class GroupAddForm(BSModalForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
     name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'The name of your group.'}))
@@ -35,3 +34,11 @@ class GroupAddForm(BSModalForm):
         users = self.cleaned_data.get('users')
         if not users:
             self.add_error('__all__',"Select at least one User.")
+
+class GroupAddRemoveMembersForm(BSModalForm):
+    mode = forms.CharField(widget=forms.HiddenInput())
+    group_id = forms.CharField(widget=forms.HiddenInput())
+    users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
+
+    class Meta:
+        fields = ['mode','group_id','users']

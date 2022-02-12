@@ -34,24 +34,11 @@ class GroupDetailView(DetailView):
         context['group'] = self.object
         return context
 
-
     def post(self, *args, **kwargs):
         referer = urlparse(self.request.META['HTTP_REFERER']).path
         if referer == self.request.path:
-            print(self.request.POST)
             self.object = self.get_object()
-            if self.object.owner == self.request.user:
-                # This is for adding and removing users (user must be the owner)
-                addusernames = self.request.POST.getlist('addusers')
-                removeusernames = self.request.POST.getlist('removeusers')
-                for username in addusernames:
-                    user = Users.objects.get(pk=username)
-                    self.object.addMember(self.request.user,user)
-                for username in removeusernames:
-                    user = Users.objects.get(pk=username)
-                    self.object.removeMember(self.request.user,user)
-                return redirect('sled_groups:group-detail',pk=self.object.id)
-            else:
+            if self.object.owner != self.request.user:
                 # This is for leaving the group, the only action a member can perform
                 self.request.user.leaveGroup(self.object)
                 return redirect('sled_groups:group-list')                
@@ -128,17 +115,18 @@ class GroupCedeOwnershipView(BSModalFormView):
             self.request.user.cedeOwnership(group,heir,justification)        
             message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
             messages.add_message(self.request,messages.WARNING,message)
+            return redirect('sled_groups:group-list')
+            #return reverse_lazy('sled_groups:group-list')
         else:
             message = 'User <b>%s %s</b> is not a group member.' % (heir_dict['first_name'],heir_dict['last_name'])
             messages.add_message(self.request,messages.ERROR,message)
-        response = super().form_valid(form)
-        return response
+            response = super().form_valid(form)
+            return response
 
     def get_success_url(self):
-        return reverse_lazy('sled_groups:group-list')
-        #return reverse_lazy('sled_groups:group-detail',kwargs={'pk':self.group_id})
+        return reverse_lazy('sled_groups:group-detail',kwargs={'pk':self.group_id})
 
-
+    
 @method_decorator(login_required,name='dispatch')
 class GroupAddView(BSModalFormView):
     template_name = 'sled_groups/group_add.html'
@@ -170,3 +158,51 @@ class GroupAddView(BSModalFormView):
         response = super().form_valid(form)
         return response
 
+
+@method_decorator(login_required,name='dispatch')
+class GroupAddMembersView(BSModalFormView):
+    template_name = 'sled_groups/group_add_remove_members.html'
+    form_class = GroupAddRemoveMembersForm
+
+    def get_initial(self):
+        group_id = self.request.GET.get('group_id')
+        mode = self.request.GET.get('mode')
+        return {'mode': mode,'group_id':group_id}
+
+    def form_invalid(self,form):
+        response = super().form_invalid(form)
+        return response
+
+    def form_valid(self,form):
+        group_id = form.cleaned_data['group_id']
+        self.group_id = group_id
+        if not is_ajax(self.request.META):
+            users = form.cleaned_data['users']
+            group = SledGroup.objects.get(id=self.group_id)
+            usernames = []
+            mode = form.cleaned_data['mode']
+            if mode == 'add':
+                for user in users:
+                    usernames.append(user.username)
+                    group.addMember(self.request.user,user)
+                if len(usernames) == 1:
+                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+usernames[0]+'"</b> was successfully added to group!')
+                else:
+                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(usernames)+'"</b> were successfully added to group!')
+            else:
+                for user in users:
+                    usernames.append(user.username)
+                    group.removeMember(self.request.user,user)
+                if len(usernames) == 1:
+                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+usernames[0]+'"</b> was successfully removed from the group!')
+                else:
+                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(usernames)+'"</b> were successfully removed from the group!')
+            response = super().form_valid(form)
+            return response
+        else:
+            response = super().form_valid(form)
+            return response
+        
+    def get_success_url(self):
+        #return reverse_lazy('sled_groups:group-list')
+        return reverse_lazy('sled_groups:group-detail',kwargs={'pk':self.group_id})

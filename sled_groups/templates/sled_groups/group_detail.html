@@ -61,6 +61,15 @@
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Cede ownership
   </button>
+  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-remove-members' %}?mode=add">
+    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+    Add members
+  </button>
+  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-remove-members' %}?mode=remove">
+    <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+    Remove members
+  </button>
+
   {% else %}
   <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#id-modal-leave">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
@@ -90,29 +99,6 @@
 
 <hr>
 
-<!-- Actions for the group owner -->
-{% if  group.owner == user %}
-<div>
-  <p> ADD/Remove USERS</p>
-  
-  <form id="ids-form" method="POST" action="">
-    {% csrf_token %}
-    <span class="errorlist">{{ error_message }}</span>
-    <div>
-      <p>Add Users:</p>
-      <select id="users-autocomplete1" name="addusers" multiple></select>
-    </div>
-    <div>
-      <p>Remove Users:</p>
-      <select id="users-autocomplete2" name="removeusers" multiple></select>
-    </div>
-  </form>
-
-  <button type="submit" id="submit-btn" form="ids-form">Submit</button>
-</div>
-{% endif %}
-
-<hr>
 {% endblock content %}
 
 
@@ -130,28 +116,6 @@
 <script type="text/javascript">
   $(document).ready(function(){
 
-      // Create Select2 for users and groups
-      users_autocomplete("users-autocomplete1");
-      users_autocomplete("users-autocomplete2");
-      
-      // Attach requirement for user or group to the submit button
-      $('#submit-btn').on('click',function(event){
-          var users1 = $('#users-autocomplete1').find(':selected');
-          var users2 = $('#users-autocomplete2').find(':selected');
-          if( users1.length == 0 && users2.length==0 ){
-              alert('You must select a user!');
-              event.preventDefault();
-          }
-      });
-      
-      // Check all the checkboxes
-      var checkboxes = document.querySelectorAll('.content input[type="checkbox"]');
-      if( checkboxes.length > 0){
-          for(var i=0;i<checkboxes.length;i++){
-              checkboxes[i].checked = true;
-          }
-      }
-
       // Modals
       $('#delete-group').modalForm({
  	  formURL: $('#delete-group').data("form-url"),
@@ -164,7 +128,6 @@
  	  modalID: "#id-modal"
       });
 
-      
       $("#cede-ownership").click(function(){
 	  var dum = window.location.href.split('/');
 	  var get_str = '?group_id=' + dum[dum.length-1];
@@ -175,6 +138,16 @@
 	  });
       });
 
+      $(".sled-add-remove-members").click(function(){
+	  var dum = window.location.href.split('/');
+	  var get_str = '&group_id=' + dum[dum.length-1];
+	  var new_form_url = $(this).data("form-url") + get_str;
+	  $(this).modalFormTrigger({
+	      formURL: new_form_url,
+ 	      modalID: "#id-modal"
+	  });
+      });
+      
   });
 </script>
 {% endblock extrascripts %}
