@@ -16,18 +16,26 @@ from guardian.shortcuts import assign_perm
 
 
 owner  = Users.objects.get(username='gvernard')
+mugshot_path = base_dir+'tests/test_mugshots/'
 
 mylenses = []
-for i in range(1,8):
+for i in range(1,7):
     lens = Lenses(ra=i,dec=i,owner=owner)
     lens.create_name()
     if i < 6:
         lens.access_level = SingleObject.AccessLevel.PRIVATE
     else:
-        lens.access_level = SingleObject.AccessLevel.PUBLIC        
+        lens.access_level = SingleObject.AccessLevel.PUBLIC
+
+    fname = 'upload_'+str(lens.id) + '.png'
+    lens_fname = 'lens'+str(i)+'.png'
+    cpstr = 'cp ' + mugshot_path + lens_fname + ' ' + base_dir + 'media/lenses/' + fname
+    os.system('cp ' + mugshot_path + lens_fname + ' ' + base_dir + '/media/lenses/' + fname)
+    lens.mugshot.name = 'lenses/' + fname
+    lens.save()
     mylenses.append( lens )
 
-Lenses.objects.bulk_create(mylenses)
+
 mylenses = Lenses.objects.all()
 pri = []
 for lens in mylenses:
@@ -35,7 +43,6 @@ for lens in mylenses:
         pri.append(lens)
 if pri:
     assign_perm('view_lenses',owner,pri)
-
 
 
 private_lenses = Lenses.objects.filter(owner=owner).filter(access_level='PRI')
