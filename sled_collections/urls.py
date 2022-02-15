@@ -4,7 +4,8 @@ from . import views
 
 app_name = 'sled_collections'
 urlpatterns = [
-    path('', views.CollectionListView.as_view(), name='collections-list'),
+    #path('', views.CollectionListView.as_view(), name='collections-list'),
+    path('', views.CollectionSplitListView.as_view(), name='collections-list'),
     path('list/', views.CollectionListView2.as_view(), name='collections-list2'), # This is used to add items via a lens query
     path('detail/',RedirectView.as_view(url='/sled_collections/',permanent=False),name='redirect-detail'),
     path('detail/<int:pk>', views.CollectionDetailView.as_view(), name='collections-detail'),

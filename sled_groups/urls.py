@@ -6,6 +6,7 @@ app_name = 'sled_groups'
 urlpatterns = [
     path('', views.GroupListView.as_view(), name='group-list'),
     path('list/', views.GroupListView.as_view(), name='group-list'),
+    path('split-list/', views.GroupSplitListView.as_view(), name='group-split-list'),
     path('detail/',RedirectView.as_view(url='/sled_groups/',permanent=False),name='redirect-detail'),
     path('detail/<int:pk>', views.GroupDetailView.as_view(), name='group-detail'),
     path('add/', views.GroupAddView.as_view(), name='group-add'),

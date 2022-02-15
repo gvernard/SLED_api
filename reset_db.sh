@@ -29,3 +29,4 @@ echo "Migrate"
 python manage.py migrate
 python tests/database_control_scripts/populate_db.py
 python trial_sample/upload_lensed_quasars.py
+python tests/basic_tests/mini_give_access.py

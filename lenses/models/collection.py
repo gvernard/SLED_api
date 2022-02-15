@@ -5,7 +5,9 @@ from django.db.models.signals import post_save
 from django.apps import apps
 from django.urls import reverse
 
+from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
+
 from gm2m import GM2MField
 from notifications.signals import notify
 import inspect
@@ -114,7 +116,7 @@ class Collection(SingleObject):
             objects (List[SingleObject]): A list of items to add to the collection. They have to match the collection type.
 
         Returns:
-            "success" or a dict: The dictionary has two entries, "users_per_obj" and "groups_per_obj". Each entry is the output of 'SingleObject._arrange_by_object'
+            string ("success"): if successful and no Assertion errors are raised. It also sends notifications if the collection is private or posts to the activity stream if public.
 
         Raises:
             AssertionError: if the user attempts to add private items to a public collection.
@@ -143,22 +145,27 @@ class Collection(SingleObject):
             print('Users/Groups with access to the COLLECTION: ',users_collection,groups_collection)
             
             if private_objects:
-                # Check if users and groups have "view" permission
-                obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
-                objects_users = obj_model.accessible_objects.without_access(users_collection,private_objects)
-                objects_groups = obj_model.accessible_objects.without_access(groups_collection,private_objects)
-                print("Users-Groups without access: ",len(objects_users),len(objects_groups))
-
-                if len(objects_users) == 0 and len(objects_groups) == 0:
-                    # There are no users or groups without access to the given private objects, proceed by adding the given items to the collection
+                # Check that collection owner really has view access to the private lenses
+                has_perm = True
+                perm = "view_" + private_objects[0]._meta.db_table
+                checker = ObjectPermissionChecker(user)
+                checker.prefetch_perms(private_objects)
+                for obj in private_objects:
+                    if not checker.has_perm(perm,obj):
+                        has_perm = False
+                try:
+                    assert (has_perm),"User does not have access to private objects"
+                except AssertionError as error:
+                    caller = inspect.getouterframes(inspect.currentframe(),2)
+                    print(error,"The operation of '"+caller[1][3]+"' should not proceed")
+                    raise
+                else:
                     self.myitems.add(*objects)
                     notify.send(sender=user,recipient=users_collection,verb='Objects have been added to private collection',level='warning',timestamp=timezone.now(),note_type='ItemsAdded',object_type=self.item_type,object_ids=all_ids)
                     for group in groups_collection:
                         notify.send(sender=user,recipient=group,verb='Objects have been added to private collection',level='warning',timestamp=timezone.now(),note_type='ItemsAdded',object_type=self.item_type,object_ids=all_ids)
                     return "success"
-                else:
-                    mydict = {"users_per_obj":objects_users,"groups_per_obj":objects_groups}
-                    return mydict
+                
             else:
                 # All items are public, proceed by adding them to the collection
                 self.myitems.add(*objects)
@@ -210,25 +217,23 @@ class Collection(SingleObject):
             # Post to the activity stream
             pass
         return "success"
-    
-    # def giveAccessToUserOrGroup(self,user,ug):
-    #     """
-    #     Make sure all the given users and groups have access to all the objects.
-    #     If not, then return a list of objects and the users/groups without access per object.
 
-    #     Args:
-    #         user (User): the user calling this function, who has to be the owner of the collection it acts upon.
-    #         ug (List[User or Group]): A list of User and/or Group objects to give access to the collection.
-    #     """
-    #     pass
+    def get_ugs_without_access(self):
+        """
+        Returns the users and groups that have acces to the collection but not to all the private objects in the collection.
 
+        Returns:
+            a dict: The dictionary has two entries, "users_per_obj" and "groups_per_obj". Each entry is the output of 'SingleObject._arrange_by_object'
+        """
+        private_objs = self.myitems.all().filter(access_level='PRI')
 
-    # def revokeAccessFromUserOrGroup(self,user,ug):
-    #     pass
-
-
-    # def itemsMadePrivate():
-    #     pass
+        # Check if users and groups have "view" permission
+        obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
+        objects_users = obj_model.accessible_objects.without_access(users_collection,private_objs)
+        objects_groups = obj_model.accessible_objects.without_access(groups_collection,private_objs)
+        mydict = {"users_per_obj":objects_users,"groups_per_obj":objects_groups}
+        return mydict
+                
 
     
 # Assign view permission to the owner of a new collection

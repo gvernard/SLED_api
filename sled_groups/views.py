@@ -63,6 +63,24 @@ class GroupListView(ListView):
         return context
 
 
+
+    
+@method_decorator(login_required,name='dispatch')
+class GroupSplitListView(TemplateView):
+    model = SledGroup
+    allow_empty = True
+    template_name = 'sled_groups/group_split_list.html'
+    paginate_by = 10  # if pagination is desired
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['groups_owned'] = SledGroup.accessible_objects.owned(self.request.user)
+        context['groups_member'] = self.request.user.getGroupsIsMemberNotOwner()
+        return context
+
+
+    
+
 @method_decorator(login_required,name='dispatch')
 class GroupDeleteView(BSModalDeleteView):
     model = SledGroup

@@ -1,0 +1,80 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+<!-- This modal is required to display messages when redirecting here, e.g. when deleting a collection -->
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+  <div class="modal-dialog">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+
+
+<h1>Collections that I created</h1>
+
+<div>
+  {% if collections_owned %}
+  <table>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Item type</th>
+	<th>Description</th>
+	<th>Number of items</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in collections_owned %}
+      <tr>
+	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+	<td>{{ collection.item_type }}</td>
+	<td>{{ collection.description }}</td>
+	<td> N. items {{ collection.myitems.all|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No collections to show
+  </p>
+  {% endif %}
+</div>
+
+
+
+<h1>Collections that I have access to</h1>
+
+<div>
+  {% if collections_access %}
+  <table>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Item type</th>
+	<th>Description</th>
+	<th>Owner</th>
+	<th>Number of items</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in collections_access %}
+      <tr>
+	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+	<td>{{ collection.item_type }}</td>
+	<td>{{ collection.description }}</td>
+	<td>{{ collection.owner }}</td>
+	<td> N. items {{ collection.myitems.all|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No collections to show
+  </p>
+  {% endif %}
+</div>
+{% endblock content %}
+

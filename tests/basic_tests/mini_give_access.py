@@ -11,9 +11,10 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroup, Lenses, SingleObject
+from lenses.models import Users, SledGroup, Lenses, SingleObject, Collection
 from guardian.shortcuts import assign_perm
 
+print('Populating the database with a test set')
 
 owner  = Users.objects.get(username='gvernard')
 mugshot_path = base_dir+'tests/test_mugshots/'
@@ -35,6 +36,19 @@ for i in range(1,7):
     lens.save()
     mylenses.append( lens )
 
+mycollection = Collection(owner=owner,name="Worst",access_level='PRI',description="Aliens invaded earth in 2019 in the form of a virus.",item_type="Lenses")
+mycollection.save()
+#pub = Lenses.objects.filter(access_level='PUB').order_by('ra')[4:8]
+mycollection.myitems = mylenses
+mycollection.save()
+
+other_u = Users.objects.get(username='Cameron')
+owner.giveAccess(mycollection,other_u)
+other_u = Users.objects.get(username='gizmo')
+owner.giveAccess(mycollection,other_u)
+other_g = SledGroup.objects.get(name='Awesome Users')
+owner.giveAccess(mycollection,other_g)
+   
 
 mylenses = Lenses.objects.all()
 pri = []

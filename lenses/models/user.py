@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse
 from django.utils import timezone
@@ -46,7 +47,7 @@ class Users(AbstractUser,GuardianUserMixin):
     def get_absolute_url(self):
         return reverse('users:user_profile')
     
-    def getOwnedObjects(self, user_object_types=None):
+    def getOwnedObjects(self,user_object_types=None):
         """
         Provides access to all the objects that the user owns, arranged by type.
 
@@ -83,6 +84,17 @@ class Users(AbstractUser,GuardianUserMixin):
         """
         user = Users.objects.get(username=self.username)
         groups = SledGroup.objects.filter(user=user)
+        return groups
+
+    def getGroupsIsMemberNotOwner(self):
+        """
+        Provides access to all the Groups that the user is a member of but not the owner.
+
+        Returns:
+            A QuerySet to match the groups the user is a member of but not the owner.
+        """
+        user = Users.objects.get(username=self.username)
+        groups = SledGroup.objects.filter(user=user).filter(~Q(owner=user))
         return groups
 
     def checkOwnsList(self,objects):

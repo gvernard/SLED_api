@@ -77,6 +77,7 @@ my_group = SledGroup.objects.get(name='Awesome Users')
 user1 = Users.objects.get(username='Cameron')
 user2 = Users.objects.get(username='gvernard')
 user3 = Users.objects.get(username='Fred')
+user1.groups.add(my_group)
 user2.groups.add(my_group)
 user3.groups.add(my_group)
 
@@ -88,15 +89,16 @@ user3.groups.add(my_group)
 #my_group.user_set.add(user1)
 #my_group.user_set.add(user2)
 
-user1 = Users.objects.get(username='Cameron')
-#print(model_to_dict(user1))
-user2 = Users.objects.get(username='Fred')
-#print(model_to_dict(user2))
 
 
 
 # Adding lenses
 '''
+user1 = Users.objects.get(username='Cameron')
+#print(model_to_dict(user1))
+user2 = Users.objects.get(username='Fred')
+#print(model_to_dict(user2))
+
 N = 100
 print('Populating the database with '+str(N)+' random lenses')
 np.random.seed(666)

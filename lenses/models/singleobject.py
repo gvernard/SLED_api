@@ -249,9 +249,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 return list(users.exclude(username=self.owner.username).order_by('username')) # exclude the owner
             else:
                 return []
-        
 
-            
     def getGroupsWithAccess(self,user):
         """
         Checks which groups have view access the the object.
@@ -264,7 +262,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
         """
         self.assertOwner(user)
         return self.getGroupsWithAccessNoOwner()
-        
+
     def getGroupsWithAccessNoOwner(self):
         if self.access_level == 'PUB':
             #"Object is already public, no point to fetch groups with access to it."
@@ -279,11 +277,6 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 return list(Group.objects.filter(id__in=ids))
             else:
                 return []
-        
-    
-    # def getOwnerInfo():
-
-    # def addToCollection():
 
 
 

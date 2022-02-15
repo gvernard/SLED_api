@@ -5,6 +5,7 @@ from astropy import units as u
 from astropy.coordinates import SkyCoord
 import numpy as np
 from astropy.table import Table
+import random
 
 dirname = os.path.dirname(__file__)
 base_dir = os.path.join(dirname,'../')
@@ -19,6 +20,9 @@ from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
 
 user1 = Users.objects.get(username='Cameron')
+user2 = Users.objects.get(username='gvernard')
+user3 = Users.objects.get(username='Fred')
+users = [user1,user2,user3]
 
 # Adding lenses
 print('Populating the database with known lensed quasars')
@@ -36,9 +40,40 @@ separation = data['separation']
 confirmed = data['confirmed']
 access = data['access']
 
+
+
+random.seed(123)
+lenses_per_user = []
+N_objects = len(ras)
+for i in range(0,len(users)-1):
+    n = random.randrange(0,N_objects,1)
+    lenses_per_user.append(n)
+    N_objects = N_objects - n
+    if N_objects < 0:
+        N_objects = 0
+n_final = len(ras) - sum(lenses_per_user)
+if n_final < 0:
+    n_final = 0
+lenses_per_user.append(n_final)
+
+# for i in range(0,len(users)):
+#     print(i,users[i],lenses_per_user[i])
+# print(sum(lenses_per_user))
+
+
+
 lensedquasars = []
+j = 0
+mysum = 0
 for i in range(len(ras)):
-    lens = Lenses(ra=ras[i], dec=decs[i], owner=user1)
+    lens_owner = users[j]
+    if i > (mysum+lenses_per_user[j]):
+        mysum = mysum + lenses_per_user[j]
+        j = j + 1
+        #print(i,j)
+
+
+    lens = Lenses(ra=ras[i], dec=decs[i], owner=lens_owner)
     lens.name = names[i]
     #lens.create_name()
     lens.n_img = nimg[i]

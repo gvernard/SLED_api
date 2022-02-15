@@ -1,28 +1,26 @@
-<div class="content container">
-  <form id="list-form" method="POST">
-    {% csrf_token %}
-    <table class="sortable">
+<div>
+  <table>
+    <thead>
       <tr>
-	<th class="th-center">Name</th>
-	<th class="th-center">Right Ascension J2000</th>
-	<th class="th-center">Declination J2000</th>
-	<th class="th-center">Lens redshift</th>
-	<th class="th-center">Source redshift</th>
-	<th class="th-center">Lens type</th>
-	<th class="th-center">Source type</th>
+	<th>Mugshot</th>
+	<th>Name</th>
+	<th>Right Ascension J2000</th>
+	<th>Declination J2000</th>
+	<th>Access level</th>
+	<th>Owner</th>
       </tr>
+    </thead>
+    <tbody>
       {% for lens in lenses %}
       <tr>
-	<td><a href="{% url 'lenses:lens-detail' slug=lens.name %}">{{lens.name}}</a></td>
+        <td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
+	<td>{{ lens.name }}</td>
 	<td>{{ lens.ra }}</td>
 	<td>{{ lens.dec }}</td>
-	<td>{{ lens.z_lens }}</td>
-	<td>{{ lens.z_source }}</td>
-	<td>{{ lens.lens_type }}</td>
-	<td>{{ lens.source_type }}</td>
+	<td>{{ lens.access_level }}</td>
+	<td>{{ lens.owner }}</td>
       </tr>
       {% endfor %}
-    </table>
-
-  </form>
+    </tbody>
+  </table>
 </div>

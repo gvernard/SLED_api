@@ -8,6 +8,9 @@ from django.views.generic import TemplateView, DetailView, ListView
 from django.utils.decorators import method_decorator
 from django.apps import apps
 from django.urls import reverse,reverse_lazy
+from django.db.models import Q
+
+from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
 
 from bootstrap_modal_forms.generic import (
     BSModalLoginView,
@@ -24,6 +27,7 @@ from lenses.models import Collection,Lenses
 from urllib.parse import urlparse
 from random import randint
 
+
 @method_decorator(login_required,name='dispatch')
 class CollectionListView(ListView):
     model = Collection
@@ -39,22 +43,41 @@ class CollectionListView(ListView):
         context['collections'] = self.object_list
         return context
 
+    
+@method_decorator(login_required,name='dispatch')
+class CollectionSplitListView(TemplateView):
+    model = Collection
+    allow_empty = True
+    template_name = 'sled_collections/collection_split_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        qset_owned = Collection.accessible_objects.owned(self.request.user)
+        context['collections_owned'] = qset_owned
+        # qset_access = Collection.accessible_objects.filter(access_level='PRI').filter(~Q(owner=self.request.user))
+        # context['collections_access'] = get_objects_for_user(self.request.user,'view_'+Collection._meta.db_table,klass=qset_access)
+        context['collections_access'] = Collection.accessible_objects.all(self.request.user).filter(access_level='PRI').filter(~Q(owner=self.request.user))
+        return context
+
+    
 @method_decorator(login_required,name='dispatch')
 class CollectionDetailView(DetailView):
     model = Collection
     template_name = 'sled_collections/collection_detail.html'
 
     def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
+        #return self.model.accessible_objects.owned(self.request.user)
+        return self.model.accessible_objects.all(self.request.user)
     
     def get_context_data(self, **kwargs):
-        if self.object.owner == self.request.user:
-            context = super().get_context_data(**kwargs)
-            context['collection'] = self.object
-            return context
-        else:
-            message = "You are not the owner of this collection!"
-            return TemplateResponse(request,'simple_message.html',context={'message':message})        
+        context = super().get_context_data(**kwargs)
+        context['collection'] = self.object
+        m2m_qset = self.object.myitems.all()
+        ids = list(m2m_qset.values_list('gm2m_pk',flat=True))
+        obj_model = apps.get_model(app_label='lenses',model_name=self.object.item_type)
+        acc_qset = obj_model.accessible_objects.in_ids(self.request.user,ids)
+        context['accessible_items'] = acc_qset
+        return context
         
     def post(self, *args, **kwargs):
         referer = urlparse(self.request.META['HTTP_REFERER']).path
@@ -74,6 +97,7 @@ class CollectionDetailView(DetailView):
             message = "Not authorized action!"
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
+        
 @method_decorator(login_required,name='dispatch')
 class CollectionDeleteView(BSModalDeleteView):
     model = Collection
@@ -84,6 +108,7 @@ class CollectionDeleteView(BSModalDeleteView):
     def get_queryset(self):
         return Collection.accessible_objects.all(self.request.user)
 
+    
 @method_decorator(login_required,name='dispatch')
 class CollectionUpdateView(BSModalUpdateView):
     model = Collection
@@ -94,6 +119,7 @@ class CollectionUpdateView(BSModalUpdateView):
     def get_queryset(self):
         return Collection.accessible_objects.all(self.request.user)
 
+    
 @method_decorator(login_required,name='dispatch')
 class CollectionListView2(ListView):
     model = Collection
@@ -107,6 +133,7 @@ class CollectionListView2(ListView):
         context = super().get_context_data(**kwargs)
         context['collections'] = self.object_list
         return context
+
     
 @method_decorator(login_required,name='dispatch')
 class CollectionAddItemsView(DetailView):
@@ -124,20 +151,15 @@ class CollectionAddItemsView(DetailView):
             objects = apps.get_model(app_label='lenses',model_name=col.item_type).accessible_objects.in_ids(self.request.user,obj_ids)
             res = col.addItems(self.request.user,objects)
             if res != "success":
-                context['error_message'] = res                
-                return self.render_to_response(context)
+                print('error')
+                message = "Error: "
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
                 return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':self.object.id})) 
         else:
             message = "Select some objects to add!"
             return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-
-
-
-
-    
-    
+        
        
 @method_decorator(login_required,name='dispatch')
 class CollectionCreateView(CreateView):
