@@ -61,11 +61,11 @@
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Cede ownership
   </button>
-  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-remove-members' %}?mode=add">
+  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-members' %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Add members
   </button>
-  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-remove-members' %}?mode=remove">
+  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-remove-members' %}">
     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
     Remove members
   </button>

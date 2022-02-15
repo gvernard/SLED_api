@@ -13,4 +13,6 @@ urlpatterns = [
     path('delete/<int:pk>', views.CollectionDeleteView.as_view(), name='collection-delete'),
     path('update/<int:pk>', views.CollectionUpdateView.as_view(), name='collection-update'),
     path('add-items/<int:pk>', views.CollectionAddItemsView.as_view(), name='collection-add-items'),
+    path('give-access/',views.CollectionGiveRevokeAccessView.as_view(),kwargs={'mode':'give'},name='collection-give-access'),
+    path('revoke-access/',views.CollectionGiveRevokeAccessView.as_view(),kwargs={'mode':'revoke'},name='collection-revoke-access'),
 ]

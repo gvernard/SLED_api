@@ -42,3 +42,13 @@ class GroupAddRemoveMembersForm(BSModalForm):
 
     class Meta:
         fields = ['mode','group_id','users']
+
+    def clean(self):
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        # At least one User must be selected
+        users = self.cleaned_data.get('users')
+        if not users:
+            self.add_error('__all__',"Select at least one User.")

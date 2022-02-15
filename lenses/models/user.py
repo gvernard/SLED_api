@@ -208,7 +208,7 @@ class Users(AbstractUser,GuardianUserMixin):
                     revoked_objects_per_user_ids.append(obj.id)
             # if there are objects for which this user had permissions just revoked, create a notification
             if len(revoked_objects_per_user_ids) > 0:
-                remove_perm(perm,user,model_ref.objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
+                remove_perm(perm,user,model_ref.accessible_objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
                 if isinstance(user,Users):
                     notify.send(sender=self,recipient=user,verb='Your access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
                 else:

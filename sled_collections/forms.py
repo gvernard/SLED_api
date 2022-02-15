@@ -1,8 +1,9 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from lenses.models import Collection, Lenses
+from lenses.models import Collection, Lenses, Users, SledGroup
 from django.apps import apps
-from bootstrap_modal_forms.forms import BSModalModelForm
+from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
+
 
 class CustomM2M(forms.ModelMultipleChoiceField):
     def label_from_instance(self,item):
@@ -11,6 +12,7 @@ class CustomM2M(forms.ModelMultipleChoiceField):
 
     def clean(self,item):
         return(item)
+
     
 class CollectionForm2(BSModalModelForm):
     class Meta:
@@ -64,4 +66,21 @@ class CollectionForm(forms.ModelForm):
                 self.add_error('myitems','More than one object required')
         else:
             self.add_error('myitems','More than one object required')
-        
+
+
+class CollectionGiveRevokeAccessForm(BSModalForm):
+    mode = forms.CharField(widget=forms.HiddenInput())
+    collection_id = forms.CharField(widget=forms.HiddenInput())
+    users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
+    groups = forms.ModelMultipleChoiceField(label='Groups',queryset=SledGroup.objects.all(),required=False)
+                
+    def clean(self):
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        # At least one User or Group must be selected
+        users = self.cleaned_data.get('users')
+        groups = self.cleaned_data.get('groups')
+        if not users and not groups:
+            self.add_error('__all__',"Select at least one User and/or Group.")

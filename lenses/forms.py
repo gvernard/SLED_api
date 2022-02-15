@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
-from lenses.models import Lenses, Users, SledGroup
+from lenses.models import Lenses, Users, SledGroup, Collection
 
 
 class BaseLensForm(forms.ModelForm):
@@ -87,11 +87,17 @@ class LensGiveRevokeAccessForm(BSModalForm):
             self.add_error('__all__',"Select at least one User and/or Group.")
 
             
-class LensMakeCollectionForm(BSModalForm):
+class LensMakeCollectionForm(BSModalModelForm):
     ids = forms.CharField(widget=forms.HiddenInput())
-    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'The name of your collection.'}))
-    description = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a description for your collection.','rows':3,'cols':30}))
 
+    class Meta:
+        model = Collection
+        fields = ['name','description','access_level']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
+            'description': forms.Textarea(attrs={'placeholder':'Please provide a description for your collection.','rows':3,'cols':30}),
+            'access_level': forms.Select(),
+        }
     
 class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
     """

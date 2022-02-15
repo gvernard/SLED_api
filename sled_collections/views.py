@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.apps import apps
 from django.urls import reverse,reverse_lazy
 from django.db.models import Q
+from django.contrib import messages
 
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
 
@@ -20,6 +21,7 @@ from bootstrap_modal_forms.generic import (
     BSModalReadView,
     BSModalDeleteView
 )
+from bootstrap_modal_forms.utils import is_ajax
 
 from lenses.forms import LensQueryForm
 from .forms import *
@@ -151,7 +153,6 @@ class CollectionAddItemsView(DetailView):
             objects = apps.get_model(app_label='lenses',model_name=col.item_type).accessible_objects.in_ids(self.request.user,obj_ids)
             res = col.addItems(self.request.user,objects)
             if res != "success":
-                print('error')
                 message = "Error: "
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
@@ -182,9 +183,7 @@ class CollectionCreateView(CreateView):
             ids = [ pk for pk in self.request.POST.getlist('ids') if pk.isdigit() ]
             kwargs['ids'] = ids
             kwargs['all_items'] = ','.join(ids)
-        print('get form kwargs: ',kwargs)
         return kwargs
-
         
     def form_valid(self,form):
         form.instance.owner = self.request.user
@@ -236,3 +235,60 @@ class CollectionAddView(TemplateView):
             return self.render_to_response({'form': myform})
 
         
+@method_decorator(login_required,name='dispatch')
+class CollectionGiveRevokeAccessView(BSModalFormView):
+    template_name = 'sled_collections/collection_give_revoke_access.html'
+    form_class = CollectionGiveRevokeAccessForm
+
+    def get_initial(self):
+        collection_id = self.request.GET.get('collection_id')
+        mode = self.kwargs['mode']
+        return {'mode': mode,'collection_id':collection_id}
+
+    def form_invalid(self,form):
+        response = super().form_invalid(form)
+        return response
+
+    def form_valid(self,form):
+        collection_id = form.cleaned_data['collection_id']
+        self.collection_id = collection_id
+        if not is_ajax(self.request.META):
+            collection = Collection.accessible_objects.get(id=collection_id)
+            users = form.cleaned_data['users']
+            user_ids = [u.id for u in users]
+            users = Users.objects.filter(id__in=user_ids)
+            groups = form.cleaned_data['groups']
+            group_ids = [g.id for g in groups]
+            groups = SledGroup.objects.filter(id__in=group_ids)
+            target_users = list(users) + list(groups)
+
+            mode = self.kwargs['mode']
+            if mode == 'give':
+                self.request.user.giveAccess(collection,target_users)
+                ug_message = []
+                if len(users) > 0:
+                    ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                if len(groups) > 0:
+                    ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
+                message = 'Access to collection given to %s' % ' and '.join(ug_message)
+                messages.add_message(self.request,messages.SUCCESS,message)
+            elif mode == 'revoke':
+                self.request.user.revokeAccess(collection,target_users)
+                ug_message = []
+                if len(users) > 0:
+                    ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                if len(groups) > 0:
+                    ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
+                message = 'Access to collection revoked from %s' % ' and '.join(ug_message)
+                messages.add_message(self.request,messages.SUCCESS,message)
+            else:
+                messages.add_message(self.request,messages.ERROR,'Unknown action! Can either be <em>give</em> or <em>revoke</em>.')
+            response = super().form_valid(form)
+            return response
+        else:
+            response = super().form_valid(form)
+            return response
+       
+    def get_success_url(self):
+        #return reverse_lazy('sled_groups:group-list')
+        return reverse_lazy('sled_collections:collections-detail',kwargs={'pk':self.collection_id})

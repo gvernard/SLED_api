@@ -42,6 +42,7 @@
 <div>
   <p>Item type: {{ collection.item_type }}</p>
   <p>Description: {{ collection.description }}</p>
+  <p>Access level: {{ collection.access_level }}</p>
 
   {% if collection.owner == user %}
   <button type="button" id="update-collection" class="btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
@@ -52,18 +53,25 @@
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete
   </button>
-
+  
+  <button type="button" class="sled-give-revoke-access jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' %}">
+    <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+    Revoke access
+  </button>
+  <button type="button" class="sled-give-revoke-access jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' %}">
+    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+    Give access
+  </button>
+  
   Some notes here:
   <ul>
     <li>Button: If private make public (future)</li>
-    <li>Button: Give Access (future)</li>
-    <li>Button: Revoke Access (future)</li>
+    <li>Button: If public make private (future)</li>
   </ul>
   {% endif %}
 </div>
 
 <hr>
-
 
 {% if collection.owner == user %}
 <div>
@@ -120,12 +128,15 @@
 
 
 {% block extrastyles %}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {% endblock extrastyles %}
 
 
 {% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
       $("#delete-collection").modalForm({
@@ -139,10 +150,16 @@
  	  modalID: "#id-modal"
       });
 
-      $(".alert").fadeTo(2000, 500).slideUp(500, function () {
-          $(".alert").slideUp(500);
+      $(".sled-give-revoke-access").click(function(){
+	  var dum = window.location.href.split('/');
+	  var get_str = '?collection_id=' + dum[dum.length-1];
+	  var new_form_url = $(this).data("form-url") + get_str;
+	  $(this).modalFormTrigger({
+	      formURL: new_form_url,
+ 	      modalID: "#id-modal"
+	  });
       });
-
+      
       $("#remove-items").click(function (e) {
 	  var names = [];
           $("input[name='ids']:checked").each(function(){

@@ -13,5 +13,6 @@ urlpatterns = [
     path('delete/<int:pk>', views.GroupDeleteView.as_view(), name='group-delete'),
     path('update/<int:pk>', views.GroupUpdateView.as_view(), name='group-update'),
     path('cede-ownership/',views.GroupCedeOwnershipView.as_view(),name='group-cede-ownership'),
-    path('add-remove-members/',views.GroupAddMembersView.as_view(),name='group-add-remove-members'),
+    path('add-members/',views.GroupAddMembersView.as_view(),kwargs={'mode':'add'},name='group-add-members'),
+    path('remove-members/',views.GroupAddMembersView.as_view(),kwargs={'mode':'remove'},name='group-remove-members'),
 ]

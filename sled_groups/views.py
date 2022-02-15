@@ -62,8 +62,6 @@ class GroupListView(ListView):
         context['groups'] = self.object_list
         return context
 
-
-
     
 @method_decorator(login_required,name='dispatch')
 class GroupSplitListView(TemplateView):
@@ -77,8 +75,6 @@ class GroupSplitListView(TemplateView):
         context['groups_owned'] = SledGroup.accessible_objects.owned(self.request.user)
         context['groups_member'] = self.request.user.getGroupsIsMemberNotOwner()
         return context
-
-
     
 
 @method_decorator(login_required,name='dispatch')
@@ -184,7 +180,7 @@ class GroupAddMembersView(BSModalFormView):
 
     def get_initial(self):
         group_id = self.request.GET.get('group_id')
-        mode = self.request.GET.get('mode')
+        mode = self.kwargs['mode']
         return {'mode': mode,'group_id':group_id}
 
     def form_invalid(self,form):

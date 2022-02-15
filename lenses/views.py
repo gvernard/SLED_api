@@ -242,7 +242,8 @@ class LensMakeCollectionView(ModalIdsBaseMixin):
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         name = form.cleaned_data['name']
         description = form.cleaned_data['description']
-        mycollection = Collection(owner=self.request.user,name=name,access_level='PUB',description=description,item_type="Lenses")
+        access_level = form.cleaned_data['access_level']
+        mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type="Lenses")
         mycollection.save()
         mycollection.myitems = lenses
         mycollection.save()

@@ -1,0 +1,67 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+{% if view.kwargs.mode == 'revoke' %}
+Revoke access from Users and Groups?
+{% else %}
+Give access to Users and Groups?
+{% endif %}
+{% endblock title %}
+
+
+{% block content %}
+<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+<input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
+
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
+<div>
+  {{ form.users }}
+</div>
+
+<br>
+
+<div>
+  {{ form.groups }}
+</div>
+
+{{ form.collection_id }}
+{{ form.mode }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-danger">
+  {% if view.kwargs.mode == 'revoke' %}
+  Revoke access
+  {% else %}
+  Give access
+  {% endif %}
+</button>
+{% endblock action_button %}
+
+
+{% block extrascripts %}
+<script>
+  users_autocomplete("id_users");
+  groups_autocomplete("id_groups");
+  
+  // The following is needed for select2 to work properly in a modal
+  $('#id_users').select2({
+      width: '100%',
+      placeholder: 'Search for a user',
+      minimumInputLength: 1,
+      dropdownParent: $('#id-modal')
+  });
+  $('#id_groups').select2({
+      width: '100%',
+      placeholder: 'Search for a group',
+      minimumInputLength: 1,
+      dropdownParent: $('#id-modal')
+  });
+</script>
+{% endblock extrascripts %}
