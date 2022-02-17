@@ -22,7 +22,13 @@ class CollectionForm2(BSModalModelForm):
             'description': forms.Textarea({'placeholder':'Provide a description for your collection.','rows':3,'cols':30})
         }
             
-    
+class CollectionAskAccessForm(BSModalModelForm):
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the lens owners, justifying why you require access to the private objects.','rows':3,'cols':30}))
+
+    class Meta:
+        model = Collection
+        fields = ['id'] 
+        
 class CollectionForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
@@ -68,12 +74,15 @@ class CollectionForm(forms.ModelForm):
             self.add_error('myitems','More than one object required')
 
 
-class CollectionGiveRevokeAccessForm(BSModalForm):
+class CollectionGiveRevokeAccessForm(BSModalModelForm):
     mode = forms.CharField(widget=forms.HiddenInput())
-    collection_id = forms.CharField(widget=forms.HiddenInput())
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
     groups = forms.ModelMultipleChoiceField(label='Groups',queryset=SledGroup.objects.all(),required=False)
                 
+    class Meta:
+        model = Collection
+        fields = ['id'] # Not really used, but 'fields' is required
+
     def clean(self):
         if any(self.errors):
             # Don't bother validating the formset unless each form is valid on its own

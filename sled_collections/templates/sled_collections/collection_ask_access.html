@@ -1,0 +1,21 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+Ask private object owners for access?
+{% endblock title %}
+
+
+{% block content %}
+{{ form.justification }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-danger">
+  Ask access
+</button>
+{% endblock action_button %}
+
+
+{% block extrascripts %}
+{% endblock extrascripts %}

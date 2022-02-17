@@ -54,7 +54,8 @@ class ConfirmationTask(SingleObject):
         ('CedeOwnership','Cede ownership'),
         ('MakePrivate','Make private'),
         ('DeleteObject','Delete public object'),
-        ('ResolveDuplicates','Resolve duplicate objects')
+        ('ResolveDuplicates','Resolve duplicate objects'),
+        ('AskPrivateAccess','Ask access to private objects')
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -409,6 +410,35 @@ class ResolveDuplicates(ConfirmationTask):
         # mycollection.save()
         # mycollection.myitems = lenses
         # mycollection.save()
+
+
+class AskPrivateAccess(ConfirmationTask):
+    class Meta:
+        proxy = True
         
+    class myForm(forms.Form):
+        mychoices = [('yes','Yes'),('no','No')]
+        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
+        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
+
+    def allowed_responses(self):
+        return ['yes','no']
+
+    def getForm(self):
+        return self.myForm()
+
+    def finalizeTask(self):
+        # Here, only one recipient to get a response from
+        response = self.heard_from().get().response
+        objs_owner = self.get_all_recipients()[0]
+        task_owner = self.owner
+        if response == 'yes':
+            objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            objs_owner.giveAccess(objs,task_owner) # this sends a notification as well.
+        else:
+            notify.send(sender=admin,recipient=self.owner,verb='Your request to access private objects was rejected',level='error',timestamp=timezone.now(),note_type='AskPrivateAccess',task_id=self.id)
+
+
+            
 ### END: Confirmation task specific code
 ################################################################################################################################################

@@ -25,7 +25,7 @@ from bootstrap_modal_forms.utils import is_ajax
 
 from lenses.forms import LensQueryForm
 from .forms import *
-from lenses.models import Collection,Lenses
+from lenses.models import Collection, Lenses, ConfirmationTask
 from urllib.parse import urlparse
 from random import randint
 
@@ -99,6 +99,46 @@ class CollectionDetailView(DetailView):
             message = "Not authorized action!"
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
+
+
+
+
+        
+        
+@method_decorator(login_required,name='dispatch')
+class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view pass the object id automatically
+    model = Collection
+    template_name = 'sled_collections/collection_ask_access.html'
+    form_class = CollectionAskAccessForm
+
+    def get_queryset(self):
+        return self.model.accessible_objects.all(self.request.user)
+
+    def form_invalid(self,form):
+        response = super().form_invalid(form)
+        return response
+
+    def form_valid(self,form):
+        col = self.get_object()
+        if not is_ajax(self.request.META):
+            owners_ids = col.ask_access_for_private(self.request.user)
+            #owners = Users.objects.filter(username__in=owners_ids.keys())
+            for username in owners_ids.keys():
+                cargo = {'object_type':col.item_type,'object_ids': owners_ids[username],'comment':form.cleaned_data['justification']}
+                receiver = Users.objects.filter(username=username) # receiver must be a queryset
+                mytask = ConfirmationTask.create_task(self.request.user,receiver,'AskPrivateAccess',cargo)
+            messages.add_message(self.request,messages.SUCCESS,'Owners of private lenses in the collection have been notified about your request.')
+            response = super().form_valid(form)
+            return response
+        else:
+            response = super().form_valid(form)
+            return response
+
+
+    
+
+        
+        
         
 @method_decorator(login_required,name='dispatch')
 class CollectionDeleteView(BSModalDeleteView):
@@ -236,24 +276,26 @@ class CollectionAddView(TemplateView):
 
         
 @method_decorator(login_required,name='dispatch')
-class CollectionGiveRevokeAccessView(BSModalFormView):
+class CollectionGiveRevokeAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view pass the object id automatically
+    model = Collection
     template_name = 'sled_collections/collection_give_revoke_access.html'
     form_class = CollectionGiveRevokeAccessForm
 
     def get_initial(self):
-        collection_id = self.request.GET.get('collection_id')
+        collection_id = self.get_object().id
         mode = self.kwargs['mode']
         return {'mode': mode,'collection_id':collection_id}
+
+    def get_queryset(self):
+        return self.model.accessible_objects.all(self.request.user)
 
     def form_invalid(self,form):
         response = super().form_invalid(form)
         return response
 
     def form_valid(self,form):
-        collection_id = form.cleaned_data['collection_id']
-        self.collection_id = collection_id
         if not is_ajax(self.request.META):
-            collection = Collection.accessible_objects.get(id=collection_id)
+            collection = self.get_object()
             users = form.cleaned_data['users']
             user_ids = [u.id for u in users]
             users = Users.objects.filter(id__in=user_ids)
@@ -288,7 +330,7 @@ class CollectionGiveRevokeAccessView(BSModalFormView):
         else:
             response = super().form_valid(form)
             return response
-       
+    
     def get_success_url(self):
         #return reverse_lazy('sled_groups:group-list')
-        return reverse_lazy('sled_collections:collections-detail',kwargs={'pk':self.collection_id})
+        return reverse_lazy('sled_collections:collections-detail',kwargs={'pk':self.get_object().id})

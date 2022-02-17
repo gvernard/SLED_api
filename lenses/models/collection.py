@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.apps import apps
 from django.urls import reverse
+from django.db.models import F
 
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
@@ -11,6 +12,9 @@ from guardian.shortcuts import assign_perm
 from gm2m import GM2MField
 from notifications.signals import notify
 import inspect
+
+from itertools import groupby
+from operator import itemgetter
 
 from . import SingleObject
 
@@ -235,6 +239,54 @@ class Collection(SingleObject):
         return mydict
                 
 
+    def ask_access_for_private(self,user):
+        """
+        Creates confirmation tasks for the owners of private objects in the collection for which the user does not have access.
+
+        Args:
+            user: a user instance.
+
+        Returns:
+            dict: a dictionary of usernames (str) for each owner and a list of all the ids they own
+
+        Raises: 
+            AssertionError: If the collection is not private.
+        """
+        
+        try:
+            assert (self.access_level=='PRI'),"Collection is not private"
+        except AssertionError as error:
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print(error,"The operation of '"+caller[1][3]+"' should not proceed")
+            raise
+        else:
+            m2m_qset = self.myitems.all()
+            ids = list(m2m_qset.values_list('gm2m_pk',flat=True))
+            obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
+            dum = list(obj_model.accessible_objects.in_ids(user,ids).values_list('id',flat=True))
+            ids_acc = list(map(str,dum))
+            set_difference = set(ids) - set(ids_acc)
+            ids_priv = list(set_difference)
+
+            mylist = obj_model.objects.filter(id__in=ids_priv,access_level='PRI').annotate(username=F('owner__username')).values('username','id')
+            mylist = sorted(mylist,key = itemgetter('username'))
+            
+            owners_ids = {}
+            for key,val in groupby(mylist,key=itemgetter('username')):
+                tmp = []
+                for k in val:
+                    tmp.append(k['id'])
+                owners_ids[key] = tmp
+            
+            return owners_ids
+
+
+
+        
+        
+    
+
+    
     
 # Assign view permission to the owner of a new collection
 @receiver(post_save,sender=Collection)

@@ -40,7 +40,6 @@ class TaskDetailOwnerView(DetailView):
         context['allowed'] = ' or '.join( self.object.allowed_responses() )
         context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
         context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
-        #print(context)
         return context
 
 
@@ -79,7 +78,6 @@ class TaskDetailRecipientView(DetailView):
             db_response = self.object.recipients.through.objects.get(confirmation_task__exact=self.object.id,recipient__username=self.request.user.username)
         except self.object.DoesNotExist:
             db_response = None
-        print(db_response.response)
         context['db_response'] = db_response
 
         # Form to display, prepopulate and disable if response exists 
@@ -96,13 +94,11 @@ class TaskDetailRecipientView(DetailView):
                 
     def post(self, *args, **kwargs):
         referer = urlparse(self.request.META['HTTP_REFERER']).path
-        print(self.request.POST)
         if referer == self.request.path:
             response = self.request.POST.get('response')
             response_comment = self.request.POST.get('response_comment')
             task_id = self.request.POST.get('task_id')
             task = ConfirmationTask.objects.get(pk=task_id)
-            print(task)
             task.registerAndCheck(self.request.user,response,response_comment)
             #return redirect(reverse('sled_tasks:tasks-detail-recipient',kwargs={'pk':task_id}))
             return HttpResponseRedirect(self.request.path_info)

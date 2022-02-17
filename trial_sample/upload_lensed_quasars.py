@@ -19,10 +19,7 @@ from lenses.models import Users, SledGroup, Lenses, SingleObject
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
 
-user1 = Users.objects.get(username='Cameron')
-user2 = Users.objects.get(username='gvernard')
-user3 = Users.objects.get(username='Fred')
-users = [user1,user2,user3]
+users = list(Users.objects.filter(username__in=['Cameron','Fred','gvernard']))
 
 # Adding lenses
 print('Populating the database with known lensed quasars')
@@ -56,9 +53,9 @@ if n_final < 0:
     n_final = 0
 lenses_per_user.append(n_final)
 
-# for i in range(0,len(users)):
-#     print(i,users[i],lenses_per_user[i])
-# print(sum(lenses_per_user))
+for i in range(0,len(users)):
+    print(i,users[i],lenses_per_user[i])
+print(sum(lenses_per_user))
 
 
 
@@ -117,17 +114,16 @@ for i in range(len(ras)):
     lensedquasars.append( lens )
 
 Lenses.objects.bulk_create(lensedquasars)
+
+for j in range(0,len(users)-1):
+    lensedquasars = Lenses.objects.filter(owner=users[j])
+    assign_perm('view_lenses', users[j], lensedquasars)
+
+
 lensedquasars = Lenses.objects.all()
-assign_perm('view_lenses', user1, lensedquasars)
-
-
 for lens in lensedquasars:
     fname = 'upload_'+str(lens.id) + '.png'
     os.system('cp ../images_of_quasars/'+lens.name+'.png ./media/lenses/' + fname)
     lens.mugshot.name = 'lenses/' + fname
     lens.save()
 
-
-
-
-#lenses = Lenses.objects.all()

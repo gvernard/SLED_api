@@ -54,11 +54,11 @@
     Delete
   </button>
   
-  <button type="button" class="sled-give-revoke-access jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' %}">
+  <button type="button" id="revoke-access" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
     Revoke access
   </button>
-  <button type="button" class="sled-give-revoke-access jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' %}">
+  <button type="button" id="give-access" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Give access
   </button>
@@ -87,6 +87,10 @@
   <p>
     You can access <strong>{{ accessible_items|length }}</strong> out of <strong>{{ collection.myitems.all|length }}</strong> items in the collection.
   </p>
+  <button type="button" id="ask-access" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-ask-access' collection.pk %}">
+    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+    Ask access
+  </button>
 </div>
 {% endif %}
 
@@ -150,16 +154,21 @@
  	  modalID: "#id-modal"
       });
 
-      $(".sled-give-revoke-access").click(function(){
-	  var dum = window.location.href.split('/');
-	  var get_str = '?collection_id=' + dum[dum.length-1];
-	  var new_form_url = $(this).data("form-url") + get_str;
-	  $(this).modalFormTrigger({
-	      formURL: new_form_url,
- 	      modalID: "#id-modal"
-	  });
+      $("#give-access").modalForm({
+          formURL: $("#give-access").data("form-url"),
+ 	  modalID: "#id-modal"
+      });
+
+      $("#revoke-access").modalForm({
+          formURL: $("#revoke-access").data("form-url"),
+ 	  modalID: "#id-modal"
       });
       
+      $("#ask-access").modalForm({
+          formURL: $("#ask-access").data("form-url"),
+ 	  modalID: "#id-modal"
+      });
+
       $("#remove-items").click(function (e) {
 	  var names = [];
           $("input[name='ids']:checked").each(function(){

@@ -181,7 +181,6 @@ class LensGiveRevokeAccessView(ModalIdsBaseMixin):
     success_url = reverse_lazy('users:user-profile')
 
     def my_form_valid(self,form):
-        print()
         ids = form.cleaned_data['ids'].split(',')
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         users = form.cleaned_data['users']
