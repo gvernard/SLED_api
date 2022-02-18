@@ -99,11 +99,6 @@ class CollectionDetailView(DetailView):
             message = "Not authorized action!"
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
-
-
-
-
-        
         
 @method_decorator(login_required,name='dispatch')
 class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view pass the object id automatically
@@ -135,11 +130,6 @@ class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormVie
             return response
 
 
-    
-
-        
-        
-        
 @method_decorator(login_required,name='dispatch')
 class CollectionDeleteView(BSModalDeleteView):
     model = Collection
@@ -282,9 +272,8 @@ class CollectionGiveRevokeAccessView(BSModalUpdateView): # It would be a BSModal
     form_class = CollectionGiveRevokeAccessForm
 
     def get_initial(self):
-        collection_id = self.get_object().id
         mode = self.kwargs['mode']
-        return {'mode': mode,'collection_id':collection_id}
+        return {'mode': mode}
 
     def get_queryset(self):
         return self.model.accessible_objects.all(self.request.user)

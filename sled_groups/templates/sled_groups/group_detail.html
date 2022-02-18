@@ -3,40 +3,12 @@
 
 
 {% block content %}
-
-<!-- Hidden elements needed for the user and group autocomplete -->
-<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
-<input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
-
 <!-- Modal divs -->
 <div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
     <div class="modal-content"></div>
   </div>
 </div>
-{% if  group.owner != user %}
-<div class="modal fade" tabindex="-1" role="dialog" id="id-modal-leave">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-	<h5 class="modal-title">Are you sure you want to leave this group?</h5>
-	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	  <span aria-hidden="true">&times;</span>
-	</button>
-      </div>
-      <div class="modal-footer">
-	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	<form id="dum-form" method="POST">
-	  {% csrf_token %}
-	</form>
-	<button type="submit" form="dum-form" class="btn btn-danger">Leave</button>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-
-
 
 
 <h1>{{ group.name }}</h1>
@@ -53,25 +25,25 @@
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete
   </button>
-  <button type="button" id="update-group" class="btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-update' group.pk %}">
+  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-update' group.pk %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Update
   </button>
-  <button type="button" id="cede-ownership" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-cede-ownership' %}">
+  <button type="button" class="sled-modal btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-cede-ownership' group.pk %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Cede ownership
   </button>
-  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-members' %}">
+  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-members' group.pk %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Add members
   </button>
-  <button type="button" class="sled-add-remove-members btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-remove-members' %}">
+  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-remove-members' group.pk %}">
     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
     Remove members
   </button>
 
   {% else %}
-  <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#id-modal-leave">
+  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-leave' group.pk %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Leave group
   </button>
@@ -123,27 +95,9 @@
  	  isDeleteForm: true
       });
       
-      $("#update-group").modalForm({
-          formURL: $("#update-group").data("form-url"),
- 	  modalID: "#id-modal"
-      });
-
-      $("#cede-ownership").click(function(){
-	  var dum = window.location.href.split('/');
-	  var get_str = '?group_id=' + dum[dum.length-1];
-	  var new_form_url = $("#cede-ownership").data("form-url") + get_str;
-	  $(this).modalFormTrigger({
-	      formURL: new_form_url,
- 	      modalID: "#id-modal"
-	  });
-      });
-
-      $(".sled-add-remove-members").click(function(){
-	  var dum = window.location.href.split('/');
-	  var get_str = '&group_id=' + dum[dum.length-1];
-	  var new_form_url = $(this).data("form-url") + get_str;
-	  $(this).modalFormTrigger({
-	      formURL: new_form_url,
+      $(".sled-modal").each(function(){
+	  $(this).modalForm({
+              formURL: $(this).data("form-url"),
  	      modalID: "#id-modal"
 	  });
       });

@@ -1,12 +1,18 @@
 {% extends "modal_base.html" %}
 
 {% block title %}
-Cede ownership?
+Cede ownership of group {{ sledgroup.name }}?
 {% endblock title %}
 
 
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
 
 <div>
   {{ form.heir }}
@@ -15,8 +21,6 @@ Cede ownership?
 <div>
   {{ form.justification }}
 </div>
-
-{{ form.group_id }}
 {% endblock content %}
 
 

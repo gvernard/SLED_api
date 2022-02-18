@@ -1,9 +1,8 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from lenses.models import SledGroup,Users
-from django.apps import apps
-from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
-    
+from lenses.models import SledGroup, Users
+from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
+
+
 class SledGroupForm(BSModalModelForm):
     class Meta:
         model = SledGroup
@@ -12,13 +11,15 @@ class SledGroupForm(BSModalModelForm):
             'description': forms.Textarea({'placeholder':'Provide a description for your group.','rows':3,'cols':30})
         }
 
-class GroupCedeOwnershipForm(BSModalForm):
-    group_id = forms.CharField(widget=forms.HiddenInput())
+        
+class GroupCedeOwnershipForm(BSModalModelForm):
     heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
                 
     class Meta:
-        fields = ['group_id','justification','heir']
+        model = SledGroup
+        fields = ['id','justification','heir']
+
 
 class GroupAddForm(BSModalForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
@@ -26,29 +27,32 @@ class GroupAddForm(BSModalForm):
     description = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a description for your group.','rows':3,'cols':30}))
     
     def clean(self):
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-
         # At least one User or Group must be selected
         users = self.cleaned_data.get('users')
         if not users:
             self.add_error('__all__',"Select at least one User.")
 
-class GroupAddRemoveMembersForm(BSModalForm):
-    mode = forms.CharField(widget=forms.HiddenInput())
-    group_id = forms.CharField(widget=forms.HiddenInput())
+            
+class GroupAddRemoveMembersForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
 
     class Meta:
-        fields = ['mode','group_id','users']
+        model = SledGroup
+        fields = ['id','users']
 
     def clean(self):
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-
         # At least one User must be selected
         users = self.cleaned_data.get('users')
         if not users:
             self.add_error('__all__',"Select at least one User.")
+
+        # If removing users then the owner must not be removed
+        owner = self.instance.owner
+        if owner in users:
+           self.add_error('__all__',"The group owner cannot be added or removed from the group.")
+
+
+class GroupLeaveForm(BSModalModelForm):
+    class Meta:
+        model = SledGroup
+        fields = [] # no field is required

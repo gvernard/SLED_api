@@ -1,29 +1,33 @@
 {% extends "modal_base.html" %}
 
 {% block title %}
-{% if form.mode.value == 'add' %}
+{% if view.kwargs.mode == 'add' %}
 Add new members to the group
 {% else %}
 Remove members from the group
 {% endif %}
+ {{ sledgroup.name }}?
 {% endblock title %}
 
 
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
 <div>
   {{ form.users }}
 </div>
-
-{{ form.group_id }}
-{{ form.mode }}
 {% endblock content %}
 
 
 {% block action_button %}
 <button type="submit" class="btn btn-sm btn-primary">
-  {% if form.mode.value == 'add' %}
+  {% if view.kwargs.mode == 'add' %}
   Add users
   {% else %}
   Remove users

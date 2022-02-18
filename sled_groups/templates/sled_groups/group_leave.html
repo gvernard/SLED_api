@@ -2,7 +2,7 @@
 
 
 {% block title %}
-Update group {{ sledgroup.name }}
+Leave group
 {% endblock title %}
 
 
@@ -13,14 +13,12 @@ Update group {{ sledgroup.name }}
   {% endfor %}
 </div>
 
-{% for field in form %}
 <div>
-  {{ field }}
+  Are you sure you want to leave the group named <strong>{{ sledgroup.name }}</strong>?
 </div>
-{% endfor %}
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Update</button>
+<button type="submit" class="btn btn-danger">Leave</button>
 {% endblock action_button %}

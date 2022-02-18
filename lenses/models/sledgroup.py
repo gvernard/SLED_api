@@ -44,7 +44,6 @@ class SledGroup(Group,SingleObject):
         
     def addMember(self,owner,sled_user):
         if owner==self.owner:
-            print(sled_user, self.user_set)
             if sled_user not in self.getAllMembers():
                 self.user_set.add(sled_user)
         
