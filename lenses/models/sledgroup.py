@@ -43,10 +43,6 @@ class SledGroup(Group,SingleObject):
         return self.name
 
     
-    def __str__(self):
-        return self.name
-
-    
     def get_absolute_url(self):
         return reverse('sled_groups:group-detail',kwargs={'pk':self.id})
 

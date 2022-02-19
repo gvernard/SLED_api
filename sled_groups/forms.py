@@ -45,7 +45,7 @@ class GroupCreateForm(BSModalForm):
             
 class GroupAddRemoveMembersForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
-    mode = 'dum'
+    mode = 'dum' # necessary to define self.mode
     
     class Meta:
         model = SledGroup
@@ -62,7 +62,7 @@ class GroupAddRemoveMembersForm(BSModalModelForm):
             self.add_error('__all__',"Select at least one User.")
             return
         
-        # If must not be added or removed
+        # Owner must not be added or removed
         owner = self.instance.owner
         if owner in qset_users:
            self.add_error('__all__',"The group owner cannot be added or removed from the group.")

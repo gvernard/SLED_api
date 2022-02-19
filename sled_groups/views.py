@@ -74,7 +74,7 @@ class GroupDeleteView(BSModalDeleteView):
     context_object_name = 'group'
     
     def get_queryset(self):
-        return self.model.objects.filter(owner=self.request.user)
+        return SledGroup.accessible_objects.owned(self.request.user)
 
     def delete(self, *args, **kwargs):
         self.object = self.get_object()
@@ -97,11 +97,8 @@ class GroupCreateView(BSModalFormView):
             sledgroup.save()
             sledgroup.addMember(self.request.user,add_user_names)
             messages.add_message(self.request,messages.SUCCESS,'Group <b>"'+name+'"</b> was successfully created!')
-            response = super().form_valid(form)
-            return response
-        else:
-            response = super().form_valid(form)
-            return response
+        response = super().form_valid(form)
+        return response
 
 
 @method_decorator(login_required,name='dispatch')
@@ -112,7 +109,7 @@ class GroupUpdateView(BSModalUpdateView):
     success_message = 'Success: Group was updated.'
     
     def get_queryset(self):
-        return SledGroup.objects.filter(owner=self.request.user)
+        return SledGroup.accessible_objects.owned(self.request.user)
 
 
 @method_decorator(login_required,name='dispatch')
@@ -148,7 +145,7 @@ class GroupCedeOwnershipView(BSModalUpdateView):
     form_class = GroupCedeOwnershipForm
 
     def get_queryset(self):
-        return SledGroup.objects.filter(owner=self.request.user)
+        return SledGroup.accessible_objects.owned(self.request.user)
     
     def form_valid(self,form):
         if not is_ajax(self.request.META):
@@ -173,7 +170,7 @@ class GroupAddRemoveMembersView(BSModalUpdateView):
     form_class = GroupAddRemoveMembersForm
 
     def get_queryset(self):
-        return SledGroup.objects.filter(owner=self.request.user)
+        return SledGroup.accessible_objects.owned(self.request.user)
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -201,11 +198,8 @@ class GroupAddRemoveMembersView(BSModalUpdateView):
                     messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(users.values_list('username',flat=True))+'"</b> were successfully removed from the group!')
                 # Notify user
                 # Notify group
-            response = super().form_valid(form)
-            return response
-        else:
-            response = super().form_valid(form)
-            return response
+        response = super().form_valid(form)
+        return response
 
 #=============================================================================================================================
 ### END: Modal views

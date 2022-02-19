@@ -29,22 +29,6 @@ from lenses.models import Collection, Lenses, ConfirmationTask
 from urllib.parse import urlparse
 from random import randint
 
-
-@method_decorator(login_required,name='dispatch')
-class CollectionListView(ListView):
-    model = Collection
-    allow_empty = True
-    template_name = 'sled_collections/collection_list.html'
-    paginate_by = 100  # if pagination is desired
-    
-    def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['collections'] = self.object_list
-        return context
-
     
 @method_decorator(login_required,name='dispatch')
 class CollectionSplitListView(TemplateView):
@@ -56,8 +40,6 @@ class CollectionSplitListView(TemplateView):
         context = super().get_context_data(**kwargs)
         qset_owned = Collection.accessible_objects.owned(self.request.user)
         context['collections_owned'] = qset_owned
-        # qset_access = Collection.accessible_objects.filter(access_level='PRI').filter(~Q(owner=self.request.user))
-        # context['collections_access'] = get_objects_for_user(self.request.user,'view_'+Collection._meta.db_table,klass=qset_access)
         context['collections_access'] = Collection.accessible_objects.all(self.request.user).filter(access_level='PRI').filter(~Q(owner=self.request.user))
         return context
 
@@ -68,8 +50,7 @@ class CollectionDetailView(DetailView):
     template_name = 'sled_collections/collection_detail.html'
 
     def get_queryset(self):
-        #return self.model.accessible_objects.owned(self.request.user)
-        return self.model.accessible_objects.all(self.request.user)
+        return Collection.accessible_objects.all(self.request.user)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -99,7 +80,19 @@ class CollectionDetailView(DetailView):
             message = "Not authorized action!"
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
+
+
+    
+
+
+
+
         
+       
+
+#=============================================================================================================================
+### BEGIN: Modal views
+#=============================================================================================================================       
 @method_decorator(login_required,name='dispatch')
 class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view pass the object id automatically
     model = Collection
@@ -107,27 +100,19 @@ class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormVie
     form_class = CollectionAskAccessForm
 
     def get_queryset(self):
-        return self.model.accessible_objects.all(self.request.user)
-
-    def form_invalid(self,form):
-        response = super().form_invalid(form)
-        return response
+        return Collection.accessible_objects.all(self.request.user)
 
     def form_valid(self,form):
-        col = self.get_object()
         if not is_ajax(self.request.META):
+            col = self.get_object()
             owners_ids = col.ask_access_for_private(self.request.user)
-            #owners = Users.objects.filter(username__in=owners_ids.keys())
             for username in owners_ids.keys():
                 cargo = {'object_type':col.item_type,'object_ids': owners_ids[username],'comment':form.cleaned_data['justification']}
                 receiver = Users.objects.filter(username=username) # receiver must be a queryset
                 mytask = ConfirmationTask.create_task(self.request.user,receiver,'AskPrivateAccess',cargo)
             messages.add_message(self.request,messages.SUCCESS,'Owners of private lenses in the collection have been notified about your request.')
-            response = super().form_valid(form)
-            return response
-        else:
-            response = super().form_valid(form)
-            return response
+        response = super().form_valid(form)
+        return response
 
 
 @method_decorator(login_required,name='dispatch')
@@ -138,149 +123,39 @@ class CollectionDeleteView(BSModalDeleteView):
     success_url = reverse_lazy('sled_collections:collections-list')
     
     def get_queryset(self):
-        return Collection.accessible_objects.all(self.request.user)
+        return Collection.accessible_objects.owned(self.request.user)
+
+    def delete(self, *args, **kwargs):
+        self.object = self.get_object()
+        # If private, remove persmissions
+        # Notify users with access to collection
+        return super().delete(*args, **kwargs)
 
     
 @method_decorator(login_required,name='dispatch')
 class CollectionUpdateView(BSModalUpdateView):
     model = Collection
     template_name = 'sled_collections/collection_update.html'
-    form_class = CollectionForm2
+    form_class = CollectionUpdateForm
     success_message = 'Success: Collection was updated.'
     
     def get_queryset(self):
-        return Collection.accessible_objects.all(self.request.user)
-
-    
-@method_decorator(login_required,name='dispatch')
-class CollectionListView2(ListView):
-    model = Collection
-    template_name = 'sled_collections/collection_list2.html'
-    #form_class = CollectionForm2
-
-    def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['collections'] = self.object_list
-        return context
-
-    
-@method_decorator(login_required,name='dispatch')
-class CollectionAddItemsView(DetailView):
-    model = Collection
-
-    def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
-    
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        col = Collection.accessible_objects.get(pk=self.object.id)
-        obj_ids = self.request.POST.getlist('ids',None)
-        context = super(CollectionAddItemsView,self).get_context_data(**kwargs)
-        if obj_ids:
-            objects = apps.get_model(app_label='lenses',model_name=col.item_type).accessible_objects.in_ids(self.request.user,obj_ids)
-            res = col.addItems(self.request.user,objects)
-            if res != "success":
-                message = "Error: "
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
-            else:
-                return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':self.object.id})) 
-        else:
-            message = "Select some objects to add!"
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-        
-       
-@method_decorator(login_required,name='dispatch')
-class CollectionCreateView(CreateView):
-    model = Collection
-    form_class = CollectionForm
-    template_name = "sled_collections/collection_create_form.html"
-    success_url = reverse_lazy('sled_collections:collections-list')
-    
-    def get_form_kwargs(self):
-        kwargs = super(CollectionCreateView,self).get_form_kwargs()        
-        referer = urlparse(self.request.META['HTTP_REFERER']).path
-        if referer == self.request.path:
-            kwargs['request'] = self.request
-            kwargs['obj_type'] = self.request.POST.get('obj_type')
-            kwargs['ids'] = [ pk for pk in self.request.POST.getlist('myitems') if pk.isdigit() ]
-            kwargs['all_items'] = self.request.POST.get('all_items')
-        else:
-            kwargs['request'] = self.request
-            kwargs['obj_type'] = self.request.POST.get('obj_type')
-            ids = [ pk for pk in self.request.POST.getlist('ids') if pk.isdigit() ]
-            kwargs['ids'] = ids
-            kwargs['all_items'] = ','.join(ids)
-        return kwargs
-        
-    def form_valid(self,form):
-        form.instance.owner = self.request.user
-        form.instance.item_type = form.cleaned_data['obj_type']
-        response = super().form_valid(form)
-        self.object.myitems = form.cleaned_data['myitems']
-        self.object.save()
-        return response
-
-    def form_invalid(self,form):
-        return super().form_invalid(form)
+        return Collection.accessible_objects.owned(self.request.user)
 
 
-@method_decorator(login_required,name='dispatch')
-class CollectionAddView(TemplateView):
-    model = Collection
-    template_name = "sled_collections/collection_create_form.html"
-    
-    def get(self, request, *args, **kwargs):
-        message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
-        return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-    def post(self, *args, **kwargs):
-        referer = urlparse(self.request.META['HTTP_REFERER']).path
-
-        if referer == self.request.path:
-            myform = CollectionForm(data=self.request.POST,user=self.request.user)
-            if myform.is_valid():
-                instance = myform.save(commit=False)
-                instance.owner = self.request.user
-                ids = [ pk for pk in self.request.POST.getlist('myitems') if pk.isdigit() ]
-                obj_type = myform.cleaned_data['obj_type']
-                instance.item_type = obj_type
-                instance.save()
-                instance.myitems = apps.get_model(app_label='lenses',model_name=obj_type).accessible_objects.in_ids(self.request.user,ids)
-                instance.save()
-                return HttpResponseRedirect(reverse('sled_collections:collections-list'))
-            else:
-                return self.render_to_response({'form': myform})
-                
-        else:
-            obj_type = self.request.POST.get('obj_type')
-            ids = [ pk for pk in self.request.POST.getlist('ids') if pk.isdigit() ]
-            data = {
-                "all_items": ','.join(ids),
-                "obj_type": obj_type
-            }
-            myform = CollectionForm(data=data,user=self.request.user)
-            return self.render_to_response({'form': myform})
-
-        
 @method_decorator(login_required,name='dispatch')
 class CollectionGiveRevokeAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view pass the object id automatically
     model = Collection
     template_name = 'sled_collections/collection_give_revoke_access.html'
     form_class = CollectionGiveRevokeAccessForm
 
-    def get_initial(self):
-        mode = self.kwargs['mode']
-        return {'mode': mode}
-
     def get_queryset(self):
-        return self.model.accessible_objects.all(self.request.user)
+        return Collection.accessible_objects.owned(self.request.user)
 
-    def form_invalid(self,form):
-        response = super().form_invalid(form)
-        return response
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'mode':self.kwargs.get('mode')})
+        return kwargs
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):
@@ -314,12 +189,46 @@ class CollectionGiveRevokeAccessView(BSModalUpdateView): # It would be a BSModal
                 messages.add_message(self.request,messages.SUCCESS,message)
             else:
                 messages.add_message(self.request,messages.ERROR,'Unknown action! Can either be <em>give</em> or <em>revoke</em>.')
-            response = super().form_valid(form)
-            return response
+        response = super().form_valid(form)
+        return response
+
+    
+@method_decorator(login_required,name='dispatch')
+class CollectionAddItemsView(BSModalFormView):
+    template_name = 'sled_collections/collection_select_to_add_items.html'
+    form_class = CollectionAddItemsForm
+    success_message = 'Success: Items added to collection.'
+    success_url = reverse_lazy('lenses:lens-query')
+    
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        return {'ids': ids_str}
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'user': self.request.user})
+        kwargs.update({'obj_type': self.kwargs['obj_type']})
+        return kwargs
+    
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
+            ids = form.cleaned_data['ids'].split(',')
+            to_add = obj_model.accessible_objects.in_ids(self.request.user,ids)
+            col = form.cleaned_data['target_collection']
+            res = col.addItems(self.request.user,to_add)
+            if res['status'] != "ok":
+                message = "Error: "
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            else:
+                messages.add_message(self.request,messages.SUCCESS,'New items added to collection: '+res['status'])
+                return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':col.id})) 
         else:
             response = super().form_valid(form)
             return response
-    
-    def get_success_url(self):
-        #return reverse_lazy('sled_groups:group-list')
-        return reverse_lazy('sled_collections:collections-detail',kwargs={'pk':self.get_object().id})
+
+
+#=============================================================================================================================
+### END: Modal views
+#=============================================================================================================================       

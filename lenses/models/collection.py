@@ -53,6 +53,9 @@ class Collection(SingleObject):
         ordering = ["modified_at"]
         # Constrain the number of objects in a collection?
 
+    def __str__(self):
+        return self.name
+
     def get_absolute_url(self):
         return reverse('sled_collections:collections-detail',kwargs={'pk':self.id})
 
@@ -63,34 +66,33 @@ class Collection(SingleObject):
         Raises:
             AssertionError: If the there are items in 'objects' that are not of the collection type.
         """
-        wrong_type = []
-        for obj in objects:
-            if obj._meta.model.__name__ != self.item_type:
-                wrong_type.append(obj)
         try:
+            wrong_type = []
+            for obj in objects:
+                if obj._meta.model.__name__ != self.item_type:
+                    wrong_type.append(obj)
             assert (len(wrong_type)==0),"The following items are not of the same type as the collection type: "
         except AssertionError as error:
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
             raise
 
-    def itemsInCollection(self,objects):
+    def itemsInCollection(self,user,objects):
         """
         Ensures that NONE of the given objects is in the collection.
 
-        Raises:
-            AssertionError: If there is even a single item in 'objects' that is already in the collection.
+        Args:
+            user: the user making the request.
+            objects: a queryset of objects.
+
+        Returns:
+            existing_objects: A queryset with the input objects that are already in the collection, if any
         """
-        ids = []
-        for obj in objects:
-            ids.append(obj.id)
-        existing = self.myitems.filter(gm2m_pk__in=ids)
-        try:
-            assert (existing.count()==0),"Some items are already in the collection."
-        except AssertionError as error:
-            caller = inspect.getouterframes(inspect.currentframe(),2)
-            print(error,"The operation of '"+caller[1][3]+"' should not proceed")
-            raise
+        in_collection_ids = self.myitems.all().values_list('gm2m_pk',flat=True)
+        obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
+        in_collection = obj_model.accessible_objects.in_ids(user,in_collection_ids)
+        copies = in_collection & objects
+        return copies
 
     def itemsNotInCollection(self,objects):
         """
@@ -117,7 +119,7 @@ class Collection(SingleObject):
 
         Args:
             user (User): the user calling this function, who has to be the owner of the collection it acts upon.
-            objects (List[SingleObject]): A list of items to add to the collection. They have to match the collection type.
+            objects (queryset): A queryset of items to add to the collection. They have to match the collection type.
 
         Returns:
             string ("success"): if successful and no Assertion errors are raised. It also sends notifications if the collection is private or posts to the activity stream if public.
@@ -126,9 +128,15 @@ class Collection(SingleObject):
             AssertionError: if the user attempts to add private items to a public collection.
         """
         self.assertOwner(user) # Asserts that the user is the owner of the collection
-        objects = self.convertToList(objects) # If input argument is a single value, convert to list
         self.itemsOfWrongType(objects) # Check if there are any items of the wrong type
-        self.itemsInCollection(objects) # Check if items are already in the collection
+
+        try:
+            copies = self.itemsInCollection(user,objects) # Check if items are already in the collection
+            assert (len(copies)==0),"Items already in the collection"
+        except AssertionError as error:
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print(error,"The operation of '"+caller[1][3]+"' should not proceed")
+            raise
             
         # Check if some items are private
         private_objects = []
@@ -136,47 +144,29 @@ class Collection(SingleObject):
             if obj.access_level == 'PRI':
                 private_objects.append(obj)
 
-        # Get the ids of all the objects - required for notifying after a successful addition
-        all_ids = []
-        for obj in objects:
-            all_ids.append(obj.id)
-
         if self.access_level == 'PRI':
-            # Get everybody with access to this collection - required for notifying after a successful addition
-            users_collection = list(self.getUsersWithAccess(user)) # Get the users with access to the collection
-            users_collection.append(user) # Add the owner of the collection to the users with access
-            groups_collection = list(self.getGroupsWithAccess(user)) # Get the groups with access to the collection
-            print('Users/Groups with access to the COLLECTION: ',users_collection,groups_collection)
-            
             if private_objects:
-                # Check that collection owner really has view access to the private lenses
-                has_perm = True
-                perm = "view_" + private_objects[0]._meta.db_table
-                checker = ObjectPermissionChecker(user)
-                checker.prefetch_perms(private_objects)
-                for obj in private_objects:
-                    if not checker.has_perm(perm,obj):
-                        has_perm = False
                 try:
+                    # Check that collection owner really has view access to the private lenses
+                    has_perm = True
+                    perm = "view_" + private_objects[0]._meta.db_table
+                    checker = ObjectPermissionChecker(user)
+                    checker.prefetch_perms(private_objects)
+                    for obj in private_objects:
+                        if not checker.has_perm(perm,obj):
+                            has_perm = False
                     assert (has_perm),"User does not have access to private objects"
                 except AssertionError as error:
                     caller = inspect.getouterframes(inspect.currentframe(),2)
                     print(error,"The operation of '"+caller[1][3]+"' should not proceed")
                     raise
                 else:
-                    self.myitems.add(*objects)
-                    notify.send(sender=user,recipient=users_collection,verb='Objects have been added to private collection',level='warning',timestamp=timezone.now(),note_type='ItemsAdded',object_type=self.item_type,object_ids=all_ids)
-                    for group in groups_collection:
-                        notify.send(sender=user,recipient=group,verb='Objects have been added to private collection',level='warning',timestamp=timezone.now(),note_type='ItemsAdded',object_type=self.item_type,object_ids=all_ids)
-                    return "success"
-                
+                    N_new = self.finalizeAddItems(user,objects)
+                    return N_new                
             else:
                 # All items are public, proceed by adding them to the collection
-                self.myitems.add(*objects)
-                notify.send(sender=user,recipient=users_collection,verb='Objects have been added to private collection',level='warning',timestamp=timezone.now(),note_type='ItemsAdded',object_type=self.item_type,object_ids=all_ids)
-                for group in groups_collection:
-                    notify.send(sender=user,recipient=group,verb='Objects have been added to private collection',level='warning',timestamp=timezone.now(),note_type='ItemsAdded',object_type=self.item_type,object_ids=all_ids)
-                return "success"
+                N_new = self.finalizeAddItems(user,objects)
+                return N_new
         else:
             try:
                 assert (len(private_objects)==0),"A public collection cannot contain private items"
@@ -185,10 +175,16 @@ class Collection(SingleObject):
                 print(error,"The operation of '"+caller[1][3]+"' should not proceed")
                 raise
             else:
-                self.myitems.add(*objects)                
-                # Post to the activity stream
-                return "success"
-                                
+                N_new = self.finalizeAddItems(user,objects)
+                return N_new
+
+    def finalizeAddItems(self,user,objects):
+        self.myitems.add(*objects)        
+        # Post to the collection's activity stream
+        # Return the number of inserted items
+        response = {"status":"ok"}
+        return response
+            
     def removeItems(self,user,objects):
         """
         Remove the given items from the collection. Checks if items are of the right type.

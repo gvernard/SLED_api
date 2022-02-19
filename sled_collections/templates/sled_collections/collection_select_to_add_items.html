@@ -2,7 +2,7 @@
 
 
 {% block title %}
-Update collection {{ collection.name }}
+Select one of your collections to add the items
 {% endblock title %}
 
 
@@ -13,14 +13,14 @@ Update collection {{ collection.name }}
   {% endfor %}
 </div>
 
-{% for field in form %}
 <div>
-  {{ field }}
+  {{ form.target_collection }}
 </div>
-{% endfor %}
+
+{{ form.ids }}
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Update</button>
+<button type="submit" class="btn btn-sm btn-primary">Add to collection</button>
 {% endblock action_button %}

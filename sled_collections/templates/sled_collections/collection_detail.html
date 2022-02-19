@@ -5,16 +5,12 @@
 {% block content %}
 
 <!-- Modal divs -->
-<div class="modal fade" tabindex="-1" role="dialog" id="id-modal-large">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content"></div>
-  </div>
-</div>
-<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+<div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
   <div class="modal-dialog">
     <div class="modal-content"></div>
   </div>
 </div>
+
 <div class="modal fade" tabindex="-1" role="dialog" id="id-modal-remove-items">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -40,12 +36,13 @@
 
 <!-- Div with some information about the collection and different actions for users or the owner -->
 <div>
+  <p>Owner: {{ collection.owner }}</p>
   <p>Item type: {{ collection.item_type }}</p>
   <p>Description: {{ collection.description }}</p>
   <p>Access level: {{ collection.access_level }}</p>
 
   {% if collection.owner == user %}
-  <button type="button" id="update-collection" class="btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
+  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Update
   </button>
@@ -54,11 +51,12 @@
     Delete
   </button>
   
-  <button type="button" id="revoke-access" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
+  {% if collection.access_level == 'PRI' %}
+  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
     Revoke access
   </button>
-  <button type="button" id="give-access" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}">
+  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Give access
   </button>
@@ -68,10 +66,13 @@
     <li>Button: If private make public (no need to make a public collection private, just delete it)</li>
   </ul>
   {% endif %}
+  
+  {% endif %}
 </div>
 
 <hr>
 
+{% if collection.access_level == 'PRI' %}
 {% if collection.owner == user %}
 <div>
   <h3>Access to the collection:</h3>
@@ -86,11 +87,14 @@
   <p>
     You can access <strong>{{ accessible_items|length }}</strong> out of <strong>{{ collection.myitems.all|length }}</strong> items in the collection.
   </p>
-  <button type="button" id="ask-access" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-ask-access' collection.pk %}">
+  {% if accessible_items|length != collection.myitems.all|length %}
+  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-ask-access' collection.pk %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Ask access
   </button>
+  {% endif %}
 </div>
+{% endif %}
 {% endif %}
 
 <!-- List of items in the collection -->
@@ -110,7 +114,7 @@
 
 <hr>
 
-<!-- Actions for the group owner -->
+<!-- Actions for the collection owner -->
 {% if  collection.owner == user %}
 <div>
   <form id="add-items-form" action="{% url 'lenses:lens-query' %}">
@@ -148,24 +152,11 @@
 	  isDeleteForm: true
       });
 
-      $("#update-collection").modalForm({
-          formURL: $("#update-collection").data("form-url"),
- 	  modalID: "#id-modal"
-      });
-
-      $("#give-access").modalForm({
-          formURL: $("#give-access").data("form-url"),
- 	  modalID: "#id-modal"
-      });
-
-      $("#revoke-access").modalForm({
-          formURL: $("#revoke-access").data("form-url"),
- 	  modalID: "#id-modal"
-      });
-      
-      $("#ask-access").modalForm({
-          formURL: $("#ask-access").data("form-url"),
- 	  modalID: "#id-modal"
+      $(".sled-modal").each(function(){
+	  $(this).modalForm({
+              formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal"
+	  });
       });
 
       $("#remove-items").click(function (e) {
@@ -183,7 +174,6 @@
       });
 	  
       $('#toggle_all').remove();
-      
   });
 </script>
 {% endblock extrascripts %}
