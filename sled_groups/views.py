@@ -31,29 +31,6 @@ class GroupDetailView(DetailView):
         context['group'] = self.object
         return context
 
-
-@method_decorator(login_required,name='dispatch')
-class GroupLeaveView(BSModalUpdateView):
-    model = SledGroup
-    template_name = 'sled_groups/group_leave.html'
-    form_class = GroupLeaveForm
-    success_message = 'Success: You have left the group.'
-    success_url = reverse_lazy('sled_groups:group-list')
-    
-    def get_queryset(self):
-        return self.request.user.getGroupsIsMember()
-
-    def form_valid(self,form):
-        if not is_ajax(self.request.META):
-            group = self.get_object()
-            if group.owner != self.request.user:
-                # This is for leaving the group, the only action a member can perform
-                self.request.user.leaveGroup(group)
-                return redirect('sled_groups:group-list')
-        else:
-            response = super().form_valid(form)
-            return response
-
     
 @method_decorator(login_required,name='dispatch')
 class GroupListView(ListView):
@@ -85,6 +62,9 @@ class GroupSplitListView(TemplateView):
         return context
     
 
+#=============================================================================================================================
+### BEGIN: Modal views
+#=============================================================================================================================
 @method_decorator(login_required,name='dispatch')
 class GroupDeleteView(BSModalDeleteView):
     model = SledGroup
@@ -96,12 +76,39 @@ class GroupDeleteView(BSModalDeleteView):
     def get_queryset(self):
         return self.model.objects.filter(owner=self.request.user)
 
+    def delete(self, *args, **kwargs):
+        self.object = self.get_object()
+        # Notify group members
+        return super().delete(*args, **kwargs)
+
     
+@method_decorator(login_required,name='dispatch')
+class GroupCreateView(BSModalFormView):
+    template_name = 'sled_groups/group_create.html'
+    form_class = GroupCreateForm
+    success_url = reverse_lazy('sled_groups:group-list')
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            add_user_names = form.cleaned_data['users']
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            sledgroup = SledGroup(name=name, owner=self.request.user, description=description)
+            sledgroup.save()
+            sledgroup.addMember(self.request.user,add_user_names)
+            messages.add_message(self.request,messages.SUCCESS,'Group <b>"'+name+'"</b> was successfully created!')
+            response = super().form_valid(form)
+            return response
+        else:
+            response = super().form_valid(form)
+            return response
+
+
 @method_decorator(login_required,name='dispatch')
 class GroupUpdateView(BSModalUpdateView):
     model = SledGroup
     template_name = 'sled_groups/group_update.html'
-    form_class = SledGroupForm
+    form_class = GroupUpdateForm
     success_message = 'Success: Group was updated.'
     
     def get_queryset(self):
@@ -109,7 +116,33 @@ class GroupUpdateView(BSModalUpdateView):
 
 
 @method_decorator(login_required,name='dispatch')
-class GroupCedeOwnershipView(BSModalUpdateView):  # It would be a BSModalFormView, but the update view pass the object id automatically
+class GroupLeaveView(BSModalUpdateView):
+    model = SledGroup
+    template_name = 'sled_groups/group_leave.html'
+    form_class = GroupLeaveForm
+    
+    def get_queryset(self):
+        return self.request.user.getGroupsIsMember()
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            group = self.get_object()
+            if group.owner != self.request.user:
+                self.request.user.leaveGroup(group)
+                # Notify group
+                messages.add_message(self.request,messages.SUCCESS,'You have left group <b>"'+group.name+'"</b>!')
+                return redirect('sled_groups:group-list')
+            else:
+                messages.add_message(self.request,messages.ERROR,"The group owner cannot leave the group, but you shouldn't be seeing this message anyway")
+                response = super().form_valid(form)
+                return response
+        else:
+            response = super().form_valid(form)
+            return response
+
+        
+@method_decorator(login_required,name='dispatch')
+class GroupCedeOwnershipView(BSModalUpdateView):
     model = SledGroup
     template_name = 'sled_groups/group_cede_ownership.html'
     form_class = GroupCedeOwnershipForm
@@ -123,50 +156,18 @@ class GroupCedeOwnershipView(BSModalUpdateView):  # It would be a BSModalFormVie
             heir = form.cleaned_data['heir']
             heir = Users.objects.filter(id=heir.id)
             heir_dict = heir.values('first_name','last_name')[0]
-
-            if heir & group.getAllMembers(): 
-                justification = form.cleaned_data['justification']
-                self.request.user.cedeOwnership(group,heir,justification)        
-                message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
-                messages.add_message(self.request,messages.WARNING,message)
-                return redirect('sled_groups:group-list')
-            else:
-                message = 'User <b>%s %s</b> is not a group member.' % (heir_dict['first_name'],heir_dict['last_name'])
-                messages.add_message(self.request,messages.ERROR,message)
-                response = super().form_valid(form)
-                return response
-        else:
-            response = super().form_valid(form)
-            return response
-
-    
-@method_decorator(login_required,name='dispatch')
-class GroupAddView(BSModalFormView):
-    template_name = 'sled_groups/group_add.html'
-    form_class = GroupAddForm
-    success_url = reverse_lazy('sled_groups:group-list')
-
-    def form_valid(self,form):
-        if not is_ajax(self.request.META):
-            addusernames = self.request.POST.getlist('users')
-            name = self.request.POST['name']
-            description = self.request.POST['description']
-            sledgroup = SledGroup(name=name, owner=self.request.user, description=description)
-            sledgroup.save()
-            sledgroup.addMember(self.request.user, self.request.user)
-            for username in addusernames:
-                user = Users.objects.get(pk=username)
-                sledgroup.addMember(self.request.user, user)
-            messages.add_message(self.request,messages.SUCCESS,'Group <b>"'+name+'"</b> was successfully created!')
-            response = super().form_valid(form)
-            return response
+            justification = form.cleaned_data['justification']
+            self.request.user.cedeOwnership(group,heir,justification)        
+            message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+            messages.add_message(self.request,messages.WARNING,message)
+            return redirect('sled_groups:group-list')
         else:
             response = super().form_valid(form)
             return response
 
 
 @method_decorator(login_required,name='dispatch')
-class GroupAddMembersView(BSModalUpdateView):
+class GroupAddRemoveMembersView(BSModalUpdateView):
     model = SledGroup
     template_name = 'sled_groups/group_add_remove_members.html'
     form_class = GroupAddRemoveMembersForm
@@ -174,30 +175,38 @@ class GroupAddMembersView(BSModalUpdateView):
     def get_queryset(self):
         return SledGroup.objects.filter(owner=self.request.user)
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'mode':self.kwargs.get('mode')})
+        return kwargs
+    
     def form_valid(self,form):
         if not is_ajax(self.request.META):
             users = form.cleaned_data['users']
             group = self.get_object()
-            usernames = []
             mode = self.kwargs['mode']
             if mode == 'add':
-                for user in users:
-                    usernames.append(user.username)
-                    group.addMember(self.request.user,user)
-                if len(usernames) == 1:
-                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+usernames[0]+'"</b> was successfully added to group!')
+                group.addMember(self.request.user,users)
+                if len(users) == 1:
+                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+users[0].username+'"</b> was successfully added to group!')
                 else:
-                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(usernames)+'"</b> were successfully added to group!')
+                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(users.values_list('username',flat=True))+'"</b> were successfully added to group!')
+                # Notify user
+                # Notify group
             else:
-                for user in users:
-                    usernames.append(user.username)
-                    group.removeMember(self.request.user,user)
-                if len(usernames) == 1:
-                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+usernames[0]+'"</b> was successfully removed from the group!')
+                group.removeMember(self.request.user,users)
+                if len(users) == 1:
+                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+users[0].username+'"</b> was successfully removed from the group!')
                 else:
-                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(usernames)+'"</b> were successfully removed from the group!')
+                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(users.values_list('username',flat=True))+'"</b> were successfully removed from the group!')
+                # Notify user
+                # Notify group
             response = super().form_valid(form)
             return response
         else:
             response = super().form_valid(form)
             return response
+
+#=============================================================================================================================
+### END: Modal views
+#=============================================================================================================================
