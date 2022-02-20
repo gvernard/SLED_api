@@ -186,7 +186,6 @@ class Lenses(SingleObject):
 
     
     proximate = ProximateLensManager()
-    objects = models.Manager()
 
     class Meta():
         db_table = "lenses"

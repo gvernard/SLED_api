@@ -46,6 +46,7 @@ class Collection(SingleObject):
                                  choices=ItemTypeChoices,
                                  help_text="The type of items that should be in the collection.")
 
+        
     class Meta(SingleObject.Meta):
         db_table = "collection"
         verbose_name = "collection"
@@ -53,12 +54,15 @@ class Collection(SingleObject):
         ordering = ["modified_at"]
         # Constrain the number of objects in a collection?
 
+        
     def __str__(self):
         return self.name
 
+    
     def get_absolute_url(self):
         return reverse('sled_collections:collections-detail',kwargs={'pk':self.id})
 
+    
     def itemsOfWrongType(self,objects):
         """
         Ensures that the given items are all of the collection type.
@@ -77,6 +81,23 @@ class Collection(SingleObject):
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
             raise
 
+
+    def getSpecificModelInstances(self,user):
+        """
+        Returns specific model instances instead of gm2m
+
+        Args:
+            user (User): the user making the query
+            
+        Returns:
+            objects (queryset): a queryset of item_type objects.
+        """
+        obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
+        ids = list(self.myitems.all().values_list('gm2m_pk',flat=True))
+        objects = obj_model.accessible_objects.in_ids(user,ids)
+        return objects
+        
+        
     def itemsInCollection(self,user,objects):
         """
         Ensures that NONE of the given objects is in the collection.
@@ -94,24 +115,25 @@ class Collection(SingleObject):
         copies = in_collection & objects
         return copies
 
-    def itemsNotInCollection(self,objects):
+    
+    def itemsNotInCollection(self,user,objects):
         """
         Ensures that ALL given objects are in the collection.
 
-        Raises:
-            AssertionError: If there is even a single item in 'objects' that is NOT already in the collection.
+        Args:
+            user: the user making the request.
+            objects: a queryset of objects.
+
+        Returns:
+            not_in: A queryset with the input objects that are NOT already in the collection, if any
         """
-        ids = []
-        for obj in objects:
-            ids.append(obj.id)
-        existing = self.myitems.filter(gm2m_pk__in=ids)
-        try:
-            assert (existing.count()==len(objects)),"Some items to be removed are not already in the collection."
-        except AssertionError as error:
-            caller = inspect.getouterframes(inspect.currentframe(),2)
-            print(error,"The operation of '"+caller[1][3]+"' should not proceed")
-            raise
-            
+        in_collection_ids = self.myitems.all().values_list('gm2m_pk',flat=True)
+        obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
+        in_collection = obj_model.accessible_objects.in_ids(user,in_collection_ids).order_by()
+        not_in = objects.order_by().difference(in_collection)
+        return not_in
+
+    
     def addItems(self,user,objects):
         """
         Adds the given items to the collection.
@@ -123,7 +145,6 @@ class Collection(SingleObject):
 
         Returns:
             string ("success"): if successful and no Assertion errors are raised. It also sends notifications if the collection is private or posts to the activity stream if public.
-
         Raises:
             AssertionError: if the user attempts to add private items to a public collection.
         """
@@ -178,46 +199,45 @@ class Collection(SingleObject):
                 N_new = self.finalizeAddItems(user,objects)
                 return N_new
 
+            
     def finalizeAddItems(self,user,objects):
         self.myitems.add(*objects)        
         # Post to the collection's activity stream
         # Return the number of inserted items
         response = {"status":"ok"}
         return response
-            
+
+    
     def removeItems(self,user,objects):
         """
         Remove the given items from the collection. Checks if items are of the right type.
 
         Args:
             user (User): the user calling this function, who has to be the owner of the collection it acts upon.
-            objects (List[SingleObject]): A list of items to remove from the collection. They have to match the collection type.
+            objects (queryset): A list of items to remove from the collection. They have to match the collection type.
 
         Returns:
             string ("success"): if successful and no Assertion errors are raised. It also sends notifications if the collection is private or posts to the activity stream if public.
         """
         self.assertOwner(user)
-        objects = self.convertToList(objects)
         self.itemsOfWrongType(objects)
-        self.itemsNotInCollection(objects) # Check if all items are already in the collection
 
-
+        try:
+            not_in = self.itemsNotInCollection(user,objects) # Check if items are already in the collection
+            assert (len(not_in)==0),"Items NOT already in the collection"
+        except AssertionError as error:
+            caller = inspect.getouterframes(inspect.currentframe(),2)
+            print(error,"The operation of '"+caller[1][3]+"' should not proceed")
+            raise
+        
         self.myitems.remove(*objects)
-        if self.access_level == 'PRI':
-            users_collection = list(self.getUsersWithAccess(user)) # Get the users with access to the collection
-            users_collection.append(user) # Add the owner of the collection to the users with access
-            groups_collection = list(self.getGroupsWithAccess(user)) # Get the groups with access to the collection
-            all_ids = []
-            for obj in objects:
-                all_ids.append(obj.id)
-            notify.send(sender=user,recipient=users_collection,verb='Objects have been removed from your private collection',level='warning',timestamp=timezone.now(),note_type='ItemsRemoved',object_type=self.item_type,object_ids=all_ids)
-            for group in groups_collection:
-                notify.send(sender=user,recipient=group,verb='Objects have been removed from your private collection',level='warning',timestamp=timezone.now(),note_type='ItemsRemoved',object_type=self.item_type,object_ids=all_ids)
-        else:
-            # Post to the activity stream
-            pass
-        return "success"
+        N_removed = objects.count()
+        # Post to the activity stream
+        # Return the number of removed items
+        response = {"status":"ok","N_removed":N_removed}
+        return response
 
+    
     def get_ugs_without_access(self):
         """
         Returns the users and groups that have acces to the collection but not to all the private objects in the collection.
@@ -278,12 +298,6 @@ class Collection(SingleObject):
 
 
 
-        
-        
-    
-
-    
-    
 # Assign view permission to the owner of a new collection
 @receiver(post_save,sender=Collection)
 def handle_new_collection(sender,**kwargs):

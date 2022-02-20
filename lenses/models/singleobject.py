@@ -163,6 +163,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
     access_level = models.CharField(max_length=3,choices=AccessLevel.choices,default=AccessLevel.PUBLIC,help_text="Set public or private access to this object.")
 
     accessible_objects = AccessManager()
+    objects = models.Manager()
 
 
     class Meta():

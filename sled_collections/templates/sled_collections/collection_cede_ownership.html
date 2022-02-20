@@ -1,0 +1,43 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+Cede ownership of collection {{ collection.name }}?
+{% endblock title %}
+
+
+{% block content %}
+<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
+<div>
+  {{ form.heir }}
+</div>
+
+<div>
+  {{ form.justification }}
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-danger">Cede ownership</button>
+{% endblock action_button %}
+
+
+{% block extrascripts %}
+<script>
+  users_autocomplete('id_heir');
+  $('#id_heir').select2({
+      width: '100%',
+      placeholder: 'Search for a user',
+      minimumInputLength: 1,
+      dropdownParent: $('#id-modal')
+  });
+  
+</script>
+{% endblock extrascripts %}

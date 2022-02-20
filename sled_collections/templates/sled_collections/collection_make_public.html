@@ -1,0 +1,24 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Make collection {{ collection.name }} public?
+{% endblock title %}
+
+
+{% block content %}
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
+<div>
+  Are you sure you want to make this private collection public?
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-primary">Make public</button>
+{% endblock action_button %}

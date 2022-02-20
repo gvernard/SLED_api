@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.http import HttpResponse,HttpResponseRedirect,JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.template.response import TemplateResponse
@@ -14,7 +14,6 @@ from django.contrib import messages
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
 
 from bootstrap_modal_forms.generic import (
-    BSModalLoginView,
     BSModalFormView,
     BSModalCreateView,
     BSModalUpdateView,
@@ -55,39 +54,8 @@ class CollectionDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['collection'] = self.object
-        m2m_qset = self.object.myitems.all()
-        ids = list(m2m_qset.values_list('gm2m_pk',flat=True))
-        obj_model = apps.get_model(app_label='lenses',model_name=self.object.item_type)
-        acc_qset = obj_model.accessible_objects.in_ids(self.request.user,ids)
-        context['accessible_items'] = acc_qset
+        context['accessible_items'] = self.object.getSpecificModelInstances(self.request.user)
         return context
-        
-    def post(self, *args, **kwargs):
-        referer = urlparse(self.request.META['HTTP_REFERER']).path
-        if referer == self.request.path:
-            self.object = self.get_object()
-            context = super(CollectionDetailView,self).get_context_data(**kwargs)
-            collection_id = self.request.POST.get('collection_id')
-            col = Collection.accessible_objects.get(pk=collection_id)
-            obj_ids = self.request.POST.getlist('ids',None)
-            if obj_ids:
-                objects = apps.get_model(app_label='lenses',model_name=col.item_type).accessible_objects.in_ids(self.request.user,obj_ids)
-                res = col.removeItems(self.request.user,objects)
-                if res != "success":
-                    context['error_message'] = res                
-            return self.render_to_response(context)
-        else:
-            message = "Not authorized action!"
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-
-
-    
-
-
-
-
-        
        
 
 #=============================================================================================================================
@@ -222,13 +190,116 @@ class CollectionAddItemsView(BSModalFormView):
                 message = "Error: "
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
-                messages.add_message(self.request,messages.SUCCESS,'New items added to collection: '+res['status'])
+                N_private = to_add.filter(access_level='PRI').count()
+                N_public = to_add.count() - N_private
+                if N_private>0 and N_public>0:
+                    msg = "<strong>"+str(N_public)+"</strong> public and <strong>"+str(N_private)+"</strong> private "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
+                elif N_public>0:
+                    if N_public>1:
+                        msg = "<strong>"+str(N_public)+"</strong> public "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
+                    else:
+                        msg = "<strong>"+str(N_public)+"</strong> public "+obj_model._meta.verbose_name.title()+" added to the collection."
+                else:
+                    if N_private>1:
+                        msg = "<strong>"+str(N_private)+"</strong> private "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
+                    else:
+                        msg = "<strong>"+str(N_private)+"</strong> private "+obj_model._meta.verbose_name.title()+" added to the collection."
+                messages.add_message(self.request,messages.SUCCESS,msg)
+                return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':col.id}))
+        else:
+            response = super().form_valid(form)
+            return response
+
+@method_decorator(login_required,name='dispatch')
+class CollectionRemoveItemsView(BSModalUpdateView):
+    model = Collection
+    template_name = 'sled_collections/collection_remove_items.html'
+    form_class = CollectionRemoveItemsForm
+
+    def get_queryset(self):
+        return Collection.accessible_objects.owned(self.request.user)
+
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        return {'ids': ids_str}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = self.request.GET.getlist('ids')
+        obj_model = apps.get_model(app_label='lenses',model_name=self.object.item_type)
+        qset_items = obj_model.accessible_objects.in_ids(self.request.user,ids)
+        context['items_to_remove'] = qset_items
+        return context
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            col = self.get_object()
+            ids = form.cleaned_data['ids'].split(',')
+            obj_model = apps.get_model(app_label='lenses',model_name=col.item_type)
+            to_remove = obj_model.accessible_objects.in_ids(self.request.user,ids)
+            res = col.removeItems(self.request.user,to_remove)
+            if res['status'] != "ok":
+                message = "Error: "
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            else:
+                if res["N_removed"] == 1:
+                    msg = str(res["N_removed"]) + " " + obj_model._meta.verbose_name.title() + " removed from the collection."
+                else:
+                    msg = str(res["N_removed"]) + " " + obj_model._meta.verbose_name_plural.title() + " removed from the collection."
+                messages.add_message(self.request,messages.SUCCESS,msg)
                 return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':col.id})) 
         else:
             response = super().form_valid(form)
             return response
 
 
+@method_decorator(login_required,name='dispatch')
+class CollectionMakePublicView(BSModalUpdateView):
+    model = Collection
+    template_name = 'sled_collections/collection_make_public.html'
+    form_class = CollectionMakePublicForm
+
+    def get_queryset(self):
+        return Collection.accessible_objects.owned(self.request.user)  
+
+    def form_valid(self,form):
+        # I need to call the below line first because it resets the access_level back to private (probably because there is no 'proper' update taking place)
+        response = super().form_valid(form)
+        if not is_ajax(self.request.META):
+            col = self.get_object()
+            print(col.access_level)
+            messages.add_message(self.request,messages.SUCCESS,"Collection is now public!")
+            # Post to the collection's activity stream
+            qset = Collection.accessible_objects.filter(id=col.id)
+            self.request.user.makePublic(qset)
+
+        return response
+
+
+@method_decorator(login_required,name='dispatch')
+class CollectionCedeOwnershipView(BSModalUpdateView):
+    model = Collection
+    template_name = 'sled_collections/collection_cede_ownership.html'
+    form_class = CollectionCedeOwnershipForm
+
+    def get_queryset(self):
+        return Collection.accessible_objects.owned(self.request.user)
+    
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            col = self.get_object()
+            heir = form.cleaned_data['heir']
+            heir = Users.objects.filter(id=heir.id)
+            heir_dict = heir.values('first_name','last_name')[0]
+            justification = form.cleaned_data['justification']
+            self.request.user.cedeOwnership(col,heir,justification)        
+            message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+            messages.add_message(self.request,messages.WARNING,message)
+            return redirect('sled_collections:collections-list')
+        else:
+            response = super().form_valid(form)
+            return response
 #=============================================================================================================================
 ### END: Modal views
 #=============================================================================================================================       

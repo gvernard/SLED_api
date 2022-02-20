@@ -11,24 +11,6 @@
   </div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="id-modal-remove-items">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-	<h5 class="modal-title">Remove the following items?</h5>
-	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-	  <span aria-hidden="true">&times;</span>
-	</button>
-      </div>
-      <div class="modal-body"></div>
-      <div class="modal-footer">
-	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-	<button type="submit" form="ids-form" formaction="{% url 'sled_collections:collections-detail' collection.pk %}" class="btn btn-primary">Confirm</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 
 <h1>{{ collection.name }}</h1>
 
@@ -50,6 +32,10 @@
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete
   </button>
+  <button type="button" class="sled-modal btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
+    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+    Cede ownership
+  </button>
   
   {% if collection.access_level == 'PRI' %}
   <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
@@ -60,11 +46,10 @@
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Give access
   </button>
-  
-  Some notes here:
-  <ul>
-    <li>Button: If private make public (no need to make a public collection private, just delete it)</li>
-  </ul>
+  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-make-public' collection.pk %}">
+    <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+    Make public
+  </button>
   {% endif %}
   
   {% endif %}
@@ -105,7 +90,11 @@
     <input type="hidden" name="collection_id" id="collection_id" value="{{ collection.id }}">
     <span class="errorlist">{{ error_message }}</span>
     {% if collection.item_type == 'Lenses' %}
+    {% if  collection.owner == user %}
+    {% include "lenses/lens_list_executive.html" with lenses=accessible_items  %}
+    {% else %}
     {% include "lenses/lens_list_passive.html" with lenses=accessible_items  %}
+    {% endif %}
     {% else %}
     <p> Unknown item type </p>
     {% endif %}
@@ -123,8 +112,8 @@
       Add items
     </button>
   </form>
-  <button type="button" id="remove-items" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#id-modal-remove-items">
-    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+  <button type="button" id="remove-items" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-remove-items' collection.pk %}">
+    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Remove selected
   </button>
 </div>
@@ -159,20 +148,33 @@
 	  });
       });
 
-      $("#remove-items").click(function (e) {
-	  var names = [];
-          $("input[name='ids']:checked").each(function(){
-	      name = $(this).parent().parent().find('a').text();
-	      names.push('<li>'+name+'</li>');
-	  });
-	  if( names.length == 0 ){
-              $("#id-modal-remove-items").find('.modal-body').html('You need to select at least one item!');
-	  } else {
-	      str = '<ul>' + names.join('') + '</ul>';
-              $("#id-modal-remove-items").find('.modal-body').html(str);
-	  }
-      });
+      $("#remove-items").click(function() {
 	  
+	  // Construct get query string
+	  var values = [];
+	  $('#exe_summary input[type="checkbox"]:checked').each(function() {
+              values.push('ids=' + $(this).val());
+	  });
+	  
+	  if (values.length == 0) {
+              alert('You need to select at least one item!');
+	  } else {
+              var get_str = '?' + values.join('&') + '&';
+	      
+              // Fetch only the first part of the URL (without any GET arguments)
+              var url = $(this).data('form-url').split('?');
+              var url_core = url[0];
+	      
+              // Trigger modal
+              var new_form_url = url_core + get_str;
+              $(this).modalFormTrigger({
+		  formURL: new_form_url,
+		  modalID: "#id-modal"
+              });
+	  }
+	  
+      });
+
       $('#toggle_all').remove();
   });
 </script>

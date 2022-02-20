@@ -1,0 +1,28 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+Remove items from collection {{ collection.name }}?
+{% endblock title %}
+
+{% block content %}
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
+<div>
+  <ul>
+    {% for item in items_to_remove %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+{{ form.ids }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-danger">Remove</button>
+{% endblock action_button %}

@@ -18,6 +18,7 @@ import inspect
 from . import SledGroup
 from . import SingleObject
 from . import ConfirmationTask
+from . import Collection
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask","Collection"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
@@ -284,7 +285,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
         # Loop over the list, act only on those objects that are private
         target_objs = qset.filter(access_level__exact='PRI')
-
+        
         if target_objs.count() == 0:
             output = {'success':False,'message':"All objects are already public",'duplicates':[]}
             return output
@@ -293,7 +294,7 @@ class Users(AbstractUser,GuardianUserMixin):
             model_ref = apps.get_model(app_label='lenses',model_name=object_type)
             perm = "view_"+object_type
             target_objs = list(target_objs)
-            
+                        
             ### Very important: check for proximity before making public.
             #####################################################            
             # if object_type == 'Lenses':
@@ -342,8 +343,8 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################
             for obj in target_objs:
                 obj.access_level = 'PUB'
-            model_ref.objects.bulk_update(target_objs,['access_level'])
-
+            model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
+            
             output = {'success':True,'message': '<p>%d private %s are know public.</p>' % (len(target_objs),object_type),'duplicates':[]}
             return output
                 

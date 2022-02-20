@@ -126,9 +126,7 @@ class CollectionAddItemsForm(BSModalForm):
     def clean(self):
         # Check if objects are already part of the collection
         col = self.cleaned_data.get('target_collection')
-        obj_model = apps.get_model(app_label='lenses',model_name=self.obj_type)
-        ids = self.cleaned_data['ids'].split(',')
-        objects = obj_model.accessible_objects.in_ids(self.user,ids)
+        objects = col.getSpecificModelInstances(self.user)
         copies = col.itemsInCollection(self.user,objects) # Check if items are already in the collection
         if len(copies) > 0:
             if len(copies) == 1:
@@ -138,3 +136,50 @@ class CollectionAddItemsForm(BSModalForm):
                 obj_names = ['<li>'+obj.name+'</li>' for obj in copies]
                 msg = obj_model._meta.verbose_name_plural.title() + " <ul>" + ''.join(obj_names) + "</ul> are already in the collection!"
                 self.add_error('__all__',msg)
+
+
+class CollectionRemoveItemsForm(BSModalModelForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+    
+    class Meta:
+        model = Collection
+        fields = ['id','ids']
+
+        
+class CollectionMakePublicForm(BSModalModelForm):
+    class Meta:
+        model = Collection
+        fields = []
+
+    def clean(self):
+        # Check if collection contains private items
+        owner = self.instance.owner
+        N_priv = self.instance.getSpecificModelInstances(owner).filter(access_level__exact='PRI').count()
+        if N_priv > 0:
+            self.add_error('__all__',"Collection cannot be made public because it contains <strong>"+str(N_priv)+"</strong> private objects.")
+        
+
+class CollectionCedeOwnershipForm(BSModalModelForm):
+    heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
+                
+    class Meta:
+        model = Collection
+        fields = ['id','justification','heir']
+
+    def clean(self):
+        heir = self.cleaned_data.get('heir')
+
+        # Heir must have access to the collection
+        if self.instance.access_level == 'PRI' and not heir.has_perm('view_collection',self.instance):
+            self.add_error('__all__',"User does not have access to the collection.")
+            return
+        
+        # Heir must have access to all the objects in the collection.
+        all_items = self.instance.getSpecificModelInstances(self.instance.owner)
+        accessible_by_heir = self.instance.getSpecificModelInstances(heir)
+        diff = list(all_items.order_by().difference(accessible_by_heir.order_by()))
+        if len(diff) > 0:
+            names = [obj.name for obj in diff]
+            self.add_error('__all__',"User does not have access to objects: " + ','.join(names))
+            return

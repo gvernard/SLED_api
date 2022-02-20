@@ -285,14 +285,16 @@ class CedeOwnership(ConfirmationTask):
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
-            objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            model_ref = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']) 
+            objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
             objs.update(owner=heir)
             pri = []
             for lens in objs:
                 if lens.access_level == 'PRI':
                     pri.append(lens)
             if pri:
-                assign_perm('view_lenses',heir,pri) # don't forget to assign view permission to the new owner for the private lenses
+                perm = 'view_' + model_ref._meta.db_table
+                assign_perm(perm,heir,pri) # don't forget to assign view permission to the new owner for the private lenses
             notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
             notify.send(sender=heir,recipient=heir,verb='You have accepted a CedeOwnership request',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
         else:
