@@ -126,15 +126,17 @@ class CollectionAddItemsForm(BSModalForm):
     def clean(self):
         # Check if objects are already part of the collection
         col = self.cleaned_data.get('target_collection')
-        objects = col.getSpecificModelInstances(self.user)
-        copies = col.itemsInCollection(self.user,objects) # Check if items are already in the collection
+        ids = self.cleaned_data['ids'].split(',')
+        obj_model = apps.get_model(app_label='lenses',model_name=col.item_type)
+        to_add = obj_model.accessible_objects.in_ids(self.request.user,ids)
+        copies = col.itemsInCollection(self.user,to_add) # Check if items are already in the collection
         if len(copies) > 0:
             if len(copies) == 1:
-                msg = obj_model._meta.verbose_name.title() + " " + copies[0].name + " is already in the collection!"
+                msg = col._meta.verbose_name.title() + " " + copies[0].name + " is already in the collection!"
                 self.add_error('__all__',msg)
             else:
                 obj_names = ['<li>'+obj.name+'</li>' for obj in copies]
-                msg = obj_model._meta.verbose_name_plural.title() + " <ul>" + ''.join(obj_names) + "</ul> are already in the collection!"
+                msg = col._meta.verbose_name_plural.title() + " <ul>" + ''.join(obj_names) + "</ul> are already in the collection!"
                 self.add_error('__all__',msg)
 
 

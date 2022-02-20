@@ -50,6 +50,10 @@
     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
     Make public
   </button>
+  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-view-access' collection.pk %}">
+    <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+    View Access
+  </button>
   {% endif %}
   
   {% endif %}

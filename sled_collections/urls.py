@@ -16,4 +16,5 @@ urlpatterns = [
     path('revoke-access/<int:pk>', views.CollectionGiveRevokeAccessView.as_view(), kwargs={'mode':'revoke'}, name='collection-revoke-access'),
     path('ask-access/<int:pk>', views.CollectionAskAccessView.as_view(), name='collection-ask-access'),
     path('cede-ownership/<int:pk>', views.CollectionCedeOwnershipView.as_view(), name='collection-cede-ownership'),
+    path('view-access/<int:pk>', views.CollectionViewAccessView.as_view(), name='collection-view-access'),
 ]

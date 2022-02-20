@@ -11,7 +11,7 @@ from django.urls import reverse,reverse_lazy
 from django.db.models import Q
 from django.contrib import messages
 
-from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
+from guardian.shortcuts import get_objects_for_user, get_objects_for_group, get_users_with_perms, get_groups_with_perms
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -268,7 +268,6 @@ class CollectionMakePublicView(BSModalUpdateView):
         response = super().form_valid(form)
         if not is_ajax(self.request.META):
             col = self.get_object()
-            print(col.access_level)
             messages.add_message(self.request,messages.SUCCESS,"Collection is now public!")
             # Post to the collection's activity stream
             qset = Collection.accessible_objects.filter(id=col.id)
@@ -300,6 +299,48 @@ class CollectionCedeOwnershipView(BSModalUpdateView):
         else:
             response = super().form_valid(form)
             return response
+
+
+@method_decorator(login_required,name='dispatch')
+class CollectionViewAccessView(BSModalReadView):
+    model = Collection
+    template_name = 'sled_collections/collection_view_access.html'
+
+    def get_queryset(self):
+        return Collection.accessible_objects.owned(self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['collection'] = self.object
+        
+        users = self.object.getUsersWithAccessNoOwner()
+        N_no_access = []
+        names_no_access = []
+        for user in users:
+            no_acc = self.object.getNoAccess(user)
+            N_no_access.append(len(no_acc))
+            names = [obj.name for obj in no_acc]
+            names_no_access.append( ','.join(names) )
+        context['u_no_access'] = zip(users,N_no_access,names_no_access)
+
+        groups = self.object.getGroupsWithAccessNoOwner()
+        obj_model = apps.get_model(app_label='lenses',model_name=self.object.item_type)
+        perm = 'view_' + obj_model._meta.db_table
+        all_priv = self.object.getSpecificModelInstances(self.object.owner).filter(access_level='PRI')
+        N_no_access = []
+        names_no_access = []
+        for group in groups:
+            acc = get_objects_for_group(group,perm,klass = all_priv)
+            no_acc = all_priv.order_by().difference(acc.order_by())
+            N_no_access.append(len(no_acc))
+            names = [obj.name for obj in no_acc]
+            names_no_access.append( ','.join(names) )
+        context['g_no_access'] = zip(groups,N_no_access,names_no_access)        
+        
+        return context
+
+
+
 #=============================================================================================================================
 ### END: Modal views
 #=============================================================================================================================       

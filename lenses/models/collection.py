@@ -97,7 +97,16 @@ class Collection(SingleObject):
         objects = obj_model.accessible_objects.in_ids(user,ids)
         return objects
         
-        
+
+    def getNoAccess(self,user):
+        obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
+        ids = list(self.myitems.all().values_list('gm2m_pk',flat=True))
+        acc = obj_model.accessible_objects.in_ids(user,ids)
+        all = obj_model.accessible_objects.in_ids(self.owner,ids)
+        no_acc = all.order_by().difference(acc.order_by())
+        return no_acc
+
+    
     def itemsInCollection(self,user,objects):
         """
         Ensures that NONE of the given objects is in the collection.
