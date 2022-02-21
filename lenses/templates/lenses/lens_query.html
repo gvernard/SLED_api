@@ -31,7 +31,7 @@
 
 <div class="controls">
   <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
-  <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-collection' %}">
+  <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
     <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
     Make collection
   </button>

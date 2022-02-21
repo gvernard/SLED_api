@@ -4,7 +4,30 @@ from lenses.models import Collection, Lenses, Users, SledGroup
 from django.apps import apps
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
-          
+
+class CollectionCreateForm(BSModalModelForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+
+    class Meta:
+        model = Collection
+        fields = ['name','description','access_level','item_type']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
+            'description': forms.Textarea(attrs={'placeholder':'Please provide a description for your collection.','rows':3,'cols':30}),
+            'access_level': forms.Select(),
+            'item_type': forms.TextInput(attrs={'readonly':'readonly'})
+        }
+
+    def clean(self):
+        col_acc = self.cleaned_data.get('access_level')
+        ids = self.cleaned_data['ids'].split(',')
+        obj_model = apps.get_model(app_label='lenses',model_name=self.cleaned_data['item_type'])
+        priv = obj_model.accessible_objects.in_ids(self.request.user,ids).filter(access_level='PRI').count()
+        if priv > 0 and col_acc == 'PUB':
+            self.add_error('__all__',"Public collection cannot contain private items.")
+            return
+
+
 class CollectionUpdateForm(BSModalModelForm):
     class Meta:
         model = Collection
@@ -124,11 +147,17 @@ class CollectionAddItemsForm(BSModalForm):
         self.fields['target_collection'].queryset = Collection.accessible_objects.owned(self.user).filter(item_type__exact=self.obj_type)
 
     def clean(self):
-        # Check if objects are already part of the collection
         col = self.cleaned_data.get('target_collection')
         ids = self.cleaned_data['ids'].split(',')
         obj_model = apps.get_model(app_label='lenses',model_name=col.item_type)
         to_add = obj_model.accessible_objects.in_ids(self.request.user,ids)
+
+        # Private objects cannot be added to public collection
+        if col.access_level == 'PUB' and to_add.filter(access_level__exact='PRI').count() > 0:
+            self.add_error('__all__',"Cannot add private obects to public collection.")
+            return
+
+        # Check if objects are already part of the collection
         copies = col.itemsInCollection(self.user,to_add) # Check if items are already in the collection
         if len(copies) > 0:
             if len(copies) == 1:

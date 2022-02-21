@@ -18,7 +18,6 @@ urlpatterns = [
     path('make-private/',views.LensMakePrivateView.as_view(),name='lens-make-private'),
     path('make-public/',views.LensMakePublicView.as_view(),name='lens-make-public'),
     path('resolve-duplicates/<int:pk>',views.LensResolveDuplicatesView.as_view(),name='resolve-duplicates'),
-    path('make-collection/',views.LensMakeCollectionView.as_view(),name='lens-make-collection'),
     path('detail/<int:pk>',views.LensDetailView.as_view(),name='lens-detail'),
 #    re_path('(?P<slug>[A-Za-z0-9\w|\W\- ]+)/$', LensDetailView.as_view(), name='lens-detail'),
 ]

@@ -229,27 +229,6 @@ class LensMakePrivateView(ModalIdsBaseMixin):
         messages.add_message(self.request,messages.WARNING,message)
 
 
-# View to create a lens collection
-@method_decorator(login_required,name='dispatch')
-class LensMakeCollectionView(ModalIdsBaseMixin):
-    template_name = 'lenses/lens_make_collection.html'
-    form_class = forms.LensMakeCollectionForm
-    success_url = reverse_lazy('users:user-profile')
-
-    def my_form_valid(self,form):
-        ids = form.cleaned_data['ids'].split(',')
-        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        name = form.cleaned_data['name']
-        description = form.cleaned_data['description']
-        access_level = form.cleaned_data['access_level']
-        mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type="Lenses")
-        mycollection.save()
-        mycollection.myitems = lenses
-        mycollection.save()
-        assign_perm('view_collection',self.request.user,mycollection)
-        messages.add_message(self.request,messages.SUCCESS,'Collection <b>"'+name+'"</b> was successfully created!')
-
-
 #=============================================================================================================================
 ### END: Modal views
 #=============================================================================================================================

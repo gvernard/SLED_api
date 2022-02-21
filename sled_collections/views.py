@@ -62,6 +62,45 @@ class CollectionDetailView(DetailView):
 ### BEGIN: Modal views
 #=============================================================================================================================       
 @method_decorator(login_required,name='dispatch')
+class CollectionCreateView(BSModalCreateView):
+    template_name = 'sled_collections/collection_create.html'
+    form_class = CollectionCreateForm
+    success_url = reverse_lazy('sled_collections:collections-list')
+
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        item_type = self.kwargs['obj_type']
+        return {'ids': ids_str,'item_type':item_type}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
+        context['items'] = obj_model.accessible_objects.in_ids(self.request.user,ids)
+        return context
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            ids = form.cleaned_data['ids'].split(',')
+            obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
+            items = obj_model.accessible_objects.in_ids(self.request.user,ids)
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            access_level = form.cleaned_data['access_level']
+            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type=self.kwargs['obj_type'])
+            mycollection.save()
+            mycollection.myitems = items
+            mycollection.save()
+            messages.add_message(self.request,messages.SUCCESS,'Collection <b>"'+name+'"</b> was successfully created!')
+            return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
+        else:
+            response = super().form_valid(form)
+            return response
+
+
+@method_decorator(login_required,name='dispatch')
 class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view pass the object id automatically
     model = Collection
     template_name = 'sled_collections/collection_ask_access.html'
