@@ -76,7 +76,7 @@
           <td class="{% if '/sled_groups/' in url_base %}selected{% endif %}"><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
           <td class="{% if '/users/' in url_base %}selected{% endif %}">
             {% if user.is_authenticated %}
-            <a href="{% url 'users:user-profile' %}">{{ user.username }}</a>
+            <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>
             &nbsp;
             (<a href="{% url 'logout'%}">LOGOUT</a>)
             {% else %}
@@ -102,7 +102,7 @@
         <!-- <a href="{% if '/sled_groups/' in url_base %}selected{% endif %}"></a> -->
         <a href="{% url 'sled_groups:group-list' %}">Groups</a>
         {% if user.is_authenticated %}
-        <a href="{% url 'users:user-profile' %}">{{ user.username }}</a>
+        <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>
         <a href="{% url 'logout'%}" class="jb-navbar-login"><span class="text-span">Logout</span></a>
         {% else %}
         <a href="{% url 'login'%}" class="jb-navbar-login"><span class="text-span">Login</span></a>

@@ -46,7 +46,7 @@ class Users(AbstractUser,GuardianUserMixin):
         return self.username
 
     def get_absolute_url(self):
-        return reverse('users:user_profile')
+        return reverse('sled_users:user_profile')
     
     def getOwnedObjects(self,user_object_types=None):
         """

@@ -68,7 +68,7 @@ class ModalIdsBaseMixin(BSModalFormView):
 class LensCedeOwnershipView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_cede_ownership.html'
     form_class = forms.LensCedeOwnershipForm
-    success_url = reverse_lazy('users:user-profile')
+    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
@@ -86,7 +86,7 @@ class LensCedeOwnershipView(ModalIdsBaseMixin):
 class LensDeleteView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_delete.html'
     form_class = forms.LensDeleteForm
-    success_url = reverse_lazy('users:user-profile')
+    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
@@ -154,7 +154,7 @@ class LensDeleteView(ModalIdsBaseMixin):
 class LensMakePublicView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_make_public.html'
     form_class = forms.LensMakePublicForm
-    success_url = reverse_lazy('users:user-profile')
+    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
@@ -178,7 +178,7 @@ class LensMakePublicView(ModalIdsBaseMixin):
 class LensGiveRevokeAccessView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_give_revoke_access.html'
     form_class = forms.LensGiveRevokeAccessForm
-    success_url = reverse_lazy('users:user-profile')
+    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
@@ -218,7 +218,7 @@ class LensGiveRevokeAccessView(ModalIdsBaseMixin):
 class LensMakePrivateView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_make_private.html'
     form_class = forms.LensMakePrivateForm
-    success_url = reverse_lazy('users:user-profile')
+    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
@@ -360,7 +360,7 @@ class LensUpdateView(TemplateView):
     template_name = 'lenses/lens_add_update.html'
 
     def get(self, request, *args, **kwargs):
-        message = 'You must select which lenses to update from your <a href="{% url \'users:user-profile\' %}">User profile</a>.'
+        message = 'You must select which lenses to update from your <a href="{% url \'sled_users:user-profile\' %}">User profile</a>.'
         return TemplateResponse(request,'simple_message.html',context={'message':message})
 
     def post(self, request, *args, **kwargs):

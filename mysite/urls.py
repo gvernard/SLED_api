@@ -29,7 +29,8 @@ urlpatterns = [
     path('', include('home.urls'), name='home'),
     path('sled_tasks/', include('sled_tasks.urls'), name='sled_tasks'),
     path('lenses/', include('lenses.urls'), name='lenses'),
-    path('users/', include('users.urls'), name='users'),
+    path('users/', include('sled_users.urls'), name='sled_users'),
+    #path('users/', include('users.urls'), name='sled_users'),
     path('sled_groups/', include('sled_groups.urls'), name='sled_groups'),
     path('register/', vregistration.register, name='register'),
     path('login/', auth_views.LoginView.as_view(

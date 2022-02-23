@@ -10,6 +10,7 @@ from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
 
 @method_decorator(login_required,name='dispatch')
 class UserProfileView(TemplateView):
+    template_name = 'sled_users/user_index.html'
 
     def get(self, request, *args, **kwargs):
         user = request.user
@@ -81,6 +82,6 @@ class UserProfileView(TemplateView):
                  'collections_users': cols_users_with_access,
                  'collections_groups': cols_groups_with_access,
                  }
-        return render(request, 'user_index.html',context=context)
+        return render(request, self.template_name, context=context)
 
     
