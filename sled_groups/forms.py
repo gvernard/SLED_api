@@ -6,9 +6,10 @@ from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
 class GroupUpdateForm(BSModalModelForm):
     class Meta:
         model = SledGroup
-        fields = ['name','description']
+        fields = ['name','description','access_level']
         widgets = {
-            'description': forms.Textarea({'placeholder':'Provide a description for your group.','rows':3,'cols':30})
+            'description': forms.Textarea({'placeholder':'Provide a description for your group.','rows':3,'cols':30}),
+            'access_level': forms.Select()
         }
 
         
@@ -31,7 +32,7 @@ class GroupCedeOwnershipForm(BSModalModelForm):
             return
 
 
-class GroupCreateForm2(BSModalModelForm):
+class GroupCreateForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
 
     class Meta:
@@ -108,3 +109,16 @@ class GroupLeaveForm(BSModalModelForm):
     class Meta:
         model = SledGroup
         fields = [] # no field is required
+
+
+class GroupAskToJoinForm(BSModalModelForm):
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the group owner.','rows':3,'cols':30}))
+
+    class Meta:
+        model = SledGroup
+        fields = ['justification'] # no field is required
+
+
+class GroupSearchForm(forms.Form):
+    search_term = forms.CharField(label='Search term',max_length=100)
+    

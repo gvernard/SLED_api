@@ -5,6 +5,7 @@ from django.views.generic import TemplateView, DetailView, ListView
 from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.db.models import Q
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -30,7 +31,7 @@ class GroupDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['group'] = self.object
         return context
-
+    
     
 @method_decorator(login_required,name='dispatch')
 class GroupListView(ListView):
@@ -59,12 +60,50 @@ class GroupSplitListView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['groups_owned'] = SledGroup.accessible_objects.owned(self.request.user)
         context['groups_member'] = self.request.user.getGroupsIsMemberNotOwner()
+        context['form'] = GroupSearchForm()
         return context
     
 
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        form = GroupSearchForm(data=request.POST)
+        context['form'] = form
+        if form.is_valid():
+            search_term = form.cleaned_data['search_term']
+            user_groups = request.user.groups.all().values_list('id',flat=True)
+            #groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(Q(name__contains=search_term) | Q(description__contains=search_term))
+            groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(name__contains=search_term)
+            context['groups_search'] = groups
+            #context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
+        return self.render_to_response(context)
+
+
+
+    
 #=============================================================================================================================
 ### BEGIN: Modal views
 #=============================================================================================================================
+@method_decorator(login_required,name='dispatch')
+class GroupAskToJoinView(BSModalUpdateView):
+    model = SledGroup
+    template_name = 'sled_groups/group_ask_to_join.html'
+    form_class = GroupAskToJoinForm
+    success_url = reverse_lazy('sled_groups:group-list')
+
+    def get_queryset(self):
+        return SledGroup.accessible_objects.all(self.request.user)
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            group = self.get_object()
+            # Send confirmation task AskToJoinGroup
+            print(group.id,self.request.user,form.cleaned_data['justification'])
+            msg = "User " + group.owner.username + " who is the owner of group " + group.name + " has been notified about your request to join"
+            messages.add_message(self.request,messages.WARNING,msg)
+        response = super().form_valid(form)
+        return response
+
+    
 @method_decorator(login_required,name='dispatch')
 class GroupDeleteView(BSModalDeleteView):
     model = SledGroup

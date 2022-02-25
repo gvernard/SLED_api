@@ -83,6 +83,39 @@
 <div class="jb-container">
   <h1 class="jb-heading-1">Search groups</h1>
   <p>Either an autocomplete field, or a proper form...</p>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Search">
+  </form>
+  {% if groups_search %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Owner</th>
+        <th>Number of members</th>
+	<th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group in groups_search %}
+      <tr>
+        <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
+        <td>{{ group.description }}</td>
+        <td>{{ group.owner }}</td>
+        <td>{{ group.user_set.all|length }}</td>
+	<td><button type="button" class="sled-ask-to-join jb-button-1" data-form-url="{% url 'sled_groups:group-ask-to-join' group.id %}">Join</button></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No groups to show
+  </p>
+  {% endif %}
 </div>
 {% endblock content %}
 
@@ -100,10 +133,17 @@
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-    $("#create-new-group").modalForm({
-      formURL: $("#create-new-group").data("form-url"),
-      modalID: "#id-modal"
-    });
+      $("#create-new-group").modalForm({
+	  formURL: $("#create-new-group").data("form-url"),
+	  modalID: "#id-modal"
+      });
+
+      $(".sled-ask-to-join").each(function(){
+	  $(this).modalForm({
+              formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal"
+	  });
+      });
   });
 </script>
 {% endblock extrascripts %}

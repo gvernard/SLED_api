@@ -16,4 +16,5 @@ urlpatterns = [
     path('add-members/<int:pk>',views.GroupAddRemoveMembersView.as_view(),kwargs={'mode':'add'},name='group-add-members'),
     path('remove-members/<int:pk>',views.GroupAddRemoveMembersView.as_view(),kwargs={'mode':'remove'},name='group-remove-members'),
     path('leave/<int:pk>', views.GroupLeaveView.as_view(), name='group-leave'),
+    path('ask-to-join/<int:pk>', views.GroupAskToJoinView.as_view(), name='group-ask-to-join'),
 ]
