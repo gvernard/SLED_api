@@ -31,10 +31,17 @@ class GroupCedeOwnershipForm(BSModalModelForm):
             return
 
 
-class GroupCreateForm(BSModalForm):
+class GroupCreateForm2(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
-    name = forms.CharField(widget=forms.TextInput(attrs={'placeholder':'The name of your group.'}))
-    description = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a description for your group.','rows':3,'cols':30}))
+
+    class Meta:
+        model = SledGroup
+        fields = ['id','name','description','users','access_level']
+        widgets = {
+            'name': forms.TextInput({'placeholder':'The name of your group'}),
+            'description': forms.Textarea({'placeholder':'Provide a description for your group.','rows':3,'cols':30}),
+            'access_level': forms.Select()
+        }
     
     def clean(self):
         # At least one User must be selected
@@ -42,7 +49,7 @@ class GroupCreateForm(BSModalForm):
         if not users:
             self.add_error('__all__',"Select at least one User.")
 
-            
+
 class GroupAddRemoveMembersForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
     mode = 'dum' # necessary to define self.mode
