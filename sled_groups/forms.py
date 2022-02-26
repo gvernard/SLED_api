@@ -120,5 +120,5 @@ class GroupAskToJoinForm(BSModalModelForm):
 
 
 class GroupSearchForm(forms.Form):
-    search_term = forms.CharField(label='Search term',max_length=100)
+    search_term = forms.CharField(required=False,max_length=100,widget=forms.TextInput({'placeholder':'Search term'}))
     

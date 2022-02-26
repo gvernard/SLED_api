@@ -15,7 +15,7 @@ from bootstrap_modal_forms.generic import (
 )
 from bootstrap_modal_forms.utils import is_ajax
 
-from lenses.models import Users, SledGroup, Lenses
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
 from .forms import *
 
 
@@ -25,7 +25,8 @@ class GroupDetailView(DetailView):
     template_name = 'sled_groups/group_detail.html'
 
     def get_queryset(self):
-        return self.request.user.getGroupsIsMember()
+        #return self.request.user.getGroupsIsMember()
+        return SledGroup.objects.all()
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -63,21 +64,20 @@ class GroupSplitListView(TemplateView):
         context['form'] = GroupSearchForm()
         return context
     
-
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         form = GroupSearchForm(data=request.POST)
-        context['form'] = form
         if form.is_valid():
             search_term = form.cleaned_data['search_term']
-            user_groups = request.user.groups.all().values_list('id',flat=True)
-            #groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(Q(name__contains=search_term) | Q(description__contains=search_term))
-            groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(name__contains=search_term)
+            if not search_term:
+                groups = SledGroup.objects.none()
+            else:
+                context['form'] = form
+                user_groups = request.user.groups.all().values_list('id',flat=True)
+                #groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(Q(name__contains=search_term) | Q(description__contains=search_term))
+                groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(name__contains=search_term)
             context['groups_search'] = groups
-            #context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
         return self.render_to_response(context)
-
-
 
     
 #=============================================================================================================================
@@ -96,8 +96,9 @@ class GroupAskToJoinView(BSModalUpdateView):
     def form_valid(self,form):
         if not is_ajax(self.request.META):
             group = self.get_object()
-            # Send confirmation task AskToJoinGroup
-            print(group.id,self.request.user,form.cleaned_data['justification'])
+            cargo = {'object_type':'SledGroup','object_ids': [group.id],'comment':form.cleaned_data['justification']}
+            receiver = Users.objects.filter(username=group.owner.username) # receiver must be a queryset
+            mytask = ConfirmationTask.create_task(self.request.user,receiver,'AskToJoinGroup',cargo)
             msg = "User " + group.owner.username + " who is the owner of group " + group.name + " has been notified about your request to join"
             messages.add_message(self.request,messages.WARNING,msg)
         response = super().form_valid(form)

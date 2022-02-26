@@ -82,10 +82,9 @@
 
 <div class="jb-container">
   <h1 class="jb-heading-1">Search groups</h1>
-  <p>Either an autocomplete field, or a proper form...</p>
   <form method="POST">
     {% csrf_token %}
-    {{ form }}
+    {{ form.search_term }}
     <input type="submit" value="Search">
   </form>
   {% if groups_search %}
@@ -96,7 +95,6 @@
         <th>Description</th>
         <th>Owner</th>
         <th>Number of members</th>
-	<th></th>
       </tr>
     </thead>
     <tbody>
@@ -106,7 +104,6 @@
         <td>{{ group.description }}</td>
         <td>{{ group.owner }}</td>
         <td>{{ group.user_set.all|length }}</td>
-	<td><button type="button" class="sled-ask-to-join jb-button-1" data-form-url="{% url 'sled_groups:group-ask-to-join' group.id %}">Join</button></td>
       </tr>
       {% endfor %}
     </tbody>
@@ -136,13 +133,6 @@
       $("#create-new-group").modalForm({
 	  formURL: $("#create-new-group").data("form-url"),
 	  modalID: "#id-modal"
-      });
-
-      $(".sled-ask-to-join").each(function(){
-	  $(this).modalForm({
-              formURL: $(this).data("form-url"),
- 	      modalID: "#id-modal"
-	  });
       });
   });
 </script>

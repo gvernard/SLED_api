@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
     'sled_users.apps.UsersConfig',
-#    'users.apps.UsersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

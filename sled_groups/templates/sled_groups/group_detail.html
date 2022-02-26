@@ -1,5 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load sled_group_extras %}
 
 
 {% block content %}
@@ -15,12 +16,19 @@
 
 <hr>
 
-<!-- Div with some information about the group and different actions for users or the owner -->
+<!-- Div with some information about the group -->
 <div>
   <p> Description: {{ group.description }}</p>
   <p> Owner: {{ group.owner }}</p>
+  <p> Number of members: {{ group.user_set.all|length }}</p>
+  <p> Access to private objects: </p>
+</div>
 
-  {% if  group.owner == user %}
+
+<!-- Div with different actions depending on if the user is owner, member, or neither -->
+<div>
+  {% if user == group.owner %}
+  
   <button type="button" id="delete-group" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-delete' group.pk %}">
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete
@@ -42,17 +50,29 @@
     Remove members
   </button>
 
-  {% else %}
+  {% elif request.user|has_group:group.name %}
+  
   <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-leave' group.pk %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Leave group
   </button>
+  
+  {% else %}
+
+  <button type="button" id="ask-to-join-group" class="jb-button-1" data-form-url="{% url 'sled_groups:group-ask-to-join' group.id %}">
+    Join
+  </button>
+
   {% endif %}
 </div>
 
 <hr>
 
+
+
 <!-- List of users in the group -->
+{% if user == group.owner or request.user|has_group:group.name %}
+
 <div>
   <p>List of group members</p>
   <table>
@@ -74,6 +94,8 @@
 <p>  
   List group access to various object types and collections
 </p>
+{% endif %}
+
 {% endblock content %}
 
 
@@ -104,7 +126,11 @@
  	      modalID: "#id-modal"
 	  });
       });
-      
+
+      $("#ask-to-join-group").modalForm({
+	  formURL: $("#ask-to-join-group").data("form-url"),
+	  modalID: "#id-modal"
+      });
   });
 </script>
 {% endblock extrascripts %}

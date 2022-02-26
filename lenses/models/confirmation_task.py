@@ -18,7 +18,7 @@ import abc
 import json
 import os
 
-from . import SingleObject, Collection
+from . import SingleObject, Collection, SledGroup
 
 
 
@@ -55,7 +55,8 @@ class ConfirmationTask(SingleObject):
         ('MakePrivate','Make private'),
         ('DeleteObject','Delete public object'),
         ('ResolveDuplicates','Resolve duplicate objects'),
-        ('AskPrivateAccess','Ask access to private objects')
+        ('AskPrivateAccess','Ask access to private objects'),
+        ('AskToJoinGroup','Request to add to group'),
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -438,9 +439,36 @@ class AskPrivateAccess(ConfirmationTask):
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             objs_owner.giveAccess(objs,task_owner) # this sends a notification as well.
         else:
-            notify.send(sender=admin,recipient=self.owner,verb='Your request to access private objects was rejected',level='error',timestamp=timezone.now(),note_type='AskPrivateAccess',task_id=self.id)
+            notify.send(sender=objs_owner,recipient=self.owner,verb='Your request to access private objects was rejected',level='error',timestamp=timezone.now(),note_type='AskPrivateAccess',task_id=self.id)
 
 
-            
+class AskToJoinGroup(ConfirmationTask):
+    class Meta:
+        proxy = True
+        
+    class myForm(forms.Form):
+        mychoices = [('yes','Yes'),('no','No')]
+        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
+        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
+
+    def allowed_responses(self):
+        return ['yes','no']
+
+    def getForm(self):
+        return self.myForm()
+
+    def finalizeTask(self):
+        # Here, only one recipient to get a response from
+        response = self.heard_from().get().response
+        group_owner = self.get_all_recipients()[0]
+        if response == 'yes':
+            from . import Users
+            task_owner = Users.objects.filter(id=self.owner.id) # needs to be a query set
+            group_id = self.cargo['object_ids'][0]
+            group = SledGroup.objects.get(pk=group_id)
+            group.addMember(group_owner,task_owner) # this sends a notification as well.
+        else:
+            notify.send(sender=group_owner,recipient=self.owner,verb='Your request to join group was rejected',level='error',timestamp=timezone.now(),note_type='AskToJoinGroup',task_id=self.id)
+
 ### END: Confirmation task specific code
 ################################################################################################################################################
