@@ -12,7 +12,7 @@ Share query
 </div>
 
 <div>
-  <a href="{{ request.get_host }}{{ query.get_GET_url }}">
+  <a href="{{ request.scheme }}://{{ request.get_host }}{{ query.get_GET_url }}">
     {{ request.get_host }}{{ query.get_GET_url }}
   </a>
 </div>
