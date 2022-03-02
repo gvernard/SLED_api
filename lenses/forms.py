@@ -98,7 +98,8 @@ class LensMakeCollectionForm(BSModalModelForm):
             'description': forms.Textarea(attrs={'placeholder':'Please provide a description for your collection.','rows':3,'cols':30}),
             'access_level': forms.Select(),
         }
-    
+
+        
 class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
     """
     The basic formset used to add and update lenses.
@@ -160,8 +161,7 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                     duplicate_files.append(file1)
                     
         if len(duplicate_files) > 0:
-            raise ValidationError('More than one files have the same name and size which could indicate duplicates!')
-            
+            raise ValidationError('More than one files have the same name and size which could indicate duplicates!')            
 
                     
 class ResolveDuplicatesForm(forms.Form):
@@ -174,68 +174,110 @@ class ResolveDuplicatesForm(forms.Form):
                                choices=mychoices,
                                widget=forms.RadioSelect)
     index = forms.CharField(widget=forms.HiddenInput())
-
-
-
-
-
-
     
         
-class LensQueryForm(forms.Form):
-    ra_min = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
-    ra_max = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
-    dec_min = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
-    dec_max = forms.DecimalField(max_digits=7, decimal_places=4, required=False)
-    n_img_min = forms.IntegerField(required=False)
-    n_img_max = forms.IntegerField(required=False)
-    image_sep_min = forms.DecimalField(max_digits=4, decimal_places=2, required=False)
-    image_sep_max = forms.DecimalField(max_digits=4, decimal_places=2, required=False)
-    z_source_min = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
-    z_source_max = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
-    z_lens_min = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
-    z_lens_max = forms.DecimalField(max_digits=4, decimal_places=3, required=False)
-
-    flag_confirmed = forms.BooleanField(required=False)
-    flag_unconfirmed = forms.BooleanField(required=False)
-    flag_contaminant = forms.BooleanField(required=False)
-    flag_uncontaminant = forms.BooleanField(required=False)
-
-    ImageConfChoices = (
-        ('CUSP','Cusp'),
-        ('FOLD','Fold'),
-        ('CROSS','Cross'),
-        ('DOUBLE','Double'),
-        ('QUAD','Quad'),
-        ('RING','Ring'),
-        ('ARCS','Arcs')
-    )
-    image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, required=False)# widget=forms.Select(attrs={'class':'my-select2','multiple':'multiple'}))
+class LensQueryForm(forms.ModelForm):
+    # The following block is basically a copy of the corresponding lens model fields, each having a min and max field.
+    ra_min = forms.DecimalField(required=False,
+                                max_digits=7,
+                                decimal_places=4,
+                                help_text="The min RA [degrees].",
+                                validators=[MinValueValidator(0.0,"RA must be positive."),
+                                            MaxValueValidator(360,"RA must be less than 360 degrees.")])
+    ra_max = forms.DecimalField(required=False,
+                                max_digits=7,
+                                decimal_places=4,
+                                help_text="The max RA [degrees].",
+                                validators=[MinValueValidator(0.0,"RA must be positive."),
+                                            MaxValueValidator(360,"RA must be less than 360 degrees.")])
+    dec_min = forms.DecimalField(required=False,
+                                 max_digits=6,
+                                 decimal_places=4,
+                                 help_text="The min DEC [degrees].",
+                                 validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
+                                             MaxValueValidator(90,"DEC must be below 90 degrees.")])
+    dec_max = forms.DecimalField(required=False,
+                                 max_digits=6,
+                                 decimal_places=4,
+                                 help_text="The min DEC [degrees].",
+                                 validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
+                                             MaxValueValidator(90,"DEC must be below 90 degrees.")])
+    n_img_min = forms.IntegerField(required=False,
+                                   help_text="Minimum number of source images.",
+                                   validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
+                                               MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
+    n_img_max = forms.IntegerField(required=False,
+                                   help_text="Maximum number of source images.",
+                                   validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
+                                               MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
+    image_sep_min = forms.DecimalField(required=False,
+                                       max_digits=4,
+                                       decimal_places=2,
+                                       help_text="Minimum image separation or arc radius [arcsec].",
+                                       validators=[MinValueValidator(0.0,"Separation must be positive."),
+                                                   MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
+    image_sep_max = forms.DecimalField(required=False,
+                                       max_digits=4,
+                                       decimal_places=2,
+                                       help_text="Maximum image separation or arc radius [arcsec].",
+                                       validators=[MinValueValidator(0.0,"Separation must be positive."),
+                                                   MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
+    z_source_min = forms.DecimalField(required=False,
+                                      max_digits=4,
+                                      decimal_places=3,
+                                      help_text="The minimum redshift of the source.",
+                                      validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                  MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
+    z_source_max = forms.DecimalField(required=False,
+                                      max_digits=4,
+                                      decimal_places=3,
+                                      help_text="The maximum redshift of the source.",
+                                      validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                  MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
+    z_lens_min = forms.DecimalField(required=False,
+                                    max_digits=4,
+                                    decimal_places=3,
+                                    help_text="The minimum redshift of the lens.",
+                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
+    z_lens_max = forms.DecimalField(required=False,
+                                    max_digits=4,
+                                    decimal_places=3,
+                                    help_text="The maximum redshift of the lens.",
+                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     
-    LensTypeChoices = (
-        ('GALAXY','Galaxy'),
-        ('GROUP','Group of galaxies'),
-        ('CLUSTER','Galaxy cluster'),
-        ('QUASAR','Quasar')
-    )
-    lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, required=False) #widget=forms.Select(attrs={'class':'my-select2','multiple':'multiple'}))
+    flag_confirmed     = forms.BooleanField(required=False,help_text="Select only confirmed lenses (confirmed field set to True).")
+    flag_unconfirmed   = forms.BooleanField(required=False,help_text="Select only un-confirmed lenses (confirmed field set to False).")
+    flag_contaminant   = forms.BooleanField(required=False,help_text="Select only confirmed contaminants (contaminant field set to True).")
+    flag_uncontaminant = forms.BooleanField(required=False,help_text="Select only unconfirmed contaminants (contaminant field set to False).")
     
-    SourceTypeChoices = (
-        ('GALAXY','Galaxy'),
-        ('QUASAR','Quasar'),
-        ('GW','Gravitational Wave'),
-        ('FRB','Fast Radio Burst'),
-        ('GRB','Gamma Ray Burst'),
-        ('SN','Supernova')
-    )
-    source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, required=False) #widget=forms.Select(attrs={'class':'my-select2','multiple':'multiple'}))
-    
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request',None)
-        super(LensQueryForm,self).__init__(*args, **kwargs)
+    class Meta:
+        model = Lenses
+        fields = ['image_conf','lens_type','source_type']
+        widgets = {
+            'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+            'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
+            'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
+        }
 
+    # def __init__(self, *args, **kwargs):
+    #     self.request = kwargs.pop('request',None)
+    #     super(LensQueryForm,self).__init__(*args, **kwargs)
 
-    
+    def clean(self):
+        # Perform any multi-field check here
+        #self.add_error('__all__',"You are selecting already public lenses!")   
+
+        # if self.flag_confirmed and self.flag_contaminant: # flag_check
+        #     raise ValidationError('The object cannot be both a lens and a contaminant.')
+        # if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
+        #     raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
+        # if self.z_lens and self.z_source: # z_lens_lt_z_source
+        #     if self.z_lens > self.z_source:
+        #         raise ValidationError('The source redshift cannot be lower than the lens redshift.')
+
+        return
 
 
 

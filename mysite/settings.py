@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'sled_collections',
     'sled_notifications',
     'sled_tasks',
+    'sled_queries',
 ]
 
 SITE_ID = 1

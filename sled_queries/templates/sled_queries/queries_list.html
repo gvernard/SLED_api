@@ -1,0 +1,92 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+<!-- This modal is required to display messages when redirecting here, e.g. when deleting a group -->
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+  <div class="modal-dialog">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+
+
+<div class="jb-container">
+  <h1 class="jb-heading-1">My Queries</h1>
+  {% if queries %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+	<th>Created at</th>
+	<th></th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for query in queries %}
+      <tr>
+        <td><a href="{{ group.get_absolute_url }}">{{query.name}}</td>
+        <td>{{ query.description }}</td>
+	<td>{{ query.created_at }}</td>
+	<td>
+	  <button type="button" class="sled-delete-query btn btn-sm btn-danger" data-form-url="{% url 'sled_queries:query-delete' query.pk %}">
+	    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	    Delete
+	  </button>
+	  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_queries:query-update' query.pk %}">
+	    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	    Update
+	  </button>
+	  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_queries:query-link' query.pk %}">
+	    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	    Share
+	  </button>
+	  <button type="button" class="sled-view-query btn btn-sm btn-primary" data-form-url="{{ query.get_GET_url }}">
+	    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	    View
+	  </button>
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No queries to show
+  </p>
+  {% endif %}
+
+{% endblock content %}
+
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      // Modals
+      $('.sled-delete-query').each(function(){
+	  $(this).modalForm({
+ 	      formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal",
+ 	      isDeleteForm: true
+	  });
+      });
+
+      $(".sled-modal").each(function(){
+	  $(this).modalForm({
+              formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal"
+	  });
+      });
+
+      $(".sled-view-query").click(function(){
+	  window.location.href = $(this).data("form-url");
+      });
+  });
+</script>
+{% endblock extrascripts %}

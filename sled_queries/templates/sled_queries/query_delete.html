@@ -1,0 +1,18 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Delete query
+{% endblock title %}
+
+
+{% block content %}
+<div>
+  Are you sure you want to delete the query named <strong>{{ query.name }}</strong>?
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-danger">Delete</button>
+{% endblock action_button %}

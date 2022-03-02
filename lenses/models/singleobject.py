@@ -171,7 +171,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
         get_latest_by = ["modified_at","created_at"]
         constraints = [
             #CheckConstraint(check=Q(created_at__gt=pytz.utc.localize(datetime.datetime(2021,11,11))),name='created_recently'),
-            CheckConstraint(check=Q(modified_at__gt=F('created_at')),name='modified_after_created')
+            CheckConstraint(check=Q(modified_at__gt=F('created_at')),name='%(class)s_modified_after_created')
         ]
 
     def isOwner(self, user):

@@ -535,7 +535,47 @@ def LensCollageView(request):
 
 
 
-def query_search(form, user):
+
+
+# View for lens queries
+@method_decorator(login_required,name='dispatch')
+class LensQueryView(TemplateView):
+    '''
+    Main lens query page, allowing currently for a simple filter on the lenses table parameters
+    Eventually we want to allow simultaneous queries across multiple tables
+    '''
+    template_name = 'lenses/lens_query.html'
+
+    def get_context_data(self, **kwargs):
+        form = forms.LensQueryForm()
+        context = {'lenses': None,'form':form}
+        return context
+
+    def get(self, request, *args, **kwargs):
+        form = forms.LensQueryForm(request.GET)
+        if form.is_valid():
+            lenses = query_search(form.cleaned_data,request.user)
+            context = {'lenses':lenses,'form':form}
+            return self.render_to_response(context)
+        else:
+            context = {'lenses': None,'form':form}
+            return self.render_to_response(context)
+    
+    def post(self, request, *args, **kwargs):
+        form = forms.LensQueryForm(request.POST)
+        if form.is_valid():
+            lenses = query_search(form.cleaned_data,request.user)
+            context = {'lenses':lenses,'form':form}
+            return self.render_to_response(context)
+        else:
+            context = {'lenses': None,'form':form}
+            return self.render_to_response(context)
+
+
+
+        
+
+def query_search(form,user):
     '''
     This function performs the filtering on the lenses table, by parsing the filter values from the request
     '''
@@ -547,16 +587,16 @@ def query_search(form, user):
 
     #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
     over_meridian = False
-    print(form['ra_min'], form['ra_max'])
-    if (form['ra_min'] is not None)&(form['ra_max'] is not None):
-        if (float(form['ra_min']) > float(form['ra_max'])):
+    #print(form['ra_min'], form['ra_max'])
+    if form['ra_min'] is not None and form['ra_max'] is not None:
+        if float(form['ra_min']) > float(form['ra_max']):
             over_meridian = True
 
     #now apply the filter for each non-null entry
     for k, value in enumerate(values):
         if value is not None:
-            print(k, value, keywords[k])
-            if ('ra_' in keywords[k]) & over_meridian:
+            #print(k, value, keywords[k])
+            if 'ra_' in keywords[k] and over_meridian:
                 continue
             if '_min' in keywords[k]:
                 args = {keywords[k].split('_min')[0]+'__gte':float(value)}
@@ -566,54 +606,26 @@ def query_search(form, user):
                 lenses = lenses.filter(**args).order_by('ra')
 
             if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
-                if len(value)>0:
+                if len(value) > 0:
                     for i in range(len(value)):
-                        print(k, value[i], keywords[k])
+                        #print(k, value[i], keywords[k])
                         args = {keywords[k]:value[i]}
                         lenses_type = lenses.filter(**args)
-                        if i==0:
+                        if i == 0:
                             final_lenses = lenses_type
                         else:
                             final_lenses |= lenses_type
                     lenses = final_lenses.order_by('ra')
-            if ('flag_' in keywords[k]):
+            if 'flag_' in keywords[k]:
                 if value:
                     if 'flag_un' in keywords[k]:
                         keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
                         value = False
                     args = {keywords[k]:value}
                     lenses = lenses.filter(**args)
-
+                    
     #come back to the special case where RA_min is less than 0hours
     if over_meridian:
         lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
 
     return lenses
-
-# View for lens queries
-@method_decorator(login_required,name='dispatch')
-class LensQueryView(TemplateView):
-    '''
-    Main lens query page, allowing currently for a simple filter on the lenses table parameters
-    Eventually we want to allow simultaneous queries across multiple tables
-    '''
-    template_name = 'lenses/lens_query.html'
-
-    def post(self, request, *args, **kwargs):
-        #print('POST FORM')
-        form = forms.LensQueryForm(request.POST)
-        if form.is_valid():
-            #print('form valid')
-            form_values = form.cleaned_data.values()
-            #print(form.cleaned_data)
-            input_values = [value not in [None, False, []] for value in form_values]
-            if sum(input_values) == 0:
-                return self.render_to_response({'lenses':None, 'form':forms.LensQueryForm(initial=form.cleaned_data)})
-            lenses = query_search(form.cleaned_data, request.user)
-            return self.render_to_response({'lenses':lenses, 'form':forms.LensQueryForm(initial=form.cleaned_data)})
-        else:
-            return self.render_to_response({'lenses':None, 'form':forms.LensQueryForm})
-
-    def get(self, request, *args, **kwargs):
-        lenses = Lenses.objects.none()
-        return self.render_to_response({'lenses':lenses, 'form':forms.LensQueryForm})

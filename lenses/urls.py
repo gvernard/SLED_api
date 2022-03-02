@@ -19,5 +19,4 @@ urlpatterns = [
     path('make-public/',views.LensMakePublicView.as_view(),name='lens-make-public'),
     path('resolve-duplicates/<int:pk>',views.LensResolveDuplicatesView.as_view(),name='resolve-duplicates'),
     path('detail/<int:pk>',views.LensDetailView.as_view(),name='lens-detail'),
-#    re_path('(?P<slug>[A-Za-z0-9\w|\W\- ]+)/$', LensDetailView.as_view(), name='lens-detail'),
 ]

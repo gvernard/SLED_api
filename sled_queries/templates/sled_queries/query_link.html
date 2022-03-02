@@ -1,0 +1,19 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Share query
+{% endblock title %}
+
+
+{% block content %}
+<div>
+  Copy and share the link below:
+</div>
+
+<div>
+  <a href="{{ request.get_host }}{{ query.get_GET_url }}">
+    {{ request.get_host }}{{ query.get_GET_url }}
+  </a>
+</div>
+{% endblock content %}
