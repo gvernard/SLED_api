@@ -1,10 +1,13 @@
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
 from . import SingleObject
 
-#class SledGroups(models.Model):
+from notifications.signals import notify
+from actstream import action
+
 class SledGroup(Group,SingleObject):
     """
     The custom SLED model for a group of users, inheriting from the django `Group`.
@@ -74,6 +77,25 @@ class SledGroup(Group,SingleObject):
             raise
         else:
             self.user_set.add(*sled_user_qset)
+            for new_member in sled_user_qset:
+                notify.send(sender=owner,
+                            recipient=new_member,
+                            verb='Your were successfully added to the group %s.' % self.name,
+                            level='success',
+                            timestamp=timezone.now(),
+                            note_type='AddedToGroup')
+
+            to_add = sled_user_qset.values_list('username',flat=True)
+            if len(to_add) > 1:
+                myverb = 'New users %s were added to the group.' % ','.join(to_add),
+            else:
+                myverb = 'New user %s was added to the group.' % to_add[0],
+            action.send(owner,
+                        target=self,
+                        verb=myverb,
+                        level='info',
+                        action_type='AddedToGroup')
+
 
             
     def removeMember(self,owner,sled_user_qset):
@@ -94,3 +116,22 @@ class SledGroup(Group,SingleObject):
             raise
         else:
             self.user_set.remove(*sled_user_qset)
+            for removed_member in sled_user_qset:
+                notify.send(sender=owner,
+                            recipient=removed_member,
+                            verb='Your were removed from the group %s.' % self.name,
+                            level='error',
+                            timestamp=timezone.now(),
+                            note_type='RemovedFromGroup')
+
+            to_remove = sled_user_qset.values_list('username',flat=True)
+            if len(to_remove) > 1:
+                myverb = 'Users %s were removed from the group.' % ','.join(to_remove),
+            else:
+                myverb = 'User %s was removed from the group.' % to_remove[0],
+            action.send(owner,
+                        target=self,
+                        verb=myverb,
+                        level='info',
+                        action_type='RemovedFromGroup')
+

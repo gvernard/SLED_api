@@ -5,3 +5,5 @@ from .collection import Collection
 from .confirmation_task import ConfirmationTask
 from .user import Users
 from .sledquery import SledQuery
+
+default_app_config = 'lenses.apps.SledActstreamConfig'

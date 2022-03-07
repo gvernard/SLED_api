@@ -14,6 +14,9 @@ django.setup()
 from lenses.models import Users, SledGroup, Lenses, SingleObject, Collection
 from guardian.shortcuts import assign_perm
 
+from actstream.registry import register
+register(Users, SledGroup, Lenses, Collection)
+
 print('Populating the database with a test set')
 
 owner  = Users.objects.get(username='gvernard')

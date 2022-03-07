@@ -11,8 +11,8 @@ from django.conf import settings
 
 from guardian.shortcuts import assign_perm
 
-
 from notifications.signals import notify
+from actstream import action
 
 import abc
 import json
@@ -259,9 +259,23 @@ class DeleteObject(ConfirmationTask):
             #cargo = json.loads(self.cargo)
             #getattr(.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
             apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
-            notify.send(sender=admin,recipient=self.owner,verb='Your request to delete public objects was accepted',level='success',timestamp=timezone.now(),note_type='DeleteObjects',task_id=self.id)
+            notify.send(sender=admin,
+                        recipient=self.owner,
+                        verb='Your request to delete public objects was accepted.',
+                        level='success',
+                        timestamp=timezone.now(),
+                        note_type='DeleteObjects',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
         else:
-            notify.send(sender=admin,recipient=self.owner,verb='Your request to delete public objects was rejected',level='error',timestamp=timezone.now(),note_type='DeleteObjects',task_id=self.id)
+            notify.send(sender=admin,
+                        recipient=self.owner,
+                        verb='Your request to delete public objects was rejected.',
+                        level='error',
+                        timestamp=timezone.now(),
+                        note_type='DeleteObjects',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
 
             
 class CedeOwnership(ConfirmationTask):
@@ -286,20 +300,87 @@ class CedeOwnership(ConfirmationTask):
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
-            model_ref = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']) 
+            object_type = self.cargo['object_type']
+            model_ref = apps.get_model(app_label="lenses",model_name=object_type)
             objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
             objs.update(owner=heir)
             pri = []
-            for lens in objs:
-                if lens.access_level == 'PRI':
-                    pri.append(lens)
+            for obj in objs:
+                if obj.access_level == 'PRI':
+                    pri.append(obj)
+
+            # Handle private objects
             if pri:
                 perm = 'view_' + model_ref._meta.db_table
                 assign_perm(perm,heir,pri) # don't forget to assign view permission to the new owner for the private lenses
-            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was accepted',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
-            notify.send(sender=heir,recipient=heir,verb='You have accepted a CedeOwnership request',level='success',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
+
+                if object_type != 'SledGroup':
+                    # Notify users with access
+                    users_with_access,accessible_objects = self.owner.accessible_per_other(pri,'users')
+                    for i,user in enumerate(users_with_access):
+                        obj_ids = []
+                        for j in accessible_objects[i]:
+                            obj_ids.append(target_objs[j].id)
+                        if len(obj_ids) > 1:
+                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                        else:
+                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())    
+                        notify.send(sender=self,
+                                    recipient=user,
+                                    verb=myverb,
+                                    level='info',
+                                    timestamp=timezone.now(),
+                                    note_type='CedeOwnership',
+                                    object_type=object_type,
+                                    object_ids=obj_ids)
+                        
+                    # Notify groups with access
+                    groups_with_access,accessible_objects = self.accessible_per_other(target_objs,'groups')
+                    for i,group in enumerate(groups_with_access):
+                        obj_ids = []
+                        for j in accessible_objects[i]:
+                            obj_ids.append(target_objs[j].id)
+                        if len(obj_ids) > 1:
+                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                        else:
+                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())    
+                        action.send(self,
+                                    target=group,
+                                    verb=myverb,
+                                    level='info',
+                                    action_type='CedeOwnership',
+                                    object_type=object_type,
+                                    object_ids=obj_ids)
+
+            # Handle groups
+            if object_type == 'SledGroup':
+                # Notify group members
+                myverb='The group has changed owner from %s to %s.' % (self.owner,heir),
+                action.send(self,
+                            target=group,
+                            verb=myverb,
+                            level='info',
+                            action_type='CedeOwnership')
+                
+            # Confirm to the previous owner
+            notify.send(sender=heir,
+                        recipient=self.owner,
+                        verb='Your CedeOwnership request was accepted.',
+                        level='success',
+                        timestamp=timezone.now(),
+                        note_type='CedeOwnership',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
+
         else:
-            notify.send(sender=heir,recipient=self.owner,verb='Your CedeOwnership request was rejected',level='error',timestamp=timezone.now(),note_type='CedeOwnership',task_id=self.id)
+            notify.send(sender=heir,
+                        recipient=self.owner,
+                        verb='Your CedeOwnership request was rejected.',
+                        level='error',
+                        timestamp=timezone.now(),
+                        note_type='CedeOwnership',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
 
         
 class MakePrivate(ConfirmationTask):
@@ -322,15 +403,35 @@ class MakePrivate(ConfirmationTask):
         response = self.heard_from().get().response
         from . import Users
         admin = Users.getAdmin().first()
+        model_ref = apps.get_model(app_label="lenses",model_name=self.cargo['object_type'])
+        if len(self.cargo['object_ids']) > 1:
+            myverb = 'Your request to make %d %s private was ' % (len(objs),model_ref._meta.verbose_name_plural.title())
+        else:
+            myverb = 'Your request to make %d %s private was ' % (len(objs),model_ref._meta.verbose_name.title())
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
-            objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
+            objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
             objs.update(access_level='PRI')
-            assign_perm('view_lenses',self.owner,objs) # don't forget to assign view permission to the new owner for the private lenses
-            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was accepted',level='success',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
+            perm = "view_"+objs[0]._meta.db_table
+            assign_perm(perm,self.owner,objs) # don't forget to assign view permission to the new owner for the private lenses
+            notify.send(sender=admin,
+                        recipient=self.owner,
+                        verb=myverb + ' accepted.',
+                        level='success',
+                        timestamp=timezone.now(),
+                        note_type='MakePrivate',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
         else:
-            notify.send(sender=admin,recipient=self.owner,verb='Your request to make objects private was rejected',level='error',timestamp=timezone.now(),note_type='MakePrivate',task_id=self.id)
+            notify.send(sender=admin,
+                        recipient=self.owner,
+                        verb=myverb + ' rejected.',
+                        level='error',
+                        timestamp=timezone.now(),
+                        note_type='MakePrivate',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
         
 
 class ResolveDuplicates(ConfirmationTask):
@@ -439,7 +540,18 @@ class AskPrivateAccess(ConfirmationTask):
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             objs_owner.giveAccess(objs,task_owner) # this sends a notification as well.
         else:
-            notify.send(sender=objs_owner,recipient=self.owner,verb='Your request to access private objects was rejected',level='error',timestamp=timezone.now(),note_type='AskPrivateAccess',task_id=self.id)
+            if len(self.cargo['object_ids']) > 1:
+                myverb = 'Your request to access %d private %s was rejected.' % (len(self.cargo['object_ids']),model_ref._meta.verbose_name_plural.title())
+            else:
+                myverb = 'Your request to access %d private %s was rejected.' % (len(self.cargo['object_ids']),model_ref._meta.verbose_name.title())         
+            notify.send(sender=objs_owner,
+                        recipient=self.owner,
+                        verb=myverb,
+                        level='error',
+                        timestamp=timezone.now(),
+                        note_type='AskPrivateAccess',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
 
 
 class AskToJoinGroup(ConfirmationTask):
@@ -461,14 +573,21 @@ class AskToJoinGroup(ConfirmationTask):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
         group_owner = self.get_all_recipients()[0]
+        group_id = self.cargo['object_ids'][0]
+        group = SledGroup.objects.get(pk=group_id)
         if response == 'yes':
             from . import Users
             task_owner = Users.objects.filter(id=self.owner.id) # needs to be a query set
-            group_id = self.cargo['object_ids'][0]
-            group = SledGroup.objects.get(pk=group_id)
             group.addMember(group_owner,task_owner) # this sends a notification as well.
         else:
-            notify.send(sender=group_owner,recipient=self.owner,verb='Your request to join group was rejected',level='error',timestamp=timezone.now(),note_type='AskToJoinGroup',task_id=self.id)
+            notify.send(sender=group_owner,
+                        recipient=self.owner,
+                        verb='Your request to join group %s was rejected.' % group.name,
+                        level='error',
+                        timestamp=timezone.now(),
+                        note_type='AskToJoinGroup',
+                        object_type=self._meta.model.__name__,
+                        object_ids=[self.id])
 
 ### END: Confirmation task specific code
 ################################################################################################################################################

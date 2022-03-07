@@ -41,6 +41,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name='registration/login.html'), name='logout'),
     #path('accounts/', include('django.contrib.auth.urls')),
     path('notifications/', include(notifications.urls, namespace='notifications')),
+    path('activity/', include('actstream.urls')),
     path('sled_notifications/', include('sled_notifications.urls'), name='sled_notifications'),
     path("select2/", include("django_select2.urls")),
     path('api/',include('api.urls')),

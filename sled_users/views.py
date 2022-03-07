@@ -14,9 +14,16 @@ class UserProfileView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         user = request.user
+
+
+        # Get user groups
+        groups = user.getGroupsIsMember()
+        N_groups = groups.count()
+        groups = groups[:5]
+
         
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user))
+        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user)[:5])
         recipients = []
         for task in tasks:
             unames = task.get_all_recipients().values_list('username',flat=True)
@@ -31,7 +38,7 @@ class UserProfileView(TemplateView):
         # Get unread notifications
         unread_notifications = user.notifications.unread()
         N_note_unread = unread_notifications.count()
-        N_note_all = user.notifications.read().count() + N_note_unread
+        unread_notifications = unread_notifications[:5]
 
 
         
@@ -72,12 +79,14 @@ class UserProfileView(TemplateView):
 
                 
         context={'user':user,
+                 'groups':groups,
+                 'N_groups': N_groups,
                  'pending_conf':zipped,
                  'N_tasks': N_tasks,
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
+                 'N_note_unread': N_note_unread,
                  'lenses': qset_lenses,
-                 'N_note_all': N_note_all,
                  'collections': qset_cols,
                  'collections_users': cols_users_with_access,
                  'collections_groups': cols_groups_with_access,

@@ -40,10 +40,7 @@ EMAIL_PORT = 1025
 # Application definition
 
 INSTALLED_APPS = [
-    'lenses.apps.LensesConfig',
-    'sled_groups.apps.GroupsConfig',
-    'home.apps.HomeConfig',
-    'sled_users.apps.UsersConfig',
+    'actstream',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -64,6 +61,10 @@ INSTALLED_APPS = [
     'sled_notifications',
     'sled_tasks',
     'sled_queries',
+    'lenses.apps.LensesConfig',
+    'sled_groups.apps.GroupsConfig',
+    'home.apps.HomeConfig',
+    'sled_users.apps.UsersConfig',
 ]
 
 SITE_ID = 1
@@ -174,6 +175,12 @@ MEDIA_ROOT  = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'
 
 
+ACTSTREAM_SETTINGS = {
+    'FETCH_RELATIONS': True,
+    'USE_PREFETCH': True,
+    'USE_JSONFIELD': True,
+    'GFK_FETCH_DEPTH': 1,
+}
 
 
 LOGIN_URL = '/login/'

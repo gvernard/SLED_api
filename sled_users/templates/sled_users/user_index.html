@@ -54,9 +54,9 @@
 
 
   <div>
-    <h1 class="jb-heading-2">My Groups</h1>
+    <h1 class="jb-heading-2">My Groups ({{N_groups}})</h1>
     <div>
-      {% if user.getGroupsIsMember|length > 0 %}
+      {% if N_groups %}
       <table>
         <thead>
           <tr>
@@ -65,7 +65,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for group in user.getGroupsIsMember %}
+          {% for group in groups %}
           <tr>
             <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
             <td>{{group.description}}</td>
@@ -76,7 +76,7 @@
       {% else %}
       <p>No groups to display</p>
       {% endif %}
-      <a href="{% url 'sled_groups:group-list' %}">All my groups</a>
+      <a href="{% url 'sled_groups:group-list' %}">See all groups</a>
     </div>
   </div>
 
@@ -108,13 +108,13 @@
       {% else %}
       <p class="jb-paragraph-2">No pending confirmation tasks</p>
       {% endif %}
-      <a href="{% url 'sled_tasks:tasks-list' %}">All tasks ({{ N_tasks_all }})</a>
+      <a href="{% url 'sled_tasks:tasks-list' %}">See all tasks</a>
     </div>
   </div>
 
 
   <div>
-    <h1 class="jb-heading-2">New Notifications ({{ unread_notifications|length }})</h1>
+    <h1 class="jb-heading-2">New Notifications ({{ N_note_unread }})</h1>
     <div>
       {% if unread_notifications %}
       <table>
@@ -140,7 +140,7 @@
       {% else %}
       <p class="jb-paragraph-2">No new notifications</p>
       {% endif %}
-      <a href="{% url 'sled_notifications:notifications-list' %}">All notifications({{ N_note_all }})</a>
+      <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
     </div>
   </div>
 
@@ -172,7 +172,7 @@
       {% else %}
       <p class="jb-paragraph-2">No collections to display</p>
       {% endif %}
-      <a href="{% url 'sled_collections:collections-list' %}">All collections</a>
+      <a href="{% url 'sled_collections:collections-list' %}">See all collections</a>
     </div>
   </div>
 

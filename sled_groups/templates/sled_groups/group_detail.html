@@ -1,6 +1,7 @@
 {% extends 'master_header.html' %}
 {% load static %}
 {% load sled_group_extras %}
+{% load activity_tags %}
 
 
 {% block content %}
@@ -70,8 +71,28 @@
 
 
 
-<!-- List of users in the group -->
+<!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
 {% if user == group.owner or request.user|has_group:group.name %}
+<div>
+  <p>Activity stream</p>
+  {% activity_stream 'target' group %}
+  {% if stream %}
+  <table>
+    <tbody>
+      {% for action in stream %}
+      <tr>
+	<td>{{ action.timestamp|timesince }} ago</td>
+	<td>{{ action.actor }}</td>
+	<td>{{ action.verb }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  No activity to display
+  {% endif %}
+</div>
+
 
 <div>
   <p>List of group members</p>

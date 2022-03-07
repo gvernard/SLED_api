@@ -10,6 +10,7 @@ from guardian.mixins import GuardianUserMixin
 from guardian.shortcuts import assign_perm, remove_perm
 
 from notifications.signals import notify
+from actstream import action
 
 from operator import itemgetter
 from itertools import groupby
@@ -167,9 +168,30 @@ class Users(AbstractUser,GuardianUserMixin):
             if len(new_objects_per_user) > 0:
                 assign_perm(perm,user,new_objects_per_user) # (just 1 query)
                 if isinstance(user,Users):
-                    notify.send(sender=self,recipient=user,verb='You have been granted access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)
+                    if len(new_objects_per_user) > 1:
+                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title()),
+                    else:
+                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title()),
+                    notify.send(sender=self,
+                                recipient=user,
+                                verb=myverb,
+                                level='success',
+                                timestamp=timezone.now(),
+                                note_type='GiveAccess',
+                                object_type=object_type,
+                                object_ids=new_objects_per_user_ids)
                 else:
-                    notify.send(sender=self,recipient=user,verb='Your group "'+user.name+'" has been granted access to private objects',level='success',timestamp=timezone.now(),note_type='GiveAccess',object_type=object_type,object_ids=new_objects_per_user_ids)            
+                    if len(new_objects_per_user) > 1:
+                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title()),
+                    else:
+                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title()),
+                    action.send(self,
+                                target=user,
+                                verb=myverb,
+                                level='success',
+                                action_type='GiveAccess',
+                                object_type=object_type,
+                                object_ids=new_objects_per_user_ids)
 
     def revokeAccess(self,objects,target_users):
         """
@@ -211,9 +233,30 @@ class Users(AbstractUser,GuardianUserMixin):
             if len(revoked_objects_per_user_ids) > 0:
                 remove_perm(perm,user,model_ref.accessible_objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
                 if isinstance(user,Users):
-                    notify.send(sender=self,recipient=user,verb='Your access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
+                    if len(revoked_objects_per_user) > 1:
+                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name_plural.title()),
+                    else:
+                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name.title())
+                    notify.send(sender=self,
+                                recipient=user,
+                                verb=myverb,
+                                level='error',
+                                timestamp=timezone.now(),
+                                note_type='RevokeAccess',
+                                object_type=object_type,
+                                object_ids=revoked_objects_per_user_ids)
                 else:
-                    notify.send(sender=self,recipient=user,verb=user.name+'\'s group access to private objects has been revoked',level='warning',timestamp=timezone.now(),note_type='RevokeAccess',object_type=object_type,object_ids=revoked_objects_per_user_ids)
+                    if len(revoked_objects_per_user) > 1:
+                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name_plural.title()),
+                    else:
+                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name.title())
+                    action.send(sender=self,
+                                target=user,
+                                verb=myverb,
+                                level='error',
+                                action_type='RevokeAccess',
+                                object_type=object_type,
+                                object_ids=revoked_objects_per_user_ids)
 
     def accessible_per_other(self,objects,mode):
         """
@@ -313,10 +356,14 @@ class Users(AbstractUser,GuardianUserMixin):
                 for j in accessible_objects[i]:
                     obj_ids.append(target_objs[j].id)
                 remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                if len(obj_ids) > 1:
+                    myverb = '%d private %s you had access to are now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                else:
+                    myverb = '%d private %s you had access to is now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())
                 notify.send(sender=self,
                             recipient=user,
-                            verb='Private objects you had access to are now public.',
-                            level='warning',
+                            verb=myverb,
+                            level='info',
                             timestamp=timezone.now(),
                             note_type='MakePublic',
                             object_type=object_type,
@@ -330,12 +377,15 @@ class Users(AbstractUser,GuardianUserMixin):
                 for j in accessible_objects[i]:
                     obj_ids.append(target_objs[j].id)
                 remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                notify.send(sender=self,
-                            recipient=group,
-                            verb='Private objects you had access to are now public.',
-                            level='warning',
-                            timestamp=timezone.now(),
-                            note_type='MakePublic',
+                if len(obj_ids) > 1:
+                    myverb = '%d private %s the group had access to are now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                else:
+                    myverb = '%d private %s the group had access to is now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())
+                action.send(self,
+                            target=group,
+                            verb=myverb,
+                            level='info',
+                            action_type='MakePublic',
                             object_type=object_type,
                             object_ids=obj_ids)
 
