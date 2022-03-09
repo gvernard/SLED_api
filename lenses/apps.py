@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-#from lenses.models import SledGroup
 
 class LensesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -7,5 +6,7 @@ class LensesConfig(AppConfig):
 
     def ready(self):
         from actstream import registry
-        #registry.register('SledGroup')
+        #from django.contrib.auth.models import Group
+        #registry.register(Group)
+        registry.register(self.get_model('Users'))
         registry.register(self.get_model('SledGroup'))

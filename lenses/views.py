@@ -26,6 +26,7 @@ from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView
 from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
+from actstream import action
 
 
 #=============================================================================================================================
@@ -115,33 +116,49 @@ class LensDeleteView(ModalIdsBaseMixin):
             users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
             for i,user in enumerate(users_with_access):
                 obj_ids = []
+                names = []
                 for j in accessible_objects[i]:
                     obj_ids.append(pri[j].id)
+                    names.append(str(pri[j]))
                 remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                if len(obj_ids) > 1:
+                    myverb = '%d private %s you had access to have been deleted.' % (len(obj_ids),pri[0]._meta.verbose_name_plural.title())
+                else:
+                    myverb = '1 private %s you had access to has been deleted.' % (pri[0]._meta.verbose_name.title())
                 notify.send(sender=self.request.user,
                             recipient=user,
-                            verb='Private objects you had access to have been deleted.',
+                            verb=myverb,
                             level='warning',
                             timestamp=timezone.now(),
                             note_type='DeleteObject',
                             object_type=object_type,
-                            object_ids=obj_ids)
+                            object_ids=names)
 
             ### Notifications per group #####################################################
             groups_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'groups')
+            id_list = [g.id for g in groups_with_access]
+            gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
                 obj_ids = []
+                names = []
                 for j in accessible_objects[i]:
                     obj_ids.append(pri[j].id)
+                    names.append(str(pri[j]))
                 remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # (just 1 query)
-                notify.send(sender=self.request.user,
-                            recipient=group,
-                            verb='Private objects you had access to have been deleted.',
+                if len(obj_ids) > 1:
+                    myverb = '%d private %s the group had access to have been deleted.' % (len(obj_ids),pri[0]._meta.verbose_name_plural.title())
+                else:
+                    myverb = '1 private %s the group had access to has been deleted.' % (pri[0]._meta.verbose_name.title())
+                action.send(self.request.user,
+                            target=gwa[i],
+                            verb=myverb,
                             level='warning',
-                            timestamp=timezone.now(),
-                            note_type='DeleteObject',
+                            action_type='DeleteObject',
                             object_type=object_type,
-                            object_ids=obj_ids)
+                            object_ids=names)
+
+            ### Notifications per collection #####################################################
+            # Need to write this part
 
             ### Finally, delete the private lenses
             for lens in pri:

@@ -1,10 +1,11 @@
 from django.db import models
 from django.db.models import Q, F, CheckConstraint
-from django.utils.timezone import make_aware
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.contrib.auth.models import Group
+
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
-from django.contrib.auth.models import Group
 
 import abc
 import inspect
@@ -281,6 +282,3 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                 return list(groups)
             else:
                 return []
-
-
-

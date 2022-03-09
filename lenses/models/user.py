@@ -76,7 +76,12 @@ class Users(AbstractUser,GuardianUserMixin):
         if self!=group.owner:
             if self in group.getAllMembers(): 
                 group.user_set.remove(self)
-    
+                action.send(self,
+                        target=group,
+                        verb="User %s has left the group" % self.username,
+                        level='info',
+                        action_type='LeftGroup')
+                
     def getGroupsIsMember(self):
         """
         Provides access to all the Groups that the user is a member of.
@@ -169,9 +174,9 @@ class Users(AbstractUser,GuardianUserMixin):
                 assign_perm(perm,user,new_objects_per_user) # (just 1 query)
                 if isinstance(user,Users):
                     if len(new_objects_per_user) > 1:
-                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title()),
+                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title())
                     else:
-                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title()),
+                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title())
                     notify.send(sender=self,
                                 recipient=user,
                                 verb=myverb,
@@ -182,11 +187,11 @@ class Users(AbstractUser,GuardianUserMixin):
                                 object_ids=new_objects_per_user_ids)
                 else:
                     if len(new_objects_per_user) > 1:
-                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title()),
+                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title())
                     else:
-                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title()),
+                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title())
                     action.send(self,
-                                target=user,
+                                target=user, # here the user is actually a group
                                 verb=myverb,
                                 level='success',
                                 action_type='GiveAccess',
@@ -233,10 +238,10 @@ class Users(AbstractUser,GuardianUserMixin):
             if len(revoked_objects_per_user_ids) > 0:
                 remove_perm(perm,user,model_ref.accessible_objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
                 if isinstance(user,Users):
-                    if len(revoked_objects_per_user) > 1:
-                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name_plural.title()),
+                    if len(revoked_objects_per_user_ids) > 1:
+                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name_plural.title())
                     else:
-                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name.title())
+                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name.title())
                     notify.send(sender=self,
                                 recipient=user,
                                 verb=myverb,
@@ -246,12 +251,12 @@ class Users(AbstractUser,GuardianUserMixin):
                                 object_type=object_type,
                                 object_ids=revoked_objects_per_user_ids)
                 else:
-                    if len(revoked_objects_per_user) > 1:
-                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name_plural.title()),
+                    if len(revoked_objects_per_user_ids) > 1:
+                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name_plural.title())
                     else:
-                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user),revoked_objects_per_user[0]._meta.verbose_name.title())
+                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name.title())
                     action.send(sender=self,
-                                target=user,
+                                target=user, # here the user is actually a group
                                 verb=myverb,
                                 level='error',
                                 action_type='RevokeAccess',
@@ -357,9 +362,9 @@ class Users(AbstractUser,GuardianUserMixin):
                     obj_ids.append(target_objs[j].id)
                 remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 if len(obj_ids) > 1:
-                    myverb = '%d private %s you had access to are now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                    myverb = '%d private %s you had access to are now public.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
                 else:
-                    myverb = '%d private %s you had access to is now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())
+                    myverb = '%d private %s you had access to is now public.' % (len(obj_ids),model_ref._meta.verbose_name.title())
                 notify.send(sender=self,
                             recipient=user,
                             verb=myverb,
@@ -372,17 +377,19 @@ class Users(AbstractUser,GuardianUserMixin):
             ### Per group
             #####################################################
             groups_with_access,accessible_objects = self.accessible_per_other(target_objs,'groups')
+            id_list = [g.id for g in groups_with_access]
+            gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
                 obj_ids = []
                 for j in accessible_objects[i]:
                     obj_ids.append(target_objs[j].id)
                 remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 if len(obj_ids) > 1:
-                    myverb = '%d private %s the group had access to are now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                    myverb = '%d private %s the group had access to are now public.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
                 else:
-                    myverb = '%d private %s the group had access to is now public.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())
+                    myverb = '%d private %s the group had access to is now public.' % (len(obj_ids),model_ref._meta.verbose_name.title())
                 action.send(self,
-                            target=group,
+                            target=gwa[i],
                             verb=myverb,
                             level='info',
                             action_type='MakePublic',
@@ -394,6 +401,18 @@ class Users(AbstractUser,GuardianUserMixin):
             for obj in target_objs:
                 obj.access_level = 'PUB'
             model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
+
+            if len(target_objs) > 1:
+                myverb = '%d %s where made public by %s.' % (len(target_objs),model_ref._meta.verbose_name_plural.title(),str(self))
+            else:
+                myverb = '1 %s was made public by %s.' % (model_ref._meta.verbose_name.title(),str(self))
+            action.send(self,
+                        target=Users.objects.get(username='admin'),
+                        verb=myverb,
+                        level='success',
+                        action_type='MadePublic',
+                        object_type=object_type,
+                        object_ids=[obj.id for obj in target_objs])
             
             output = {'success':True,'message': '<p>%d private %s are know public.</p>' % (len(target_objs),object_type),'duplicates':[]}
             return output
@@ -422,7 +441,7 @@ class Users(AbstractUser,GuardianUserMixin):
         cargo["comment"] = justification
 
         # This line needs to be replaced with the DB admin
-        mytask = ConfirmationTask.create_task(self,Users.getAdmin(),'MakePrivate',cargo)
+        mytask = ConfirmationTask.create_task(self,self.getAdmin(),'MakePrivate',cargo)
         return mytask 
       
     def cedeOwnership(self,objects,heir,justification=None):

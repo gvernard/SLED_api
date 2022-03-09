@@ -325,7 +325,7 @@ class CedeOwnership(ConfirmationTask):
                             myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
                         else:
                             myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())    
-                        notify.send(sender=self,
+                        notify.send(sender=self.owner,
                                     recipient=user,
                                     verb=myverb,
                                     level='info',
@@ -336,6 +336,8 @@ class CedeOwnership(ConfirmationTask):
                         
                     # Notify groups with access
                     groups_with_access,accessible_objects = self.accessible_per_other(target_objs,'groups')
+                    id_list = [g.id for g in groups_with_access]
+                    gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
                     for i,group in enumerate(groups_with_access):
                         obj_ids = []
                         for j in accessible_objects[i]:
@@ -344,8 +346,8 @@ class CedeOwnership(ConfirmationTask):
                             myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
                         else:
                             myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())    
-                        action.send(self,
-                                    target=group,
+                        action.send(self.owner,
+                                    target=gwa[i],
                                     verb=myverb,
                                     level='info',
                                     action_type='CedeOwnership',
@@ -355,9 +357,9 @@ class CedeOwnership(ConfirmationTask):
             # Handle groups
             if object_type == 'SledGroup':
                 # Notify group members
-                myverb='The group has changed owner from %s to %s.' % (self.owner,heir),
-                action.send(self,
-                            target=group,
+                myverb='The group has changed owner from %s to %s.' % (self.owner,heir)
+                action.send(self.owner,
+                            target=objs[0],
                             verb=myverb,
                             level='info',
                             action_type='CedeOwnership')

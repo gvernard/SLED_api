@@ -1,9 +1,9 @@
 from django.urls import path
-
+from django.views.generic import TemplateView
 from . import views
 
 
 app_name = 'home'
 urlpatterns = [
-    path('', views.homepage, name='homepage'),
+    path('', views.HomePageView.as_view(), name='homepage'),
 ]

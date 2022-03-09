@@ -87,9 +87,9 @@ class SledGroup(Group,SingleObject):
 
             to_add = sled_user_qset.values_list('username',flat=True)
             if len(to_add) > 1:
-                myverb = 'New users %s were added to the group.' % ','.join(to_add),
+                myverb = 'New users %s were added to the group.' % ','.join(to_add)
             else:
-                myverb = 'New user %s was added to the group.' % to_add[0],
+                myverb = 'New user %s was added to the group.' % to_add[0]
             action.send(owner,
                         target=self,
                         verb=myverb,
@@ -126,12 +126,25 @@ class SledGroup(Group,SingleObject):
 
             to_remove = sled_user_qset.values_list('username',flat=True)
             if len(to_remove) > 1:
-                myverb = 'Users %s were removed from the group.' % ','.join(to_remove),
+                myverb = 'Users %s were removed from the group.' % ','.join(to_remove)
             else:
-                myverb = 'User %s was removed from the group.' % to_remove[0],
+                myverb = 'User %s was removed from the group.' % to_remove[0]
             action.send(owner,
                         target=self,
                         verb=myverb,
                         level='info',
                         action_type='RemovedFromGroup')
 
+
+    def delete(self, *args, **kwargs):
+        # notify group members.
+        members = self.getAllMembers()
+        for member in members:
+            notify.send(sender=self.owner,
+                        recipient=member,
+                        verb='Group %s has been deleted.' % self.name,
+                        level='warning',
+                        timestamp=timezone.now(),
+                        note_type='Deleted')
+
+        super().delete(*args, **kwargs)  # Call the "real" delete() method.
