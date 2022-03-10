@@ -441,7 +441,7 @@ class Users(AbstractUser,GuardianUserMixin):
         cargo["comment"] = justification
 
         # This line needs to be replaced with the DB admin
-        mytask = ConfirmationTask.create_task(self,self.getAdmin(),'MakePrivate',cargo)
+        mytask = ConfirmationTask.create_task(self,Users.getAdmin(),'MakePrivate',cargo)
         return mytask 
       
     def cedeOwnership(self,objects,heir,justification=None):
