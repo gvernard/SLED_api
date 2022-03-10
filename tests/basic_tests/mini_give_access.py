@@ -14,12 +14,13 @@ django.setup()
 from lenses.models import Users, SledGroup, Lenses, SingleObject, Collection
 from guardian.shortcuts import assign_perm
 
+from actstream import action
 from actstream.registry import register
 register(Users, SledGroup, Lenses, Collection)
 
 print('Populating the database with a test set')
 
-owner  = Users.objects.get(username='gvernard')
+owner = Users.objects.get(username='gvernard')
 mugshot_path = base_dir+'tests/test_mugshots/'
 
 mylenses = []
@@ -55,13 +56,28 @@ owner.giveAccess(mycollection,other_g)
 
 mylenses = Lenses.objects.all()
 pri = []
+pub = []
 for lens in mylenses:
     if lens.access_level == 'PRI':
         pri.append(lens)
+    else:
+        pub.append(lens)
 if pri:
     assign_perm('view_lenses',owner,pri)
+if len(pub) > 0:
+    if len(pub) > 1:
+        myverb = '%d new Lenses were added.' % len(pub)
+    else:
+        myverb = '1 new Lens was added.'
+    action.send(owner,
+                target=Users.objects.get(username='admin'),
+                verb=myverb,
+                level='success',
+                action_type='Add',
+                object_type='Lenses',
+                object_ids=[obj.id for obj in pub])
 
-
+    
 private_lenses = Lenses.objects.filter(owner=owner).filter(access_level='PRI')
 
 other_user  = Users.objects.get(username='Cameron')

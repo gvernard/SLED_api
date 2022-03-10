@@ -18,6 +18,7 @@ django.setup()
 from lenses.models import Users, SledGroup, Lenses, SingleObject
 from django.forms.models import model_to_dict
 from guardian.shortcuts import assign_perm
+from actstream import action
 
 users = list(Users.objects.filter(username__in=['Cameron','Fred','gvernard']))
 
@@ -115,10 +116,29 @@ for i in range(len(ras)):
 
 Lenses.objects.bulk_create(lensedquasars)
 
+
+admin = Users.objects.get(username='admin')
 for j in range(0,len(users)-1):
     lensedquasars = Lenses.objects.filter(owner=users[j])
     assign_perm('view_lenses', users[j], lensedquasars)
 
+    # Main activity stream for public lenses
+    pub = list(Lenses.objects.filter(owner=users[j]).filter(access_level='PUB'))
+    if len(pub) > 0:
+        if len(pub) > 1:
+            myverb = '%d new Lenses were added.' % len(pub)
+        else:
+            myverb = '1 new Lens was added.'
+        action.send(users[j],
+                    target=admin,
+                    verb=myverb,
+                    level='success',
+                    action_type='Add',
+                    object_type='Lenses',
+                    object_ids=[obj.id for obj in pub])
+
+
+    
 
 lensedquasars = Lenses.objects.all()
 for lens in lensedquasars:

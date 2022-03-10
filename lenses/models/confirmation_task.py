@@ -489,12 +489,27 @@ class ResolveDuplicates(ConfirmationTask):
             db_vendor = connection.vendor
             if db_vendor == 'sqlite':
                 pri = []
+                pub = []
                 for lens in lenses:
                     lens.save()
                     if lens.access_level == 'PRI':
                         pri.append(lens)
+                    else:
+                        pub.append(lens)
                 if pri:
                     assign_perm('view_lenses',self.owner,pri)
+                if len(pub) > 0:
+                    if len(pub) > 1:
+                        myverb = '%d new Lenses were added.' % len(pub)
+                    else:
+                        myverb = '1 new Lens was added.'
+                    action.send(request.user,
+                                target=Users.objects.get(username='admin'),
+                                verb=myverb,
+                                level='success',
+                                action_type='Add',
+                                object_type='Lenses',
+                                object_ids=[obj.id for obj in pub])
             else:
                 lenses = Lenses.objects.bulk_create(lenses)
                 # Here I need to upload and rename the images accordingly.

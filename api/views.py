@@ -13,6 +13,7 @@ from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializ
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
 
 from guardian.shortcuts import assign_perm
+from actstream import action
 
 import os
 import json
@@ -59,12 +60,27 @@ class UploadLenses(APIView):
                 db_vendor = connection.vendor
                 if db_vendor == 'sqlite':
                     pri = []
+                    pub = []
                     for lens in lenses:
                         lens.save()
                         if lens.access_level == 'PRI':
                             pri.append(lens)
+                        else:
+                            pub.append(lens)
                     if pri:
                         assign_perm('view_lenses',request.user,pri)
+                    if len(pub) > 0:
+                        if len(pub) > 1:
+                            myverb = '%d new Lenses were added.' % len(pub)
+                        else:
+                            myverb = '1 new Lens was added.'
+                        action.send(request.user,
+                                    target=Users.objects.get(username='admin'),
+                                    verb=myverb,
+                                    level='success',
+                                    action_type='Add',
+                                    object_type='Lenses',
+                                    object_ids=[obj.id for obj in pub])
                     #self.make_collection(instances,request.user)
                 else:
                     new_lenses = Lenses.objects.bulk_create(lenses)
@@ -75,6 +91,7 @@ class UploadLenses(APIView):
                             pri.append(lens)
                     if pri:
                         assign_perm('view_lenses',request.user,pri)
+                        
                     #self.make_collection(instances,request.user)
                 response = "Success! Lenses uploaded to the database successfully!"
                 return Response(response)

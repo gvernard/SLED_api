@@ -314,13 +314,29 @@ class LensAddView(TemplateView):
                     db_vendor = connection.vendor
                     if db_vendor == 'sqlite':
                         pri = []
+                        pub = []
                         for lens in instances:
                             lens.save()
                             if lens.access_level == 'PRI':
                                 pri.append(lens)
+                            else:
+                                pub.append(lens)
                         if pri:
                             assign_perm('view_lenses',request.user,pri)
                         self.make_collection(instances,request.user)
+                        # Main activity stream for public lenses
+                        if len(pub) > 0:
+                            if len(pub) > 1:
+                                myverb = '%d new Lenses were added.' % len(pub)
+                            else:
+                                myverb = '1 new Lens was added.'
+                            action.send(request.user,
+                                        target=Users.objects.get(username='admin'),
+                                        verb=myverb,
+                                        level='success',
+                                        action_type='Add',
+                                        object_type='Lenses',
+                                        object_ids=[obj.id for obj in pub])
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         new_lenses = Lenses.objects.bulk_create(instances)
