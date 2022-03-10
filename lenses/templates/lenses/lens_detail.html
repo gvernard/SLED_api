@@ -1,11 +1,41 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load activity_tags %}
 
 
 {% block content %}
 <div>
   <p>{{lens.name}}</p>
 </div>
+
+<div>
+  <p>Activity log</p>
+  {% activity_stream 'target' lens %}
+  {% if stream %}
+  <table>
+    <tbody>
+      {% for action in stream %}
+      <tr>
+	<td>{{ action.timestamp|timesince }} ago</td>
+	<td>{{ action.actor }}</td>
+	<td>{{ action.verb }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  No activity to display
+  {% endif %}
+</div>
+
+<p>
+  Owner: {{ lens.owner }}
+</p>
+<p>
+  Created at: {{ lens.created_at }}
+</p>
+
+
 
 <div>
   <p>SYSTEM INFORMATION</p>

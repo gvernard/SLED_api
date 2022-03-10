@@ -306,6 +306,12 @@ class CedeOwnership(ConfirmationTask):
             objs.update(owner=heir)
             pri = []
             for obj in objs:
+                if object_type != 'SledGroup':
+                    action.send(self.owner,
+                                target=obj,
+                                verb="Changed owner from %s to %s" % (self.owner,heir),
+                                level='success',
+                                action_type='CedeOwnership')
                 if obj.access_level == 'PRI':
                     pri.append(obj)
 
@@ -499,15 +505,25 @@ class ResolveDuplicates(ConfirmationTask):
                 if pri:
                     assign_perm('view_lenses',self.owner,pri)
                 if len(pub) > 0:
-                    if len(pub) > 1:
-                        myverb = '%d new Lenses were added.' % len(pub)
+                    if mode == 'update':
+                        atype = 'Update'
+                        if len(pub) > 1:
+                            myverb = '%d Lenses were updated.' % len(pub)
+                        else:
+                            myverb = '1 Lens was updated.'
                     else:
-                        myverb = '1 new Lens was added.'
-                    action.send(request.user,
-                                target=Users.objects.get(username='admin'),
+                        atype = 'Add'    
+                        if len(pub) > 1:
+                            myverb = '%d new Lenses were added.' % len(pub)
+                        else:
+                            myverb = '1 new Lens was added.'
+                    from . import Users
+                    admin = Users.objects.get(username='admin')
+                    action.send(self.owner,
+                                target=admin,
                                 verb=myverb,
                                 level='success',
-                                action_type='Add',
+                                action_type=atype,
                                 object_type='Lenses',
                                 object_ids=[obj.id for obj in pub])
             else:

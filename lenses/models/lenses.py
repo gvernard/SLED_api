@@ -4,11 +4,15 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
 from django.urls import reverse
 from django.conf import settings
-import os
 
+from dirtyfields import DirtyFieldsMixin
+from actstream import action
+
+import os
 import math
 from astropy import units as u
 from astropy.coordinates import SkyCoord
+import simplejson as json
 
 from . import SingleObject
 
@@ -78,7 +82,7 @@ class ProximateLensManager(models.Manager):
     
     
     
-class Lenses(SingleObject):    
+class Lenses(SingleObject,DirtyFieldsMixin):    
     ra = models.DecimalField(max_digits=7,
                              decimal_places=4,
                              verbose_name="RA",
@@ -183,7 +187,7 @@ class Lenses(SingleObject):
                                    blank=True,
                                    null=True,
                                    choices=SourceTypeChoices)
-
+    #FIELDS_TO_CHECK = [image_conf,lens_type,'source_type']
     
     proximate = ProximateLensManager()
 
@@ -222,9 +226,19 @@ class Lenses(SingleObject):
                 raise ValidationError('The source redshift cannot be lower than the lens redshift.')
 
     def save(self,*args,**kwargs):
+        dirty = self.get_dirty_fields(verbose=True)
+        if len(dirty) > 0:
+            action.send(self.owner,
+                        target=self,
+                        verb="Fields have been updated",
+                        level='success',
+                        action_type='UpdateSingle',
+                        object_type='Lenses',
+                        fields=json.dumps(dirty))
+
 	# Call save first, to create a primary key
         super(Lenses,self).save(*args,**kwargs)
-        
+
         fname = '/'+self.mugshot.name
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
         
@@ -233,7 +247,6 @@ class Lenses(SingleObject):
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.mugshot.name = sled_fname
             super(Lenses,self).save(*args,**kwargs)
-
 
     def __str__(self):
         if self.name:

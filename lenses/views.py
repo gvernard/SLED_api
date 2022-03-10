@@ -410,10 +410,25 @@ class LensUpdateView(TemplateView):
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
 
                 if len(indices) == 0:
+                    pub = []
                     for i,lens in enumerate(instances):
                         if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
                             lens.create_name()
                         lens.save()
+                        if lens.access_level == 'PUB':
+                            pub.append(lens)
+                    if len(pub) > 0:
+                        if len(pub) > 1:
+                            myverb = '%d Lenses were updated.' % len(pub)
+                        else:
+                            myverb = '1 Lens was updated.'
+                        action.send(request.user,
+                                    target=Users.objects.get(username='admin'),
+                                    verb=myverb,
+                                    level='success',
+                                    action_type='Update',
+                                    object_type='Lenses',
+                                    object_ids=[obj.id for obj in pub])
                     message = 'Lenses successfully updated!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:

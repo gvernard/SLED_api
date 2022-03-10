@@ -3,12 +3,15 @@ from django.db import models
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
+import simplejson as json
+
 from . import SingleObject
 
 from notifications.signals import notify
 from actstream import action
+from dirtyfields import DirtyFieldsMixin
 
-class SledGroup(Group,SingleObject):
+class SledGroup(Group,SingleObject,DirtyFieldsMixin):
     """
     The custom SLED model for a group of users, inheriting from the django `Group`.
 
@@ -20,11 +23,6 @@ class SledGroup(Group,SingleObject):
         - Related to the above, it doesn't make sense to have collections of groups, so no need to use the addToCollection, etc, functions.
 
     """
-#    group = models.OneToOneField(Group,
-#                                 on_delete=models.CASCADE,
-#                                 primary_key=True
-#                                 )
-    #owner = models.ForeignKey('Users',on_delete=models.CASCADE) 
     description = models.CharField(max_length=200,null=True, blank=True)
 
     
@@ -37,7 +35,17 @@ class SledGroup(Group,SingleObject):
 
         
     def save(self,*args,**kwargs):
-	# Call save first, to create a primary key
+        dirty = self.get_dirty_fields(verbose=True)
+        if len(dirty) > 0:
+            action.send(self.owner,
+                        target=self,
+                        verb="Fields have been updated",
+                        level='success',
+                        action_type='UpdateSingle',
+                        object_type='SLedGroup',
+                        fields=json.dumps(dirty))
+
+        # Call save first, to create a primary key
         super().save(*args,**kwargs)
         self.user_set.add(self.owner)
 
