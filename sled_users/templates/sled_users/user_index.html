@@ -11,26 +11,18 @@
 
 
 
-<!-- <div class="jb-container">
-  <div class="jb-test-1">
-    <h1 class="jb-heading-1">User Profile</h1>
-  </div>
-  <div class="jb-test-2">
-    <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
-  </div> -->
 
 <div class="jb-container">
   <div class="jb-float-child-1">
-    <h1 class="jb-heading-1">User Profile {{ user.username }}</h1>
+    <h1 class="jb-heading-1">{{ user.username }}</h1>
   </div>
   <div class="jb-float-child-2">
     <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
   </div>
-</div>
 
-<br>
 
-<div class="jb-container">
+  <br>
+
 
   <div>
     <h1 class="jb-heading-2">My Details</h1>
@@ -232,49 +224,51 @@
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Delete lenses
     </button>
+
+    <br></br>
+    <br></br>
   </div>
-</div>
-{% endblock content %}
+  {% endblock content %}
 
 
-{% block extrastyles %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-{% endblock extrastyles %}
+  {% block extrastyles %}
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+  {% endblock extrastyles %}
 
 
-{% block extrascripts %}
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
-<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    $(".sled-process-lenses").click(function() {
+  {% block extrascripts %}
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+  <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+  <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".sled-process-lenses").click(function() {
 
-      // Construct get query string
-      var values = [];
-      $('#exe_summary input[type="checkbox"]:checked').each(function() {
-        values.push('ids=' + $(this).val());
-      });
-
-      if (values.length == 0) {
-        alert('You need to select at least one item!');
-      } else {
-        var get_str = '?' + values.join('&') + '&';
-
-        // Fetch only the first part of the URL (without any GET arguments)
-        var url = $(this).data('form-url').split('?');
-        var url_core = url[0];
-
-        // Trigger modal
-        var new_form_url = url_core + get_str;
-        $(this).modalFormTrigger({
-          formURL: new_form_url,
-          modalID: "#id-modal"
+        // Construct get query string
+        var values = [];
+        $('#exe_summary input[type="checkbox"]:checked').each(function() {
+          values.push('ids=' + $(this).val());
         });
-      }
 
+        if (values.length == 0) {
+          alert('You need to select at least one item!');
+        } else {
+          var get_str = '?' + values.join('&') + '&';
+
+          // Fetch only the first part of the URL (without any GET arguments)
+          var url = $(this).data('form-url').split('?');
+          var url_core = url[0];
+
+          // Trigger modal
+          var new_form_url = url_core + get_str;
+          $(this).modalFormTrigger({
+            formURL: new_form_url,
+            modalID: "#id-modal"
+          });
+        }
+
+      });
     });
-  });
-</script>
-{% endblock extrascripts %}
+  </script>
+  {% endblock extrascripts %}

@@ -2,21 +2,21 @@
 {% load static %}
 
 {% block content %}
-<div class="jb-homepage-container">
+<!-- <div class="jb-homepage-container">
   <p>Welcome to the Strong Lensing Database</p>
   <img src="{% static 'images/JB_Homepage_Grid.png' %}" alt="">
 </div>
 
-<div>
-  <p>Activity stream</p>
+<div class="jb-container">
+  <h1 class="jb-heading-2">Activity Stream</h1>
   {% if stream %}
   <table>
     <tbody>
       {% for action in stream %}
       <tr>
-	<td>{{ action.timestamp|timesince }} ago</td>
-	<td>{{ action.actor }}</td>
-	<td>{{ action.verb }}</td>
+        <td>{{ action.timestamp|timesince }} ago</td>
+        <td>{{ action.actor }}</td>
+        <td>{{ action.verb }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -24,11 +24,40 @@
   {% else %}
   No activity to display
   {% endif %}
-</div>
-
-<div class="jb-container">
+  <br></br>
   <img src="{% static 'images/JB_Homepage_EPFL.png' %}" loading="lazy" width="100" alt="">
   <img src="{% static 'images/JB_Homepage_ERC.png' %}" loading="lazy" width="75" alt="">
   <img src="{% static 'images/JB_Homepage_EU.png' %}" loading="lazy" height="65" alt="">
-</div>
+</div> -->
+
+<section>
+  <div class="jb-container">
+    <div class="jb-homepage-left-text">
+      <h1 class="jb-heading-1">Welcome to the Strong Lensing Database</h1>
+      <h1 class="jb-heading-2">Activity Stream</h1>
+      {% if stream %}
+      <table>
+        <tbody>
+          {% for action in stream %}
+          <tr>
+            <td>{{ action.timestamp|timesince }} ago</td>
+            <td>{{ action.actor }}</td>
+            <td>{{ action.verb }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      No activity to display
+      {% endif %}
+    </div>
+    <div class="jb-homepage-right-image">
+      <img src="{% static 'images/JB_Homepage_Grid.png' %}">
+    </div>
+    <img src="{% static 'images/JB_Homepage_EPFL.png' %}" loading="lazy" width="100" alt="">
+    <img src="{% static 'images/JB_Homepage_ERC.png' %}" loading="lazy" width="75" alt="">
+    <img src="{% static 'images/JB_Homepage_EU.png' %}" loading="lazy" height="65" alt="">
+  </div>
+</section>
+
 {% endblock %}
