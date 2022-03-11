@@ -82,7 +82,7 @@
 
 <div class="jb-container">
   <h1 class="jb-heading-1">Search groups</h1>
-  <form method="POST">
+  <form method="POST" class="jb-form">
     {% csrf_token %}
     {{ form.search_term }}
     <input type="submit" value="Search">
@@ -130,10 +130,10 @@
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $("#create-new-group").modalForm({
-	  formURL: $("#create-new-group").data("form-url"),
-	  modalID: "#id-modal"
-      });
+    $("#create-new-group").modalForm({
+      formURL: $("#create-new-group").data("form-url"),
+      modalID: "#id-modal"
+    });
   });
 </script>
 {% endblock extrascripts %}
