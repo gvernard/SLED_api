@@ -12,110 +12,109 @@
   </div>
 </div>
 
+<div class="jb-container">
+  <h1 class="jb-heading-1">{{ group.name }}</h1>
 
-<h1>{{ group.name }}</h1>
+  <hr>
 
-<hr>
-
-<!-- Div with some information about the group -->
-<div>
-  <p> Description: {{ group.description }}</p>
-  <p> Owner: {{ group.owner }}</p>
-  <p> Number of members: {{ group.user_set.all|length }}</p>
-  <p> Access to private objects: </p>
-</div>
+  <!-- Div with some information about the group -->
+  <div>
+    <p> Description: {{ group.description }}</p>
+    <p> Owner: {{ group.owner }}</p>
+    <p> Number of members: {{ group.user_set.all|length }}</p>
+    <p> Access to private objects: </p>
+  </div>
 
 
-<!-- Div with different actions depending on if the user is owner, member, or neither -->
-<div>
-  {% if user == group.owner %}
-  
-  <button type="button" id="delete-group" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-delete' group.pk %}">
-    <img src="{% static 'icons/trash.svg' %}" alt="trash">
-    Delete
-  </button>
-  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-update' group.pk %}">
-    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-    Update
-  </button>
-  <button type="button" class="sled-modal btn btn-sm btn-danger" data-form-url="{% url 'sled_groups:group-cede-ownership' group.pk %}">
-    <img src="{% static 'icons/trash.svg' %}" alt="trash">
-    Cede ownership
-  </button>
-  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-add-members' group.pk %}">
-    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-    Add members
-  </button>
-  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-remove-members' group.pk %}">
-    <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-    Remove members
-  </button>
+  <!-- Div with different actions depending on if the user is owner, member, or neither -->
+  <div>
+    {% if user == group.owner %}
 
-  {% elif request.user|has_group:group.name %}
-  
-  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_groups:group-leave' group.pk %}">
-    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-    Leave group
-  </button>
-  
-  {% else %}
+    <button type="button" id="delete-group" class="jb-button-1" data-form-url="{% url 'sled_groups:group-delete' group.pk %}">
+      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      Delete
+    </button>
+    <button type="button" class="jb-button-1" data-form-url="{% url 'sled_groups:group-update' group.pk %}">
+      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      Update
+    </button>
+    <button type="button" class="jb-button-1" data-form-url="{% url 'sled_groups:group-cede-ownership' group.pk %}">
+      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      Cede ownership
+    </button>
+    <button type="button" class="jb-button-1" data-form-url="{% url 'sled_groups:group-add-members' group.pk %}">
+      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      Add members
+    </button>
+    <button type="button" class="jb-button-1" data-form-url="{% url 'sled_groups:group-remove-members' group.pk %}">
+      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+      Remove members
+    </button>
 
-  <button type="button" id="ask-to-join-group" class="jb-button-1" data-form-url="{% url 'sled_groups:group-ask-to-join' group.id %}">
-    Join
-  </button>
+    {% elif request.user|has_group:group.name %}
 
-  {% endif %}
-</div>
+    <button type="button" class="jb-button-1" data-form-url="{% url 'sled_groups:group-leave' group.pk %}">
+      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      Leave group
+    </button>
 
-<hr>
+    {% else %}
+
+    <button type="button" id="ask-to-join-group" class="jb-button-1" data-form-url="{% url 'sled_groups:group-ask-to-join' group.id %}">
+      Join
+    </button>
+
+    {% endif %}
+  </div>
 
 
 
-<!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
-{% if user == group.owner or request.user|has_group:group.name %}
-<div>
-  <p>Activity stream</p>
-  {% activity_stream 'target' group %}
-  {% if stream %}
-  <table>
-    <tbody>
-      {% for action in stream %}
+
+  <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
+  {% if user == group.owner or request.user|has_group:group.name %}
+  <div>
+    <h1 class="jb-heading-2">Activity Stream</h1>
+    {% activity_stream 'target' group %}
+    {% if stream %}
+    <table>
+      <tbody>
+        {% for action in stream %}
+        <tr>
+          <td>{{ action.timestamp|timesince }} ago</td>
+          <td>{{ action.actor }}</td>
+          <td>{{ action.verb }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    No activity to display
+    {% endif %}
+  </div>
+
+
+  <div>
+    <h1 class="jb-heading-2">List of Group Members</h1>
+    <table>
       <tr>
-	<td>{{ action.timestamp|timesince }} ago</td>
-	<td>{{ action.actor }}</td>
-	<td>{{ action.verb }}</td>
+        <th>Name</th>
+        <th>Affiliation</th>
+      </tr>
+      {% for user in group.getAllMembers %}
+      <tr>
+        <td>{{user.username}}</td>
+        <td>{{user.affiliation}}</td>
       </tr>
       {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  No activity to display
+    </table>
+  </div>
+
+
+  <h1 class="jb-heading-2">List group access to various object types and collections</h1>
   {% endif %}
+  <br></br>
+  <br></br>
 </div>
-
-
-<div>
-  <p>List of group members</p>
-  <table>
-    <tr>
-      <th>Name</th>
-      <th>Affiliation</th>
-    </tr>
-    {% for user in group.getAllMembers %}
-    <tr>
-      <td>{{user.username}}</td>
-      <td>{{user.affiliation}}</td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-
-<hr>
-
-<p>  
-  List group access to various object types and collections
-</p>
-{% endif %}
 
 {% endblock content %}
 
@@ -132,26 +131,26 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
-  $(document).ready(function(){
+  $(document).ready(function() {
 
-      // Modals
-      $('#delete-group').modalForm({
- 	  formURL: $('#delete-group').data("form-url"),
- 	  modalID: "#id-modal",
- 	  isDeleteForm: true
-      });
-      
-      $(".sled-modal").each(function(){
-	  $(this).modalForm({
-              formURL: $(this).data("form-url"),
- 	      modalID: "#id-modal"
-	  });
-      });
+    // Modals
+    $('#delete-group').modalForm({
+      formURL: $('#delete-group').data("form-url"),
+      modalID: "#id-modal",
+      isDeleteForm: true
+    });
 
-      $("#ask-to-join-group").modalForm({
-	  formURL: $("#ask-to-join-group").data("form-url"),
-	  modalID: "#id-modal"
+    $(".sled-modal").each(function() {
+      $(this).modalForm({
+        formURL: $(this).data("form-url"),
+        modalID: "#id-modal"
       });
+    });
+
+    $("#ask-to-join-group").modalForm({
+      formURL: $("#ask-to-join-group").data("form-url"),
+      modalID: "#id-modal"
+    });
   });
 </script>
 {% endblock extrascripts %}

@@ -11,119 +11,116 @@
   </div>
 </div>
 
+<div class="jb-container">
+  <h1 class="jb-heading-1">{{ collection.name }}</h1>
 
-<h1>{{ collection.name }}</h1>
 
-<hr>
+  <!-- Div with some information about the collection and different actions for users or the owner -->
+  <div>
+    <p>Owner: {{ collection.owner }}</p>
+    <p>Item type: {{ collection.item_type }}</p>
+    <p>Description: {{ collection.description }}</p>
+    <p>Access level: {{ collection.access_level }}</p>
 
-<!-- Div with some information about the collection and different actions for users or the owner -->
-<div>
-  <p>Owner: {{ collection.owner }}</p>
-  <p>Item type: {{ collection.item_type }}</p>
-  <p>Description: {{ collection.description }}</p>
-  <p>Access level: {{ collection.access_level }}</p>
-
-  {% if collection.owner == user %}
-  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
-    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-    Update
-  </button>
-  <button type="button" id="delete-collection" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
-    <img src="{% static 'icons/trash.svg' %}" alt="trash">
-    Delete
-  </button>
-  <button type="button" class="sled-modal btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
-    <img src="{% static 'icons/trash.svg' %}" alt="trash">
-    Cede ownership
-  </button>
-  
-  {% if collection.access_level == 'PRI' %}
-  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
-    <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-    Revoke access
-  </button>
-  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}">
-    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-    Give access
-  </button>
-  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-make-public' collection.pk %}">
-    <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-    Make public
-  </button>
-  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-view-access' collection.pk %}">
-    <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-    View Access
-  </button>
-  {% endif %}
-  
-  {% endif %}
-</div>
-
-<hr>
-
-{% if collection.access_level == 'PRI' %}
-{% if collection.owner == user %}
-<div>
-  <h3>Access to the collection:</h3>
-  <p>Users:</p>
-  {{ collection.getUsersWithAccessNoOwner|join:"," }}
-  <p>Groups:</p>
-  {{ collection.getGroupsWithAccessNoOwner|join:"," }}
-</div>
-{% else %}
-<div>
-  <h3>Access to the collection:</h3>
-  <p>
-    You can access <strong>{{ accessible_items|length }}</strong> out of <strong>{{ collection.myitems.all|length }}</strong> items in the collection.
-  </p>
-  {% if accessible_items|length != collection.myitems.all|length %}
-  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-ask-access' collection.pk %}">
-    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-    Ask access
-  </button>
-  {% endif %}
-</div>
-{% endif %}
-{% endif %}
-
-<!-- List of items in the collection -->
-<div>
-  <h3>Items in the collection:</h3>
-  <form id="ids-form" method="POST">
-    {% csrf_token %}
-    <input type="hidden" name="collection_id" id="collection_id" value="{{ collection.id }}">
-    <span class="errorlist">{{ error_message }}</span>
-    {% if collection.item_type == 'Lenses' %}
-    {% if  collection.owner == user %}
-    {% include "lenses/lens_list_executive.html" with lenses=accessible_items  %}
-    {% else %}
-    {% include "lenses/lens_list_passive.html" with lenses=accessible_items  %}
-    {% endif %}
-    {% else %}
-    <p> Unknown item type </p>
-    {% endif %}
-  </form>
-</div>
-
-<hr>
-
-<!-- Actions for the collection owner -->
-{% if  collection.owner == user %}
-<div>
-  <form id="add-items-form" action="{% url 'lenses:lens-query' %}">
-    <button type="submit" form="add-items-form" class="btn btn-sm btn-primary" >
-      <img src="{% static 'icons/plus.svg' %}" alt="plus">
-      Add items
+    {% if collection.owner == user %}
+    <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
+      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      Update
     </button>
-  </form>
-  <button type="button" id="remove-items" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-remove-items' collection.pk %}">
-    <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-    Remove selected
-  </button>
-</div>
-{% endif %}
+    <button type="button" id="delete-collection" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
+      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      Delete
+    </button>
+    <button type="button" class="sled-modal btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
+      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      Cede ownership
+    </button>
 
-<hr>
+    {% if collection.access_level == 'PRI' %}
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
+      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+      Revoke access
+    </button>
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}">
+      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      Give access
+    </button>
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-make-public' collection.pk %}">
+      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+      Make public
+    </button>
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-view-access' collection.pk %}">
+      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+      View Access
+    </button>
+    {% endif %}
+
+    {% endif %}
+  </div>
+
+
+  {% if collection.access_level == 'PRI' %}
+  {% if collection.owner == user %}
+  <div>
+    <h1 class="jb-heading-2">Access to the Collection</h1>
+    <p>Users:</p>
+    {{ collection.getUsersWithAccessNoOwner|join:"," }}
+    <p>Groups:</p>
+    {{ collection.getGroupsWithAccessNoOwner|join:"," }}
+  </div>
+  {% else %}
+  <div>
+    <h1 class="jb-heading-2">Access to the Collection</h1>
+    <p>
+      You can access <strong>{{ accessible_items|length }}</strong> out of <strong>{{ collection.myitems.all|length }}</strong> items in the collection.
+    </p>
+    {% if accessible_items|length != collection.myitems.all|length %}
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-ask-access' collection.pk %}">
+      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      Ask access
+    </button>
+    {% endif %}
+  </div>
+  {% endif %}
+  {% endif %}
+
+  <!-- List of items in the collection -->
+  <div>
+    <h1 class="jb-heading-2">Items in the Collection</h1>
+    <form id="ids-form" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="collection_id" id="collection_id" value="{{ collection.id }}">
+      <span class="errorlist">{{ error_message }}</span>
+      {% if collection.item_type == 'Lenses' %}
+      {% if  collection.owner == user %}
+      {% include "lenses/lens_list_executive.html" with lenses=accessible_items  %}
+      {% else %}
+      {% include "lenses/lens_list_passive.html" with lenses=accessible_items  %}
+      {% endif %}
+      {% else %}
+      <p> Unknown item type </p>
+      {% endif %}
+    </form>
+  </div>
+
+  <!-- Actions for the collection owner -->
+  {% if  collection.owner == user %}
+  <div>
+    <form id="add-items-form" action="{% url 'lenses:lens-query' %}">
+      <button type="submit" form="add-items-form" class="btn btn-sm btn-primary">
+        <img src="{% static 'icons/plus.svg' %}" alt="plus">
+        Add items
+      </button>
+    </form>
+    <button type="button" id="remove-items" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-remove-items' collection.pk %}">
+      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      Remove selected
+    </button>
+  </div>
+  {% endif %}
+  <br></br>
+  <br></br>
+</div>
 {% endblock content %}
 
 
@@ -139,47 +136,47 @@
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $("#delete-collection").modalForm({
-	  formURL: $("#delete-collection").data("form-url"),
-	  modalID: "#id-modal",
-	  isDeleteForm: true
+    $("#delete-collection").modalForm({
+      formURL: $("#delete-collection").data("form-url"),
+      modalID: "#id-modal",
+      isDeleteForm: true
+    });
+
+    $(".sled-modal").each(function() {
+      $(this).modalForm({
+        formURL: $(this).data("form-url"),
+        modalID: "#id-modal"
+      });
+    });
+
+    $("#remove-items").click(function() {
+
+      // Construct get query string
+      var values = [];
+      $('#exe_summary input[type="checkbox"]:checked').each(function() {
+        values.push('ids=' + $(this).val());
       });
 
-      $(".sled-modal").each(function(){
-	  $(this).modalForm({
-              formURL: $(this).data("form-url"),
- 	      modalID: "#id-modal"
-	  });
-      });
+      if (values.length == 0) {
+        alert('You need to select at least one item!');
+      } else {
+        var get_str = '?' + values.join('&') + '&';
 
-      $("#remove-items").click(function() {
-	  
-	  // Construct get query string
-	  var values = [];
-	  $('#exe_summary input[type="checkbox"]:checked').each(function() {
-              values.push('ids=' + $(this).val());
-	  });
-	  
-	  if (values.length == 0) {
-              alert('You need to select at least one item!');
-	  } else {
-              var get_str = '?' + values.join('&') + '&';
-	      
-              // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
-	      
-              // Trigger modal
-              var new_form_url = url_core + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-	  }
-	  
-      });
+        // Fetch only the first part of the URL (without any GET arguments)
+        var url = $(this).data('form-url').split('?');
+        var url_core = url[0];
 
-      $('#toggle_all').remove();
+        // Trigger modal
+        var new_form_url = url_core + get_str;
+        $(this).modalFormTrigger({
+          formURL: new_form_url,
+          modalID: "#id-modal"
+        });
+      }
+
+    });
+
+    $('#toggle_all').remove();
   });
 </script>
 {% endblock extrascripts %}
