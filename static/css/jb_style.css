@@ -57,14 +57,12 @@
     color: #000;
     font-size: 20px;
     text-decoration: none;
-    padding: 5px;
     margin-left: 40px;
   }
 
   .jb-navbar-login {
     color: #ACACAC !important;
-    margin-left: 40px;
-    float: right;
+    float: right
   }
 
   .jb-nav-brand {
@@ -90,6 +88,7 @@
     font-size: 25px;
     line-height: 50px;
     font-weight: 500;
+    padding-top: 20px;
   }
 
   .jb-heading-3 {
@@ -143,8 +142,8 @@
     display: inline;
     min-width: 125px;
     margin-top: 20px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     clear: none;
     background-color: #6F73DD;
     color: #FFFFFF;
@@ -178,6 +177,7 @@
   .jb-form {
     margin: 0 0 15px;
     color: #fff;
+    padding-top: 10px;
   }
 
   .jb-form-done {
@@ -298,4 +298,23 @@
     background-color: #6F73DD;
     color: #FFFFFF;
     font-size: 15px;
+  }
+
+  /* .main-topic {
+    display: table;
+    margin: 0 auto;
+  } */
+  .jb-homepage-left-text {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+  .jb-homepage-right-image {
+    display: table-cell;
+    padding-left: 45px;
+    padding-top: 75px;
+  }
+
+  .jb-homepage-right-image>img {
+    display: block;
   }
