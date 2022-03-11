@@ -10,130 +10,134 @@
   </div>
 </div>
 
-<p>
-  LENS QUERY PAGE
-</p>
+<div class="jb-container">
+  <h1 class="jb-heading-1">Query Lenses</h1>
 
-<div>
-  <form id="lens-query" method="POST">
-    {% csrf_token %}
+  <div>
+    <form id="lens-query" method="POST">
+      {% csrf_token %}
 
-    <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
-      {% for error in form.non_field_errors %}
-      {{ error }}
-      {% endfor %}
-    </div>
-    
-    <table>
-      <tr>
-	
-	<td>
-	  <table>
-	    <tr>
-	      <td>{{ form.ra_min.errors }}</td>
-	      <td>{{ form.ra_min }}</td>
-	      <td> &lt; R.A. &lt; </td>
-	      <td>{{ form.ra_max }}</td>
-	      <td>{{ form.ra_max.errors }}</td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.dec_min.errors }}</td>
-	      <td>{{ form.dec_min }}</td>
-	      <td> &lt; Dec. &lt; </td>
-	      <td>{{ form.dec_max }}</td>
-	      <td>{{ form.dec_max.errors }}</td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.n_img_min.errors }}</td>
-	      <td>{{ form.n_img_min }}</td>
-	      <td> &lt; Number of images &lt; </td>
-	      <td>{{ form.n_img_max }}</td>
-	      <td>{{ form.n_img_max.errors }}</td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.image_sep_min.errors }}</td>
-	      <td>{{ form.image_sep_min }}</td>
-	      <td> &lt; Image separation &lt; </td>
-	      <td>{{ form.image_sep_max }}</td>
-	      <td>{{ form.image_sep_max.errors }}</td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.z_lens_min.errors }}</td>
-	      <td>{{ form.z_lens_min }}</td>
-	      <td> &lt; Lens Redshift &lt; </td>
-	      <td>{{ form.z_lens_max }}</td>
-	      <td>{{ form.z_lens_max.errors }}</td>
-	    </tr>
-	    <tr>
-	      <td>{{ form.z_source_min.errors }}</td>
-	      <td>{{ form.z_source_min }}</td>
-	      <td> &lt; Source redshift &lt; </td>
-	      <td>{{ form.z_source_max }}</td>
-	      <td>{{ form.z_source_max.errors }}</td>
-	    </tr>
-	  </table>
-	</td>
-	
-	<td>
-	  <table>
-	    <tr>
-	      <td>Confirmed Lens?</td>
-	      <td>{{ form.flag_confirmed }}</td>
-	    </tr>
-	    <tr>
-	      <td>Not Confirmed Lens? </td>
-	      <td>{{ form.flag_unconfirmed }}</td>
-	    </tr>
-	    <tr>
-	      <td>Confirmed Contaminant?</td>
-	      <td>{{ form.flag_contaminant }}</td>
-	    </tr>
-	    <tr>
-	      <td>Not Confirmed Contaminant?</td>
-	      <td>{{ form.flag_uncontaminant }}</td>
-	    </tr>
-	    <tr>
-	      <td>Lens Type</td>
-	      <td>{{ form.lens_type }}</td>
-	    </tr>
-	    <tr>
-	      <td>Source Type</td>
-	      <td>{{ form.source_type }}</td>
-	    </tr>
-	    <tr>
-	      <td>Configuration</td>
-	      <td>{{ form.image_conf }}</td>
-	    </tr>
-	  </table>
-	</td>
-	
-      </tr>
-    </table>
-  </form>
-  <button type="submit" form="lens-query">Submit</button>
-  <button type="button" id="save-query"  class="jb-submit-button-1" data-form-url="{% url 'sled_queries:query-save' %}">
-    <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
-    Save query
-  </button>
-</div>
+      <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
+        {% for error in form.non_field_errors %}
+        {{ error }}
+        {% endfor %}
+      </div>
 
-<div>
-  <form id="ids-form" method="POST">
-    {% csrf_token %}
-    {% include "lenses/lens_list_executive.html" with lenses=lenses %}    
-  </form>
-</div>
+      <table>
+        <tr>
 
-<div>
-  <button type="submit" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
-  <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
-    <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
-    Make collection
-  </button>
-  <button type="button" id="add-to-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-add-items' 'Lenses' %}">
-    <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
-    Add to collection
-  </button>
+          <td>
+            <table>
+              <tr>
+                <td>{{ form.ra_min.errors }}</td>
+                <td>{{ form.ra_min }}</td>
+                <td> &lt; R.A. &lt; </td>
+                <td>{{ form.ra_max }}</td>
+                <td>{{ form.ra_max.errors }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.dec_min.errors }}</td>
+                <td>{{ form.dec_min }}</td>
+                <td> &lt; Dec. &lt; </td>
+                <td>{{ form.dec_max }}</td>
+                <td>{{ form.dec_max.errors }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.n_img_min.errors }}</td>
+                <td>{{ form.n_img_min }}</td>
+                <td> &lt; Number of images &lt; </td>
+                <td>{{ form.n_img_max }}</td>
+                <td>{{ form.n_img_max.errors }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.image_sep_min.errors }}</td>
+                <td>{{ form.image_sep_min }}</td>
+                <td> &lt; Image separation &lt; </td>
+                <td>{{ form.image_sep_max }}</td>
+                <td>{{ form.image_sep_max.errors }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.z_lens_min.errors }}</td>
+                <td>{{ form.z_lens_min }}</td>
+                <td> &lt; Lens Redshift &lt; </td>
+                <td>{{ form.z_lens_max }}</td>
+                <td>{{ form.z_lens_max.errors }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.z_source_min.errors }}</td>
+                <td>{{ form.z_source_min }}</td>
+                <td> &lt; Source redshift &lt; </td>
+                <td>{{ form.z_source_max }}</td>
+                <td>{{ form.z_source_max.errors }}</td>
+              </tr>
+            </table>
+          </td>
+
+          <td>
+            <table>
+              <tr>
+                <td>Confirmed Lens?</td>
+                <td>{{ form.flag_confirmed }}</td>
+              </tr>
+              <tr>
+                <td>Not Confirmed Lens? </td>
+                <td>{{ form.flag_unconfirmed }}</td>
+              </tr>
+              <tr>
+                <td>Confirmed Contaminant?</td>
+                <td>{{ form.flag_contaminant }}</td>
+              </tr>
+              <tr>
+                <td>Not Confirmed Contaminant?</td>
+                <td>{{ form.flag_uncontaminant }}</td>
+              </tr>
+              <tr>
+                <td>Lens Type</td>
+                <td>{{ form.lens_type }}</td>
+              </tr>
+              <tr>
+                <td>Source Type</td>
+                <td>{{ form.source_type }}</td>
+              </tr>
+              <tr>
+                <td>Configuration</td>
+                <td>{{ form.image_conf }}</td>
+              </tr>
+            </table>
+          </td>
+
+        </tr>
+      </table>
+    </form>
+    <button type="submit" class="jb-submit-button-1" form="lens-query">Submit</button>
+    <button type="button" id="save-query" class="jb-submit-button-1" data-form-url="{% url 'sled_queries:query-save' %}">
+      <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+      Save query
+    </button>
+  </div>
+
+  <br></br>
+
+  <div>
+    <form id="ids-form" method="POST">
+      {% csrf_token %}
+      {% include "lenses/lens_list_executive.html" with lenses=lenses %}
+    </form>
+  </div>
+
+  <div>
+    <button type="submit" form="ids-form" class="sled-process-lenses jb-submit-button-1" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
+    <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
+      <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+      Make collection
+    </button>
+    <button type="button" id="add-to-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-add-items' 'Lenses' %}">
+      <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+      Add to collection
+    </button>
+  </div>
+  <br></br>
+  <br></br>
 </div>
 {% endblock content %}
 
@@ -149,62 +153,62 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $('.my-select2').each(function(index, element) {
-          $(element).attr('multiple', 'multiple');
-          $(element).find('option')[0].remove();
-      });
-      $('.my-select2').select2({
-          multiple: true,
-          placeholder: 'Select an option'
-      });
-      
-      $("#save-query").click(function(){
-	  // Check that the query form is not empty
-	  var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains
-	  var get_str = myjson.replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
+    $('.my-select2').each(function(index, element) {
+      $(element).attr('multiple', 'multiple');
+      $(element).find('option')[0].remove();
+    });
+    $('.my-select2').select2({
+      multiple: true,
+      placeholder: 'Select an option'
+    });
 
-	  if( get_str.length == 0 ){
-              alert('Query does not have any parameters!');
-	  } else {
-	      // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
-	      
-              // Trigger modal
-              var new_form_url = url_core + '?' + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-	  }
+    $("#save-query").click(function() {
+      // Check that the query form is not empty
+      var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains
+      var get_str = myjson.replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
 
+      if (get_str.length == 0) {
+        alert('Query does not have any parameters!');
+      } else {
+        // Fetch only the first part of the URL (without any GET arguments)
+        var url = $(this).data('form-url').split('?');
+        var url_core = url[0];
+
+        // Trigger modal
+        var new_form_url = url_core + '?' + get_str;
+        $(this).modalFormTrigger({
+          formURL: new_form_url,
+          modalID: "#id-modal"
+        });
+      }
+
+    });
+
+    $(".sled-process-lenses").click(function() {
+      // Construct get query string
+      var values = [];
+      $('#exe_summary input[type="checkbox"]:checked').each(function() {
+        values.push('ids=' + $(this).val());
       });
-      
-      $(".sled-process-lenses").click(function(){
-	  // Construct get query string
-	  var values = [];
-	  $('#exe_summary input[type="checkbox"]:checked').each(function() {
-              values.push('ids=' + $(this).val());
-	  });
-	  
-	  if( values.length == 0 ){
-              alert('You need to select at least one item!');
-	  } else {
-              var get_str = '?' + values.join('&') + '&';
-	      
-              // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
-	      
-              // Trigger modal
-              var new_form_url = url_core + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-	  }
-      });
-      
+
+      if (values.length == 0) {
+        alert('You need to select at least one item!');
+      } else {
+        var get_str = '?' + values.join('&') + '&';
+
+        // Fetch only the first part of the URL (without any GET arguments)
+        var url = $(this).data('form-url').split('?');
+        var url_core = url[0];
+
+        // Trigger modal
+        var new_form_url = url_core + get_str;
+        $(this).modalFormTrigger({
+          formURL: new_form_url,
+          modalID: "#id-modal"
+        });
+      }
+    });
+
   });
 </script>
 {% endblock extrascripts %}
