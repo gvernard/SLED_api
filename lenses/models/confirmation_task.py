@@ -322,15 +322,15 @@ class CedeOwnership(ConfirmationTask):
 
                 if object_type != 'SledGroup':
                     # Notify users with access
-                    users_with_access,accessible_objects = self.owner.accessible_per_other(pri,'users')
+                    users_with_access,accessible_objects = heir.accessible_per_other(pri,'users')
                     for i,user in enumerate(users_with_access):
                         obj_ids = []
                         for j in accessible_objects[i]:
-                            obj_ids.append(target_objs[j].id)
+                            obj_ids.append(pri[j].id)
                         if len(obj_ids) > 1:
-                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
                         else:
-                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())    
+                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name.title())    
                         notify.send(sender=self.owner,
                                     recipient=user,
                                     verb=myverb,
@@ -341,17 +341,17 @@ class CedeOwnership(ConfirmationTask):
                                     object_ids=obj_ids)
                         
                     # Notify groups with access
-                    groups_with_access,accessible_objects = self.accessible_per_other(target_objs,'groups')
+                    groups_with_access,accessible_objects = heir.accessible_per_other(pri,'groups')
                     id_list = [g.id for g in groups_with_access]
                     gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
                     for i,group in enumerate(groups_with_access):
                         obj_ids = []
                         for j in accessible_objects[i]:
-                            obj_ids.append(target_objs[j].id)
+                            obj_ids.append(pri[j].id)
                         if len(obj_ids) > 1:
-                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name_plural.title())
+                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
                         else:
-                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),accessible_objects[0]._meta.verbose_name.title())    
+                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name.title())    
                         action.send(self.owner,
                                     target=gwa[i],
                                     verb=myverb,

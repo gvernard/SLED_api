@@ -1,5 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load activity_tags %}
 
 
 {% block content %}
@@ -59,7 +60,27 @@
   {% endif %}
 </div>
 
-<hr>
+
+<div>
+  <p>Activity stream</p>
+  {% activity_stream 'target' collection %}
+  {% if stream %}
+  <table>
+    <tbody>
+      {% for action in stream %}
+      <tr>
+	<td>{{ action.timestamp|timesince }} ago</td>
+	<td>{{ action.actor }}</td>
+	<td>{{ action.verb }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  No activity to display
+  {% endif %}
+</div>
+
 
 {% if collection.access_level == 'PRI' %}
 {% if collection.owner == user %}

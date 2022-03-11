@@ -42,7 +42,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
                         verb="Fields have been updated",
                         level='success',
                         action_type='UpdateSingle',
-                        object_type='SLedGroup',
+                        object_type='SledGroup',
                         fields=json.dumps(dirty))
 
         # Call save first, to create a primary key

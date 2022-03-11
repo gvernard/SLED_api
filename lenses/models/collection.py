@@ -8,18 +8,21 @@ from django.db.models import F
 
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
-
 from gm2m import GM2MField
 from notifications.signals import notify
-import inspect
+import simplejson as json
+from actstream import action
+from dirtyfields import DirtyFieldsMixin
 
+import inspect
 from itertools import groupby
 from operator import itemgetter
 
 from . import SingleObject
 
 
-class Collection(SingleObject):
+
+class Collection(SingleObject,DirtyFieldsMixin):
     """
     Describes collections of SingleObjects, e.g. lenses, through a many-to-many relationship.
 
@@ -53,6 +56,20 @@ class Collection(SingleObject):
         verbose_name_plural = "collections"
         ordering = ["modified_at"]
         # Constrain the number of objects in a collection?
+
+        
+    def save(self,*args,**kwargs):
+        dirty = self.get_dirty_fields(verbose=True)
+        if len(dirty) > 0:
+            action.send(self.owner,
+                        target=self,
+                        verb="Fields have been updated",
+                        level='success',
+                        action_type='UpdateSingle',
+                        object_type='Collection',
+                        fields=json.dumps(dirty))
+
+        super().save(*args,**kwargs)
 
         
     def __str__(self):
@@ -211,9 +228,17 @@ class Collection(SingleObject):
             
     def finalizeAddItems(self,user,objects):
         self.myitems.add(*objects)        
-        # Post to the collection's activity stream
+
+        action.send(self.owner,
+                    target=self,
+                    verb="Items added to the colletion.",
+                    level='success',
+                    action_type='AddedToCollection',
+                    object_type=objects[0]._meta.model.__name__,
+                    object_ids=[obj.id for obj in objects])
+
         # Return the number of inserted items
-        response = {"status":"ok"}
+        response = {"status":"ok","N_added":len(objects)}
         return response
 
     
@@ -241,8 +266,15 @@ class Collection(SingleObject):
         
         self.myitems.remove(*objects)
         N_removed = objects.count()
-        # Post to the activity stream
-        # Return the number of removed items
+
+        action.send(self.owner,
+                    target=self,
+                    verb="Items removed from the colletion.",
+                    level='success',
+                    action_type='RemovedFromCollection',
+                    object_type=objects[0]._meta.model.__name__,
+                    object_ids=[obj.id for obj in objects])
+
         response = {"status":"ok","N_removed":N_removed}
         return response
 
