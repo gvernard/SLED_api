@@ -1,7 +1,7 @@
 {% extends 'master_header.html' %}
 {% load static %}
 {% load activity_tags %}
-
+{% load lenses_extras %}
 
 {% block content %}
 
@@ -115,11 +115,7 @@
     <input type="hidden" name="collection_id" id="collection_id" value="{{ collection.id }}">
     <span class="errorlist">{{ error_message }}</span>
     {% if collection.item_type == 'Lenses' %}
-    {% if  collection.owner == user %}
-    {% include "lenses/lens_list_executive.html" with lenses=accessible_items  %}
-    {% else %}
-    {% include "lenses/lens_list_passive.html" with lenses=accessible_items  %}
-    {% endif %}
+    {% include "lenses/lens_list_collection.html" with lenses=accessible_items  %}
     {% else %}
     <p> Unknown item type </p>
     {% endif %}

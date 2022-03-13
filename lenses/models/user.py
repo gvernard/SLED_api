@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, CharField
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse
 from django.utils import timezone
@@ -16,13 +16,27 @@ from operator import itemgetter
 from itertools import groupby
 import inspect
 
-from . import SledGroup
-from . import SingleObject
-from . import ConfirmationTask
-from . import Collection
+from . import SledGroup, SingleObject, ConfirmationTask, Collection
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask","Collection"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+
+
+from django.db.models import Aggregate
+
+class MyConcat(Aggregate):
+    function = 'GROUP_CONCAT'
+    template = '%(function)s(%(distinct)s%(expressions)s)'
+
+    def __init__(self, expression, distinct=False, **extra):
+        super(MyConcat, self).__init__(
+            expression,
+            distinct='DISTINCT ' if distinct else '',
+            output_field=CharField(),
+            **extra)
+
+
+
 
 
 class Users(AbstractUser,GuardianUserMixin):
@@ -223,7 +237,7 @@ class Users(AbstractUser,GuardianUserMixin):
         # User owns all objects, proceed with revoking access
         perm = "view_"+objects[0]._meta.db_table
 
-        # first loop over the target_users
+        # Loop over the target_users
         for user in target_users:
             # fetch permissions for all the objects for the given user (just 1 query)
             checker = ObjectPermissionChecker(user)
@@ -236,7 +250,7 @@ class Users(AbstractUser,GuardianUserMixin):
                     revoked_objects_per_user_ids.append(obj.id)
             # if there are objects for which this user had permissions just revoked, create a notification
             if len(revoked_objects_per_user_ids) > 0:
-                remove_perm(perm,user,model_ref.accessible_objects.filter(id__in=revoked_objects_per_user_ids)) # (just 1 query)
+                revoked_objects_per_user = model_ref.accessible_objects.filter(id__in=revoked_objects_per_user_ids)
                 if isinstance(user,Users):
                     if len(revoked_objects_per_user_ids) > 1:
                         myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name_plural.title())
@@ -263,6 +277,47 @@ class Users(AbstractUser,GuardianUserMixin):
                                 object_type=object_type,
                                 object_ids=revoked_objects_per_user_ids)
 
+                # Check collections: every collection owner must have access to all the objects in the collection.
+                # So, if access from user was revoked, check if they own a collection that contains the object and remove it from there.
+                obj_col_ids = list(revoked_objects_per_user.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
+                if len(obj_col_ids) > 0:
+                
+                    all_cols = list(Collection.accessible_objects.owned(user))
+                    all_cols_ids = [col.id for col in all_cols]
+                
+                    pairs = [] 
+                    for tmp in obj_col_ids:
+                        for col_id in tmp['col_ids'].split(','):
+                            col_index = all_cols_ids.index(int(col_id))
+                            pairs.append((tmp['id'],col_index))
+                    col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
+                    #print(col_index_obj_ids)
+
+                    final_col_ids = []
+                    for i in range(0,len(col_index_obj_ids)):
+                        #print(all_cols[i],col_index_obj_ids[i])
+                        to_remove = model_ref.accessible_objects.in_ids(user,col_index_obj_ids[i])
+                        all_cols[i].removeItems(user,to_remove)
+                        final_col_ids.append(all_cols[i].id)
+                    #print(final_col_ids)                    
+
+                    if len(final_col_ids) > 1:
+                        myverb = 'Private objects removed from %d collections that you own.' % len(final_col_ids)
+                    else:
+                        myverb = 'Private objects removed from 1 collection that you own.'
+                    notify.send(sender=self,
+                                recipient=user,
+                                verb=myverb,
+                                level='error',
+                                timestamp=timezone.now(),
+                                note_type='RemovedFromCollection',
+                                object_type='Collection',
+                                object_ids=final_col_ids)
+
+                # Finally remove the permissions    
+                remove_perm(perm,user,revoked_objects_per_user) # (just 1 query)
+            
+                    
     def accessible_per_other(self,objects,mode):
         """
         Given a list of PRIVATE objects OWNED by the user, this function finds who else has access to them.
