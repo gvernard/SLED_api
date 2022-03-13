@@ -5,7 +5,7 @@ from django.core.mail import send_mail
 from django.core import serializers
 from django.urls import reverse
 from django import forms
-from django.db.models import Q,F,Count
+from django.db.models import Q,F,Count,CharField
 from django.apps import apps
 from django.conf import settings
 
@@ -20,6 +20,20 @@ import os
 
 from . import SingleObject, Collection, SledGroup
 
+
+
+from django.db.models import Aggregate
+
+class MyConcat(Aggregate):
+    function = 'GROUP_CONCAT'
+    template = '%(function)s(%(distinct)s%(expressions)s)'
+    
+    def __init__(self, expression, distinct=False, **extra):
+        super(MyConcat, self).__init__(
+            expression,
+            distinct='DISTINCT ' if distinct else '',
+            output_field=CharField(),
+            **extra)
 
 
 
@@ -198,6 +212,8 @@ class ConfirmationTask(SingleObject):
         if response not in self.allowed_responses(): 
             raise ValueError(response) # Need custom exception here
         self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response=response,response_comment=comment,created_at=timezone.now())
+        self.finalizeTask()
+        self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response='',response_comment=comment)
         
 
     def registerAndCheck(self,user,response,comment):
@@ -258,7 +274,7 @@ class DeleteObject(ConfirmationTask):
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             #getattr(.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
-            apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
+            objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             notify.send(sender=admin,
                         recipient=self.owner,
                         verb='Your request to delete public objects was accepted.',
@@ -267,6 +283,19 @@ class DeleteObject(ConfirmationTask):
                         note_type='DeleteObjects',
                         object_type=self._meta.model.__name__,
                         object_ids=[self.id])
+
+            if self.cargo['object_type'] != 'Collection':
+                col_ids = objs.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
+                cleaned = []
+                for mystr in col_ids:
+                    for id in mystr.split(','):
+                        cleaned.append(id)
+                users = list(set( Users.objects.filter(collection__id__in=set(cleaned)).exclude(username=self.owner.username) ))
+                for u in users:
+                    self.owner.remove_from_third_collections(objs,u)
+
+            objs.delete()
+            
         else:
             notify.send(sender=admin,
                         recipient=self.owner,
@@ -412,6 +441,7 @@ class MakePrivate(ConfirmationTask):
         from . import Users
         admin = Users.getAdmin().first()
         model_ref = apps.get_model(app_label="lenses",model_name=self.cargo['object_type'])
+        objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
         if len(self.cargo['object_ids']) > 1:
             myverb = 'Your request to make %d %s private was ' % (len(objs),model_ref._meta.verbose_name_plural.title())
         else:
@@ -419,10 +449,10 @@ class MakePrivate(ConfirmationTask):
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
-            objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
+
             objs.update(access_level='PRI')
             perm = "view_"+objs[0]._meta.db_table
-            assign_perm(perm,self.owner,objs) # don't forget to assign view permission to the new owner for the private lenses
+            assign_perm(perm,self.owner,objs) # don't forget to assign view permission to the owner for the private lenses
             notify.send(sender=admin,
                         recipient=self.owner,
                         verb=myverb + ' accepted.',
@@ -431,6 +461,17 @@ class MakePrivate(ConfirmationTask):
                         note_type='MakePrivate',
                         object_type=self._meta.model.__name__,
                         object_ids=[self.id])
+
+            if self.cargo['object_type'] != 'Collection':
+                col_ids = objs.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
+                cleaned = []
+                for mystr in col_ids:
+                    for id in mystr.split(','):
+                        cleaned.append(id)
+                users = list(set( Users.objects.filter(collection__id__in=set(cleaned)).exclude(username=self.owner.username) ))
+                for u in users:
+                    self.owner.remove_from_third_collections(objs,u)
+
         else:
             notify.send(sender=admin,
                         recipient=self.owner,

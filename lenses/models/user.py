@@ -27,13 +27,14 @@ from django.db.models import Aggregate
 class MyConcat(Aggregate):
     function = 'GROUP_CONCAT'
     template = '%(function)s(%(distinct)s%(expressions)s)'
-
+    
     def __init__(self, expression, distinct=False, **extra):
         super(MyConcat, self).__init__(
             expression,
             distinct='DISTINCT ' if distinct else '',
             output_field=CharField(),
             **extra)
+
 
 
 
@@ -279,40 +280,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
                 # Check collections: every collection owner must have access to all the objects in the collection.
                 # So, if access from user was revoked, check if they own a collection that contains the object and remove it from there.
-                obj_col_ids = list(revoked_objects_per_user.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
-                if len(obj_col_ids) > 0:
-                
-                    all_cols = list(Collection.accessible_objects.owned(user))
-                    all_cols_ids = [col.id for col in all_cols]
-                
-                    pairs = [] 
-                    for tmp in obj_col_ids:
-                        for col_id in tmp['col_ids'].split(','):
-                            col_index = all_cols_ids.index(int(col_id))
-                            pairs.append((tmp['id'],col_index))
-                    col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
-                    #print(col_index_obj_ids)
-
-                    final_col_ids = []
-                    for i in range(0,len(col_index_obj_ids)):
-                        #print(all_cols[i],col_index_obj_ids[i])
-                        to_remove = model_ref.accessible_objects.in_ids(user,col_index_obj_ids[i])
-                        all_cols[i].removeItems(user,to_remove)
-                        final_col_ids.append(all_cols[i].id)
-                    #print(final_col_ids)                    
-
-                    if len(final_col_ids) > 1:
-                        myverb = 'Private objects removed from %d collections that you own.' % len(final_col_ids)
-                    else:
-                        myverb = 'Private objects removed from 1 collection that you own.'
-                    notify.send(sender=self,
-                                recipient=user,
-                                verb=myverb,
-                                level='error',
-                                timestamp=timezone.now(),
-                                note_type='RemovedFromCollection',
-                                object_type='Collection',
-                                object_ids=final_col_ids)
+                self.remove_from_third_collections(revoked_objects_per_user,user)
 
                 # Finally remove the permissions    
                 remove_perm(perm,user,revoked_objects_per_user) # (just 1 query)
@@ -536,6 +504,54 @@ class Users(AbstractUser,GuardianUserMixin):
         mytask = ConfirmationTask.create_task(self,heir,'CedeOwnership',cargo)
         return mytask
 
+
+    def remove_from_third_collections(self,objects,user):
+        obj_col_ids = list(objects.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
+        object_type = objects[0]._meta.model.__name__
+        model_ref = apps.get_model(app_label="lenses",model_name=object_type)
+        if len(obj_col_ids) > 0:
+            all_cols = list(Collection.accessible_objects.owned(user))
+            all_cols_ids = [col.id for col in all_cols]
+            print(all_cols)
+            print(all_cols_ids)
+            
+            pairs = [] 
+            for tmp in obj_col_ids:
+                for col_id in tmp['col_ids'].split(','):
+                    col_index = all_cols_ids.index(int(col_id))
+                    pairs.append((tmp['id'],col_index))
+            col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
+            print(col_index_obj_ids)
+
+            print(type(col_index_obj_ids))
+            
+            final_col_ids = []
+            for index in col_index_obj_ids.keys():
+                print(all_cols[index],col_index_obj_ids[index])
+                to_remove = model_ref.accessible_objects.in_ids(user,col_index_obj_ids[index])
+                all_cols[index].removeItems(user,to_remove)
+                final_col_ids.append(all_cols[index].id)
+            # for i in range(0,len(col_index_obj_ids)):
+            #     print(all_cols[i],col_index_obj_ids[i])
+            #     to_remove = model_ref.accessible_objects.in_ids(user,list(col_index_obj_ids[i]))
+            #     all_cols[i].removeItems(user,to_remove)
+            #     final_col_ids.append(all_cols[i].id)
+            # #print(final_col_ids)                    
+
+            if len(final_col_ids) > 1:
+                myverb = 'Private objects removed from %d collections that you own.' % len(final_col_ids)
+            else:
+                myverb = 'Private objects removed from 1 collection that you own.'
+            notify.send(sender=self,
+                        recipient=user,
+                        verb=myverb,
+                        level='error',
+                        timestamp=timezone.now(),
+                        note_type='RemovedFromCollection',
+                        object_type='Collection',
+                        object_ids=final_col_ids)
+
+            
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
 
