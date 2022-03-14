@@ -8,5 +8,7 @@ class LensesConfig(AppConfig):
         from actstream import registry
         #from django.contrib.auth.models import Group
         #registry.register(Group)
+        registry.register(self.get_model('Lenses'))
         registry.register(self.get_model('Users'))
         registry.register(self.get_model('SledGroup'))
+        registry.register(self.get_model('Collection'))

@@ -1,6 +1,7 @@
 {% extends 'master_header.html' %}
 {% load static %}
-
+{% load activity_tags %}
+{% load lenses_extras %}
 
 {% block content %}
 
@@ -55,6 +56,27 @@
     </button>
     {% endif %}
 
+    {% endif %}
+  </div>
+
+
+  <div>
+    <h1 class="jb-heading-2">Activity Stream</h1>
+    {% activity_stream 'target' collection %}
+    {% if stream %}
+    <table>
+      <tbody>
+        {% for action in stream %}
+        <tr>
+          <td>{{ action.timestamp|timesince }} ago</td>
+          <td>{{ action.actor }}</td>
+          <td>{{ action.verb }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    No activity to display
     {% endif %}
   </div>
 

@@ -145,6 +145,7 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                 message = 'This Lens is too close to Lens '+str(','.join(strs)+'. This probably indicates a possible duplicate and submission is not allowed.')
                 self.forms[i].add_error('__all__',message)
 
+        '''
         ### Check that no two files are the same
         duplicate_files = []
         for i in range(0,len(self.forms)-1):
@@ -162,7 +163,7 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                     
         if len(duplicate_files) > 0:
             raise ValidationError('More than one files have the same name and size which could indicate duplicates!')            
-
+        '''
                     
 class ResolveDuplicatesForm(forms.Form):
     mychoices = (

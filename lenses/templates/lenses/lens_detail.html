@@ -1,5 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load activity_tags %}
 
 
 {% block content %}
@@ -7,6 +8,35 @@
   <div>
     <h1 class="jb-heading-1">{{lens.name}}</h1>
   </div>
+
+  <div>
+    <h1 class="jb-heading-2">Activity Log</h1>
+    {% activity_stream 'target' lens %}
+    {% if stream %}
+    <table>
+      <tbody>
+        {% for action in stream %}
+        <tr>
+          <td>{{ action.timestamp|timesince }} ago</td>
+          <td>{{ action.actor }}</td>
+          <td>{{ action.verb }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    No activity to display
+    {% endif %}
+  </div>
+
+  <p>
+    Owner: {{ lens.owner }}
+  </p>
+  <p>
+    Created at: {{ lens.created_at }}
+  </p>
+
+
 
   <div>
     <h1 class="jb-heading-2">System Information</h1>

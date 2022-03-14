@@ -74,6 +74,34 @@
 
 
   <div>
+    <h1 class="jb-heading-2">My Queries ({{N_queries}})</h1>
+    <div>
+      {% if N_queries %}
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for q in queries %}
+          <tr>
+            <td><a href="{{ q.get_absolute_url }}">{{q.name}}</td>
+            <td>{{q.description}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No queries to display</p>
+      {% endif %}
+      <a href="{% url 'sled_queries:queries-list' %}">See all queries</a>
+    </div>
+  </div>
+
+
+  <div>
     <h1 class="jb-heading-2">Pending Tasks ({{ N_tasks }})</h1>
     <div>
       {% if N_tasks > 0 %}

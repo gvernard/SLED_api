@@ -5,7 +5,7 @@ from django.forms import inlineformset_factory
 from django.views.generic import TemplateView
 
 from django.utils.decorators import method_decorator
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery
 
 
 @method_decorator(login_required,name='dispatch')
@@ -15,7 +15,7 @@ class UserProfileView(TemplateView):
     def get(self, request, *args, **kwargs):
         user = request.user
 
-
+        
         # Get user groups
         groups = user.getGroupsIsMember()
         N_groups = groups.count()
@@ -41,6 +41,10 @@ class UserProfileView(TemplateView):
         unread_notifications = unread_notifications[:5]
 
 
+        # Get queries
+        queries = SledQuery.accessible_objects.owned(user)
+        N_queries = queries.count()
+        queries = queries[:5]
         
         # Get owned objects
         owned_objects = user.getOwnedObjects()
@@ -81,6 +85,8 @@ class UserProfileView(TemplateView):
         context={'user':user,
                  'groups':groups,
                  'N_groups': N_groups,
+                 'queries': queries,
+                 'N_queries': N_queries,
                  'pending_conf':zipped,
                  'N_tasks': N_tasks,
                  'N_tasks_all': N_tasks_all,

@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 from django.db import connection
+from django.db.models import CharField
 from django.utils import timezone
 from django.apps import apps
 
@@ -28,6 +29,19 @@ from bootstrap_modal_forms.utils import is_ajax
 from notifications.signals import notify
 from actstream import action
 
+
+from django.db.models import Aggregate
+
+class MyConcat(Aggregate):
+    function = 'GROUP_CONCAT'
+    template = '%(function)s(%(distinct)s%(expressions)s)'
+    
+    def __init__(self, expression, distinct=False, **extra):
+        super(MyConcat, self).__init__(
+            expression,
+            distinct='DISTINCT ' if distinct else '',
+            output_field=CharField(),
+            **extra)
 
 #=============================================================================================================================
 ### BEGIN: Modal views
@@ -159,7 +173,15 @@ class LensDeleteView(ModalIdsBaseMixin):
 
             ### Notifications per collection #####################################################
             # Need to write this part
-
+            col_ids = pri.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
+            cleaned = []
+            for mystr in col_ids:
+                for id in mystr.split(','):
+                    cleaned.append(id)
+            users = list(set( Users.objects.filter(collection__id__in=set(cleaned)).exclude(username=self.request.user.username) ))
+            for u in users:
+                self.request.user.remove_from_third_collections(pri,u)
+            
             ### Finally, delete the private lenses
             for lens in pri:
                 lens.delete()
@@ -314,13 +336,29 @@ class LensAddView(TemplateView):
                     db_vendor = connection.vendor
                     if db_vendor == 'sqlite':
                         pri = []
+                        pub = []
                         for lens in instances:
                             lens.save()
                             if lens.access_level == 'PRI':
                                 pri.append(lens)
+                            else:
+                                pub.append(lens)
                         if pri:
                             assign_perm('view_lenses',request.user,pri)
                         self.make_collection(instances,request.user)
+                        # Main activity stream for public lenses
+                        if len(pub) > 0:
+                            if len(pub) > 1:
+                                myverb = '%d new Lenses were added.' % len(pub)
+                            else:
+                                myverb = '1 new Lens was added.'
+                            action.send(request.user,
+                                        target=Users.objects.get(username='admin'),
+                                        verb=myverb,
+                                        level='success',
+                                        action_type='Add',
+                                        object_type='Lenses',
+                                        object_ids=[obj.id for obj in pub])
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         new_lenses = Lenses.objects.bulk_create(instances)
@@ -394,10 +432,25 @@ class LensUpdateView(TemplateView):
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
 
                 if len(indices) == 0:
+                    pub = []
                     for i,lens in enumerate(instances):
                         if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
                             lens.create_name()
                         lens.save()
+                        if lens.access_level == 'PUB':
+                            pub.append(lens)
+                    if len(pub) > 0:
+                        if len(pub) > 1:
+                            myverb = '%d Lenses were updated.' % len(pub)
+                        else:
+                            myverb = '1 Lens was updated.'
+                        action.send(request.user,
+                                    target=Users.objects.get(username='admin'),
+                                    verb=myverb,
+                                    level='success',
+                                    action_type='Update',
+                                    object_type='Lenses',
+                                    object_ids=[obj.id for obj in pub])
                     message = 'Lenses successfully updated!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:
