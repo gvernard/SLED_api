@@ -17,14 +17,6 @@
     text-decoration: none;
   }
 
-  .jb-homepage-container {
-    display: flex;
-    flex-direction: row;
-    margin: auto;
-    max-width: 940px;
-    margin-top: 75px;
-  }
-
   .jb-homepage-container p {
     margin: auto;
     font-family: basic-sans, sans-serif;
