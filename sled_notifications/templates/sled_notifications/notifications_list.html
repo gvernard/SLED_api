@@ -8,8 +8,9 @@
   </div>
 </div>
 
-<div>
-  <table>
+<div class="jb-container">
+  <h1 class="jb-heading-1">Notifications</h1>
+  <table class=jb-notifications-table>
     <thead>
       <th>Sender</th>
       <th>Recipient</th>
@@ -23,28 +24,28 @@
     <tbody>
       {% for note in notes %}
       <tr>
-	<td>{{ note.timestamp }}</td>
-	<td>{{ note.actor }}</td>
-	<td>{{ note.recipient }}</td>
-	<td>{{ note.data.note_type }}</td>
-	<td>{{ note.verb }}</td>
-	<td>{{ note.data.object_ids }}</td>
-	<td>{{ note.level }}</td>
-	{% if note.unread %}
-	<td class="unread">Unread</td>
-	{% else %}
-	<td class="read">Read</td>
-	{% endif %}
-	<td>
-	  <button type="button" class="view-note btn btn-sm btn-primary" data-form-url="{% url 'sled_notifications:notifications-detail' note.pk %}">
-	    <img src="{% static 'icons/eye-fill.svg' %}" alt="eye">
-	    Read
+        <td>{{ note.timestamp }}</td>
+        <td>{{ note.actor }}</td>
+        <td>{{ note.recipient }}</td>
+        <td>{{ note.data.note_type }}</td>
+        <td>{{ note.verb }}</td>
+        <td>{{ note.data.object_ids }}</td>
+        <td>{{ note.level }}</td>
+        {% if note.unread %}
+        <td class="unread">Unread</td>
+        {% else %}
+        <td class="read">Read</td>
+        {% endif %}
+        <td>
+          <button type="button" class="jb-notifications-button" data-form-url="{% url 'sled_notifications:notifications-detail' note.pk %}">
+            <img src="{% static 'icons/eye-fill.svg' %}" alt="eye">
+            Read
           </button>
-	</td>
+        </td>
       </tr>
       {% empty %}
       <tr>
-	<td colspan="7">No notifications</td>
+        <td colspan="7">No notifications</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -58,24 +59,29 @@
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <style>
-  .read {color:green;}
-  .unread {color:red;}
+  .read {
+    color: green;
+  }
+
+  .unread {
+    color: red;
+  }
 </style>
 <script type="text/javascript">
   $(document).ready(function() {
 
-      function viewNotificationModalForm() {
-          $(".view-note").each(function () {
-	      $(this).on("click", function(){
-		  $(this).closest('td').prev().text('Read').removeClass('unread').addClass('read');
-	      });
-               $(this).modalForm({
-                   formURL: $(this).data("form-url"),
- 	   	   modalID: "#id-modal"
-               });
-          });
-      }
-      viewNotificationModalForm();
+    function viewNotificationModalForm() {
+      $(".view-note").each(function() {
+        $(this).on("click", function() {
+          $(this).closest('td').prev().text('Read').removeClass('unread').addClass('read');
+        });
+        $(this).modalForm({
+          formURL: $(this).data("form-url"),
+          modalID: "#id-modal"
+        });
+      });
+    }
+    viewNotificationModalForm();
 
   });
 </script>
