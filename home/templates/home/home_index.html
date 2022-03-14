@@ -7,9 +7,9 @@
   <div class="jb-container">
     <div class="jb-homepage-left-text">
       <h1 class="jb-heading-1">Welcome to the Strong Lensing Database</h1>
-      <h1 class="jb-heading-2">Activity Stream</h1>
+      <h1 class="jb-heading-2-activity">Activity Stream</h1>
       {% if stream %}
-      <table>
+      <table class="jb-homepage-activity">
         <tbody>
           {% for action in stream %}
           <tr>
@@ -21,7 +21,7 @@
         </tbody>
       </table>
       {% else %}
-      No activity to display
+      <p class="jb-homepage-activity">No activity to display</p>
       {% endif %}
     </div>
     <div class="jb-homepage-right-image">

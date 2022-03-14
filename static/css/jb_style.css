@@ -311,6 +311,20 @@
     display: block;
   }
 
+  .jb-heading-2-activity {
+    color: #ACACAC !important;
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+    font-size: 25px;
+    line-height: 50px;
+    font-weight: 500;
+    padding-top: 20px;
+  }
+
+  .jb-homepage-activity {
+    color: #ACACAC !important;
+  }
+
   .jb-notifications-table {
     font-size: 14px;
   }
