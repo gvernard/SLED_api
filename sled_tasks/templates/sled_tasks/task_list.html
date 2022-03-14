@@ -1,73 +1,72 @@
 {% extends 'master_header.html' %}
 {% block content %}
-<div class="content container">
-  <h1>My Tasks</h1>
-  
+<div class="jb-container">
+  <h1 class="jb-heading-1">My Tasks</h1>
+
   <div class="tasks_owned">
-    <p>
-      Tasks initiated by me:
-    </p>
+    <h1 class="jb-heading-2">Tasks Initiated by Me</h1>
     <table>
       <thead>
-	<tr>
-	  <th>Task type</th>
-	  <th>Owner</th>
-	  <th>Created at</th>
-	  <th>Status</th>
-	  <th>Recipients</th>
-	  <th></th>
-	</tr>
+        <tr>
+          <th>Task type</th>
+          <th>Owner</th>
+          <th>Created at</th>
+          <th>Status</th>
+          <th>Recipients</th>
+          <th></th>
+        </tr>
       </thead>
       <tbody>
-	{% for task in owner %}
-	<tr>
-	  <td>{{ task.task_type }}</td>
-	  <td>{{ task.owner }}</td>
-	  <td>{{ task.created_at }}</td>
-	  <td>{{ task.status }}</td>
-	  <td>{{ task.recipients.all|join:", " }}</td>
-	  <td><a href="{% url 'sled_tasks:tasks-detail-owner' task.id %}">go</a></td>
-	</tr>
-	{% empty %}
-	<tr><td colspan="6">No tasks</td></tr>
-	{% endfor %}
+        {% for task in owner %}
+        <tr>
+          <td>{{ task.task_type }}</td>
+          <td>{{ task.owner }}</td>
+          <td>{{ task.created_at }}</td>
+          <td>{{ task.status }}</td>
+          <td>{{ task.recipients.all|join:", " }}</td>
+          <td><a href="{% url 'sled_tasks:tasks-detail-owner' task.id %}">go</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">No tasks</td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
 
-  
+
   <div class="tasks_recipient">
-    <p>
-      Tasks addressed to me:
-    </p>
+    <h1 class="jb-heading-2">Tasks Addressed to Me</h1>
     <table>
       <thead>
-	<tr>
-	  <th>Task type</th>
-	  <th>Owner</th>
-	  <th>Created at</th>
-	  <th>Status</th>
-	  <th>Recipients</th>
-	  <th></th>
-	</tr>
+        <tr>
+          <th>Task type</th>
+          <th>Owner</th>
+          <th>Created at</th>
+          <th>Status</th>
+          <th>Recipients</th>
+          <th></th>
+        </tr>
       </thead>
-      <tbody>	
-	{% for task in recipient %}
-	<tr>
-	  <td>{{ task.task_type }}</td>
-	  <td>{{ task.owner }}</td>
-	  <td>{{ task.created_at }}</td>
-	  <td>{{ task.status }}</td>
-	  <td>{{ task.recipients.all|join:", " }}</td>
-	  <td><a href="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">go</a></td>
-	</tr>
-	{% empty %}
-	<tr><td colspan="6">No tasks</td></tr>
-	{% endfor %}
+      <tbody>
+        {% for task in recipient %}
+        <tr>
+          <td>{{ task.task_type }}</td>
+          <td>{{ task.owner }}</td>
+          <td>{{ task.created_at }}</td>
+          <td>{{ task.status }}</td>
+          <td>{{ task.recipients.all|join:", " }}</td>
+          <td><a href="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">go</a></td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">No tasks</td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
-  
+
 </div>
 {% endblock content %}
-
