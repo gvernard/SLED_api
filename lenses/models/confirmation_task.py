@@ -212,8 +212,8 @@ class ConfirmationTask(SingleObject):
         if response not in self.allowed_responses(): 
             raise ValueError(response) # Need custom exception here
         self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response=response,response_comment=comment,created_at=timezone.now())
-        self.finalizeTask()
-        self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response='',response_comment=comment)
+        #self.finalizeTask()
+        #self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response='',response_comment=comment)
         
 
     def registerAndCheck(self,user,response,comment):
@@ -290,7 +290,7 @@ class DeleteObject(ConfirmationTask):
                 for mystr in col_ids:
                     for id in mystr.split(','):
                         cleaned.append(id)
-                users = list(set( Users.objects.filter(collection__id__in=set(cleaned)).exclude(username=self.owner.username) ))
+                users = list(set( Users.objects.filter(collection__id__in=set(cleaned)) ))
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 
@@ -450,7 +450,6 @@ class MakePrivate(ConfirmationTask):
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
 
-            objs.update(access_level='PRI')
             perm = "view_"+objs[0]._meta.db_table
             assign_perm(perm,self.owner,objs) # don't forget to assign view permission to the owner for the private lenses
             notify.send(sender=admin,
@@ -472,6 +471,8 @@ class MakePrivate(ConfirmationTask):
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 
+            # Finally update the objects' access_level to private
+            objs.update(access_level='PRI')                    
         else:
             notify.send(sender=admin,
                         recipient=self.owner,

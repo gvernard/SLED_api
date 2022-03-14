@@ -40,6 +40,9 @@ for i in range(1,7):
     lens.save()
     mylenses.append( lens )
 
+
+# Create collection
+###################
 mycollection = Collection(owner=owner,name="Worst",access_level='PRI',description="Aliens invaded earth in 2019 in the form of a virus.",item_type="Lenses")
 mycollection.save()
 #pub = Lenses.objects.filter(access_level='PUB').order_by('ra')[4:8]
@@ -54,6 +57,45 @@ other_g = SledGroup.objects.get(name='Awesome Users')
 owner.giveAccess(mycollection,other_g)
    
 
+
+
+# Create collection
+###################
+fred = Users.objects.get(username='Fred')
+pub_fred = Lenses.objects.filter(owner=fred).filter(access_level='PUB')
+pri_fred = Lenses.objects.filter(owner=fred).filter(access_level='PRI')
+
+fred.giveAccess(pri_fred[3:6],owner)
+
+mycollection = Collection(owner=owner,name="ERGO",access_level='PRI',description="Lets go fighting.",item_type="Lenses")
+mycollection.save()
+#pub = Lenses.objects.filter(access_level='PUB').order_by('ra')[4:8]
+mycollection.myitems = pub_fred[5:8]|pri_fred[3:6]
+mycollection.save()
+
+
+
+
+# Create collection
+###################
+cam = Users.objects.get(username='Cameron')
+
+fred.giveAccess(pri_fred[7:9],cam)
+
+mycollection = Collection(owner=cam,name="HAWK",access_level='PRI',description="Flies thoroughly up in the sky.",item_type="Lenses")
+mycollection.save()
+#pub = Lenses.objects.filter(access_level='PUB').order_by('ra')[4:8]
+mycollection.myitems = pub_fred[5:7]|pri_fred[7:9]
+mycollection.save()
+
+cam.giveAccess(mycollection,owner)
+
+
+
+
+
+
+# Post activity for newly added PUB lenses
 mylenses = Lenses.objects.all()
 pri = []
 pub = []
@@ -77,7 +119,9 @@ if len(pub) > 0:
                 object_type='Lenses',
                 object_ids=[obj.id for obj in pub])
 
-    
+
+
+# Give access to some private lenses
 private_lenses = Lenses.objects.filter(owner=owner).filter(access_level='PRI')
 
 other_user  = Users.objects.get(username='Cameron')

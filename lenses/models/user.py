@@ -512,23 +512,17 @@ class Users(AbstractUser,GuardianUserMixin):
         if len(obj_col_ids) > 0:
             all_cols = list(Collection.accessible_objects.owned(user))
             all_cols_ids = [col.id for col in all_cols]
-            print(all_cols)
-            print(all_cols_ids)
-            
+             
             pairs = [] 
             for tmp in obj_col_ids:
                 for col_id in tmp['col_ids'].split(','):
                     col_index = all_cols_ids.index(int(col_id))
                     pairs.append((tmp['id'],col_index))
             col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
-            print(col_index_obj_ids)
-
-            print(type(col_index_obj_ids))
-            
+             
             final_col_ids = []
             for index in col_index_obj_ids.keys():
-                print(all_cols[index],col_index_obj_ids[index])
-                to_remove = model_ref.accessible_objects.in_ids(user,col_index_obj_ids[index])
+                to_remove = model_ref.objects.filter(id__in=col_index_obj_ids[index])
                 all_cols[index].removeItems(user,to_remove)
                 final_col_ids.append(all_cols[index].id)
             # for i in range(0,len(col_index_obj_ids)):
