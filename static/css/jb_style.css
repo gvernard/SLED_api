@@ -67,7 +67,7 @@
   .jb-heading-1 {
     margin: auto;
     font-family: basic-sans, sans-serif;
-    color: #000;
+    color: #221D93;
     font-size: 40px;
     font-weight: 700;
     padding-top: 75px;
@@ -86,7 +86,7 @@
   .jb-heading-3 {
     margin: auto;
     font-family: basic-sans, sans-serif;
-    color: #000;
+    color: #221D93;
     font-size: 40px;
     font-weight: 700;
     padding-top: 20px;
@@ -338,4 +338,36 @@
     background-color: #6F73DD;
     color: #FFFFFF;
     font-size: 14px;
+  }
+
+  .jb-submit-button-green {
+    position: static;
+    display: inline;
+    min-width: 125px;
+    margin-top: 10px;
+    margin-right: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    clear: none;
+    background-color: #A7D74F;
+    color: #FFFFFF;
+    font-size: 15px;
+  }
+
+  .jb-submit-button-magenta {
+    position: static;
+    display: inline;
+    min-width: 125px;
+    margin-top: 10px;
+    margin-right: 5px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    clear: none;
+    background-color: #DE53C9;
+    color: #FFFFFF;
+    font-size: 15px;
   }
