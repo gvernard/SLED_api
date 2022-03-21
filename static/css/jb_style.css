@@ -346,9 +346,21 @@
   .jb-left-details {
     display: table-cell;
     vertical-align: middle;
+    float: left;
+    width: 70%;
+    height: 300px;
   }
 
   .jb-right-details {
     display: table-cell;
-    width: 100 px;
+    padding-top: 50px;
+    float: right;
+    width: 30%;
+    height: 300px;
+  }
+
+  .jb-right-details img {
+    width: 250px;
+    height: 250px;
+    float: right;
   }
