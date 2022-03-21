@@ -5,37 +5,43 @@
 
 {% block content %}
 <div class="jb-container">
-  <div>
-    <h1 class="jb-heading-1">{{lens.name}}</h1>
-  </div>
 
-  <div class="jb-activity">
-    {% activity_stream 'target' lens %}
-    {% if stream %}
-    <table>
-      <tbody>
-        {% for action in stream %}
-        <tr>
-          <td>{{ action.timestamp|timesince }} ago</td>
-          <td>{{ action.actor }}</td>
-          <td>{{ action.verb }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    No activity to display
-    {% endif %}
-  </div>
-
-  <p>
-    Owner: {{ lens.owner }}
-  </p>
-  <p>
-    Created at: {{ lens.created_at }}
-  </p>
-
-
+  <section>
+    <div>
+      <div class="jb-left-details">
+        <div>
+          <h1 class="jb-heading-1">{{lens.name}}</h1>
+        </div>
+        <p>
+          Owner: {{ lens.owner }}
+        </p>
+        <p>
+          Created at: {{ lens.created_at }}
+        </p>
+        <div class="jb-activity">
+          {% activity_stream 'target' lens %}
+          {% if stream %}
+          <table>
+            <tbody>
+              {% for action in stream %}
+              <tr>
+                <td>{{ action.timestamp|timesince }} ago</td>
+                <td>{{ action.actor }}</td>
+                <td>{{ action.verb }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          No activity to display
+          {% endif %}
+        </div>
+      </div>
+      <div class="jb-right-details">
+        <img src="{{ lens.mugshot.url }}">
+      </div>
+    </div>
+  </section>
 
   <div>
     <h1 class="jb-heading-2">System Information</h1>
@@ -61,8 +67,6 @@
 
   <div>
     <h1 class="jb-heading-2">Imaging Data</h1>
-    <!-- <img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" style="width: 10%; height: auto;"> -->
-    <img src="{{ lens.mugshot.url }}">
   </div>
 
   <div>
