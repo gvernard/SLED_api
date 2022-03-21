@@ -9,8 +9,7 @@
     <h1 class="jb-heading-1">{{lens.name}}</h1>
   </div>
 
-  <div>
-    <h1 class="jb-heading-2">Activity Log</h1>
+  <div class="jb-activity">
     {% activity_stream 'target' lens %}
     {% if stream %}
     <table>

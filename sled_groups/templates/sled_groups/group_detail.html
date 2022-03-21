@@ -14,8 +14,7 @@
 
 <div class="jb-container">
   <h1 class="jb-heading-1">{{ group.name }}</h1>
-
-  <hr>
+  <br></br>
 
   <!-- Div with some information about the group -->
   <div>
@@ -72,8 +71,7 @@
 
   <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
   {% if user == group.owner or request.user|has_group:group.name %}
-  <div>
-    <h1 class="jb-heading-2">Activity Stream</h1>
+  <div class="jb-activity">
     {% activity_stream 'target' group %}
     {% if stream %}
     <table>
