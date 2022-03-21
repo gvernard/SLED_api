@@ -326,13 +326,13 @@
 
   .jb-activity {
     color: #ACACAC !important;
-    font-size: 13px;
+    font-size: 12px;
     padding-top: 20px;
   }
 
   .jb-activity td {
-    padding-top: 7px;
-    padding-bottom: 7px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     border-top: 0px solid #ACACAC;
   }
 
