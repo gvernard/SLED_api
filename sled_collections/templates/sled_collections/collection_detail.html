@@ -24,15 +24,15 @@
     <p>Access level: {{ collection.access_level }}</p>
 
     {% if collection.owner == user %}
-    <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
+    <button type="button" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
       <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
       Update
     </button>
-    <button type="button" id="delete-collection" class="btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
+    <button type="button" id="delete-collection" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Delete
     </button>
-    <button type="button" class="sled-modal btn btn-sm btn-danger" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
+    <button type="button" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Cede ownership
     </button>
@@ -128,7 +128,7 @@
   {% if  collection.owner == user %}
   <div>
     <form id="add-items-form" action="{% url 'lenses:lens-query' %}">
-      <button type="submit" form="add-items-form" class="btn btn-sm btn-primary">
+      <button type="submit" form="add-items-form" class="jb-submit-button-1">
         <img src="{% static 'icons/plus.svg' %}" alt="plus">
         Add items
       </button>
