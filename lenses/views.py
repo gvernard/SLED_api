@@ -19,7 +19,7 @@ from django.conf import settings
 import json
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, Imaging, Spectrum, Catalogue
 
 from . import forms
 
@@ -288,6 +288,12 @@ class LensDetailView(DetailView):
     def get_queryset(self):
         return Lenses.accessible_objects.all(self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #context['imagings'] = context['lens'].imaging.all(self.request.user)
+        context['imagings'] = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        return context
+    
 
 # View to add new lenses
 @method_decorator(login_required,name='dispatch')
@@ -579,6 +585,100 @@ class LensResolveDuplicatesView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
 
+
+# View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
+@method_decorator(login_required,name='dispatch')
+class LensAddDataView(TemplateView):
+    template_name = 'lenses/lens_add_data.html'
+
+    def get_objs_and_existing(self,task,user):
+        objs = []
+        for obj in serializers.deserialize("json",task.cargo['objects']):
+            datum = obj.object
+            if datum._meta.model.__name__ != 'Catalogue':
+                new_image_name = 'temporary/' + user.username + '/' + datum.image.name
+                if os.path.isfile(settings.MEDIA_ROOT + '/' + new_image_name):
+                    datum.image = new_image_name
+            objs.append(datum)
+
+        ras = task.cargo['ra']
+        decs = task.cargo['dec']
+        indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs)
+        existing = [None]*len(objs)
+        choice_list = [None]*len(objs)
+        for i,index in enumerate(indices):
+            existing[index] = neis[i]
+            choice_list[index] = [(lens.id,lens.name) for lens in neis[i]]
+
+        return objs,indices,existing,choice_list
+
+        
+    def get(self, request, *args, **kwargs):
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if request.user == task.owner:
+            objs,indices,existing,choice_list = self.get_objs_and_existing(task,request.user)
+            
+            FormSetFactory = formset_factory(forms.AddDataForm,formset=forms.BaseAddDataFormSet,extra=len(choice_list))
+            myformset = FormSetFactory(form_kwargs={'choices':choice_list})
+
+            form_array = [None]*len(objs)
+            for i,index in enumerate(indices):
+                form_array[index] = myformset.forms[i]
+            
+            context = {'myformset': myformset,'data_form_existing': zip(objs,form_array,existing)}
+            return self.render_to_response(context)
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if not task:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if referer == request.path and request.user == task.owner:
+            objs,indices,existing,choice_list = self.get_objs_and_existing(task,request.user)
+            
+            FormSetFactory = formset_factory(forms.AddDataForm,formset=forms.BaseAddDataFormSet,extra=0)
+            myformset = FormSetFactory(form_kwargs={'choices':choice_list},data=request.POST)
+            if myformset.is_valid():
+                # Hack to pass the insert_form responses to the task
+                lens_ids = []
+                for response in myformset.cleaned_data:
+                    lens_ids.append(response['mychoices'])
+                my_response = json.dumps(lens_ids)
+                task.responses_allowed = [my_response]
+                task.registerResponse(request.user,my_response,'Some comment')
+                task.finalizeTask()
+                #task.delete()
+                message = 'Data uploaded successfully!'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            else:
+                form_array = [None]*len(objs)
+                for i,index in enumerate(indices):
+                    form_array[index] = myformset.forms[i]
+
+                context = {'myformset': myformset,'data_form_existing': zip(objs,form_array,existing)}
+                return self.render_to_response(context)
+            
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+        
 #=============================================================================================================================
 ### END: Non-modal views
 #=============================================================================================================================

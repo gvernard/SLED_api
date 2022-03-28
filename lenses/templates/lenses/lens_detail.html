@@ -1,4 +1,4 @@
-{% extends 'master_header.html' %}
+
 {% load static %}
 {% load activity_tags %}
 
@@ -36,29 +36,38 @@
     Created at: {{ lens.created_at }}
   </p>
 
+<div>
+  <h1 class="jb-heading-2">System Information</h1>
+  <table>
+    <tr>
+      <th>Right Ascension </th>
+      <th>Declination </th>
+      <th>Image separation</th>
+      <th>Lens redshift</th>
+      <th>Source redshift </th>
+      <th>Lens owner </th>
+    </tr>
+    <tr>
+      <td>{{lens.ra|floatformat:5}}</td>
+      <td>{{lens.dec|floatformat:5}}</td>
+      <td>{{lens.image_sep|floatformat:5}}</td>
+      <td>{{lens.z_lens|floatformat:4}}</td>
+      <td>{{lens.z_source|floatformat:4}}</td>
+      <td>{{lens.owner}}</td>
+    </tr>
+  </table>
+</div>
+    
+{% for imaging in imagings %}
+<img src="{{ imaging.image.url }}">
+{% endfor %}
 
-
-  <div>
-    <h1 class="jb-heading-2">System Information</h1>
-    <table>
-      <tr>
-        <th>Right Ascension </th>
-        <th>Declination </th>
-        <th>Image separation</th>
-        <th>Lens redshift</th>
-        <th>Source redshift </th>
-        <th>Lens owner </th>
-      </tr>
-      <tr>
-        <td>{{lens.ra|floatformat:5}}</td>
-        <td>{{lens.dec|floatformat:5}}</td>
-        <td>{{lens.image_sep|floatformat:5}}</td>
-        <td>{{lens.z_lens|floatformat:4}}</td>
-        <td>{{lens.z_source|floatformat:4}}</td>
-        <td>{{lens.owner}}</td>
-      </tr>
-    </table>
-  </div>
+<div>
+  <p>IMAGING DATA</p>
+  <!-- <img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" style="width: 10%; height: auto;"> -->
+  <img src="{{ lens.mugshot.url }}">
+</div>
+>>>>>>> data_model
 
   <div>
     <h1 class="jb-heading-2">Imaging Data</h1>

@@ -9,3 +9,7 @@ def get_latest_action_timestamp(lens):
         return act.timestamp
     else:
         return lens.created_at
+
+@register.filter(name='get_class_name')
+def get_class_name(obj):
+    return obj.__class__.__name__
