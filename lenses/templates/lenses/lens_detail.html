@@ -1,4 +1,4 @@
-{% extends 'master_header.html' %}
+
 {% load static %}
 {% load activity_tags %}
 
@@ -59,6 +59,10 @@
   </table>
 </div>
     
+{% for imaging in imagings %}
+<img src="{{ imaging.image.url }}">
+{% endfor %}
+
 <div>
   <p>IMAGING DATA</p>
   <!-- <img src="{% static 'lenses/mugshots/'%}{{lens.mugshot_name}}" style="width: 10%; height: auto;"> -->

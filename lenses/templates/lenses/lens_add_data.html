@@ -1,0 +1,73 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% load lenses_extras %}
+
+
+{% block content %}
+<p>
+  Duplicates are:
+</p>
+
+
+<form id="formset" method="POST">
+  {% csrf_token %}
+  {{ myformset.management_form }}
+  {{ myformset.non_form_errors }}
+
+  <div>
+    <table>
+      <thead>
+	<tr>
+	  <th>
+	    Data that require checking
+	  </th>
+	  <th>
+	    &nbsp;
+	  </th>
+	  <th>
+	    Existing lenses
+	  </th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for datum,form,existing in data_form_existing %}
+	
+	<tr>
+	  <td>
+	    {{ datum.instrument }}
+	    {{ datum.date_taken }}
+	    {{ datum.future }}
+	    {{ datum.info }}
+	    {% if datum|get_class_name != "Catalogue" %}
+	    <div>
+	      <img class="sled-image" src="{{ datum.image.url }}">
+	    </div>
+	    {% endif %}
+	  </td>
+	  <td>
+	    {% if form %}
+	    {{ form.mychoices.errors }}
+	    {{ form.mychoices.label_tag }}
+	    {{ form.mychoices }}
+	    {% endif %}  
+	  </td>
+	  <td>
+	    {% for lens in existing %}
+	    {% include 'lenses/lens_visit_card.html' with lens=lens %}
+	    {% empty %}
+	    No duplicates!
+	    {% endfor %}
+	  </td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  
+  <div>
+    <label>Resolve duplicates and submit?</label>
+    <button type="submit">Submit</button>
+  </div>
+
+</form>
+{% endblock content %}

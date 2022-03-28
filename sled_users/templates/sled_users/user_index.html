@@ -28,6 +28,41 @@
   </div>
 </div>
 
+
+<table>
+  {% for imaging in imagings %}
+  <tr>
+    <td>{{ imaging.instrument.name }}</td>
+    <td>{{ imaging.band.name }}</td>
+    <td>{{ imaging.lens.name }}</td>
+  </tr>
+  {% empty %}
+  <tr>No Imaging data owned</tr>
+  {% endfor %}
+</table>
+<table>
+  {% for spectrum in spectra %}
+  <tr>
+    <td>{{ spectrum.instrument.name }}</td>
+    <td>{{ spectrum.lens.name }}</td>
+  </tr>
+  {% empty %}
+  <tr>No Spectrum data owned</tr>
+  {% endfor %}
+</table>
+<table>
+  {% for catalogue in catalogues %}
+  <tr>
+    <td>{{ catalogue.instrument.name }}</td>
+    <td>{{ catalogue.band.name }}</td>
+    <td>{{ catalogue.lens.name }}</td>
+  </tr>
+  {% empty %}
+  <tr>No Catalogue data owned</tr>
+  {% endfor %}
+</table>
+
+
 <br>
 
 <div class="jb-container">
