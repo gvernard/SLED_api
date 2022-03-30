@@ -681,6 +681,31 @@ class LensAddDataView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
 
+# View for lens Collage
+#@method_decorator(login_required,name='dispatch')
+class LensCollageView(ListView):
+    model = Lenses
+    allow_empty = True
+    template_name = 'lenses/lens_collage.html'
+    paginate_by = 50
+
+    def get_queryset(self,ids):
+        return Lenses.accessible_objects.in_ids(self.request.user,ids)
+    
+    def post(self, request, *args, **kwargs):
+        ids = [ pk for pk in self.request.POST.getlist('ids') if pk.isdigit() ]
+        if ids:
+            lenses = self.get_queryset(ids)
+            return render(request, self.template_name, {'lenses': lenses})
+        else:
+            message = 'No selected lenses to display in collage.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})  
+
+    def get(self, request, *args, **kwargs):
+        message = 'You are accessing this page in an unauthorized way.'
+        return TemplateResponse(request,'simple_message.html',context={'message':message})  
+        
+
 # View for lens queries
 @method_decorator(login_required,name='dispatch')
 class LensQueryView(TemplateView):
@@ -787,31 +812,3 @@ class LensQueryView(TemplateView):
 #=============================================================================================================================
 ### END: Non-modal views
 #=============================================================================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def LensCollageView(request):
-    if request.method=='POST':
-        ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
-        if ids:
-            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
-        return render(request, 'lenses/lens_collage.html', {'lenses':lenses})
-
-
-
-
-
-
-
-        
