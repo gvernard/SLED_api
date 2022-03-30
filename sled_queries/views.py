@@ -50,8 +50,8 @@ class QuerySaveView(BSModalCreateView):
             description = form.cleaned_data['description']
             q = SledQuery(owner=self.request.user,name=name,description=description,access_level='PRI')
             cargo = q.compress_to_cargo(form.cleaned_data['cargo'])
+            cargo.pop('page')
             q.cargo = cargo
-            print(cargo)
             q.save()
             messages.add_message(self.request,messages.SUCCESS,'Query <b>"'+name+'"</b> was successfully saved!')
             return HttpResponseRedirect(reverse_lazy('sled_queries:queries-list')) 

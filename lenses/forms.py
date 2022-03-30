@@ -279,6 +279,7 @@ class LensQueryForm(forms.ModelForm):
     flag_unconfirmed   = forms.BooleanField(required=False,help_text="Select only un-confirmed lenses (confirmed field set to False).")
     flag_contaminant   = forms.BooleanField(required=False,help_text="Select only confirmed contaminants (contaminant field set to True).")
     flag_uncontaminant = forms.BooleanField(required=False,help_text="Select only unconfirmed contaminants (contaminant field set to False).")
+    page = forms.IntegerField(required=False,widget=forms.HiddenInput())
     
     class Meta:
         model = Lenses

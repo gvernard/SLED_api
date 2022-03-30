@@ -8,6 +8,7 @@ from django.db import connection
 from django.db.models import CharField
 from django.utils import timezone
 from django.apps import apps
+from django.core.paginator import Paginator
 
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
@@ -678,6 +679,110 @@ class LensAddDataView(TemplateView):
         else:
             message = 'You are not authorized to view this page.'
             return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+
+# View for lens queries
+@method_decorator(login_required,name='dispatch')
+class LensQueryView(TemplateView):
+    '''
+    Main lens query page, allowing currently for a simple filter on the lenses table parameters
+    Eventually we want to allow simultaneous queries across multiple tables
+    '''
+    template_name = 'lenses/lens_query.html'
+
+    def query_search(self,form,user):
+        '''
+        This function performs the filtering on the lenses table, by parsing the filter values from the request
+        '''
+        keywords = list(form.keys())
+        values = [form[keyword] for keyword in keywords]
+
+        #start with available lenses
+        lenses = Lenses.accessible_objects.all(user)
+
+        #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
+        over_meridian = False
+        #print(form['ra_min'], form['ra_max'])
+        if form['ra_min'] is not None and form['ra_max'] is not None:
+            if float(form['ra_min']) > float(form['ra_max']):
+                over_meridian = True
+
+        #now apply the filter for each non-null entry
+        for k, value in enumerate(values):
+            if value is not None:
+                #print(k, value, keywords[k])
+                if 'ra_' in keywords[k] and over_meridian:
+                    continue
+                if '_min' in keywords[k]:
+                    args = {keywords[k].split('_min')[0]+'__gte':float(value)}
+                    lenses = lenses.filter(**args).order_by('ra')
+                elif '_max' in keywords[k]:
+                    args = {keywords[k].split('_max')[0]+'__lte':float(value)}
+                    lenses = lenses.filter(**args).order_by('ra')
+
+                if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
+                    if len(value) > 0:
+                        for i in range(len(value)):
+                            #print(k, value[i], keywords[k])
+                            args = {keywords[k]:value[i]}
+                            lenses_type = lenses.filter(**args)
+                            if i == 0:
+                                final_lenses = lenses_type
+                            else:
+                                final_lenses |= lenses_type
+                                lenses = final_lenses.order_by('ra')
+                                
+                if 'flag_' in keywords[k]:
+                    if value:
+                        if 'flag_un' in keywords[k]:
+                            keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
+                            value = False
+                            args = {keywords[k]:value}
+                            lenses = lenses.filter(**args)
+                        
+        #come back to the special case where RA_min is less than 0hours
+        if over_meridian:
+            lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
+
+        # Paginator for lenses
+        paginator = Paginator(lenses,50)
+        lenses_page = paginator.get_page(form['page'])
+        lenses_count = paginator.count
+        lenses_range = paginator.page_range
+
+        return lenses_page,lenses_range,lenses_count
+
+    def get(self, request, *args, **kwargs):
+        form = forms.LensQueryForm(request.GET)
+        if form.is_valid():
+            lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
+            context = {'lenses':lenses_page,
+                       'lenses_range':lenses_range,
+                       'lenses_count':lenses_count,
+                       'form':form}
+        else:
+            context = {'lenses': None,
+                       'lenses_range': [],
+                       'lenses_count': 0,
+                       'form':form}
+        return self.render_to_response(context)
+    
+    def post(self, request, *args, **kwargs):
+        form = forms.LensQueryForm(request.POST)
+        if form.is_valid():
+            lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
+            context = {'lenses':lenses_page,
+                       'lenses_range':lenses_range,
+                       'lenses_count':lenses_count,
+                       'form':form}
+        else:
+            context = {'lenses': None,
+                       'lenses_range': [],
+                       'lenses_count': 0,
+                       'form':form}
+        return self.render_to_response(context)
+        
+
         
 #=============================================================================================================================
 ### END: Non-modal views
@@ -707,95 +812,6 @@ def LensCollageView(request):
 
 
 
-# View for lens queries
-@method_decorator(login_required,name='dispatch')
-class LensQueryView(TemplateView):
-    '''
-    Main lens query page, allowing currently for a simple filter on the lenses table parameters
-    Eventually we want to allow simultaneous queries across multiple tables
-    '''
-    template_name = 'lenses/lens_query.html'
-
-    def get_context_data(self, **kwargs):
-        form = forms.LensQueryForm()
-        context = {'lenses': None,'form':form}
-        return context
-
-    def get(self, request, *args, **kwargs):
-        form = forms.LensQueryForm(request.GET)
-        if form.is_valid():
-            lenses = query_search(form.cleaned_data,request.user)
-            context = {'lenses':lenses,'form':form}
-            return self.render_to_response(context)
-        else:
-            context = {'lenses': None,'form':form}
-            return self.render_to_response(context)
-    
-    def post(self, request, *args, **kwargs):
-        form = forms.LensQueryForm(request.POST)
-        if form.is_valid():
-            lenses = query_search(form.cleaned_data,request.user)
-            context = {'lenses':lenses,'form':form}
-            return self.render_to_response(context)
-        else:
-            context = {'lenses': None,'form':form}
-            return self.render_to_response(context)
-
 
 
         
-
-def query_search(form,user):
-    '''
-    This function performs the filtering on the lenses table, by parsing the filter values from the request
-    '''
-    keywords = list(form.keys())
-    values = [form[keyword] for keyword in keywords]
-
-    #start with available lenses
-    lenses = Lenses.accessible_objects.all(user)
-
-    #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
-    over_meridian = False
-    #print(form['ra_min'], form['ra_max'])
-    if form['ra_min'] is not None and form['ra_max'] is not None:
-        if float(form['ra_min']) > float(form['ra_max']):
-            over_meridian = True
-
-    #now apply the filter for each non-null entry
-    for k, value in enumerate(values):
-        if value is not None:
-            #print(k, value, keywords[k])
-            if 'ra_' in keywords[k] and over_meridian:
-                continue
-            if '_min' in keywords[k]:
-                args = {keywords[k].split('_min')[0]+'__gte':float(value)}
-                lenses = lenses.filter(**args).order_by('ra')
-            elif '_max' in keywords[k]:
-                args = {keywords[k].split('_max')[0]+'__lte':float(value)}
-                lenses = lenses.filter(**args).order_by('ra')
-
-            if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
-                if len(value) > 0:
-                    for i in range(len(value)):
-                        #print(k, value[i], keywords[k])
-                        args = {keywords[k]:value[i]}
-                        lenses_type = lenses.filter(**args)
-                        if i == 0:
-                            final_lenses = lenses_type
-                        else:
-                            final_lenses |= lenses_type
-                    lenses = final_lenses.order_by('ra')
-            if 'flag_' in keywords[k]:
-                if value:
-                    if 'flag_un' in keywords[k]:
-                        keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
-                        value = False
-                    args = {keywords[k]:value}
-                    lenses = lenses.filter(**args)
-                    
-    #come back to the special case where RA_min is less than 0hours
-    if over_meridian:
-        lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
-
-    return lenses

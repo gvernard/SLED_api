@@ -234,8 +234,34 @@
 </div>
 
 
-<div>
-  <h1 class="jb-heading-2">My Lenses ({{ lenses|length }}) </h1>
+<div id="lenses">
+  <h1 class="jb-heading-2">My Lenses ({{ N_lenses }}) </h1>
+  
+  <div>
+    <div>
+      Showing {{ lenses.start_index }} - {{ lenses.end_index }}
+    </div>
+    <div>
+      {% if lenses.has_previous %}
+      <a href="{{ request.path }}?page={{ lenses.number|add:'-1' }}#lenses">Previous</a>
+      {% endif %}
+      
+      {% if lenses.has_other_pages %}
+      {% for n in lenses_range %}
+      {% if n == lenses.number %}
+      <a href="{{ request.path }}?page={{ n }}#lenses" style="color:magenta">{{ n }}</a>
+      {% else %}
+      <a href="{{ request.path }}?page={{ n }}#lenses">{{ n }}</a>
+      {% endif %}
+      {% endfor %}
+      {% endif %}
+      
+      {% if lenses.has_next %}
+      <a href="{{ request.path }}?page={{ lenses.number|add:'1' }}#lenses">Next</a>
+      {% endif %}
+    </div>
+  </div>
+  
   <div>
     <form id="ids-form" method="POST">
       {% csrf_token %}
@@ -248,31 +274,14 @@
 <div>
   <!-- The button class 'sled-process-lenses' is required for functionality  -->
 
-  <!-- Neutral buttons - they don't change the database -->
   <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
     Update lenses
-  </button>
-  <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
-    <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
-    Make collection
-  </button>
-  <button type="submit" id="collage" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-collage' %}">
-    <img src="{% static 'icons/images.svg' %}" alt="image collage">
-    Collage
-  </button>
-
-  <!-- Action buttons - performing some action without any danger of exposing sensitive information -->
-  <button type="button" id="make-private" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-private' %}">
-    <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
-    Make private
   </button>
   <button type="button" id="revoke-access" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-revoke-access' %}">
     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
     Revoke access
   </button>
-
-  <!-- Dangerous action buttons - revealing sensitive information if not used properly -->
   <button type="button" id="give-access" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-give-access' %}">
     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
     Give access
@@ -280,6 +289,12 @@
   <button type="button" id="make-public" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
     Make public
+  </button>
+
+  <!-- The buttons below should be hidden as extra actions -->
+  <button type="button" id="make-private" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-private' %}">
+    <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+    Make private
   </button>
   <button type="button" id="cede-ownership" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
@@ -289,9 +304,6 @@
     <img src="{% static 'icons/trash.svg' %}" alt="trash">
     Delete lenses
   </button>
-
-  <br></br>
-  <br></br>
 </div>
 {% endblock content %}
 
