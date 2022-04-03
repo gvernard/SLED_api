@@ -276,6 +276,15 @@
     border-top: 1px solid #ACACAC;
   }
 
+  .jb-number-input {border:1px solid red}
+  .jb-myselect2 {width:200px}
+  .jb-checkbox-input {border:1px solid blue}
+
+  .jb-duplicate-unselected {color:red}
+  .jb-duplicate-no {color:none}
+  .jb-duplicate-yes {color:green}
+
+  
   .jb-submit-button-1 {
     position: static;
     display: inline;

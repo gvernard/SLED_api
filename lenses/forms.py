@@ -210,37 +210,44 @@ class LensQueryForm(forms.ModelForm):
                                 max_digits=7,
                                 decimal_places=4,
                                 help_text="The min RA [degrees].",
+                                widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                 validators=[MinValueValidator(0.0,"RA must be positive."),
                                             MaxValueValidator(360,"RA must be less than 360 degrees.")])
     ra_max = forms.DecimalField(required=False,
                                 max_digits=7,
                                 decimal_places=4,
                                 help_text="The max RA [degrees].",
+                                widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                 validators=[MinValueValidator(0.0,"RA must be positive."),
                                             MaxValueValidator(360,"RA must be less than 360 degrees.")])
     dec_min = forms.DecimalField(required=False,
                                  max_digits=6,
                                  decimal_places=4,
                                  help_text="The min DEC [degrees].",
+                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                  validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
                                              MaxValueValidator(90,"DEC must be below 90 degrees.")])
     dec_max = forms.DecimalField(required=False,
                                  max_digits=6,
                                  decimal_places=4,
                                  help_text="The min DEC [degrees].",
+                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                  validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
                                              MaxValueValidator(90,"DEC must be below 90 degrees.")])
     n_img_min = forms.IntegerField(required=False,
                                    help_text="Minimum number of source images.",
+                                   widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                    validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                                MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     n_img_max = forms.IntegerField(required=False,
                                    help_text="Maximum number of source images.",
+                                   widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                    validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                                MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     image_sep_min = forms.DecimalField(required=False,
                                        max_digits=4,
                                        decimal_places=2,
+                                       widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                        help_text="Minimum image separation or arc radius [arcsec].",
                                        validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                    MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
@@ -248,46 +255,59 @@ class LensQueryForm(forms.ModelForm):
                                        max_digits=4,
                                        decimal_places=2,
                                        help_text="Maximum image separation or arc radius [arcsec].",
+                                       widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                        validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                    MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
     z_source_min = forms.DecimalField(required=False,
                                       max_digits=4,
                                       decimal_places=3,
                                       help_text="The minimum redshift of the source.",
+                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                       validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                   MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
     z_source_max = forms.DecimalField(required=False,
                                       max_digits=4,
                                       decimal_places=3,
                                       help_text="The maximum redshift of the source.",
+                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                       validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                   MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
     z_lens_min = forms.DecimalField(required=False,
                                     max_digits=4,
                                     decimal_places=3,
                                     help_text="The minimum redshift of the lens.",
+                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                     validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                 MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     z_lens_max = forms.DecimalField(required=False,
                                     max_digits=4,
                                     decimal_places=3,
                                     help_text="The maximum redshift of the lens.",
+                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                     validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                 MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     
-    flag_confirmed     = forms.BooleanField(required=False,help_text="Select only confirmed lenses (confirmed field set to True).")
-    flag_unconfirmed   = forms.BooleanField(required=False,help_text="Select only un-confirmed lenses (confirmed field set to False).")
-    flag_contaminant   = forms.BooleanField(required=False,help_text="Select only confirmed contaminants (contaminant field set to True).")
-    flag_uncontaminant = forms.BooleanField(required=False,help_text="Select only unconfirmed contaminants (contaminant field set to False).")
+    flag_confirmed     = forms.BooleanField(required=False,
+                                            widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
+                                            help_text="Select only confirmed lenses (confirmed field set to True).")
+    flag_unconfirmed   = forms.BooleanField(required=False,
+                                            widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
+                                            help_text="Select only un-confirmed lenses (confirmed field set to False).")
+    flag_contaminant   = forms.BooleanField(required=False,
+                                            widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
+                                            help_text="Select only confirmed contaminants (contaminant field set to True).")
+    flag_uncontaminant = forms.BooleanField(required=False,
+                                            widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
+                                            help_text="Select only unconfirmed contaminants (contaminant field set to False).")
     page = forms.IntegerField(required=False,widget=forms.HiddenInput())
     
     class Meta:
         model = Lenses
         fields = ['image_conf','lens_type','source_type']
         widgets = {
-            'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-            'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-            'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
+            'lens_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
+            'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
+            'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
         }
 
     # def __init__(self, *args, **kwargs):
