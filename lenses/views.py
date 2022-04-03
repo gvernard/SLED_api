@@ -8,6 +8,7 @@ from django.db import connection
 from django.db.models import CharField
 from django.utils import timezone
 from django.apps import apps
+from django.core.paginator import Paginator
 
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
@@ -19,7 +20,7 @@ from django.conf import settings
 import json
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, Imaging, Spectrum, Catalogue
 
 from . import forms
 
@@ -288,6 +289,12 @@ class LensDetailView(DetailView):
     def get_queryset(self):
         return Lenses.accessible_objects.all(self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        #context['imagings'] = context['lens'].imaging.all(self.request.user)
+        context['imagings'] = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        return context
+    
 
 # View to add new lenses
 @method_decorator(login_required,name='dispatch')
@@ -579,33 +586,125 @@ class LensResolveDuplicatesView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
 
-#=============================================================================================================================
-### END: Non-modal views
-#=============================================================================================================================
+
+# View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
+@method_decorator(login_required,name='dispatch')
+class LensAddDataView(TemplateView):
+    template_name = 'lenses/lens_add_data.html'
+
+    def get_objs_and_existing(self,task,user):
+        objs = []
+        for obj in serializers.deserialize("json",task.cargo['objects']):
+            datum = obj.object
+            if datum._meta.model.__name__ != 'Catalogue':
+                new_image_name = 'temporary/' + user.username + '/' + datum.image.name
+                if os.path.isfile(settings.MEDIA_ROOT + '/' + new_image_name):
+                    datum.image = new_image_name
+            objs.append(datum)
+
+        ras = task.cargo['ra']
+        decs = task.cargo['dec']
+        indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs)
+        existing = [None]*len(objs)
+        choice_list = [None]*len(objs)
+        for i,index in enumerate(indices):
+            existing[index] = neis[i]
+            choice_list[index] = [(lens.id,lens.name) for lens in neis[i]]
+
+        return objs,indices,existing,choice_list
+
+        
+    def get(self, request, *args, **kwargs):
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if request.user == task.owner:
+            objs,indices,existing,choice_list = self.get_objs_and_existing(task,request.user)
+            
+            FormSetFactory = formset_factory(forms.AddDataForm,formset=forms.BaseAddDataFormSet,extra=len(choice_list))
+            myformset = FormSetFactory(form_kwargs={'choices':choice_list})
+
+            form_array = [None]*len(objs)
+            for i,index in enumerate(indices):
+                form_array[index] = myformset.forms[i]
+            
+            context = {'myformset': myformset,'data_form_existing': zip(objs,form_array,existing)}
+            return self.render_to_response(context)
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if not task:
+            message = 'This task does not exist.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
+
+        if referer == request.path and request.user == task.owner:
+            objs,indices,existing,choice_list = self.get_objs_and_existing(task,request.user)
+            
+            FormSetFactory = formset_factory(forms.AddDataForm,formset=forms.BaseAddDataFormSet,extra=0)
+            myformset = FormSetFactory(form_kwargs={'choices':choice_list},data=request.POST)
+            if myformset.is_valid():
+                # Hack to pass the insert_form responses to the task
+                lens_ids = []
+                for response in myformset.cleaned_data:
+                    lens_ids.append(response['mychoices'])
+                my_response = json.dumps(lens_ids)
+                task.responses_allowed = [my_response]
+                task.registerResponse(request.user,my_response,'Some comment')
+                task.finalizeTask()
+                #task.delete()
+                message = 'Data uploaded successfully!'
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
+            else:
+                form_array = [None]*len(objs)
+                for i,index in enumerate(indices):
+                    form_array[index] = myformset.forms[i]
+
+                context = {'myformset': myformset,'data_form_existing': zip(objs,form_array,existing)}
+                return self.render_to_response(context)
+            
+        else:
+            message = 'You are not authorized to view this page.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})
 
 
+# View for lens Collage
+#@method_decorator(login_required,name='dispatch')
+class LensCollageView(ListView):
+    model = Lenses
+    allow_empty = True
+    template_name = 'lenses/lens_collage.html'
+    paginate_by = 50
 
-
-
-
-
-
-
-
-
-
-
-
-def LensCollageView(request):
-    if request.method=='POST':
-        ids = [ pk for pk in request.POST.getlist('ids') if pk.isdigit() ]
+    def get_queryset(self,ids):
+        return Lenses.accessible_objects.in_ids(self.request.user,ids)
+    
+    def post(self, request, *args, **kwargs):
+        ids = [ pk for pk in self.request.POST.getlist('ids') if pk.isdigit() ]
         if ids:
-            lenses = Lenses.accessible_objects.in_ids(request.user,ids)
-        return render(request, 'lenses/lens_collage.html', {'lenses':lenses})
+            lenses = self.get_queryset(ids)
+            return render(request, self.template_name, {'lenses': lenses})
+        else:
+            message = 'No selected lenses to display in collage.'
+            return TemplateResponse(request,'simple_message.html',context={'message':message})  
 
-
-
-
+    def get(self, request, *args, **kwargs):
+        message = 'You are accessing this page in an unauthorized way.'
+        return TemplateResponse(request,'simple_message.html',context={'message':message})  
+        
 
 # View for lens queries
 @method_decorator(login_required,name='dispatch')
@@ -616,86 +715,100 @@ class LensQueryView(TemplateView):
     '''
     template_name = 'lenses/lens_query.html'
 
-    def get_context_data(self, **kwargs):
-        form = forms.LensQueryForm()
-        context = {'lenses': None,'form':form}
-        return context
+    def query_search(self,form,user):
+        '''
+        This function performs the filtering on the lenses table, by parsing the filter values from the request
+        '''
+        keywords = list(form.keys())
+        values = [form[keyword] for keyword in keywords]
+
+        #start with available lenses
+        lenses = Lenses.accessible_objects.all(user)
+
+        #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
+        over_meridian = False
+        #print(form['ra_min'], form['ra_max'])
+        if form['ra_min'] is not None and form['ra_max'] is not None:
+            if float(form['ra_min']) > float(form['ra_max']):
+                over_meridian = True
+
+        #now apply the filter for each non-null entry
+        for k, value in enumerate(values):
+            if value is not None:
+                #print(k, value, keywords[k])
+                if 'ra_' in keywords[k] and over_meridian:
+                    continue
+                if '_min' in keywords[k]:
+                    args = {keywords[k].split('_min')[0]+'__gte':float(value)}
+                    lenses = lenses.filter(**args).order_by('ra')
+                elif '_max' in keywords[k]:
+                    args = {keywords[k].split('_max')[0]+'__lte':float(value)}
+                    lenses = lenses.filter(**args).order_by('ra')
+
+                if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
+                    if len(value) > 0:
+                        for i in range(len(value)):
+                            #print(k, value[i], keywords[k])
+                            args = {keywords[k]:value[i]}
+                            lenses_type = lenses.filter(**args)
+                            if i == 0:
+                                final_lenses = lenses_type
+                            else:
+                                final_lenses |= lenses_type
+                                lenses = final_lenses.order_by('ra')
+                                
+                if 'flag_' in keywords[k]:
+                    if value:
+                        if 'flag_un' in keywords[k]:
+                            keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
+                            value = False
+                            args = {keywords[k]:value}
+                            lenses = lenses.filter(**args)
+                        
+        #come back to the special case where RA_min is less than 0hours
+        if over_meridian:
+            lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
+
+        # Paginator for lenses
+        paginator = Paginator(lenses,50)
+        lenses_page = paginator.get_page(form['page'])
+        lenses_count = paginator.count
+        lenses_range = paginator.page_range
+
+        return lenses_page,lenses_range,lenses_count
 
     def get(self, request, *args, **kwargs):
         form = forms.LensQueryForm(request.GET)
         if form.is_valid():
-            lenses = query_search(form.cleaned_data,request.user)
-            context = {'lenses':lenses,'form':form}
-            return self.render_to_response(context)
+            lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
+            context = {'lenses':lenses_page,
+                       'lenses_range':lenses_range,
+                       'lenses_count':lenses_count,
+                       'form':form}
         else:
-            context = {'lenses': None,'form':form}
-            return self.render_to_response(context)
+            context = {'lenses': None,
+                       'lenses_range': [],
+                       'lenses_count': 0,
+                       'form':form}
+        return self.render_to_response(context)
     
     def post(self, request, *args, **kwargs):
         form = forms.LensQueryForm(request.POST)
         if form.is_valid():
-            lenses = query_search(form.cleaned_data,request.user)
-            context = {'lenses':lenses,'form':form}
-            return self.render_to_response(context)
+            lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
+            context = {'lenses':lenses_page,
+                       'lenses_range':lenses_range,
+                       'lenses_count':lenses_count,
+                       'form':form}
         else:
-            context = {'lenses': None,'form':form}
-            return self.render_to_response(context)
-
-
-
+            context = {'lenses': None,
+                       'lenses_range': [],
+                       'lenses_count': 0,
+                       'form':form}
+        return self.render_to_response(context)
         
 
-def query_search(form,user):
-    '''
-    This function performs the filtering on the lenses table, by parsing the filter values from the request
-    '''
-    keywords = list(form.keys())
-    values = [form[keyword] for keyword in keywords]
-
-    #start with available lenses
-    lenses = Lenses.accessible_objects.all(user)
-
-    #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
-    over_meridian = False
-    #print(form['ra_min'], form['ra_max'])
-    if form['ra_min'] is not None and form['ra_max'] is not None:
-        if float(form['ra_min']) > float(form['ra_max']):
-            over_meridian = True
-
-    #now apply the filter for each non-null entry
-    for k, value in enumerate(values):
-        if value is not None:
-            #print(k, value, keywords[k])
-            if 'ra_' in keywords[k] and over_meridian:
-                continue
-            if '_min' in keywords[k]:
-                args = {keywords[k].split('_min')[0]+'__gte':float(value)}
-                lenses = lenses.filter(**args).order_by('ra')
-            elif '_max' in keywords[k]:
-                args = {keywords[k].split('_max')[0]+'__lte':float(value)}
-                lenses = lenses.filter(**args).order_by('ra')
-
-            if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
-                if len(value) > 0:
-                    for i in range(len(value)):
-                        #print(k, value[i], keywords[k])
-                        args = {keywords[k]:value[i]}
-                        lenses_type = lenses.filter(**args)
-                        if i == 0:
-                            final_lenses = lenses_type
-                        else:
-                            final_lenses |= lenses_type
-                    lenses = final_lenses.order_by('ra')
-            if 'flag_' in keywords[k]:
-                if value:
-                    if 'flag_un' in keywords[k]:
-                        keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
-                        value = False
-                    args = {keywords[k]:value}
-                    lenses = lenses.filter(**args)
-                    
-    #come back to the special case where RA_min is less than 0hours
-    if over_meridian:
-        lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
-
-    return lenses
+        
+#=============================================================================================================================
+### END: Non-modal views
+#=============================================================================================================================

@@ -71,6 +71,7 @@ class ConfirmationTask(SingleObject):
         ('ResolveDuplicates','Resolve duplicate objects'),
         ('AskPrivateAccess','Ask access to private objects'),
         ('AskToJoinGroup','Request to add to group'),
+        ('AddData','Associate data to lens.'),
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -664,5 +665,80 @@ class AskToJoinGroup(ConfirmationTask):
                         object_type=self._meta.model.__name__,
                         object_ids=[self.id])
 
+
+
+
+class AddData(ConfirmationTask):
+    class Meta:
+        proxy = True
+
+    responses_allowed = []
+    
+    class myForm(forms.Form):
+        pass
+    
+    def allowed_responses(self):
+        return self.responses_allowed
+
+    def getForm(self):
+        return self.myForm()
+
+    def finalizeTask(self):
+        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
+        dum = json.loads(obj_responses['response'])
+        lens_ids = []
+        for id in dum:
+            lens_ids.append(int(id))
+        lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,lens_ids)
+
+        
+        new_data = []
+        for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
+            obj.object.owner = self.owner
+            if not obj.object.pk:
+                obj.object.lens = lenses[i]
+                obj.object.image.name = 'temporary/' + self.owner.username + '/' + obj.object.image.name
+                new_data.append(obj.object)
+
+        # Save data in the database
+        db_vendor = connection.vendor
+        if db_vendor == 'sqlite':
+            pri = []
+            pub = []
+            for datum in new_data:
+                datum.save()
+                if datum.access_level == 'PRI':
+                    pri.append(datum)
+                else:
+                    pub.append(datum)
+
+            if pri:
+                assign_perm('view_lenses',self.owner,pri)
+            if len(pub) > 0:
+                # main activity post
+                if len(pub) > 1:
+                    myverb = '%d new Data entries were added.' % len(pub)
+                else:
+                    myverb = '1 new Data entry was added.'
+                from . import Users
+                admin = Users.objects.get(username='admin')
+                action.send(self.owner,
+                            target=admin,
+                            verb=myverb,
+                            level='success',
+                            action_type='AddData',
+                            object_type='Data',
+                            object_ids=[obj.id for obj in pub])
+        else:
+            lenses = Lenses.objects.bulk_create(lenses)
+            # Here I need to upload and rename the images accordingly.
+            pri = []
+            for lens in lenses:
+                if lens.access_level == 'PRI':
+                    pri.append(lens)
+            if pri:
+                assign_perm('view_lenses',self.owner,pri)
+
+            
 ### END: Confirmation task specific code
 ################################################################################################################################################

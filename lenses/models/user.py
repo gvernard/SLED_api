@@ -19,7 +19,7 @@ import inspect
 from . import SledGroup, SingleObject, ConfirmationTask, Collection
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
-objects_with_owner = ["Lenses","ConfirmationTask","Collection"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 
 from django.db.models import Aggregate

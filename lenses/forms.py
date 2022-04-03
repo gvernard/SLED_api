@@ -175,7 +175,34 @@ class ResolveDuplicatesForm(forms.Form):
                                choices=mychoices,
                                widget=forms.RadioSelect)
     index = forms.CharField(widget=forms.HiddenInput())
+
+
+class AddDataForm(forms.Form):
+    mychoices = forms.ChoiceField(required=True,
+                                  label='Confirm uploading data?',
+                                  choices=(),
+                                  widget=forms.RadioSelect)
     
+    def __init__(self, *args, choices, **kwargs):
+        super(AddDataForm, self).__init__(*args, **kwargs)
+        self.fields['mychoices'].choices = choices
+    
+
+class BaseAddDataFormSet(forms.BaseFormSet):
+
+    def get_form_kwargs(self, index):
+        kwargs = super().get_form_kwargs(index)
+        choices = kwargs['choices'][index]
+        return {'choices':choices}
+
+    def clean(self):
+        other_forms = []
+        for form in self.forms:
+            if len(form.cleaned_data) == 0:
+                message = 'You need to select one lens!'
+                form.add_error('mychoices',message)
+
+
         
 class LensQueryForm(forms.ModelForm):
     # The following block is basically a copy of the corresponding lens model fields, each having a min and max field.
@@ -252,6 +279,7 @@ class LensQueryForm(forms.ModelForm):
     flag_unconfirmed   = forms.BooleanField(required=False,help_text="Select only un-confirmed lenses (confirmed field set to False).")
     flag_contaminant   = forms.BooleanField(required=False,help_text="Select only confirmed contaminants (contaminant field set to True).")
     flag_uncontaminant = forms.BooleanField(required=False,help_text="Select only unconfirmed contaminants (contaminant field set to False).")
+    page = forms.IntegerField(required=False,widget=forms.HiddenInput())
     
     class Meta:
         model = Lenses

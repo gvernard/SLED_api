@@ -10,7 +10,7 @@ urlpatterns = [
     path('all-collections/',TemplateView.as_view(template_name='lenses/lens_all_collections.html'),name='lens-all-collections'),
     path('add/',views.LensAddView.as_view(),name='lens-add'),
     path('update/',views.LensUpdateView.as_view(),name='lens-update'),
-    path('collage/',views.LensCollageView,name='lens-collage'),
+    path('collage/',views.LensCollageView.as_view(),name='lens-collage'),
     path('delete/',views.LensDeleteView.as_view(),name='lens-delete'),
     path('give-access/',views.LensGiveRevokeAccessView.as_view(),kwargs={'mode':'give'},name='lens-give-access'),
     path('revoke-access/',views.LensGiveRevokeAccessView.as_view(),kwargs={'mode':'revoke'},name='lens-revoke-access'),
@@ -18,5 +18,6 @@ urlpatterns = [
     path('make-private/',views.LensMakePrivateView.as_view(),name='lens-make-private'),
     path('make-public/',views.LensMakePublicView.as_view(),name='lens-make-public'),
     path('resolve-duplicates/<int:pk>',views.LensResolveDuplicatesView.as_view(),name='resolve-duplicates'),
+    path('add-data/<int:pk>',views.LensAddDataView.as_view(),name='add-data'),
     path('detail/<int:pk>',views.LensDetailView.as_view(),name='lens-detail'),
 ]

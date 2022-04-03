@@ -3,9 +3,10 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import inlineformset_factory
 from django.views.generic import TemplateView
-
+from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery
+
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue
 
 
 @method_decorator(login_required,name='dispatch')
@@ -49,7 +50,12 @@ class UserProfileView(TemplateView):
         # Get owned objects
         owned_objects = user.getOwnedObjects()
 
-        qset_lenses = owned_objects["Lenses"]
+        # Paginator for lenses
+        paginator = Paginator(owned_objects["Lenses"],50)
+        page_number = request.GET.get('page',1)
+        lenses_page = paginator.get_page(page_number)
+        
+        
         # lenses_users_with_access = [None]*len(qset_lenses)
         # lenses_groups_with_access = [None]*len(qset_lenses)
         # for i,lens in enumerate(qset_lenses):
@@ -81,7 +87,7 @@ class UserProfileView(TemplateView):
                 cols_groups_with_access[i] = ''
 
 
-                
+
         context={'user':user,
                  'groups':groups,
                  'N_groups': N_groups,
@@ -92,7 +98,12 @@ class UserProfileView(TemplateView):
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
                  'N_note_unread': N_note_unread,
-                 'lenses': qset_lenses,
+                 'N_lenses': paginator.count,
+                 'lenses_range': paginator.page_range,
+                 'lenses': lenses_page,
+                 'imagings': owned_objects["Imaging"],
+                 'spectra': owned_objects["Spectrum"],
+                 'catalogues': owned_objects["Catalogue"],
                  'collections': qset_cols,
                  'collections_users': cols_users_with_access,
                  'collections_groups': cols_groups_with_access,

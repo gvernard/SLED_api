@@ -1,0 +1,28 @@
+[
+    {
+	"access_level": "PUB",
+	"ra": 6,
+	"dec": 6,
+	"instrument": "HST",
+	"band": "WFC",
+	"date_taken": "2001-12-01",
+	"future": false,
+	"info": null,
+	"exposure_time": 180,
+	"pixel_size": 0.8,
+	"image": "imaging_this_lens.png"
+    },
+    {
+	"access_level": "PUB",
+	"ra": 184.1917,
+	"dec": 35.4948,
+	"instrument": "HST",
+	"band": "FW401",
+	"date_taken": "2008-03-15",
+	"future": false,
+	"info": null,
+	"exposure_time": 300,
+	"pixel_size": 0.8,
+	"image": "imaging_that_lens.png"
+    }
+]
