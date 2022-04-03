@@ -280,6 +280,9 @@
   .jb-myselect2 {width:200px}
   .jb-checkbox-input {border:1px solid blue}
 
+  .jb-add-update-lenses-number {border:1px solid orange}
+  .jb-lens-info {border:1px solid magenta}
+  
   .jb-duplicate-unselected {color:red}
   .jb-duplicate-no {color:none}
   .jb-duplicate-yes {color:green}

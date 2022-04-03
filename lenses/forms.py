@@ -11,13 +11,19 @@ class BaseLensForm(forms.ModelForm):
         model = Lenses
         exclude = ['name']
         widgets = {
-            'info': forms.Textarea({'placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
-            'lens_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-            'source_type': forms.Select(attrs={'class':'my-select2','multiple':'multiple'}),
-            'image_conf': forms.Select(attrs={'class':'my-select2','multiple':'multiple'})
+            'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
+            'lens_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
+            'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
+            'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
         }
         
-        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name,field in zip(self.fields,self.fields.values()):
+            if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
+                field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
+            
+            
 class LensDeleteForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for deleting these lenses.','rows':3,'cols':30}))
@@ -309,10 +315,6 @@ class LensQueryForm(forms.ModelForm):
             'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
             'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
         }
-
-    # def __init__(self, *args, **kwargs):
-    #     self.request = kwargs.pop('request',None)
-    #     super(LensQueryForm,self).__init__(*args, **kwargs)
 
     def clean(self):
         # Perform any multi-field check here

@@ -163,7 +163,12 @@
         <tr>
           {% if request.resolver_match.url_name == 'lens-add' %}
           <td>
-            <div class="sled-add-button"></div>
+            <div>
+	      <button id="sled-add-another" type="button" class="jb-submit-button-1">
+		Add another
+	      </button>
+	    </div>
+            <div class="sled-add-button-hidden"></div>
           </td>
           <td><button id="toggle-access-level" type="button" class="jb-submit-button-1">Toggle access_level all</button></td>
           <td><button type="submit" class="jb-submit-button-1">Create Lenses</button></td>
@@ -181,6 +186,9 @@
 
 {% block extrastyles %}
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<style>
+  .sled-add-button-hidden {display:none}
+</style>
 {% endblock extrastyles %}
 
 
@@ -193,28 +201,32 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-    function readURL(input, $img) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-          $img.attr('src', e.target.result);
-        }
-        reader.readAsDataURL(input.files[0]);
+      function readURL(input, $img) {
+	  if (input.files && input.files[0]) {
+              var reader = new FileReader();
+              reader.onload = function(e) {
+		  $img.attr('src', e.target.result);
+              }
+              reader.readAsDataURL(input.files[0]);
+	  }
       }
-    }
-    $(document).on("change", "input[name*='mugshot']", function() {
-      var $img = $(this).parent().parent().parent().find('img');
-      readURL(this, $img);
-    });
+      $(document).on("change", "input[name*='mugshot']", function() {
+	  var $img = $(this).parent().parent().parent().find('img');
+	  readURL(this, $img);
+      });
 
-    $('.my-select2').each(function(index, element) {
-      $(element).attr('multiple', 'multiple');
-      $(element).find('option')[0].remove();
-    });
-    $('.my-select2').select2({
-      multiple: true,
-      placeholder: 'Select an option'
-    });
+      $('.my-select2').each(function(index, element) {
+	  $(element).attr('multiple', 'multiple');
+	  $(element).find('option')[0].remove();
+      });
+      $('.my-select2').select2({
+	  multiple: true,
+	  placeholder: 'Select an option'
+      });
+      
+      $("#sled-add-another").click(function(e){
+	  $(".add-row").trigger("click");
+      });
   });
 </script>
 {% endblock extrascripts %}
