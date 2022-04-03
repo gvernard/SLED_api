@@ -179,7 +179,7 @@ class ResolveDuplicatesForm(forms.Form):
     insert = forms.ChoiceField(required=True,
                                label='Submit this lens?',
                                choices=mychoices,
-                               widget=forms.RadioSelect)
+                               widget=forms.RadioSelect(attrs={'class':'sled-dupl-yes-no'}))
     index = forms.CharField(widget=forms.HiddenInput())
 
 

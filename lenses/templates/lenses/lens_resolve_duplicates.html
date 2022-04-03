@@ -30,7 +30,7 @@
         <tbody>
           {% for new_lens,form,existing in new_form_existing %}
 
-          <tr>
+          <tr class="sled-main-row sled-duplicate-required">
             <td>
               {% include 'lenses/lens_visit_card.html' with lens=new_lens %}
             </td>
@@ -63,3 +63,24 @@
   </form>
 </div>
 {% endblock content %}
+
+
+{% block extrascripts %}
+<script type="text/javascript">
+  $(document).ready(function(){
+
+
+      $('.sled-dupl-yes-no').on('click',function(){
+	  if( $(this).is(':checked') ){
+	      $(this).closest('.sled-main-row').removeClass("sled-duplicate-required");
+	      if( $(this).val() == 'yes' ){
+		  $(this).closest('.sled-main-row').removeClass("sled-duplicate-no").addClass("sled-duplicate-yes");
+              } else {
+		  $(this).closest('.sled-main-row').removeClass("sled-duplicate-yes").addClass("sled-duplicate-no");
+	      }
+          }
+      })
+      
+  });
+</script>
+{% endblock extrascripts %}

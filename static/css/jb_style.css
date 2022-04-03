@@ -287,6 +287,15 @@
   .jb-duplicate-no {color:none}
   .jb-duplicate-yes {color:green}
 
+
+  .sled-duplicate-no {outline: none;
+		      background-color:none}
+  .sled-duplicate-required {outline: thin solid black;
+			    background-color:rgba(255,0,0,0.25)}
+  .sled-duplicate-yes {outline: thin solid black;
+		       background-color:rgba(0,255,0,0.25)}
+
+  
   
   .jb-submit-button-1 {
     position: static;
