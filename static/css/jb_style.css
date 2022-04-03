@@ -403,3 +403,7 @@
     font-size: 20px;
     color: #ACACAC !important;
   }
+
+  .jb-pagination-numbers {
+    letter-spacing: 5px;
+  }

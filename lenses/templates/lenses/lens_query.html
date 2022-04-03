@@ -128,9 +128,9 @@
         {% if lenses.has_other_pages %}
         {% for n in lenses_range %}
         {% if n == lenses.number %}
-        <a class="sled_submit" href="{{ n }}" style="color: #BABCEF">{{ n }}</a>
+        <a class="sled_submit jb-pagination-numbers" href="{{ n }}" style="color: #BABCEF">{{ n }}</a>
         {% else %}
-        <a class="sled_submit" href="{{ n }}" class="jb-pagination-numbers">{{ n }}</a>
+        <a class="sled_submit jb-pagination-numbers" href="{{ n }}">{{ n }}</a>
         {% endif %}
         {% endfor %}
         {% endif %}
@@ -140,7 +140,7 @@
         {% endif %}
       </tr>
       <tr>
-        Showing {{ lenses.start_index }} - {{ lenses.end_index }}
+        | Showing {{ lenses.start_index }} - {{ lenses.end_index }}
       </tr>
     </table>
   </div>
@@ -150,6 +150,33 @@
       {% csrf_token %}
       {% include "lenses/lens_list_executive.html" with lenses=lenses %}
     </form>
+  </div>
+
+  <div class="jb-pagination-table">
+    <table>
+      <tr>
+        {% if lenses.has_previous %}
+        <a class="sled_submit" href="{{ lenses.number|add:'-1' }}">Previous </a>
+        {% endif %}
+
+        {% if lenses.has_other_pages %}
+        {% for n in lenses_range %}
+        {% if n == lenses.number %}
+        <a class="sled_submit jb-pagination-numbers" href="{{ n }}" style="color: #BABCEF">{{ n }}</a>
+        {% else %}
+        <a class="sled_submit jb-pagination-numbers" href="{{ n }}">{{ n }}</a>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        {% if lenses.has_next %}
+        <a class="sled_submit" href="{{ lenses.number|add:'1' }}"> Next</a>
+        {% endif %}
+      </tr>
+      <tr>
+        | Showing {{ lenses.start_index }} - {{ lenses.end_index }}
+      </tr>
+    </table>
   </div>
 
   <div>
