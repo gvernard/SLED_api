@@ -13,7 +13,7 @@
 <div class="jb-container">
   <h1 class="jb-heading-1">Query Lenses</h1>
 
-  <div>
+  <div class="jb-table-no-lines">
     <form id="lens-query" method="POST">
       {% csrf_token %}
 
@@ -118,31 +118,33 @@
   </div>
 
 
-  <div>
-    <div>
-      Showing {{ lenses.start_index }} - {{ lenses.end_index }}
-    </div>
-    <div>
-      {% if lenses.has_previous %}
-      <a class="sled_submit" href="{{ lenses.number|add:'-1' }}">Previous</a>
-      {% endif %}
-      
-      {% if lenses.has_other_pages %}
-      {% for n in lenses_range %}
-      {% if n == lenses.number %}
-      <a class="sled_submit" href="{{ n }}" style="color:magenta">{{ n }}</a>
-      {% else %}
-      <a class="sled_submit" href="{{ n }}">{{ n }}</a>
-      {% endif %}
-      {% endfor %}
-      {% endif %}
-      
-      {% if lenses.has_next %}
-      <a class="sled_submit" href="{{ lenses.number|add:'1' }}">Next</a>
-      {% endif %}
-    </div>
+  <div class="jb-pagination-table">
+    <table>
+      <tr>
+        {% if lenses.has_previous %}
+        <a class="sled_submit" href="{{ lenses.number|add:'-1' }}">Previous </a>
+        {% endif %}
+
+        {% if lenses.has_other_pages %}
+        {% for n in lenses_range %}
+        {% if n == lenses.number %}
+        <a class="sled_submit" href="{{ n }}" style="color: #BABCEF">{{ n }}</a>
+        {% else %}
+        <a class="sled_submit" href="{{ n }}" class="jb-pagination-numbers">{{ n }}</a>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        {% if lenses.has_next %}
+        <a class="sled_submit" href="{{ lenses.number|add:'1' }}"> Next</a>
+        {% endif %}
+      </tr>
+      <tr>
+        Showing {{ lenses.start_index }} - {{ lenses.end_index }}
+      </tr>
+    </table>
   </div>
-  
+
   <div>
     <form id="ids-form" method="POST">
       {% csrf_token %}
@@ -161,8 +163,6 @@
       Add to collection
     </button>
   </div>
-  <br></br>
-  <br></br>
 </div>
 {% endblock content %}
 
@@ -178,68 +178,68 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $('.my-select2').each(function(index, element) {
-	  $(element).attr('multiple', 'multiple');
-	  $(element).find('option')[0].remove();
-      });
-      $('.my-select2').select2({
-	  multiple: true,
-	  placeholder: 'Select an option'
-      });
-      
-      $("#save-query").click(function() {
-	  // Check that the query form is not empty
-	  var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains
-	  var get_str = myjson.replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
+    $('.my-select2').each(function(index, element) {
+      $(element).attr('multiple', 'multiple');
+      $(element).find('option')[0].remove();
+    });
+    $('.my-select2').select2({
+      multiple: true,
+      placeholder: 'Select an option'
+    });
 
-	  if (get_str.length == 0) {
-              alert('Query does not have any parameters!');
-	  } else {
-              // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
+    $("#save-query").click(function() {
+      // Check that the query form is not empty
+      var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains
+      var get_str = myjson.replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
 
-              // Trigger modal
-              var new_form_url = url_core + '?' + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-	  }
+      if (get_str.length == 0) {
+        alert('Query does not have any parameters!');
+      } else {
+        // Fetch only the first part of the URL (without any GET arguments)
+        var url = $(this).data('form-url').split('?');
+        var url_core = url[0];
+
+        // Trigger modal
+        var new_form_url = url_core + '?' + get_str;
+        $(this).modalFormTrigger({
+          formURL: new_form_url,
+          modalID: "#id-modal"
+        });
+      }
+    });
+
+    $(".sled_submit").click(function(e) {
+      e.preventDefault();
+      var page = $(this).attr('href');
+      $('#id_page').val(page);
+      $('#mysubmit').trigger('click');
+    });
+
+    $(".sled-process-lenses").click(function() {
+      // Construct get query string
+      var values = [];
+      $('#exe_summary input[type="checkbox"]:checked').each(function() {
+        values.push('ids=' + $(this).val());
       });
-      
-      $(".sled_submit").click(function(e){
-	  e.preventDefault();
-	  var page = $(this).attr('href');
-	  $('#id_page').val(page);
-	  $('#mysubmit').trigger('click');
-      });
-      
-      $(".sled-process-lenses").click(function() {
-	  // Construct get query string
-	  var values = [];
-	  $('#exe_summary input[type="checkbox"]:checked').each(function() {
-              values.push('ids=' + $(this).val());
-	  });
 
-	  if (values.length == 0) {
-              alert('You need to select at least one item!');
-	  } else {
-              var get_str = '?' + values.join('&') + '&';
+      if (values.length == 0) {
+        alert('You need to select at least one item!');
+      } else {
+        var get_str = '?' + values.join('&') + '&';
 
-              // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
+        // Fetch only the first part of the URL (without any GET arguments)
+        var url = $(this).data('form-url').split('?');
+        var url_core = url[0];
 
-              // Trigger modal
-              var new_form_url = url_core + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-	  }
-      });
-      
+        // Trigger modal
+        var new_form_url = url_core + get_str;
+        $(this).modalFormTrigger({
+          formURL: new_form_url,
+          modalID: "#id-modal"
+        });
+      }
+    });
+
   });
 </script>
 {% endblock extrascripts %}

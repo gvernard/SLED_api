@@ -6,6 +6,7 @@
     margin: auto;
     max-width: 940px;
     font-family: basic-sans, sans-serif;
+    padding-bottom: 50px;
   }
 
   .jb-container a {
@@ -276,15 +277,36 @@
     border-top: 1px solid #ACACAC;
   }
 
-  .jb-number-input {border:1px solid red}
-  .jb-myselect2 {width:200px}
-  .jb-checkbox-input {border:1px solid blue}
+  .jb-table-no-lines table td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-top: 0px solid #ACACAC;
+  }
 
-  .jb-duplicate-unselected {color:red}
-  .jb-duplicate-no {color:none}
-  .jb-duplicate-yes {color:green}
+  .jb-number-input {
+    width: 120px;
+  }
 
-  
+  .jb-myselect2 {
+    width: 200px;
+  }
+
+  .jb-checkbox-input {
+    background: #6F73DE;
+  }
+
+  .jb-duplicate-unselected {
+    color: red
+  }
+
+  .jb-duplicate-no {
+    color: none
+  }
+
+  .jb-duplicate-yes {
+    color: green
+  }
+
   .jb-submit-button-1 {
     position: static;
     display: inline;
@@ -372,4 +394,12 @@
     width: 250px;
     height: 250px;
     float: right;
+  }
+
+  .jb-pagination-table {
+    table-layout: auto;
+    padding-top: 40px;
+    padding-bottom: 20px;
+    font-size: 20px;
+    color: #ACACAC !important;
   }
