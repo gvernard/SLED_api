@@ -11,11 +11,15 @@ class Instrument(models.Model):
                             unique=True,
                             max_length=100,
                             help_text="A name for the instrument.")
+    extended_name = models.CharField(blank=False,
+                            max_length=100,
+                            help_text="The extended name for the instrument.")    
     info = models.TextField(blank=True,
                             default='',
                             help_text="Any important note about the instrument.")
 
     class Meta():
+        ordering = ["name"]
         db_table = "instruments"
         verbose_name = "instrument"
         verbose_name_plural = "instruments"
@@ -31,6 +35,7 @@ class Band(models.Model):
                             help_text="Any important note about the band.")
 
     class Meta():
+        ordering = ["name"]
         db_table = "bands"
         verbose_name = "band"
         verbose_name_plural = "bands"

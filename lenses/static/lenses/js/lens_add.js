@@ -9,7 +9,7 @@ $( document ).ready(function() {
 	added: reposition,
 	removed: reset_counter,
 	deleteContainerClass: "sled-delete-button",
-	addContainerClass: "sled-add-button",
+	addContainerClass: "sled-add-button-hidden",
 	prefix: prefix
     });
 });
