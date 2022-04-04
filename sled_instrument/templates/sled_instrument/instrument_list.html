@@ -1,0 +1,65 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+<!-- This modal is required to display messages when redirecting here, e.g. when deleting a group -->
+<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
+  <div class="modal-dialog">
+    <div class="modal-content"></div>
+  </div>
+</div>
+
+
+
+<div class="jb-container">
+  <h1 class="jb-heading-1">SLED Instruments</h1>
+  {% if instruments %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Extended Name</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for instrument in instruments %}
+      <tr>
+        <td>{{ instrument.name }}</td>
+        <td>{{ instrument.extended_name }}</td>
+        <td>{{ instrument.info }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No instruments to show
+  </p>
+  {% endif %}
+
+  <button type="button" id="create-new-instrument" class="jb-button-1" data-form-url="{% url 'sled_instrument:instrument-add' %}">
+    <img src="{% static 'icons/folder-fill.svg' %}" alt="new-instrument">
+    Create new instrument
+  </button>
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#create-new-instrument").modalForm({
+      formURL: $("#create-new-instrument").data("form-url"),
+      modalID: "#id-modal"
+    });
+  });
+</script>
+{% endblock extrascripts %}
