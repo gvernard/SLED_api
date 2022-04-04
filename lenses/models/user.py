@@ -50,8 +50,23 @@ class Users(AbstractUser,GuardianUserMixin):
     Attributes:
         affiliation (`CharField`): Affiliation is the only field in addition to the standard django `User` fields. User groups (see ~SledGroups) are taken care of by the existing django modules.
     """
-    affiliation = models.CharField(max_length=100, help_text="An affiliation, e.g. an academic or research institution etc.")
+    affiliation = models.CharField(
+        blank=False,
+        max_length=100,
+        help_text="An affiliation, e.g. an academic or research institution etc.")
+    homepage = models.URLField(
+        blank=True,
+        max_length=200,
+        help_text="A link to your homepage.")
+    info = models.TextField(
+        blank=True,
+        default='',
+        help_text="A short description of your work and interests.")
+    avatar = models.ImageField(
+        blank=True,
+        upload_to='users/')
 
+    
     class Meta():
         db_table = "users"
         verbose_name = "user"
