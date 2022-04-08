@@ -296,11 +296,11 @@
   }
 
   .jb-add-update-lenses-number {
-    border: 1px solid orange
+    width: 100px;
   }
 
   .jb-lens-info {
-    border: 1px solid magenta
+    height: 100px;
   }
 
   .jb-duplicate-unselected {
@@ -429,4 +429,9 @@
 
   .jb-pagination-numbers {
     letter-spacing: 5px;
+  }
+
+  .jb-add-lens table td {
+    padding-right: 25px;
+    width: 100%;
   }
