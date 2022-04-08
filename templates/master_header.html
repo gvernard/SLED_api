@@ -93,7 +93,7 @@
 
 
   <div class="jb-navbar-container">
-    <a href="#" class="jb-nav-brand"><img src="{% static 'images/JB_Master Header_Logo.png' %}" loading="lazy" width="248" alt=""></a>
+    <a href="{% url 'home:homepage' %}" class="jb-nav-brand"><img src="{% static 'images/JB_Master Header_Logo.png' %}" loading="lazy" width="248" alt=""></a>
     <div class="jb-navbar">
       <nav role="navigation">
         {% with url_name=request.resolver_match.url_name %}
