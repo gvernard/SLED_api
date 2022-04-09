@@ -22,23 +22,6 @@ from . import SingleObject, Collection, SledGroup
 
 
 
-from django.db.models import Aggregate
-
-class MyConcat(Aggregate):
-    function = 'GROUP_CONCAT'
-    template = '%(function)s(%(distinct)s%(expressions)s)'
-    
-    def __init__(self, expression, distinct=False, **extra):
-        super(MyConcat, self).__init__(
-            expression,
-            distinct='DISTINCT ' if distinct else '',
-            output_field=CharField(),
-            **extra)
-
-
-
-
-
 class ConfirmationTaskManager(models.Manager):
     def pending_for_user(self,user):
         return super().get_queryset().filter(status='P').filter(Q(owner=user)|Q(recipients__username=user.username))
@@ -286,12 +269,8 @@ class DeleteObject(ConfirmationTask):
                         object_ids=[self.id])
 
             if self.cargo['object_type'] != 'Collection':
-                col_ids = objs.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
-                cleaned = []
-                for mystr in col_ids:
-                    for id in mystr.split(','):
-                        cleaned.append(id)
-                users = list(set( Users.objects.filter(collection__id__in=set(cleaned)) ))
+                uqset = self.owner.get_collection_owners(objs)
+                users = list(set( uqset ))
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 
@@ -463,12 +442,8 @@ class MakePrivate(ConfirmationTask):
                         object_ids=[self.id])
 
             if self.cargo['object_type'] != 'Collection':
-                col_ids = objs.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
-                cleaned = []
-                for mystr in col_ids:
-                    for id in mystr.split(','):
-                        cleaned.append(id)
-                users = list(set( Users.objects.filter(collection__id__in=set(cleaned)).exclude(username=self.owner.username) ))
+                uqset = self.request.user.get_collection_owners(pri)
+                users = list(set( uqset.exclude(username=self.request.user.username) ))
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 from django.db.backends.signals import connection_created
 from django.dispatch import receiver
+from django.db.models import Aggregate
 from pathlib import Path
 import os
 import math

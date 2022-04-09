@@ -30,20 +30,6 @@ from bootstrap_modal_forms.utils import is_ajax
 from notifications.signals import notify
 from actstream import action
 
-
-from django.db.models import Aggregate
-
-class MyConcat(Aggregate):
-    function = 'GROUP_CONCAT'
-    template = '%(function)s(%(distinct)s%(expressions)s)'
-    
-    def __init__(self, expression, distinct=False, **extra):
-        super(MyConcat, self).__init__(
-            expression,
-            distinct='DISTINCT ' if distinct else '',
-            output_field=CharField(),
-            **extra)
-
 #=============================================================================================================================
 ### BEGIN: Modal views
 #=============================================================================================================================
@@ -173,13 +159,8 @@ class LensDeleteView(ModalIdsBaseMixin):
                             object_ids=names)
 
             ### Notifications per collection #####################################################
-            # Need to write this part
-            col_ids = pri.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
-            cleaned = []
-            for mystr in col_ids:
-                for id in mystr.split(','):
-                    cleaned.append(id)
-            users = list(set( Users.objects.filter(collection__id__in=set(cleaned)).exclude(username=self.request.user.username) ))
+            uqset = self.request.user.get_collection_owners(pri)
+            users = list(set( uqset.exclude(username=self.request.user.username) ))
             for u in users:
                 self.request.user.remove_from_third_collections(pri,u)
             

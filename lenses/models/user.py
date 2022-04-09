@@ -520,6 +520,17 @@ class Users(AbstractUser,GuardianUserMixin):
         return mytask
 
 
+    def get_collection_owners(self,objects):
+        col_ids = objects.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
+        cleaned = []
+        for mystr in col_ids:
+            for id in mystr.split(','):
+                cleaned.append(id)
+        cleaned = set(cleaned)
+        #users = list(set( Users.objects.filter(collection__id__in=cleaned).exclude(username=self.request.user.username) ))
+        users = Users.objects.filter(collection__id__in=cleaned)
+            
+    
     def remove_from_third_collections(self,objects,user):
         obj_col_ids = list(objects.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
         object_type = objects[0]._meta.model.__name__
