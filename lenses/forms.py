@@ -164,8 +164,6 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                 name2 = form2.cleaned_data['mugshot'].name
                 size2 = form2.cleaned_data['mugshot'].size
 
-                print(name1,name2)
-                print(size1,size2)
                 if name1 == name2 and size1 == size2:
                     duplicate_files.append(name1)
                     
