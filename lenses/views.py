@@ -646,7 +646,7 @@ class LensAddDataView(TemplateView):
                 task.responses_allowed = [my_response]
                 task.registerResponse(request.user,my_response,'Some comment')
                 task.finalizeTask()
-                #task.delete()
+                task.delete()
                 message = 'Data uploaded successfully!'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
