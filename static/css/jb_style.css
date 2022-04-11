@@ -435,3 +435,15 @@
     padding-right: 25px;
     width: 100%;
   }
+
+  .jb-modal {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+  }
+
+  .jb-modal-heading {
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 25px;
+    font-weight: 500;
+  }

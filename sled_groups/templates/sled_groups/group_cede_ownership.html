@@ -25,7 +25,7 @@ Cede ownership of group {{ sledgroup.name }}?
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-danger">Cede ownership</button>
+<button type="submit" class="jb-submit-button-1">Cede ownership</button>
 {% endblock action_button %}
 
 
@@ -33,11 +33,10 @@ Cede ownership of group {{ sledgroup.name }}?
 <script>
   users_autocomplete('id_heir');
   $('#id_heir').select2({
-      width: '100%',
-      placeholder: 'Search for a user',
-      minimumInputLength: 1,
-      dropdownParent: $('#id-modal')
+    width: '100%',
+    placeholder: 'Search for a user',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
   });
-  
 </script>
 {% endblock extrascripts %}

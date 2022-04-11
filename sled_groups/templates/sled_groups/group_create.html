@@ -31,7 +31,7 @@ Create new group?
 {% endblock content %}
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Create</button>
+<button type="submit" class="jb-submit-button-1">Create</button>
 {% endblock action_button %}
 
 
@@ -39,11 +39,10 @@ Create new group?
 <script>
   users_autocomplete("id_users");
   $('#id_users').select2({
-      width: '100%',
-      placeholder: 'Search for a user',
-      minimumInputLength: 1,
-      dropdownParent: $('#id-modal')
+    width: '100%',
+    placeholder: 'Search for a user',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
   });
 </script>
 {% endblock extrascripts %}
-

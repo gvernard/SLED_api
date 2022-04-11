@@ -3,8 +3,8 @@
 <form method="post" action="">
   {% csrf_token %}
 
-  <div class="modal-header">
-    <h5 class="modal-title">
+  <div class="modal-header jb-modal">
+    <h5 class="jb-modal-heading">
       {% block title %}
       {% endblock title %}
     </h5>
@@ -12,14 +12,14 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
-  
+
   <div class="modal-body">
     {% block content %}
     {% endblock content %}
   </div>
-  
+
   <div class="modal-footer">
-    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    <button type="button" class="jb-submit-button-1" data-dismiss="modal">Close</button>
     {% block action_button %}
     {% endblock action_button %}
   </div>
