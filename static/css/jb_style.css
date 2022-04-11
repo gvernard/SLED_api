@@ -304,7 +304,8 @@
   }
 
   .jb-duplicate-unselected {
-    color: red
+    color: red;
+    outline: 1px solid;
   }
 
   .jb-duplicate-no {
@@ -312,7 +313,8 @@
   }
 
   .jb-duplicate-yes {
-    color: green
+    color: green;
+    outline: 1px solid;
   }
 
   .sled-duplicate-no {
