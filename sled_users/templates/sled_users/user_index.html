@@ -21,7 +21,13 @@
     </div>
 
     <div>
-      <h1 class="jb-heading-2">My Details</h1>
+      <h1 class="jb-heading-2">
+        My Details
+        <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_users:user-update' user.pk %}">
+          <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+          Update
+        </button>
+    </h1>
       <div>
 	<table>
 	  <thead>
@@ -40,7 +46,7 @@
               <td>{{ user.last_name }}</td>
               <td>{{ user.affiliation }}</td>
               <td>{{ user.email }}</td>
-              <td>{{ user.homepage }}</td>
+              <td><a href="{{ user.homepage }}">{{ user.homepage }}</a></td>
               <td>{{ user.info }}</td>
             </tr>
 	  </tbody>
@@ -349,6 +355,13 @@
               });
           }
 
+      });
+    // Modals
+    $(".sled-modal").each(function(){
+	  $(this).modalForm({
+              formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal"
+	  });
       });
   });
 </script>

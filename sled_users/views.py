@@ -2,11 +2,23 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import inlineformset_factory
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
 
+
+from bootstrap_modal_forms.generic import (
+    BSModalFormView,
+    BSModalUpdateView,
+    BSModalDeleteView,
+    BSModalReadView,
+)
+
+
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue
+
+from .forms import UserUpdateForm
 
 
 @method_decorator(login_required,name='dispatch')
@@ -111,3 +123,11 @@ class UserProfileView(TemplateView):
         return render(request, self.template_name, context=context)
 
     
+
+@method_decorator(login_required,name='dispatch')
+class UserUpdateView(BSModalUpdateView):
+    model = Users
+    template_name = 'sled_users/user_update.html'
+    form_class = UserUpdateForm
+    success_message = 'Success: your profile was updated.'
+    success_url = reverse_lazy('sled_users:user-profile')
