@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'sled_tasks',
     'sled_queries',
     'sled_instrument',
+    'sled_band',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',

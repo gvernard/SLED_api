@@ -1,0 +1,28 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Update your information
+{% endblock title %}
+
+
+{% block content %}
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
+{% for field in form %}
+<div>
+  {{ field }}
+</div>
+{% endfor %}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="btn btn-sm btn-primary">
+  Update
+</button>
+{% endblock action_button %}

@@ -12,8 +12,8 @@
 
 
 <div class="jb-container">
-  <h1 class="jb-heading-1">SLED Instruments</h1>
-  {% if instruments %}
+  <h1 class="jb-heading-1">SLED Bands</h1>
+  {% if bands %}
   <table class="jb-table">
     <thead>
       <tr>
@@ -24,17 +24,16 @@
     </thead>
 
     <tbody>
-      {% for instrument in instruments %}
+      {% for band in bands %}
       <tr>
-        <td>{{ instrument.name }}</td>
-        <td>{{ instrument.extended_name }}</td>
-        <td>{{ instrument.info }}</td>
+        <td>{{ band.name }}</td>
+        <td>{{ band.info }}</td>
         <td>
-          <button type="button" class="sled-delete-instrument btn btn-sm btn-danger" data-form-url="{% url 'sled_instrument:instrument-delete' instrument.pk %}">
+          <button type="button" class="sled-delete-band btn btn-sm btn-danger" data-form-url="{% url 'sled_band:band-delete' band.pk %}">
             <img src="{% static 'icons/trash.svg' %}" alt="trash">
             Delete
           </button>
-          <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_instrument:instrument-update' instrument.pk %}">
+          <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_band:band-update' band.pk %}">
             <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
             Update
           </button>
@@ -45,13 +44,13 @@
   </table>
   {% else %}
   <p>
-    No instruments to show
+    No bands to show
   </p>
   {% endif %}
 
-  <button type="button" id="create-new-instrument" class="jb-button-1" data-form-url="{% url 'sled_instrument:instrument-add' %}">
-    <img src="{% static 'icons/folder-fill.svg' %}" alt="new-instrument">
-    Create new instrument
+  <button type="button" id="create-new-band" class="jb-button-1" data-form-url="{% url 'sled_band:band-add' %}">
+    <img src="{% static 'icons/folder-fill.svg' %}" alt="new-band">
+    Create new band
   </button>
 </div>
 {% endblock content %}
@@ -66,12 +65,12 @@
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-    $("#create-new-instrument").modalForm({
-      formURL: $("#create-new-instrument").data("form-url"),
+    $("#create-new-band").modalForm({
+      formURL: $("#create-new-band").data("form-url"),
       modalID: "#id-modal"
     });
       // Modals
-      $('.sled-delete-instrument').each(function(){
+      $('.sled-delete-band').each(function(){
 	  $(this).modalForm({
  	      formURL: $(this).data("form-url"),
  	      modalID: "#id-modal",
