@@ -49,3 +49,25 @@ class InstrumentCreateView(BSModalFormView):
             messages.add_message(self.request,messages.SUCCESS,'Instrument <b>"'+name+'"</b> was successfully created!')
         response = super().form_valid(form)
         return response
+
+
+@method_decorator(login_required,name='dispatch')
+class InstrumentUpdateView(BSModalUpdateView):
+    model = Instrument
+    template_name = 'sled_instrument/instrument_update.html'
+    form_class = InstrumentUpdateForm
+    success_message = 'Success: instrument was updated.'
+    success_url = reverse_lazy('sled_instrument:instrument-list')
+
+
+
+
+@method_decorator(login_required,name='dispatch')
+class InstrumentDeleteView(BSModalDeleteView):
+    model = Instrument
+    template_name = 'sled_instrument/instrument_delete.html'
+    success_message = 'Success: instrument was deleted.'
+    success_url = reverse_lazy('sled_instrument:instrument-list')
+    context_object_name = 'instrument'
+
+
