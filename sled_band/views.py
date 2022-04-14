@@ -45,7 +45,7 @@ class BandCreateView(BSModalFormView):
             info = form.cleaned_data['info']
             band = Band(name=name, info=info)
             band.save()
-            messages.add_message(self.request,messages.SUCCESS,'Band <b>"'+name+'"</b> was successfully created!')
+            messages.add_message(self.request,messages.SUCCESS,"Band <b>"+name+"</b> was successfully created!")
         response = super().form_valid(form)
         return response
 

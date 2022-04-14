@@ -54,7 +54,7 @@ class QuerySaveView(BSModalCreateView):
                 cargo.pop('page')
             q.cargo = cargo
             q.save()
-            messages.add_message(self.request,messages.SUCCESS,'Query <b>"'+name+'"</b> was successfully saved!')
+            messages.add_message(self.request,messages.SUCCESS,"Query <b>"+name+"</b> was successfully saved!")
             return HttpResponseRedirect(reverse_lazy('sled_queries:queries-list')) 
             #return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
         else:

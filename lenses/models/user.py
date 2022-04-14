@@ -373,7 +373,7 @@ class Users(AbstractUser,GuardianUserMixin):
         target_objs = qset.filter(access_level__exact='PRI')
         
         if target_objs.count() == 0:
-            output = {'success':False,'message':"All objects are already public",'duplicates':[]}
+            output = {'success':False,'message':"All objects are already public!",'duplicates':[]}
             return output
         else:
             object_type = target_objs.model.__name__
@@ -452,7 +452,7 @@ class Users(AbstractUser,GuardianUserMixin):
                         object_type=object_type,
                         object_ids=[obj.id for obj in target_objs])
             
-            output = {'success':True,'message': '<p>%d private %s are know public.</p>' % (len(target_objs),object_type),'duplicates':[]}
+            output = {'success':True,'message': '<b>%d</b> private %s are know public.' % (len(target_objs),object_type),'duplicates':[]}
             return output
                 
     def makePrivate(self,qset,justification=None):

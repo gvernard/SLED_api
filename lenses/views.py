@@ -80,7 +80,7 @@ class LensCedeOwnershipView(ModalIdsBaseMixin):
         justification = form.cleaned_data['justification']
         self.request.user.cedeOwnership(lenses,heir,justification)
         heir_dict = heir.values('first_name','last_name')[0]
-        message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+        message = "User <b>"+heir.username+"</b> has been notified about your request."
         messages.add_message(self.request,messages.WARNING,message)
 
 
@@ -104,8 +104,8 @@ class LensDeleteView(ModalIdsBaseMixin):
             for obj in pub:
                 cargo['object_ids'].append(obj.id)
             mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
-            message = 'The admins have been notified to approve or reject the deletion of %d public lenses.' % (len(pub))
-            messages.add_message(self.request,messages.SUCCESS,message)
+            message = "The admins have been notified of your request to delete <b>%d</b> public lenses." % (len(pub))
+            messages.add_message(self.request,messages.WARNING,message)
 
         pri = qset.filter(access_level='PRI')
         if pri:
@@ -167,7 +167,7 @@ class LensDeleteView(ModalIdsBaseMixin):
             ### Finally, delete the private lenses
             for lens in pri:
                 lens.delete()
-            message = '%d private lenses have been deleted.' % (len(pri))
+            message = "<b>%d</b> private lenses have been deleted." % (len(pri))
             messages.add_message(self.request,messages.SUCCESS,message)
 
 
@@ -184,7 +184,10 @@ class LensMakePublicView(ModalIdsBaseMixin):
 
         if len(indices) == 0:
             output = self.request.user.makePublic(lenses)
-            messages.add_message(self.request,messages.SUCCESS,output['message'])
+            if output['success']:
+                messages.add_message(self.request,messages.SUCCESS,output['message'])
+            else:
+                messages.add_message(self.request,messages.ERROR,output['message'])
         else:
             # Create ResolveDuplicates task here
             for lens in lenses:
@@ -217,22 +220,22 @@ class LensGiveRevokeAccessView(ModalIdsBaseMixin):
             self.request.user.giveAccess(lenses,target_users)
             ug_message = []
             if len(users) > 0:
-                ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
             if len(groups) > 0:
-                ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
-            message = 'Access to %d lenses given to %s' % (len(lenses),' and '.join(ug_message))
+                ug_message.append('Groups: <em>%s</em>' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
+            message = "Access to <b>%d</b> lenses given to %s" % (len(lenses),' and '.join(ug_message))
             messages.add_message(self.request,messages.SUCCESS,message)
         elif mode == 'revoke':
             self.request.user.revokeAccess(lenses,target_users)
             ug_message = []
             if len(users) > 0:
-                ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
             if len(groups) > 0:
-                ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
-            message = 'Access to %d lenses revoked from %s' % (len(lenses),' and '.join(ug_message))
+                ug_message.append('Groups: <em>%s</em>' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
+            message = "Access to <b>%d</b> lenses revoked from %s" % (len(lenses),' and '.join(ug_message))
             messages.add_message(self.request,messages.SUCCESS,message)
         else:
-            messages.add_message(self.request,messages.ERROR,'Unknown action! Can either be <em>give</em> or <em>revoke</em>.')
+            messages.add_message(self.request,messages.ERROR,"Unknown action! Can either be <b>give</b> or <b>revoke</b>.")
 
 
 @method_decorator(login_required,name='dispatch')
@@ -246,7 +249,7 @@ class LensMakePrivateView(ModalIdsBaseMixin):
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         justification = form.cleaned_data['justification']
         self.request.user.makePrivate(lenses,justification)
-        message = 'The admins have been notified to approve or reject changing %d public lenses to private.' % (len(lenses))
+        message = "The admins have been notified of your request to change <b>%d</b> public lenses to private." % (len(lenses))
         messages.add_message(self.request,messages.WARNING,message)
 
 

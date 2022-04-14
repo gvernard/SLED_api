@@ -46,7 +46,7 @@ class InstrumentCreateView(BSModalFormView):
             info = form.cleaned_data['info']
             instrument = Instrument(name=name, extended_name=extended_name, info=info)
             instrument.save()
-            messages.add_message(self.request,messages.SUCCESS,'Instrument <b>"'+name+'"</b> was successfully created!')
+            messages.add_message(self.request,messages.SUCCESS,"Instrument <b>"+name+"</b> was successfully created!")
         response = super().form_valid(form)
         return response
 
