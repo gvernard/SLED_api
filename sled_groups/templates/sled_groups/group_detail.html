@@ -5,12 +5,8 @@
 
 
 {% block content %}
-<!-- Modal divs -->
-<div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content"></div>
-  </div>
-</div>
+{% include "modal_container.html" %}
+
 
 <div class="jb-container">
   <h1 class="jb-heading-1">{{ group.name }}</h1>

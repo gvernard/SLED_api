@@ -136,7 +136,7 @@ class GroupCreateView(BSModalFormView):
             sledgroup = SledGroup(name=name, owner=self.request.user, description=description)
             sledgroup.save()
             sledgroup.addMember(self.request.user,add_user_names)
-            messages.add_message(self.request,messages.SUCCESS,'Group <b>"'+name+'"</b> was successfully created!')
+            messages.add_message(self.request,messages.SUCCESS,'Group <b>'+name+'</b> was successfully created!')
         response = super().form_valid(form)
         return response
 
