@@ -3,10 +3,11 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView,DetailView
 from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
-
+from django.http import Http404
+from django.utils.translation import gettext as _
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -19,6 +20,29 @@ from bootstrap_modal_forms.generic import (
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue
 
 from .forms import UserUpdateForm
+
+
+class UserVisitCard(DetailView):
+    model = Users
+    template_name = 'sled_users/user_visit_card.html'
+    context_object_name = 'sled_user'
+
+    def get_queryset(self):
+        return Users.objects.all()
+    
+    def get_object(self, queryset=None):
+        username = self.kwargs.get('username')
+        queryset = self.get_queryset().filter(username=username)
+        try:
+            obj = queryset.get()
+        except queryset.model.DoesNotExist:
+            raise Http404(
+                _("No %(verbose_name)s found matching the query")
+                % {"verbose_name": queryset.model._meta.verbose_name}
+            )
+        return obj
+
+
 
 
 @method_decorator(login_required,name='dispatch')

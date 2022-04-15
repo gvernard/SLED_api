@@ -95,10 +95,11 @@
   $('.sled-action-row').each(function(index){
       var mycontent = $("#tooltip-"+String(index)).html();
       $(this).tooltipster({
+	  position: 'left',
 	  theme: 'tooltipster-shadow',
 	  interactive: true,
 	  contentAsHTML: true,
-	  content: mycontent
+	  content: mycontent,
       });
   });
 </script>
