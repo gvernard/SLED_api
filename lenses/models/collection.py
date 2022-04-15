@@ -65,7 +65,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
                         target=self,
                         verb="Fields have been updated",
                         level='success',
-                        action_type='UpdateSingle',
+                        action_type='UpdateSelf',
                         object_type='Collection',
                         fields=json.dumps(dirty))
 

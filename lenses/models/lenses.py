@@ -263,7 +263,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                         target=self,
                         verb="Fields have been updated",
                         level='success',
-                        action_type='UpdateSingle',
+                        action_type='UpdateSelf',
                         object_type='Lenses',
                         fields=json.dumps(dirty))
 

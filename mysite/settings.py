@@ -41,7 +41,6 @@ EMAIL_PORT = 1025
 # Application definition
 
 INSTALLED_APPS = [
-    'actstream',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -68,6 +67,7 @@ INSTALLED_APPS = [
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
     'sled_users.apps.UsersConfig',
+    'actstream',
 ]
 
 SITE_ID = 1

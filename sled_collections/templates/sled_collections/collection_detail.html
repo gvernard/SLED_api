@@ -57,21 +57,7 @@
 
   <div class="jb-activity">
     {% activity_stream 'target' collection %}
-    {% if stream %}
-    <table>
-      <tbody>
-        {% for action in stream %}
-        <tr>
-          <td>{{ action.timestamp|timesince }} ago</td>
-          <td>{{ action.actor }}</td>
-          <td>{{ action.verb }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    No activity to display
-    {% endif %}
+    {% include "activity_container.html" with stream=stream %}
   </div>
 
 

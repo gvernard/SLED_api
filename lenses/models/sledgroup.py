@@ -41,7 +41,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
                         target=self,
                         verb="Fields have been updated",
                         level='success',
-                        action_type='UpdateSingle',
+                        action_type='UpdateSelf',
                         object_type='SledGroup',
                         fields=json.dumps(dirty))
 

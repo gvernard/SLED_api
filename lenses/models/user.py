@@ -77,7 +77,7 @@ class Users(AbstractUser,GuardianUserMixin):
         return self.username
 
     def get_absolute_url(self):
-        return reverse('sled_users:user_profile')
+        return reverse('sled_users:user-profile')
     
     def getOwnedObjects(self,user_object_types=None):
         """
@@ -430,7 +430,7 @@ class Users(AbstractUser,GuardianUserMixin):
                             target=gwa[i],
                             verb=myverb,
                             level='info',
-                            action_type='MakePublic',
+                            action_type='MadePublicGroup',
                             object_type=object_type,
                             object_ids=obj_ids)
 

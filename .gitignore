@@ -126,3 +126,4 @@ trial_sample/images/
 lenses/static/lenses/mugshots/*.png
 static/js/*
 !static/js/jquery.bootstrap.modal.forms.js
+static/css/vendors/*

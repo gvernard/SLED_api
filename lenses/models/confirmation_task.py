@@ -320,7 +320,7 @@ class CedeOwnership(ConfirmationTask):
                                 target=obj,
                                 verb="Changed owner from %s to %s" % (self.owner,heir),
                                 level='success',
-                                action_type='CedeOwnership')
+                                action_type='CedeOwnershipSelf')
                 if obj.access_level == 'PRI':
                     pri.append(obj)
 
@@ -377,7 +377,7 @@ class CedeOwnership(ConfirmationTask):
                             target=objs[0],
                             verb=myverb,
                             level='info',
-                            action_type='CedeOwnership')
+                            action_type='CedeOwnershipSelf')
                 
             # Confirm to the previous owner
             notify.send(sender=heir,
