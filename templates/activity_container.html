@@ -17,65 +17,49 @@
 <div style="display:none">
   {% for action in stream %}
   <div id="tooltip-{{ forloop.counter0 }}">
-    <table>
-      <!-- <tr> -->
-      <!-- 	<td>Actor: {{ action.actor }} ({{ action.actor.first_name }} {{ action.actor.last_name }})</td> -->
-      <!-- 	<td>Time: {{ action.timestamp }}</td> -->
-      <!-- 	<td>Type: {{ action.data.action_type }}</td> -->
-      <!-- </tr> -->
-      {% if action.data.action_type == "Add" %}
-      <tr>
-	<td colspan="3">
-	  <a href="{% url 'lenses:lens-query' %}?ids={{ action.data.object_ids|join:','}}" target="_blank">{{ action.data.object_ids|length }} new {{ action.data.object_type }}</a>
-	  were added by user
-	  <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-	  at <em>{{ action.timestamp }}</em>
-	</td>
-      </tr>
-      {% elif action.data.action_type == "AddData" %}
-      <tr>
-	<td colspan="3">{{ action.data.object_ids|length }} new {{ action.data.object_type }} were added by user <b>{{ action.actor }}</b> at {{ action.timestamp }}</td>
-      </tr>
-      {% elif action.data.action_type == "UpdateSelf" %}
-      object_type (SledGroup,Collection)
-      fields (json, dirty-field)
-      {% elif action.data.action_type == "Update" %}
-      object_type
-      object_ids
-      {% elif action.data.action_type == "DeleteObject" %}
-      object_type
-      object_ids (which are actually just names)
-      {% elif action.data.action_type == "RemovedFromGroup" %}
-      NONE
-      {% elif action.data.action_type == "AddedToGroup" %}
-      NONE
-      {% elif action.data.action_type == "LeftGroup" %}
-      NONE
-      {% elif action.data.action_type == "RemovedFromCollection" %}
-      object_type
-      object_ids
-      {% elif action.data.action_type == "AddedToCollection" %}
-      object_type
-      object_ids
-      {% elif action.data.action_type == "MadePublic" %}
-      object_type
-      object_ids
-      {% elif action.data.action_type == "MadePublicGroup" %}
-      object_type
-      object_ids
-      {% elif action.data.action_type == "RevokeAccess" %}
-      object_type
-      object_ids
-      {% elif action.data.action_type == "GiveAccess" %}
-      object_type
-      object_ids
-      {% elif action.data.action_type == "CedeOwnershipSelf" %}
-      NONE
-      {% elif action.data.action_type == "CedeOwnership" %}
-      object_type
-      object_ids
-      {% endif %}
-    </table>            
+    {% if action.data.action_type == "Add" %}
+    <!-- <a href="{% url 'lenses:lens-query' %}?collection_ids={{ action.action_object.pk }}" target="_blank"> -->
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} new {{ action.action_object.item_type }}
+    </a>
+    were added by user
+    <a href="{{ action.actor.get_absolute_url }}" target="_blank">
+      {{ action.actor }}
+    </a>
+    at <em>{{ action.timestamp }}</em>
+    {% elif action.data.action_type == "AddData" %}
+    action_object.collection
+    {% elif action.data.action_type == "UpdateSelf" %}
+    object_type (Lenses,SledGroup,Collection)
+    fields (json, dirty-field)
+    {% elif action.data.action_type == "Update" %}
+    action_object.collection
+    {% elif action.data.action_type == "DeleteObject" %}
+    object_type
+    object_names
+    {% elif action.data.action_type == "RemovedFromGroup" %}
+    NONE
+    {% elif action.data.action_type == "AddedToGroup" %}
+    NONE
+    {% elif action.data.action_type == "LeftGroup" %}
+    NONE
+    {% elif action.data.action_type == "RemovedFromCollection" %}
+    action_object.collection
+    {% elif action.data.action_type == "AddedToCollection" %}
+    action_object.collection
+    {% elif action.data.action_type == "MadePublic" %}
+    action_object.collection
+    {% elif action.data.action_type == "MadePublicGroup" %}
+    action_object.collection
+    {% elif action.data.action_type == "RevokeAccess" %}
+    action_object.collection
+    {% elif action.data.action_type == "GiveAccess" %}
+    action_object.collection
+    {% elif action.data.action_type == "CedeOwnershipSelf" %}
+    NONE
+    {% elif action.data.action_type == "CedeOwnership" %}
+    action_object.collection
+    {% endif %}
   </div>
   {% endfor %}
 </div>

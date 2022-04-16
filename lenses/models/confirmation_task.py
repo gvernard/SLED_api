@@ -354,20 +354,18 @@ class CedeOwnership(ConfirmationTask):
                     id_list = [g.id for g in groups_with_access]
                     gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
                     for i,group in enumerate(groups_with_access):
-                        obj_ids = []
+                        objects = []
                         for j in accessible_objects[i]:
-                            obj_ids.append(pri[j].id)
-                        if len(obj_ids) > 1:
-                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
+                            objects.append(pri[j])
+                        if len(objects) > 1:
+                            model_name = model_ref._meta.verbose_name_plural.title()
                         else:
-                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name.title())    
-                        action.send(self.owner,
-                                    target=gwa[i],
-                                    verb=myverb,
-                                    level='info',
-                                    action_type='CedeOwnership',
-                                    object_type=object_type,
-                                    object_ids=obj_ids)
+                            model_name = model_ref._meta.verbose_name.title()
+                        myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_name)
+                        admin = Users.getAdmin().first()
+                        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+                        act_col.myitems.add(objects)
+                        action.send(self.owner,target=gwa[i],verb=myverb,level='info',action_type='CedeOwnership',action_object=act_col)
 
             # Handle groups
             if object_type == 'SledGroup':
@@ -536,14 +534,10 @@ class ResolveDuplicates(ConfirmationTask):
                         else:
                             myverb = '1 new Lens was added.'
                     from . import Users
-                    admin = Users.objects.get(username='admin')
-                    action.send(self.owner,
-                                target=admin,
-                                verb=myverb,
-                                level='success',
-                                action_type=atype,
-                                object_type='Lenses',
-                                object_ids=[obj.id for obj in pub])
+                    admin = Users.getAdmin().first()
+                    act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+                    act_col.myitems.add(*pub)
+                    action.send(self.owner,target=admin,verb=myverb,level='success',action_type=atype,action_object=act_col)
             else:
                 lenses = Lenses.objects.bulk_create(lenses)
                 # Here I need to upload and rename the images accordingly.
@@ -696,14 +690,10 @@ class AddData(ConfirmationTask):
                 else:
                     myverb = '1 new Data entry was added.'
                 from . import Users
-                admin = Users.objects.get(username='admin')
-                action.send(self.owner,
-                            target=admin,
-                            verb=myverb,
-                            level='success',
-                            action_type='AddData',
-                            object_type='Data',
-                            object_ids=[obj.id for obj in pub])
+                admin = Users.getAdmin().first()
+                act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Data")
+                act_col.myitems.add(*pub)
+                action.send(self.owner,target=admin,verb=myverb,level='success',action_type='AddData',action_object=act_col)
         else:
             lenses = Lenses.objects.bulk_create(lenses)
             # Here I need to upload and rename the images accordingly.

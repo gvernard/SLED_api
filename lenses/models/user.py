@@ -106,11 +106,8 @@ class Users(AbstractUser,GuardianUserMixin):
         if self!=group.owner:
             if self in group.getAllMembers(): 
                 group.user_set.remove(self)
-                action.send(self,
-                        target=group,
-                        verb="User %s has left the group" % self.username,
-                        level='info',
-                        action_type='LeftGroup')
+                myverb = "User %s has left the group" % self.username
+                action.send(self,target=group,verb=myverb,level='info',action_type='LeftGroup')
                 
     def getGroupsIsMember(self):
         """
@@ -220,13 +217,10 @@ class Users(AbstractUser,GuardianUserMixin):
                         myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title())
                     else:
                         myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title())
-                    action.send(self,
-                                target=user, # here the user is actually a group
-                                verb=myverb,
-                                level='success',
-                                action_type='GiveAccess',
-                                object_type=object_type,
-                                object_ids=new_objects_per_user_ids)
+                    admin = Users.getAdmin().first()
+                    act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+                    act_col.myitems.add(new_objects_per_user)
+                    action.send(self,target=user,verb=myverb,level='success',action_type='GiveAccess',action_object=act_col)
 
     def revokeAccess(self,objects,target_users):
         """
@@ -285,13 +279,10 @@ class Users(AbstractUser,GuardianUserMixin):
                         myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name_plural.title())
                     else:
                         myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name.title())
-                    action.send(sender=self,
-                                target=user, # here the user is actually a group
-                                verb=myverb,
-                                level='error',
-                                action_type='RevokeAccess',
-                                object_type=object_type,
-                                object_ids=revoked_objects_per_user_ids)
+                    admin = Users.getAdmin().first()
+                    act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+                    act_col.myitems.add(revoked_objects_per_user)
+                    action.send(self,target=user,verb=myverb,level='error',action_type='RevokeAccess',action_object=act_col)  # here the user is actually a group
 
                 # Check collections: every collection owner must have access to all the objects in the collection.
                 # So, if access from user was revoked, check if they own a collection that contains the object and remove it from there.
@@ -418,21 +409,18 @@ class Users(AbstractUser,GuardianUserMixin):
             id_list = [g.id for g in groups_with_access]
             gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
-                obj_ids = []
+                objects = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(target_objs[j].id)
+                    objects.append(target_objs[j])
                 remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                if len(obj_ids) > 1:
+                if len(objects) > 1:
                     myverb = '%d private %s the group had access to are now public.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
                 else:
                     myverb = '%d private %s the group had access to is now public.' % (len(obj_ids),model_ref._meta.verbose_name.title())
-                action.send(self,
-                            target=gwa[i],
-                            verb=myverb,
-                            level='info',
-                            action_type='MadePublicGroup',
-                            object_type=object_type,
-                            object_ids=obj_ids)
+                admin = Users.getAdmin().first()
+                act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+                act_col.myitems.add(objects)
+                action.send(self,target=gwa[i],verb=myverb,level='info',action_type='MadePublicGroup',action_object=act_col)
 
             # Finally, update only those objects that need to be updated in a single query
             #####################################################
@@ -444,13 +432,10 @@ class Users(AbstractUser,GuardianUserMixin):
                 myverb = '%d %s where made public by %s.' % (len(target_objs),model_ref._meta.verbose_name_plural.title(),str(self))
             else:
                 myverb = '1 %s was made public by %s.' % (model_ref._meta.verbose_name.title(),str(self))
-            action.send(self,
-                        target=Users.objects.get(username='admin'),
-                        verb=myverb,
-                        level='success',
-                        action_type='MadePublic',
-                        object_type=object_type,
-                        object_ids=[obj.id for obj in target_objs])
+            admin = Users.getAdmin().first()
+            act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+            act_col.myitems.add(target_objects)
+            action.send(self,target=admin,verb=myverb,level='success',action_type='MadePublic',action_object=act_col)
             
             output = {'success':True,'message': '<b>%d</b> private %s are know public.' % (len(target_objs),object_type),'duplicates':[]}
             return output

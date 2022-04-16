@@ -261,7 +261,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
-                        verb="Fields have been updated",
+                        verb="Fields have been updated.",
                         level='success',
                         action_type='UpdateSelf',
                         object_type='Lenses',

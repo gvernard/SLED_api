@@ -156,7 +156,7 @@ class LensDeleteView(ModalIdsBaseMixin):
                             level='warning',
                             action_type='DeleteObject',
                             object_type=object_type,
-                            object_ids=names)
+                            object_names=names)
 
             ### Notifications per collection #####################################################
             uqset = self.request.user.get_collection_owners(pri)
@@ -343,13 +343,10 @@ class LensAddView(TemplateView):
                                 myverb = '%d new Lenses were added.' % len(pub)
                             else:
                                 myverb = '1 new Lens was added.'
-                            action.send(request.user,
-                                        target=Users.objects.get(username='admin'),
-                                        verb=myverb,
-                                        level='success',
-                                        action_type='Add',
-                                        object_type='Lenses',
-                                        object_ids=[obj.id for obj in pub])
+                            admin = Users.getAdmin().first()
+                            act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+                            act_col.myitems.add(*pub)
+                            action.send(request.user,target=admin,verb=myverb,level='success',action_type='Add',action_object=act_col)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         new_lenses = Lenses.objects.bulk_create(instances)
@@ -378,19 +375,6 @@ class LensAddView(TemplateView):
                     mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
                     return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
             else:
-                # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                # path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                # if not os.path.exists(path):
-                #     os.makedirs(path)
-                # for form in myformset.forms:
-                #     if form.instance.mugshot:
-                #         input_field_name = form['mugshot'].html_name
-                #         f = request.FILES[input_field_name]
-                #         with open(path + form.instance.mugshot.name,'wb+') as destination:
-                #            for chunk in f.chunks():
-                #                destination.write(chunk)
-                #         form.instance.mugshot = '/temporary/' + self.request.user.username + '/' + form.instance.mugshot.name
-
                 context = {'lens_formset': myformset}
                 return self.render_to_response(context)
 
@@ -435,13 +419,10 @@ class LensUpdateView(TemplateView):
                             myverb = '%d Lenses were updated.' % len(pub)
                         else:
                             myverb = '1 Lens was updated.'
-                        action.send(request.user,
-                                    target=Users.objects.get(username='admin'),
-                                    verb=myverb,
-                                    level='success',
-                                    action_type='Update',
-                                    object_type='Lenses',
-                                    object_ids=[obj.id for obj in pub])
+                        admin = Users.getAdmin().first()
+                        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+                        act_col.myitems.add(*pub)
+                        action.send(request.user,target=admin,verb=myverb,level='success',action_type='Update',action_object=act_col)
                     message = 'Lenses successfully updated!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:
@@ -706,6 +687,11 @@ class LensQueryView(TemplateView):
         keywords = list(form.keys())
         values = [form[keyword] for keyword in keywords]
 
+
+        # if form['ids']:
+        #     id_list = form['ids'].split(',')
+        #     lenses = Lenses.accessible_objects.in_ids(user,id_list)
+
         #start with available lenses
         lenses = Lenses.accessible_objects.all(user)
 
@@ -748,7 +734,7 @@ class LensQueryView(TemplateView):
                             value = False
                             args = {keywords[k]:value}
                             lenses = lenses.filter(**args)
-                        
+                            
         #come back to the special case where RA_min is less than 0hours
         if over_meridian:
             lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])

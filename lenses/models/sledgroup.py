@@ -39,7 +39,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
-                        verb="Fields have been updated",
+                        verb="Fields have been updated.",
                         level='success',
                         action_type='UpdateSelf',
                         object_type='SledGroup',
@@ -98,12 +98,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
                 myverb = 'New users %s were added to the group.' % ','.join(to_add)
             else:
                 myverb = 'New user %s was added to the group.' % to_add[0]
-            action.send(owner,
-                        target=self,
-                        verb=myverb,
-                        level='info',
-                        action_type='AddedToGroup')
-
+            action.send(owner,target=self,verb=myverb,level='info',action_type='AddedToGroup')
 
             
     def removeMember(self,owner,sled_user_qset):
@@ -137,11 +132,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
                 myverb = 'Users %s were removed from the group.' % ','.join(to_remove)
             else:
                 myverb = 'User %s was removed from the group.' % to_remove[0]
-            action.send(owner,
-                        target=self,
-                        verb=myverb,
-                        level='info',
-                        action_type='RemovedFromGroup')
+            action.send(owner,target=self,verb=myverb,level='info',action_type='RemovedFromGroup')
 
 
     def delete(self, *args, **kwargs):

@@ -111,14 +111,10 @@ if len(pub) > 0:
         myverb = '%d new Lenses were added.' % len(pub)
     else:
         myverb = '1 new Lens was added.'
-    action.send(owner,
-                target=Users.objects.get(username='admin'),
-                verb=myverb,
-                level='success',
-                action_type='Add',
-                object_type='Lenses',
-                object_ids=[obj.id for obj in pub])
-
+    admin = Users.getAdmin().first()
+    act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
+    act_col.myitems.add(*pub)
+    action.send(owner,target=admin,verb=myverb,level='success',action_type='Add',action_object=act_col)
 
 
 # Give access to some private lenses

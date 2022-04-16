@@ -63,7 +63,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
-                        verb="Fields have been updated",
+                        verb="Fields have been updated.",
                         level='success',
                         action_type='UpdateSelf',
                         object_type='Collection',
@@ -228,14 +228,10 @@ class Collection(SingleObject,DirtyFieldsMixin):
             
     def finalizeAddItems(self,user,objects):
         self.myitems.add(*objects)        
-
-        action.send(self.owner,
-                    target=self,
-                    verb="Items added to the colletion.",
-                    level='success',
-                    action_type='AddedToCollection',
-                    object_type=objects[0]._meta.model.__name__,
-                    object_ids=[obj.id for obj in objects])
+        admin = Users.getAdmin().first()
+        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type=self.item_type)
+        act_col.myitems.add(*objects)
+        action.send(self.owner,target=self,verb="Items added to the colletion.",level='success',action_type='AddedToCollection',action_object=act_col)
 
         # Return the number of inserted items
         response = {"status":"ok","N_added":len(objects)}
@@ -267,13 +263,10 @@ class Collection(SingleObject,DirtyFieldsMixin):
         self.myitems.remove(*objects)
         N_removed = objects.count()
 
-        action.send(self.owner,
-                    target=self,
-                    verb="Items removed from the colletion.",
-                    level='success',
-                    action_type='RemovedFromCollection',
-                    object_type=objects[0]._meta.model.__name__,
-                    object_ids=[obj.id for obj in objects])
+        admin = Users.getAdmin().first()
+        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type=self.item_type)
+        act_col.myitems.add(*objects)
+        action.send(self.owner,target=self,verb="Items removed from the colletion.",level='success',action_type='RemovedFromCollection',action_object=act_col)
 
         response = {"status":"ok","N_removed":N_removed}
         return response
