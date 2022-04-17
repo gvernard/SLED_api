@@ -18,7 +18,7 @@ import inspect
 from itertools import groupby
 from operator import itemgetter
 
-from . import SingleObject
+from . import SingleObject, AdminCollection
 
 
 
@@ -228,10 +228,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
             
     def finalizeAddItems(self,user,objects):
         self.myitems.add(*objects)        
-        admin = Users.getAdmin().first()
-        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type=self.item_type)
-        act_col.myitems.add(*objects)
-        action.send(self.owner,target=self,verb="Items added to the colletion.",level='success',action_type='AddedToCollection',action_object=act_col)
+        ad_col = AdminCollection.objects.create(item_type=self.item_type,myitems=objects)
+        action.send(self.owner,target=self,verb="Items added to the colletion.",level='success',action_type='AddedToCollection',action_object=ad_col)
 
         # Return the number of inserted items
         response = {"status":"ok","N_added":len(objects)}
@@ -263,10 +261,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
         self.myitems.remove(*objects)
         N_removed = objects.count()
 
-        admin = Users.getAdmin().first()
-        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type=self.item_type)
-        act_col.myitems.add(*objects)
-        action.send(self.owner,target=self,verb="Items removed from the colletion.",level='success',action_type='RemovedFromCollection',action_object=act_col)
+        ad_col = AdminCollection.objects.create(item_type=self.item_type,myitems=objects)
+        action.send(self.owner,target=self,verb="Items removed from the colletion.",level='success',action_type='RemovedFromCollection',action_object=ad_col)
 
         response = {"status":"ok","N_removed":N_removed}
         return response

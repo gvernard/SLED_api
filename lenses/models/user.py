@@ -16,7 +16,7 @@ from operator import itemgetter
 from itertools import groupby
 import inspect
 
-from . import SledGroup, SingleObject, ConfirmationTask, Collection
+from . import SledGroup, SingleObject, ConfirmationTask, Collection, AdminCollection
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
@@ -217,10 +217,8 @@ class Users(AbstractUser,GuardianUserMixin):
                         myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title())
                     else:
                         myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title())
-                    admin = Users.getAdmin().first()
-                    act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                    act_col.myitems.add(new_objects_per_user)
-                    action.send(self,target=user,verb=myverb,level='success',action_type='GiveAccess',action_object=act_col)
+                    ad_col = AdminCollection.objects.create(item_type=object_type,myitems=new_objects_per_user)
+                    action.send(self,target=user,verb=myverb,level='success',action_type='GiveAccess',action_object=ad_col) # the user here is a group
 
     def revokeAccess(self,objects,target_users):
         """
@@ -279,10 +277,8 @@ class Users(AbstractUser,GuardianUserMixin):
                         myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name_plural.title())
                     else:
                         myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name.title())
-                    admin = Users.getAdmin().first()
-                    act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                    act_col.myitems.add(revoked_objects_per_user)
-                    action.send(self,target=user,verb=myverb,level='error',action_type='RevokeAccess',action_object=act_col)  # here the user is actually a group
+                    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=revoked_objects_per_user)
+                    action.send(self,target=user,verb=myverb,level='error',action_type='RevokeAccess',action_object=ad_col)  # here the user is actually a group
 
                 # Check collections: every collection owner must have access to all the objects in the collection.
                 # So, if access from user was revoked, check if they own a collection that contains the object and remove it from there.
@@ -417,10 +413,8 @@ class Users(AbstractUser,GuardianUserMixin):
                     myverb = '%d private %s the group had access to are now public.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
                 else:
                     myverb = '%d private %s the group had access to is now public.' % (len(obj_ids),model_ref._meta.verbose_name.title())
-                admin = Users.getAdmin().first()
-                act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                act_col.myitems.add(objects)
-                action.send(self,target=gwa[i],verb=myverb,level='info',action_type='MadePublicGroup',action_object=act_col)
+                ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=objects)
+                action.send(self,target=gwa[i],verb=myverb,level='info',action_type='MadePublicGroup',action_object=ad_col)
 
             # Finally, update only those objects that need to be updated in a single query
             #####################################################
@@ -429,13 +423,11 @@ class Users(AbstractUser,GuardianUserMixin):
             model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
 
             if len(target_objs) > 1:
-                myverb = '%d %s where made public by %s.' % (len(target_objs),model_ref._meta.verbose_name_plural.title(),str(self))
+                myverb = '%d %s were made public by %s.' % (len(target_objs),model_ref._meta.verbose_name_plural.title(),str(self))
             else:
                 myverb = '1 %s was made public by %s.' % (model_ref._meta.verbose_name.title(),str(self))
-            admin = Users.getAdmin().first()
-            act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-            act_col.myitems.add(target_objects)
-            action.send(self,target=admin,verb=myverb,level='success',action_type='MadePublic',action_object=act_col)
+            ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=target_objects)
+            action.send(self,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='MadePublic',action_object=ad_col)
             
             output = {'success':True,'message': '<b>%d</b> private %s are know public.' % (len(target_objs),object_type),'duplicates':[]}
             return output

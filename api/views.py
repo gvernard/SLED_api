@@ -10,7 +10,7 @@ from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
 from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection
 
 from guardian.shortcuts import assign_perm
 from actstream import action
@@ -153,10 +153,8 @@ class UploadLenses(APIView):
                             myverb = '%d new Lenses were added.' % len(pub)
                         else:
                             myverb = '1 new Lens was added.'
-                        admin = Users.getAdmin().first()
-                        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                        act_col.myitems.add(*pub)
-                        action.send(request.user,target=admin,verb=myverb,level='success',action_type='Add',action_object=act_col)
+                        ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                        action.send(request.user,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='Add',action_object=ad_col)
                     #self.make_collection(instances,request.user)
                 else:
                     new_lenses = Lenses.objects.bulk_create(lenses)

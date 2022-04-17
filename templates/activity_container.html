@@ -5,7 +5,6 @@
   <tbody>
     {% for action in stream %}
     <tr class="sled-action-row">
-      <!-- <td><a href="/sled_actions/view/{{ action.pk }}"><img src="{% static 'icons/box-arrow-up-right.svg' %}" alt="link"></a></td> -->
       <td>{{ action.timestamp|timesince }} ago</td>
       <td>{{ action.actor }}</td>
       <td>{{ action.verb }}</td>
@@ -17,57 +16,132 @@
 <div style="display:none">
   {% for action in stream %}
   <div id="tooltip-{{ forloop.counter0 }}">
+
+
     {% if action.data.action_type == "Add" %}
-    <!-- <a href="{% url 'lenses:lens-query' %}?collection_ids={{ action.action_object.pk }}" target="_blank"> -->
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ action.action_object.myitems.all|length }} new {{ action.action_object.item_type }}
-    </a>
-    were added by user
-    <a href="{{ action.actor.get_absolute_url }}" target="_blank">
-      {{ action.actor }}
-    </a>
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} new {{ action.action_object.item_type }}</a>
+    were added by
+    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "AddData" %}
-    action_object.collection
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }}
+      {% if action.action_object.item_type == "Imaging" %}
+      new Imaging data
+      {% elif action.action_object.item_type == "Imaging" %}
+      new Spectra
+      {% elif action.action_object.item_type == "Catalogue" %}
+      new Catalogue data
+      {% endif %}
+    </a>
+    were added by
+    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+    at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "UpdateSelf" %}
-    object_type (Lenses,SledGroup,Collection)
-    fields (json, dirty-field)
+    The following updates have been performed on this {{ action.data.object_type }}:
+    <div class="sled-dirty-fields">
+      {{ action.data.fields }}
+    </div>
+    at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "Update" %}
-    action_object.collection
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} {{ action.action_object.item_type }}</a>
+    have been updated by
+    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+    at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "DeleteObject" %}
-    object_type
-    object_names
+    The following {{ action.data.object_names|length }} {{ action.data.object_type }}:
+    <table>
+      {% for name in action.data.object_names %}
+      <tr>
+	<td>name</td>
+      </tr>
+      {% endfor %}
+    </table>
+    have been deleted by
+    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+    at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "RemovedFromGroup" %}
     NONE
+
+    
     {% elif action.data.action_type == "AddedToGroup" %}
     NONE
+
+    
     {% elif action.data.action_type == "LeftGroup" %}
     NONE
+
+    
     {% elif action.data.action_type == "RemovedFromCollection" %}
-    action_object.collection
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} {{ action.action_object.item_type }}</a>
+    have been removed from the collection.
+
+    
     {% elif action.data.action_type == "AddedToCollection" %}
-    action_object.collection
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} {{ action.action_object.item_type }}</a>
+    have been added to the collection.
+
+    
     {% elif action.data.action_type == "MadePublic" %}
-    action_object.collection
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}</a>
+    are now <em>public</em>.
+    Performed by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+    at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "MadePublicGroup" %}
-    action_object.collection
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }}</a>
+    private {{ action.action_object.item_type }} the group had access to are now <em>public</em>.
+
+    
     {% elif action.data.action_type == "RevokeAccess" %}
     action_object.collection
+    The group's access has been revoked from the following {{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}:
+    <table>
+      {% for obj in action.action_object.myitems.all %}
+      <tr>
+	<td>obj</td>
+      </tr>
+      {% endfor %}
+    </table>
+    by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+    at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "GiveAccess" %}
-    action_object.collection
+    The group has been granted access to
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}</a>
+    by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+    at <em>{{ action.timestamp }}</em>
+
+    
     {% elif action.data.action_type == "CedeOwnershipSelf" %}
     NONE
+
+    
     {% elif action.data.action_type == "CedeOwnership" %}
-    action_object.collection
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}</a>
+    the group has access to change owner from
+    <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
+    to
+    <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
+    at <em>{{ action.timestamp }}</em>    
+
+    
     {% endif %}
   </div>
   {% endfor %}
 </div>
-
-
-
-<!-- <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css"> -->
-<!-- <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script> -->
 
 
 
@@ -76,15 +150,32 @@
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
     
 <script>
+  $('.sled-dirty-fields').each(function(index){
+      var fields = JSON.parse($(this).html());
+      var new_html = $('<table>').addClass('jb-fields-update-table');
+      const keys = Object.keys(fields);
+      keys.forEach((key, index) => {
+	  var tr = $('<tr>');
+	  tr.append('<td>'+key+':</td>');
+	  tr.append('<td>'+fields[key]['saved']+'</td>');
+	  tr.append('<td>&rarr;</td>');
+	  tr.append('<td>'+fields[key]['current']+'</td>');
+	  new_html.append(tr);
+      });
+      $(this).html(new_html);
+  });
+  
   $('.sled-action-row').each(function(index){
       var mycontent = $("#tooltip-"+String(index)).html();
-      $(this).tooltipster({
-	  position: 'left',
-	  theme: 'tooltipster-shadow',
-	  interactive: true,
-	  contentAsHTML: true,
-	  content: mycontent,
-      });
+      if( mycontent != 'NONE' ){
+	  $(this).tooltipster({
+	      position: 'left',
+	      theme: 'tooltipster-shadow',
+	      interactive: true,
+	      contentAsHTML: true,
+	      content: mycontent,
+	  });
+      );
   });
 </script>
 

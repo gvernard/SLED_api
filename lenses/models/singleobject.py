@@ -139,6 +139,10 @@ class AccessManager(models.Manager):
         out = self._arrange_by_object(pairs,ugs,objects)
         return out
 
+
+
+
+
     
 class AbstractModelMeta(abc.ABCMeta,type(models.Model)):
     pass

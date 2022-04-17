@@ -18,7 +18,7 @@ import abc
 import json
 import os
 
-from . import SingleObject, Collection, SledGroup
+from . import SingleObject, Collection, SledGroup, AdminCollection
 
 
 
@@ -362,10 +362,17 @@ class CedeOwnership(ConfirmationTask):
                         else:
                             model_name = model_ref._meta.verbose_name.title()
                         myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_name)
-                        admin = Users.getAdmin().first()
-                        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                        act_col.myitems.add(objects)
-                        action.send(self.owner,target=gwa[i],verb=myverb,level='info',action_type='CedeOwnership',action_object=act_col)
+                        ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=objects)
+                        action.send(self.owner,
+                                    target=gwa[i],
+                                    verb=myverb,
+                                    level='info',
+                                    action_type='CedeOwnership',
+                                    action_object=ad_col,
+                                    previous_owner=self.owner.username,
+                                    previous_owner_url=self.owner.get_absolute_url,
+                                    next_owner=heir.username,
+                                    next_owner_url=heir.get_absolute_url)
 
             # Handle groups
             if object_type == 'SledGroup':
@@ -534,10 +541,8 @@ class ResolveDuplicates(ConfirmationTask):
                         else:
                             myverb = '1 new Lens was added.'
                     from . import Users
-                    admin = Users.getAdmin().first()
-                    act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                    act_col.myitems.add(*pub)
-                    action.send(self.owner,target=admin,verb=myverb,level='success',action_type=atype,action_object=act_col)
+                    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                    action.send(self.owner,target=Users.getAdmin().first(),verb=myverb,level='success',action_type=atype,action_object=ad_col)
             else:
                 lenses = Lenses.objects.bulk_create(lenses)
                 # Here I need to upload and rename the images accordingly.
@@ -690,10 +695,8 @@ class AddData(ConfirmationTask):
                 else:
                     myverb = '1 new Data entry was added.'
                 from . import Users
-                admin = Users.getAdmin().first()
-                act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Data")
-                act_col.myitems.add(*pub)
-                action.send(self.owner,target=admin,verb=myverb,level='success',action_type='AddData',action_object=act_col)
+                ad_col = AdminCollection.objects.create(item_type=pub[0]._meta.model.__name__,myitems=pub)
+                action.send(self.owner,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='AddData',action_object=ad_col)
         else:
             lenses = Lenses.objects.bulk_create(lenses)
             # Here I need to upload and rename the images accordingly.

@@ -20,7 +20,7 @@ from django.conf import settings
 import json
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, Imaging, Spectrum, Catalogue
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue
 
 from . import forms
 
@@ -343,10 +343,8 @@ class LensAddView(TemplateView):
                                 myverb = '%d new Lenses were added.' % len(pub)
                             else:
                                 myverb = '1 new Lens was added.'
-                            admin = Users.getAdmin().first()
-                            act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                            act_col.myitems.add(*pub)
-                            action.send(request.user,target=admin,verb=myverb,level='success',action_type='Add',action_object=act_col)
+                            ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                            action.send(request.user,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='Add',action_object=ad_col)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         new_lenses = Lenses.objects.bulk_create(instances)
@@ -419,10 +417,8 @@ class LensUpdateView(TemplateView):
                             myverb = '%d Lenses were updated.' % len(pub)
                         else:
                             myverb = '1 Lens was updated.'
-                        admin = Users.getAdmin().first()
-                        act_col = Collection.objects.create(owner=admin,access_level='PUB',item_type="Lenses")
-                        act_col.myitems.add(*pub)
-                        action.send(request.user,target=admin,verb=myverb,level='success',action_type='Update',action_object=act_col)
+                        ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                        action.send(request.user,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='Update',action_object=ad_col)
                     message = 'Lenses successfully updated!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:
