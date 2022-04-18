@@ -1,4 +1,5 @@
 {% load static %}
+{% load project_tags %}
 
 {% if stream %}
 <table class="jb-activity">
@@ -19,24 +20,50 @@
 
 
     {% if action.data.action_type == "Add" %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} new {{ action.action_object.item_type }}</a>
-    were added by
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} new {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+    </a>
+    {% if action.action_object.myitems.all|length == 1 %}
+    was
+    {% else %}
+    were
+    {% endif %}
+    added by
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
     
     {% elif action.data.action_type == "AddData" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ action.action_object.myitems.all|length }}
+      {{ action.action_object.myitems.all|length }} new
       {% if action.action_object.item_type == "Imaging" %}
-      new Imaging data
+      Imaging data
+      {% if action.action_object.myitems.all|length == 1 %}
+      entry
+      {% else %}
+      entries
+      {% endif %}
       {% elif action.action_object.item_type == "Imaging" %}
-      new Spectra
+      {% if action.action_object.myitems.all|length == 1 %}
+      Spectrum
+      {% else %}
+      Spectra
+      {% endif %}
       {% elif action.action_object.item_type == "Catalogue" %}
-      new Catalogue data
+      Catalogue data
+      {% if action.action_object.myitems.all|length == 1 %}
+      entry
+      {% else %}
+      entries
+      {% endif %}
       {% endif %}
     </a>
-    were added by
+    {% if action.action_object.myitems.all|length == 1 %}
+    was
+    {% else %}
+    were
+    {% endif %}
+    added by
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
@@ -50,8 +77,15 @@
 
     
     {% elif action.data.action_type == "Update" %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} {{ action.action_object.item_type }}</a>
-    have been updated by
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+    </a>
+    {% if action.action_object.myitems.all|length == 1 %}
+    has
+    {% else %}
+    have
+    {% endif %}
+    been updated by
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
@@ -65,7 +99,12 @@
       </tr>
       {% endfor %}
     </table>
-    have been deleted by
+    {% if action.action_object.myitems.all|length == 1 %}
+    has
+    {% else %}
+    have
+    {% endif %}
+    been deleted by
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
@@ -83,30 +122,56 @@
 
     
     {% elif action.data.action_type == "RemovedFromCollection" %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} {{ action.action_object.item_type }}</a>
-    have been removed from the collection.
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+    </a>
+    {% if action.action_object.myitems.all|length == 1 %}
+    has
+    {% else %}
+    have
+    {% endif %}
+    been removed from the collection.
 
     
     {% elif action.data.action_type == "AddedToCollection" %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} {{ action.action_object.item_type }}</a>
-    have been added to the collection.
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+    </a>
+    {% if action.action_object.myitems.all|length == 1 %}
+    has
+    {% else %}
+    have
+    {% endif %}
+    been added to the collection.
 
     
     {% elif action.data.action_type == "MadePublic" %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}</a>
-    are now <em>public</em>.
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+    </a>
+    {% if action.action_object.myitems.all|length == 1 %}
+    is
+    {% else %}
+    are
+    {% endif %}
+    now <em>public</em>.
     Performed by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
     
     {% elif action.data.action_type == "MadePublicGroup" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }}</a>
-    private {{ action.action_object.item_type }} the group had access to are now <em>public</em>.
+    private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %} the group had access to
+    {% if action.action_object.myitems.all|length == 1 %}
+    is
+    {% else %}
+    are
+    {% endif %}
+    now <em>public</em>.
 
     
     {% elif action.data.action_type == "RevokeAccess" %}
-    action_object.collection
-    The group's access has been revoked from the following {{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}:
+    The group's access has been revoked from the following {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}:
     <table>
       {% for obj in action.action_object.myitems.all %}
       <tr>
@@ -120,7 +185,9 @@
     
     {% elif action.data.action_type == "GiveAccess" %}
     The group has been granted access to
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}</a>
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+    </a>
     by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
@@ -130,8 +197,10 @@
 
     
     {% elif action.data.action_type == "CedeOwnership" %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }} private {{ action.action_object.item_type }}</a>
-    the group has access to change owner from
+    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
+      {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+    </a>
+    the group has access to changed owner from
     <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
     to
     <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
@@ -175,7 +244,7 @@
 	      contentAsHTML: true,
 	      content: mycontent,
 	  });
-      );
+      };
   });
 </script>
 

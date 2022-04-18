@@ -258,7 +258,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             
     def save(self,*args,**kwargs):
         dirty = self.get_dirty_fields(verbose=True)
-        dirty.pop('name')
+        dirty.pop('name',None)
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
