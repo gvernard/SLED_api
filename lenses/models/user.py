@@ -106,8 +106,7 @@ class Users(AbstractUser,GuardianUserMixin):
         if self!=group.owner:
             if self in group.getAllMembers(): 
                 group.user_set.remove(self)
-                myverb = "User %s has left the group" % self.username
-                action.send(self,target=group,verb=myverb,level='info',action_type='LeftGroup')
+                action.send(self,target=group,verb='LeftGroup',level='info',user_name=self.username,user_url=self.get_absolute_url())
                 
     def getGroupsIsMember(self):
         """
@@ -188,37 +187,25 @@ class Users(AbstractUser,GuardianUserMixin):
         for user in target_users:
             # fetch permissions for all the objects for the given user (just 1 query)
             new_objects_per_user = []
-            new_objects_per_user_ids = []
             checker = ObjectPermissionChecker(user)
             checker.prefetch_perms(objects)
             object_type = objects[0]._meta.model.__name__
             for obj in objects:
                 if not checker.has_perm(perm,obj):
                     new_objects_per_user.append(obj)
-                    new_objects_per_user_ids.append(obj.id)
             # if there are objects for which this user was just granted new permission, create a notification
             if len(new_objects_per_user) > 0:
                 assign_perm(perm,user,new_objects_per_user) # (just 1 query)
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=new_objects_per_user)
                 if isinstance(user,Users):
-                    if len(new_objects_per_user) > 1:
-                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title())
-                    else:
-                        myverb = 'You have been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title())
                     notify.send(sender=self,
                                 recipient=user,
-                                verb=myverb,
+                                verb='GiveAccess',
                                 level='success',
                                 timestamp=timezone.now(),
-                                note_type='GiveAccess',
-                                object_type=object_type,
-                                object_ids=new_objects_per_user_ids)
+                                action_object=ad_col)
                 else:
-                    if len(new_objects_per_user) > 1:
-                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name_plural.title())
-                    else:
-                        myverb = 'The group has been granted access to %d private %s.' % (len(new_objects_per_user),new_objects_per_user[0]._meta.verbose_name.title())
-                    ad_col = AdminCollection.objects.create(item_type=object_type,myitems=new_objects_per_user)
-                    action.send(self,target=user,verb=myverb,level='success',action_type='GiveAccess',action_object=ad_col) # the user here is a group
+                    action.send(self,target=user,verb='GiveAccess',level='success',action_object=ad_col) # the user here is a group
 
     def revokeAccess(self,objects,target_users):
         """
@@ -252,40 +239,32 @@ class Users(AbstractUser,GuardianUserMixin):
             checker.prefetch_perms(objects)            
             object_type = objects[0]._meta.model.__name__
             model_ref = apps.get_model(app_label="lenses",model_name=object_type)
-            revoked_objects_per_user_ids = []
+            revoked_objects_per_user = []
             for obj in objects:
                 if checker.has_perm(perm,obj):
-                    revoked_objects_per_user_ids.append(obj.id)
+                    revoked_objects_per_user.append(obj)
             # if there are objects for which this user had permissions just revoked, create a notification
-            if len(revoked_objects_per_user_ids) > 0:
-                revoked_objects_per_user = model_ref.accessible_objects.filter(id__in=revoked_objects_per_user_ids)
+            if len(revoked_objects_per_user) > 0:
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=revoked_objects_per_user)
                 if isinstance(user,Users):
-                    if len(revoked_objects_per_user_ids) > 1:
-                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name_plural.title())
-                    else:
-                        myverb = 'Your access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name.title())
                     notify.send(sender=self,
                                 recipient=user,
-                                verb=myverb,
+                                verb='RevokeAccess',
                                 level='error',
                                 timestamp=timezone.now(),
-                                note_type='RevokeAccess',
-                                object_type=object_type,
-                                object_ids=revoked_objects_per_user_ids)
+                                action_object=ad_col)
+                    
                 else:
-                    if len(revoked_objects_per_user_ids) > 1:
-                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name_plural.title())
-                    else:
-                        myverb = 'The group\'s access to %d private %s has been revoked.' % (len(revoked_objects_per_user_ids),model_ref._meta.verbose_name.title())
-                    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=revoked_objects_per_user)
-                    action.send(self,target=user,verb=myverb,level='error',action_type='RevokeAccess',action_object=ad_col)  # here the user is actually a group
+                    action.send(self,target=user,verb='RevokeAccess',level='error',action_object=ad_col)  # here the user is actually a group
 
-                # Check collections: every collection owner must have access to all the objects in the collection.
-                # So, if access from user was revoked, check if they own a collection that contains the object and remove it from there.
-                self.remove_from_third_collections(revoked_objects_per_user,user)
+                qset = model_ref.objects.filter(id__in=[obj.id for obj in revoked_objects_per_user])
+                if object_type != 'Collection':
+                    # Check collections: every collection owner must have access to all the objects in the collection.
+                    # So, if access from user was revoked, check if they own a collection that contains the object and remove it from there.
+                    self.remove_from_third_collections(qset,user)
 
                 # Finally remove the permissions    
-                remove_perm(perm,user,revoked_objects_per_user) # (just 1 query)
+                remove_perm(perm,user,qset) # (just 1 query)
             
                     
     def accessible_per_other(self,objects,mode):
@@ -382,22 +361,17 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################            
             users_with_access,accessible_objects = self.accessible_per_other(target_objs,'users')
             for i,user in enumerate(users_with_access):
-                obj_ids = []
+                objects = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(target_objs[j].id)
-                remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                if len(obj_ids) > 1:
-                    myverb = '%d private %s you had access to are now public.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
-                else:
-                    myverb = '%d private %s you had access to is now public.' % (len(obj_ids),model_ref._meta.verbose_name.title())
+                    objects.append(target_objs[j])
+                remove_perm(perm,user,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                 notify.send(sender=self,
                             recipient=user,
-                            verb=myverb,
+                            verb='MakePublic',
                             level='info',
                             timestamp=timezone.now(),
-                            note_type='MakePublic',
-                            object_type=object_type,
-                            object_ids=obj_ids)
+                            action_object=ad_col)
 
             ### Per group
             #####################################################
@@ -409,12 +383,8 @@ class Users(AbstractUser,GuardianUserMixin):
                 for j in accessible_objects[i]:
                     objects.append(target_objs[j])
                 remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                if len(objects) > 1:
-                    myverb = '%d private %s the group had access to are now public.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
-                else:
-                    myverb = '%d private %s the group had access to is now public.' % (len(obj_ids),model_ref._meta.verbose_name.title())
-                ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=objects)
-                action.send(self,target=gwa[i],verb=myverb,level='info',action_type='MadePublicGroup',action_object=ad_col)
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
+                action.send(self,target=gwa[i],verb='MadePublicGroup',level='info',action_object=ad_col)
 
             # Finally, update only those objects that need to be updated in a single query
             #####################################################
@@ -422,12 +392,8 @@ class Users(AbstractUser,GuardianUserMixin):
                 obj.access_level = 'PUB'
             model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
 
-            if len(target_objs) > 1:
-                myverb = '%d %s were made public by %s.' % (len(target_objs),model_ref._meta.verbose_name_plural.title(),str(self))
-            else:
-                myverb = '1 %s was made public by %s.' % (model_ref._meta.verbose_name.title(),str(self))
-            ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=target_objects)
-            action.send(self,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='MadePublic',action_object=ad_col)
+            ad_col = AdminCollection.objects.create(item_type=object_type,myitems=target_objs)
+            action.send(self,target=Users.getAdmin().first(),verb='MadePublic',level='success',action_object=ad_col)
             
             output = {'success':True,'message': '<b>%d</b> private %s are know public.' % (len(target_objs),object_type),'duplicates':[]}
             return output
@@ -501,12 +467,15 @@ class Users(AbstractUser,GuardianUserMixin):
         col_ids = objects.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
         cleaned = []
         for mystr in col_ids:
-            for id in mystr.split(','):
-                cleaned.append(id)
+            if mystr:
+                for id in mystr.split(','):
+                    cleaned.append(id)
         cleaned = set(cleaned)
         #users = list(set( Users.objects.filter(collection__id__in=cleaned).exclude(username=self.request.user.username) ))
-        users = Users.objects.filter(collection__id__in=cleaned)
-            
+        if cleaned:
+            return Users.objects.filter(collection__id__in=cleaned)
+        else:
+            return Users.objects.none()
     
     def remove_from_third_collections(self,objects,user):
         obj_col_ids = list(objects.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
@@ -523,11 +492,11 @@ class Users(AbstractUser,GuardianUserMixin):
                     pairs.append((tmp['id'],col_index))
             col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
              
-            final_col_ids = []
+            final_cols = []
             for index in col_index_obj_ids.keys():
                 to_remove = model_ref.objects.filter(id__in=col_index_obj_ids[index])
                 all_cols[index].removeItems(user,to_remove)
-                final_col_ids.append(all_cols[index].id)
+                final_cols.append(all_cols[index])
             # for i in range(0,len(col_index_obj_ids)):
             #     print(all_cols[i],col_index_obj_ids[i])
             #     to_remove = model_ref.accessible_objects.in_ids(user,list(col_index_obj_ids[i]))
@@ -535,18 +504,13 @@ class Users(AbstractUser,GuardianUserMixin):
             #     final_col_ids.append(all_cols[i].id)
             # #print(final_col_ids)                    
 
-            if len(final_col_ids) > 1:
-                myverb = 'Private objects removed from %d collections that you own.' % len(final_col_ids)
-            else:
-                myverb = 'Private objects removed from 1 collection that you own.'
+            ad_col = AdminCollection.objects.create(item_type=final_cols[0]._meta.model.__name__,myitems=final_cols)    
             notify.send(sender=self,
                         recipient=user,
-                        verb=myverb,
+                        verb='RemovedFromCollection',
                         level='error',
                         timestamp=timezone.now(),
-                        note_type='RemovedFromCollection',
-                        object_type='Collection',
-                        object_ids=final_col_ids)
+                        action_object=ad_col)
 
             
     ####################################################################

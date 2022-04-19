@@ -6,9 +6,141 @@
   <tbody>
     {% for action in stream %}
     <tr class="sled-action-row">
-      <td>{{ action.timestamp|timesince }} ago</td>
-      <td>{{ action.actor }}</td>
-      <td>{{ action.verb }}</td>
+      <td style="text-align:right">
+
+	{% if action.verb == "Add" %}
+	{{ action.action_object.myitems.all|length }} new {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	added
+
+	
+	{% elif action.verb == "AddData" %}
+	{{ action.action_object.myitems.all|length }} new {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	added
+
+	
+	{% elif action.verb == "UpdateSelf" %}
+	Field(s) were updated
+
+	
+	{% elif action.verb == "Update" %}
+	{{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	updated
+
+	
+	{% elif action.verb == "DeleteObject" %}
+	{{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	deleted
+
+
+	{% elif action.verb == "LeftGroup" %}
+        User <a href="{{ action.data.user_url }}" target="_blank">{{ action.data.user_name }}</a> left the group 
+
+
+	{% elif action.verb == "RemovedFromGroup" %}
+	{{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.data.user_names|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	removed from the group
+
+    
+	{% elif action.verb == "AddedToGroup" %}
+	{{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.data.user_names|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	added to the group
+
+
+	{% elif action.verb == "AddedToCollection" %}
+	{{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	added to the collection
+
+
+	{% elif action.verb == "RemovedFromCollection" %}
+	{{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	removed from the collection
+
+
+	{% elif action.verb == "MadePublicGroup" %}
+	{{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %} that the group had access to
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	made public 
+
+
+	{% elif action.verb == "MadePublic" %}
+	{{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	{% if action.action_object.myitems.all|length == 1 %}
+	was
+	{% else %}
+	were
+	{% endif %}
+	made public
+
+
+	{% elif action.verb == "GiveAccess" %}
+	The group was granted access to {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+
+
+	{% elif action.verb == "RevokeAccess" %}
+	The group's access to {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %} was revoked
+
+
+	{% elif action.verb == "CedeOwnershipSelf" %}
+	The owner changed from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
+	to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a> 
+
+    
+	{% elif action.verb == "CedeOwnership" %}
+	{{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
+	the group has access to changed owner
+	from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
+	to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a> 
+
+
+	{% endif %}
+      </td>
+      <td>
+	{{ action.timestamp|timesince }} ago
+      </td>
     </tr>
     {% endfor %}
   </tbody>
@@ -19,7 +151,7 @@
   <div id="tooltip-{{ forloop.counter0 }}">
 
 
-    {% if action.data.action_type == "Add" %}
+    {% if action.verb == "Add" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} new {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
     </a>
@@ -33,7 +165,7 @@
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "AddData" %}
+    {% elif action.verb == "AddData" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} new
       {% if action.action_object.item_type == "Imaging" %}
@@ -68,30 +200,30 @@
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "UpdateSelf" %}
-    The following updates have been performed on this {{ action.data.object_type }}:
+    {% elif action.verb == "UpdateSelf" %}
+    The following updates were performed on this {{ action.data.object_type }}:
     <div class="sled-dirty-fields">
       {{ action.data.fields }}
     </div>
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "Update" %}
+    {% elif action.verb == "Update" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
     </a>
     {% if action.action_object.myitems.all|length == 1 %}
-    has
+    was
     {% else %}
-    have
+    were
     {% endif %}
-    been updated by
+    updated by
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "DeleteObject" %}
-    The following {{ action.data.object_names|length }} {{ action.data.object_type }}:
+    {% elif action.verb == "DeleteObject" %}
+    The following {{ action.data.object_names|length }} {% singular_or_plural action.data.object_type action.data.object_names|length %}:
     <table>
       {% for name in action.data.object_names %}
       <tr>
@@ -100,52 +232,78 @@
       {% endfor %}
     </table>
     {% if action.action_object.myitems.all|length == 1 %}
-    has
+    was
     {% else %}
-    have
+    were
     {% endif %}
-    been deleted by
+    deleted by
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "RemovedFromGroup" %}
+    {% elif action.verb == "RemovedFromGroup" %}
+    The following {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}:
+    <table>
+      {% for user in action.action_object.myitems.all %}
+      <tr>
+	<td><a href="{{ user.get_absolute_url }}" target="_blank">{{ user.username }}</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% if action.action_object.myitems.all|length == 1 %}
+    was
+    {% else %}
+    were
+    {% endif %}
+    removed from the group at <em>{{ action.timestamp }}</em>
+
+    
+    {% elif action.verb == "AddedToGroup" %}
+    The following {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}:
+    <table>
+      {% for user in action.action_object.myitems.all %}
+      <tr>
+	<td><a href="{{ user.get_absolute_url }}" target="_blank">{{ user.username }}</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% if action.action_object.myitems.all|length == 1 %}
+    was
+    {% else %}
+    were
+    {% endif %}
+    added to the group at <em>{{ action.timestamp }}</em>
+
+    
+    {% elif action.verb == "LeftGroup" %}
     NONE
 
     
-    {% elif action.data.action_type == "AddedToGroup" %}
-    NONE
-
-    
-    {% elif action.data.action_type == "LeftGroup" %}
-    NONE
-
-    
-    {% elif action.data.action_type == "RemovedFromCollection" %}
+    {% elif action.verb == "RemovedFromCollection" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
     </a>
     {% if action.action_object.myitems.all|length == 1 %}
-    has
+    was
     {% else %}
-    have
+    were
     {% endif %}
-    been removed from the collection.
+    removed from the collection at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "AddedToCollection" %}
+    {% elif action.verb == "AddedToCollection" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
     </a>
     {% if action.action_object.myitems.all|length == 1 %}
-    has
+    was
     {% else %}
-    have
+    were
     {% endif %}
-    been added to the collection.
+    added to the collection at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "MadePublic" %}
+    {% elif action.verb == "MadePublic" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
     </a>
@@ -159,19 +317,19 @@
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "MadePublicGroup" %}
+    {% elif action.verb == "MadePublicGroup" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">{{ action.action_object.myitems.all|length }}</a>
     private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %} the group had access to
     {% if action.action_object.myitems.all|length == 1 %}
-    is
+    was
     {% else %}
-    are
+    were
     {% endif %}
-    now <em>public</em>.
+    made public at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "RevokeAccess" %}
-    The group's access has been revoked from the following {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}:
+    {% elif action.verb == "RevokeAccess" %}
+    The group's access was revoked from the following {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}:
     <table>
       {% for obj in action.action_object.myitems.all %}
       <tr>
@@ -183,8 +341,8 @@
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "GiveAccess" %}
-    The group has been granted access to
+    {% elif action.verb == "GiveAccess" %}
+    The group was granted access to
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
     </a>
@@ -192,11 +350,11 @@
     at <em>{{ action.timestamp }}</em>
 
     
-    {% elif action.data.action_type == "CedeOwnershipSelf" %}
+    {% elif action.verb == "CedeOwnershipSelf" %}
     NONE
 
     
-    {% elif action.data.action_type == "CedeOwnership" %}
+    {% elif action.verb == "CedeOwnership" %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
       {{ action.action_object.myitems.all|length }} private {% singular_or_plural action.action_object.item_type action.action_object.myitems.all|length %}
     </a>
@@ -235,7 +393,7 @@
   });
   
   $('.sled-action-row').each(function(index){
-      var mycontent = $("#tooltip-"+String(index)).html();
+      var mycontent = $("#tooltip-"+String(index)).html().trim();
       if( mycontent != 'NONE' ){
 	  $(this).tooltipster({
 	      position: 'left',

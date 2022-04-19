@@ -33,6 +33,8 @@ class AdminCollection(models.Model):
     myitems = GM2MField('Lenses')
     ItemTypeChoices = (
         ('Lenses','Lenses'),
+        ('Collection','Collection'),
+        ('Users','Users'),
         ('Imaging','Imaging'),
         ('Spectrum','Spectrum'),
         ('Catalogue','Catalogue'),

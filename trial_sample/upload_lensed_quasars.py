@@ -125,12 +125,8 @@ for j in range(0,len(users)-1):
     # Main activity stream for public lenses
     pub = list(Lenses.objects.filter(owner=users[j]).filter(access_level='PUB'))
     if len(pub) > 0:
-        if len(pub) > 1:
-            myverb = '%d new Lenses were added.' % len(pub)
-        else:
-            myverb = '1 new Lens was added.'
         ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-        action.send(users[j],target=Users.getAdmin().first(),verb=myverb,level='success',action_type='Add',action_object=ad_col)
+        action.send(users[j],target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
 
     
 

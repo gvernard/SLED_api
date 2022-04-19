@@ -196,7 +196,7 @@ class GroupCedeOwnershipView(BSModalUpdateView):
             justification = form.cleaned_data['justification']
             self.request.user.cedeOwnership(group,heir,justification)        
             #message = "User <b>%s %s</b> has been notified about your request." % (heir_dict['first_name'],heir_dict['last_name'])
-            message = "User <b>"+heir.username+"</b> has been notified about your request."
+            message = "User <b>"+heir[0].username+"</b> has been notified about your request."
             messages.add_message(self.request,messages.WARNING,message)
             return redirect('sled_groups:group-list')
         else:

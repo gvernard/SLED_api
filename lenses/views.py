@@ -116,47 +116,32 @@ class LensDeleteView(ModalIdsBaseMixin):
             ### Notifications per user #####################################################
             users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
             for i,user in enumerate(users_with_access):
-                obj_ids = []
+                objects = []
                 names = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(pri[j].id)
+                    objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                if len(obj_ids) > 1:
-                    myverb = '%d private %s you had access to have been deleted.' % (len(obj_ids),pri[0]._meta.verbose_name_plural.title())
-                else:
-                    myverb = '1 private %s you had access to has been deleted.' % (pri[0]._meta.verbose_name.title())
+                remove_perm(perm,user,objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self.request.user,
                             recipient=user,
-                            verb=myverb,
+                            verb='DeleteObjectPrivate',
                             level='warning',
                             timestamp=timezone.now(),
-                            note_type='DeleteObject',
                             object_type=object_type,
-                            object_ids=names)
+                            object_names=names)
 
             ### Notifications per group #####################################################
             groups_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'groups')
             id_list = [g.id for g in groups_with_access]
             gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
-                obj_ids = []
+                objects = []
                 names = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(pri[j].id)
+                    objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # (just 1 query)
-                if len(obj_ids) > 1:
-                    myverb = '%d private %s the group had access to have been deleted.' % (len(obj_ids),pri[0]._meta.verbose_name_plural.title())
-                else:
-                    myverb = '1 private %s the group had access to has been deleted.' % (pri[0]._meta.verbose_name.title())
-                action.send(self.request.user,
-                            target=gwa[i],
-                            verb=myverb,
-                            level='warning',
-                            action_type='DeleteObject',
-                            object_type=object_type,
-                            object_names=names)
+                remove_perm(perm,group,objects) # (just 1 query)
+                action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=object_type,object_names=names)
 
             ### Notifications per collection #####################################################
             uqset = self.request.user.get_collection_owners(pri)
@@ -339,12 +324,8 @@ class LensAddView(TemplateView):
                         self.make_collection(instances,request.user)
                         # Main activity stream for public lenses
                         if len(pub) > 0:
-                            if len(pub) > 1:
-                                myverb = '%d new Lenses were added.' % len(pub)
-                            else:
-                                myverb = '1 new Lens was added.'
                             ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                            action.send(request.user,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='Add',action_object=ad_col)
+                            action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         new_lenses = Lenses.objects.bulk_create(instances)
@@ -413,12 +394,8 @@ class LensUpdateView(TemplateView):
                         if lens.access_level == 'PUB':
                             pub.append(lens)
                     if len(pub) > 0:
-                        if len(pub) > 1:
-                            myverb = '%d Lenses were updated.' % len(pub)
-                        else:
-                            myverb = '1 Lens was updated.'
                         ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                        action.send(request.user,target=Users.getAdmin().first(),verb=myverb,level='success',action_type='Update',action_object=ad_col)
+                        action.send(request.user,target=Users.getAdmin().first(),verb='Update',level='success',action_object=ad_col)
                     message = 'Lenses successfully updated!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:

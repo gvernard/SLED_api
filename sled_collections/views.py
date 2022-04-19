@@ -332,7 +332,7 @@ class CollectionCedeOwnershipView(BSModalUpdateView):
             heir_dict = heir.values('first_name','last_name')[0]
             justification = form.cleaned_data['justification']
             self.request.user.cedeOwnership(col,heir,justification)        
-            message = "User <b>"+heir.username+"</b> has been notified about your request."
+            message = "User <b>"+heir[0].username+"</b> has been notified about your request."
             messages.add_message(self.request,messages.WARNING,message)
             return redirect('sled_collections:collections-list')
         else:
