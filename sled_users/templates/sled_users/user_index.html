@@ -23,8 +23,8 @@
     <div>
       <h1 class="jb-heading-2">My Details</h1>
       <div>
-	<table>
-	  <thead>
+        <table>
+          <thead>
             <tr>
               <th>First name</th>
               <th>Last name</th>
@@ -33,8 +33,8 @@
               <th>Homepage</th>
               <th>Info</th>
             </tr>
-	  </thead>
-	  <tbody>
+          </thead>
+          <tbody>
             <tr>
               <td>{{ user.first_name }}</td>
               <td>{{ user.last_name }}</td>
@@ -43,12 +43,45 @@
               <td>{{ user.homepage }}</td>
               <td>{{ user.info }}</td>
             </tr>
-	  </tbody>
-	</table>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 
+
+  <div class="jb-activity">
+    <h1 class="jb-heading-2">New Notifications ({{ N_note_unread }})</h1>
+    <div>
+      {% if unread_notifications %}
+      <table>
+        <thead>
+          <tr>
+            <th>Sender</th>
+            <th>Sent at</th>
+            <th>Level</th>
+            <th>Verb</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for note in unread_notifications %}
+          <tr>
+            <td>{{ note.actor }}</td>
+            <td>{{ note.timestamp }}</td>
+            <td>{{ note.level }}</td>
+            <td>{{ note.verb }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="jb-paragraph-2">No new notifications</p>
+      {% endif %}
+      <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
+    </div>
+  </div>
+
+  <br></br>
 
   <table>
     {% for imaging in imagings %}
@@ -83,26 +116,26 @@
     {% endfor %}
   </table>
 
-  
+
   <div>
     <h1 class="jb-heading-2">My Groups ({{N_groups}})</h1>
     <div>
       {% if N_groups %}
       <table>
-	<thead>
+        <thead>
           <tr>
             <th>Name</th>
             <th>Description</th>
           </tr>
-	</thead>
-	<tbody>
+        </thead>
+        <tbody>
           {% for group in groups %}
           <tr>
             <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
             <td>{{group.description}}</td>
           </tr>
           {% endfor %}
-	</tbody>
+        </tbody>
       </table>
       {% else %}
       <p>No groups to display</p>
@@ -117,20 +150,20 @@
     <div>
       {% if N_queries %}
       <table>
-	<thead>
+        <thead>
           <tr>
             <th>Name</th>
             <th>Description</th>
           </tr>
-	</thead>
-	<tbody>
+        </thead>
+        <tbody>
           {% for q in queries %}
           <tr>
             <td><a href="{{ q.get_absolute_url }}">{{q.name}}</td>
             <td>{{q.description}}</td>
           </tr>
           {% endfor %}
-	</tbody>
+        </tbody>
       </table>
       {% else %}
       <p>No queries to display</p>
@@ -145,15 +178,15 @@
     <div>
       {% if N_tasks > 0 %}
       <table>
-	<thead>
+        <thead>
           <tr>
             <th>Type</th>
             <th>Created at</th>
             <th>From</th>
             <th>Receivers</th>
           </tr>
-	</thead>
-	<tbody>
+        </thead>
+        <tbody>
           {% for recipients,task in pending_conf %}
           <tr>
             <td>{{ task.task_type }}</td>
@@ -162,7 +195,7 @@
             <td>{{ recipients }}</td>
           </tr>
           {% endfor %}
-	</tbody>
+        </tbody>
       </table>
       {% else %}
       <p class="jb-paragraph-2">No pending confirmation tasks</p>
@@ -173,51 +206,19 @@
 
 
   <div>
-    <h1 class="jb-heading-2">New Notifications ({{ N_note_unread }})</h1>
-    <div>
-      {% if unread_notifications %}
-      <table>
-	<thead>
-          <tr>
-            <th>Sender</th>
-            <th>Sent at</th>
-            <th>Level</th>
-            <th>Verb</th>
-          </tr>
-	</thead>
-	<tbody>
-          {% for note in unread_notifications %}
-          <tr>
-            <td>{{ note.actor }}</td>
-            <td>{{ note.timestamp }}</td>
-            <td>{{ note.level }}</td>
-            <td>{{ note.verb }}</td>
-          </tr>
-          {% endfor %}
-	</tbody>
-      </table>
-      {% else %}
-      <p class="jb-paragraph-2">No new notifications</p>
-      {% endif %}
-      <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
-    </div>
-  </div>
-
-
-  <div>
     <h1 class="jb-heading-2">My Collections ({{ collections|length }}) </h1>
     <div>
       {% if collections %}
       <table>
-	<thead>
+        <thead>
           <tr>
             <th>Name</th>
             <th>Type</th>
             <th>Description</th>
             <th>N. of items</th>
           </tr>
-	</thead>
-	<tbody>
+        </thead>
+        <tbody>
           {% for collection in collections %}
           <tr>
             <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
@@ -226,7 +227,7 @@
             <td>{{ collection.myitems.all|length }}</td>
           </tr>
           {% endfor %}
-	</tbody>
+        </tbody>
       </table>
       {% else %}
       <p class="jb-paragraph-2">No collections to display</p>
@@ -238,36 +239,36 @@
 
   <div id="lenses">
     <h1 class="jb-heading-2">My Lenses ({{ N_lenses }}) </h1>
-    
+
     <div>
       <div>
-	Showing {{ lenses.start_index }} - {{ lenses.end_index }}
+        Showing {{ lenses.start_index }} - {{ lenses.end_index }}
       </div>
       <div>
-	{% if lenses.has_previous %}
-	<a href="{{ request.path }}?page={{ lenses.number|add:'-1' }}#lenses">Previous</a>
-	{% endif %}
-	
-	{% if lenses.has_other_pages %}
-	{% for n in lenses_range %}
-	{% if n == lenses.number %}
-	<a href="{{ request.path }}?page={{ n }}#lenses" style="color:magenta">{{ n }}</a>
-	{% else %}
-	<a href="{{ request.path }}?page={{ n }}#lenses">{{ n }}</a>
-	{% endif %}
-	{% endfor %}
-	{% endif %}
-	
-	{% if lenses.has_next %}
-	<a href="{{ request.path }}?page={{ lenses.number|add:'1' }}#lenses">Next</a>
-	{% endif %}
+        {% if lenses.has_previous %}
+        <a href="{{ request.path }}?page={{ lenses.number|add:'-1' }}#lenses">Previous</a>
+        {% endif %}
+
+        {% if lenses.has_other_pages %}
+        {% for n in lenses_range %}
+        {% if n == lenses.number %}
+        <a href="{{ request.path }}?page={{ n }}#lenses" style="color:magenta">{{ n }}</a>
+        {% else %}
+        <a href="{{ request.path }}?page={{ n }}#lenses">{{ n }}</a>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+        {% if lenses.has_next %}
+        <a href="{{ request.path }}?page={{ lenses.number|add:'1' }}#lenses">Next</a>
+        {% endif %}
       </div>
     </div>
-    
+
     <div>
       <form id="ids-form" method="POST">
-	{% csrf_token %}
-	{% include "lenses/lens_list_executive.html" with lenses=lenses %}
+        {% csrf_token %}
+        {% include "lenses/lens_list_executive.html" with lenses=lenses %}
       </form>
     </div>
   </div>
@@ -324,32 +325,32 @@
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-      $(".sled-process-lenses").click(function() {
+    $(".sled-process-lenses").click(function() {
 
-          // Construct get query string
-          var values = [];
-          $('#exe_summary input[type="checkbox"]:checked').each(function() {
-              values.push('ids=' + $(this).val());
-          });
-
-          if (values.length == 0) {
-              alert('You need to select at least one item!');
-          } else {
-              var get_str = '?' + values.join('&') + '&';
-
-              // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
-
-              // Trigger modal
-              var new_form_url = url_core + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-          }
-
+      // Construct get query string
+      var values = [];
+      $('#exe_summary input[type="checkbox"]:checked').each(function() {
+        values.push('ids=' + $(this).val());
       });
+
+      if (values.length == 0) {
+        alert('You need to select at least one item!');
+      } else {
+        var get_str = '?' + values.join('&') + '&';
+
+        // Fetch only the first part of the URL (without any GET arguments)
+        var url = $(this).data('form-url').split('?');
+        var url_core = url[0];
+
+        // Trigger modal
+        var new_form_url = url_core + get_str;
+        $(this).modalFormTrigger({
+          formURL: new_form_url,
+          modalID: "#id-modal"
+        });
+      }
+
+    });
   });
 </script>
 {% endblock extrascripts %}
