@@ -1,0 +1,157 @@
+{% load static %}
+{% load project_tags %}
+
+{% if notifications %}
+<table class="jb-activity">
+  <tbody>
+    {% for note in notifications %}
+    <tr class="sled-notification-row">
+      <td>{{ note.timestamp }}</td>
+      <td>
+	{% if note.actor != "admin" %}
+	by <a href="{{ note.actor.get_absolute_url }}" target="_blank">{{ note.actor }}</a>
+	{% else %}
+	by admin
+	{% endif %}
+      </td>
+      <td>
+
+
+
+	{% if note.verb == "DeleteObjectsAccepted" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>delete public</b> objects was accepted.
+	
+	
+	{% elif note.verb == "DeleteObjectsRejected" %}
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>delete public</b> objects was rejected.
+
+	
+	{% elif note.verb == "DeleteObjectsPrivate" %}
+	<b>{{ note.data.object_names|length }} private {% singular_or_plural note.data.object_type note.data.object_names|length %}</b> that you had access to were deleted.
+	<div class="sled-notification-tooltip" style="display:none">
+	  The following {{ note.data.object_names|length }} private {% singular_or_plural note.data.object_type note.data.object_names|length %}:
+	  <table>
+	    {% for name in note.data.object_names %}
+	    <tr>
+	      <td>name</td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	  that you had access to
+	  {% if action.action_object.myitems.all|length == 1 %}
+	  was
+	  {% else %}
+	  were
+	  {% endif %}
+	  deleted.
+	</div>
+
+
+	
+
+	{% elif note.verb == "CedeOwnership" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
+	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
+	</a>
+	you have access to changed owner from
+	<a href="{{ note.data.previous_owner_url }}" target="_blank">{{ note.data.previous_owner }}</a>
+	to
+	<a href="{{ note.data.next_owner_url }}" target="_blank">{{ note.data.next_owner }}</a>.
+
+	
+	{% elif note.verb == "CedeOwnershipAccepted" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>cede ownership</b> was accepted.
+	
+	
+	{% elif note.verb == "CedeOwnershipRejected" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>cede ownership</b> was rejected.
+
+
+
+
+	{% elif note.verb == "MakePrivateAccepted" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>make objects private</b> was accepted.
+	
+	
+	{% elif note.verb == "MakePrivateRejected" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>make objects private</b> was rejected.
+	
+	
+	{% elif note.verb == "MakePublic" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
+	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
+	</a>
+	you had access to
+	{% if note.action_object.myitems.all|length == 1 %}
+	is
+	{% else %}
+	are
+	{% endif %}
+	now public.
+	
+	
+	
+	
+	{% elif note.verb == "AddedToGroup" %}
+	Your were successfully added to the group <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ note.action_object.name }}</a>.
+	
+	
+	{% elif note.verb == "AskToJoinGroupRejected" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>join group</b> <a href="{{ note.data.group_url }}" target="_blank">{{ note.data.group_name }}</a> was rejected.
+
+	
+	{% elif note.verb == "RemovedFromGroup" %}
+	You were removed from the group <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ note.action_object.name }}</a>.
+	
+	
+	{% elif note.verb == "DeletedGroup" %}	
+	Group <b>{{ note.data.group_name }}</b> was deleted by <a href="{{ note.data.owner_url }}" target="_blank">{{ note.data.owner_name }}</a>.
+	
+	
+	
+	
+	{% elif note.verb == "GiveAccess" %}
+	You were given access to
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
+	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
+	</a>.
+	
+	
+	{% elif note.verb == "RevokeAccess" %}
+	Your access to
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
+	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
+	</a>
+	was revoked.
+	
+	
+	{% elif note.verb == "AskPrivateAccessRejected" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>access private objects</b> was accepted.
+	
+
+
+
+	{% elif note.verb == "RemovedFromCollection" %}
+	Private objects were removed from <b>{{ note.action_object.myitems.all|length}} {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}</b> that you own.
+	
+	<div class="sled-notification-tooltip" style="display:none">
+	  The following {{ note.action_object.myitems.all|length }} {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %} were affected:
+	  <table>
+	    {% for col in note.action_object.myitems %}
+	    <tr>
+	      <td><a href="{{ col.get_absolute_url }}" target="_blank">{{ col.name }}</a></td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	</div>
+
+	
+	{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="jb-paragraph-2">No new notifications</p>
+{% endif %}

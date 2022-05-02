@@ -258,12 +258,12 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             
     def save(self,*args,**kwargs):
         dirty = self.get_dirty_fields(verbose=True)
+        dirty.pop('name',None)
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
-                        verb="Fields have been updated",
+                        verb='UpdateSelf',
                         level='success',
-                        action_type='UpdateSingle',
                         object_type='Lenses',
                         fields=json.dumps(dirty))
 

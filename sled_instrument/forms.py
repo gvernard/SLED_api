@@ -14,3 +14,22 @@ class InstrumentCreateForm(BSModalModelForm):
             'info': forms.Textarea({'placeholder':'Provide a description for the instrument.','rows':3,'cols':30}),
         }
 
+
+class InstrumentUpdateForm(BSModalModelForm):
+    class Meta:
+        model = Instrument
+        fields = "__all__"
+        widgets = {
+            'name': forms.TextInput({'placeholder':'The instrument name'}),
+            'extended_name': forms.TextInput({'placeholder':'The extended name for the instrument.'}),
+            'info': forms.Textarea({'placeholder':'Provide a description for the instrument.','rows':3,'cols':30}),
+        }
+
+    def clean(self):
+        # At least one User must be selected
+        #users = self.cleaned_data.get('users')
+        #if not users:
+        #self.add_error('__all__',"WPA")
+
+        # Check that cargo is not empty
+        return

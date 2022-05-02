@@ -1,0 +1,27 @@
+<div>
+  {% if messages %}
+  {% for message in messages %}
+  {% if message.tags %}
+  <div style="border-radius:0;" id="alert-message" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
+    {{ message|safe }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% else %}
+  <div style="border-radius:0;">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endif %}
+  {% endfor %}
+  {% endif %}
+</div>
+
+<script type="text/javascript">
+  $("#alert-message").fadeTo(2000, 500).slideUp(500, function() {
+      $("#alert-message").slideUp(500);
+  });
+</script>

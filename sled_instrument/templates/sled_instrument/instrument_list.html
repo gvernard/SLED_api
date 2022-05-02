@@ -2,13 +2,7 @@
 {% load static %}
 
 {% block content %}
-<!-- This modal is required to display messages when redirecting here, e.g. when deleting a group -->
-<div class="modal fade" tabindex="-1" role="dialog" id="id-modal">
-  <div class="modal-dialog">
-    <div class="modal-content"></div>
-  </div>
-</div>
-
+{% include "modal_container.html" %}
 
 
 <div class="jb-container">
@@ -29,6 +23,16 @@
         <td>{{ instrument.name }}</td>
         <td>{{ instrument.extended_name }}</td>
         <td>{{ instrument.info }}</td>
+        <td>
+          <button type="button" class="sled-delete-instrument btn btn-sm btn-danger" data-form-url="{% url 'sled_instrument:instrument-delete' instrument.pk %}">
+            <img src="{% static 'icons/trash.svg' %}" alt="trash">
+            Delete
+          </button>
+          <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_instrument:instrument-update' instrument.pk %}">
+            <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+            Update
+          </button>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
@@ -60,6 +64,21 @@
       formURL: $("#create-new-instrument").data("form-url"),
       modalID: "#id-modal"
     });
+      // Modals
+      $('.sled-delete-instrument').each(function(){
+	  $(this).modalForm({
+ 	      formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal",
+ 	      isDeleteForm: true
+	  });
+      });
+
+      $(".sled-modal").each(function(){
+	  $(this).modalForm({
+              formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal"
+	  });
+      });
   });
 </script>
 {% endblock extrascripts %}

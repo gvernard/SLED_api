@@ -47,7 +47,9 @@ urlpatterns = [
     path('api/',include('api.urls')),
     re_path(r'^static/(?P<path>.*)$', views.serve),
     path('sled_collections/', include('sled_collections.urls'), name='sled_collections'),
+    path('sled_admin_collections/', include('sled_admin_collections.urls'), name='sled_admin_collections'),
     path('sled_instrument/', include('sled_instrument.urls'), name='sled_instrument'),
+    path('sled_band/', include('sled_band.urls'), name='sled_band'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

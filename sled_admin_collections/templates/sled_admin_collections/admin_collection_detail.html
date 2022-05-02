@@ -1,0 +1,26 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+{{ object.pk }}
+<br>
+{{ object.item_type }}
+<br>
+{{ object.created_at }}
+<br>
+Total objects: {{ myitems|length }}.
+
+<br>
+<br>
+
+<table>
+  {% for obj in myitems %}
+  <tr>
+    <td>
+      <a href="{{ obj.get_absolute_url }}">{{ obj }}</a>
+    </td>
+  </tr>
+{% endfor %}
+</table>
+
+{% endblock content %}

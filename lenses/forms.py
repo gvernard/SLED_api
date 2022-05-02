@@ -120,8 +120,9 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
             form.empty_permitted = False
 
     def clean(self):
+        data = super(BaseLensAddUpdateFormSet,self).clean()
+        
         """Checks that no two new lenses are within a proximity radius."""
-        super(BaseLensAddUpdateFormSet,self).clean()
         if any(self.errors):
             # Don't bother validating the formset unless each form is valid on its own
             return
@@ -151,25 +152,24 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                 message = 'This Lens is too close to Lens '+str(','.join(strs)+'. This probably indicates a possible duplicate and submission is not allowed.')
                 self.forms[i].add_error('__all__',message)
 
-        '''
         ### Check that no two files are the same
         duplicate_files = []
         for i in range(0,len(self.forms)-1):
             form1 = self.forms[i]
-            file1 = form1.cleaned_data.get('mugshot').name
-            size1 = form1.cleaned_data.get('mugshot').size
-
+            name1 = form1.cleaned_data['mugshot'].name
+            size1 = form1.cleaned_data['mugshot'].size
+            
             for j in range(i+1,len(self.forms)):
                 form2 = self.forms[j]
-                file2 = form2.cleaned_data.get('mugshot').name
-                size2 = form1.cleaned_data.get('mugshot').size
-        
-                if file1 == file2 and size1 == size2:
-                    duplicate_files.append(file1)
+                name2 = form2.cleaned_data['mugshot'].name
+                size2 = form2.cleaned_data['mugshot'].size
+
+                if name1 == name2 and size1 == size2:
+                    duplicate_files.append(name1)
                     
         if len(duplicate_files) > 0:
             raise ValidationError('More than one files have the same name and size which could indicate duplicates!')            
-        '''
+        
                     
 class ResolveDuplicatesForm(forms.Form):
     mychoices = (
@@ -317,17 +317,40 @@ class LensQueryForm(forms.ModelForm):
         }
 
     def clean(self):
-        # Perform any multi-field check here
-        #self.add_error('__all__',"You are selecting already public lenses!")   
+        if self.cleaned_data.get('flag_contaminant') and (self.cleaned_data.get('image_conf') or self.cleaned_data.get('lens_type') or self.cleaned_data.get('source_type')): # contaminant_check
+            raise ValidationError('The query cannot be restricted to contaminants and have a lens or source type, or an image configuration.')
 
-        # if self.flag_confirmed and self.flag_contaminant: # flag_check
-        #     raise ValidationError('The object cannot be both a lens and a contaminant.')
-        # if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
-        #     raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
-        # if self.z_lens and self.z_source: # z_lens_lt_z_source
-        #     if self.z_lens > self.z_source:
-        #         raise ValidationError('The source redshift cannot be lower than the lens redshift.')
+        if self.cleaned_data.get('ra_min') and self.cleaned_data.get('ra_max'):
+            if float(self.cleaned_data.get('ra_min')) > float(self.cleaned_data.get('ra_max')):
+                raise ValidationError('The maximum ra is lower than the minimum.')
+            
+        if self.cleaned_data.get('dec_min') and self.cleaned_data.get('dec_max'):
+            if float(self.cleaned_data.get('dec_min')) > float(self.cleaned_data.get('dec_max')):
+                raise ValidationError('The maximum dec is lower than the minimum.')
 
+        if self.cleaned_data.get('n_img_min') and self.cleaned_data.get('n_img_max'):
+            if float(self.cleaned_data.get('n_img_min')) > float(self.cleaned_data.get('n_img_max')):
+                raise ValidationError('The maximum number of images is lower than the minimum.')
+
+        if self.cleaned_data.get('image_sep_min') and self.cleaned_data.get('image_sep_max'):
+            if float(self.cleaned_data.get('image_sep_min')) > float(self.cleaned_data.get('image_sep_max')):
+                raise ValidationError('The maximum image separation is lower than the minimum.')
+
+        # Redshift checks
+        z_lens_min   = self.cleaned_data.get('z_lens_min')
+        z_lens_max   = self.cleaned_data.get('z_lens_max')
+        z_source_min = self.cleaned_data.get('z_source_min')
+        z_source_max = self.cleaned_data.get('z_source_max')
+        if z_lens_min and z_lens_max:
+            if float(z_lens_min) > float(z_lens_max):
+                raise ValidationError('The maximum lens redshift is lower than the minimum.')
+        if z_source_min and z_source_max:
+            if float(z_source_min) and float(z_source_max):
+                raise ValidationError('The maximum source redshift is lower than the minimum.')
+        if z_lens_min and z_source_max:
+            if float(z_lens_min) > float(z_source_max):
+                raise ValidationError('The maximum source redshift is lower than the minimum lens redshift.')
+            
         return
 
 

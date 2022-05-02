@@ -93,7 +93,7 @@ class CollectionCreateView(BSModalCreateView):
             mycollection.save()
             mycollection.myitems = items
             mycollection.save()
-            messages.add_message(self.request,messages.SUCCESS,'Collection <b>"'+name+'"</b> was successfully created!')
+            messages.add_message(self.request,messages.SUCCESS,"Collection <b>"+name+"</b> was successfully created!")
             return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
         else:
             response = super().form_valid(form)
@@ -117,7 +117,7 @@ class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormVie
                 cargo = {'object_type':col.item_type,'object_ids': owners_ids[username],'comment':form.cleaned_data['justification']}
                 receiver = Users.objects.filter(username=username) # receiver must be a queryset
                 mytask = ConfirmationTask.create_task(self.request.user,receiver,'AskPrivateAccess',cargo)
-            messages.add_message(self.request,messages.SUCCESS,'Owners of private lenses in the collection have been notified about your request.')
+            messages.add_message(self.request,messages.WARNING,"Owners of private objects in the collection have been notified about your request.")
         response = super().form_valid(form)
         return response
 
@@ -180,22 +180,22 @@ class CollectionGiveRevokeAccessView(BSModalUpdateView): # It would be a BSModal
                 self.request.user.giveAccess(collection,target_users)
                 ug_message = []
                 if len(users) > 0:
-                    ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                    ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
                 if len(groups) > 0:
-                    ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
-                message = 'Access to collection given to %s' % ' and '.join(ug_message)
+                    ug_message.append('Groups: %s' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
+                message = "Access to the collection given to %s" % ' and '.join(ug_message)
                 messages.add_message(self.request,messages.SUCCESS,message)
             elif mode == 'revoke':
                 self.request.user.revokeAccess(collection,target_users)
                 ug_message = []
                 if len(users) > 0:
-                    ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                    ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
                 if len(groups) > 0:
-                    ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
-                message = 'Access to collection revoked from %s' % ' and '.join(ug_message)
+                    ug_message.append('Groups: %s' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
+                message = "Access to the collection revoked from %s" % ' and '.join(ug_message)
                 messages.add_message(self.request,messages.SUCCESS,message)
             else:
-                messages.add_message(self.request,messages.ERROR,'Unknown action! Can either be <em>give</em> or <em>revoke</em>.')
+                messages.add_message(self.request,messages.ERROR,"Unknown action! Can either be <b>give</b> or <b>revoke</b>.")
         response = super().form_valid(form)
         return response
 
@@ -232,17 +232,17 @@ class CollectionAddItemsView(BSModalFormView):
                 N_private = to_add.filter(access_level='PRI').count()
                 N_public = to_add.count() - N_private
                 if N_private>0 and N_public>0:
-                    msg = "<strong>"+str(N_public)+"</strong> public and <strong>"+str(N_private)+"</strong> private "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
+                    msg = "<b>"+str(N_public)+"</b> public and <b>"+str(N_private)+"</b> private "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
                 elif N_public>0:
                     if N_public>1:
-                        msg = "<strong>"+str(N_public)+"</strong> public "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
+                        msg = "<b>"+str(N_public)+"</b> public "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
                     else:
-                        msg = "<strong>"+str(N_public)+"</strong> public "+obj_model._meta.verbose_name.title()+" added to the collection."
+                        msg = "<b>"+str(N_public)+"</b> public "+obj_model._meta.verbose_name.title()+" added to the collection."
                 else:
                     if N_private>1:
-                        msg = "<strong>"+str(N_private)+"</strong> private "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
+                        msg = "<b>"+str(N_private)+"</b> private "+obj_model._meta.verbose_name_plural.title()+" added to the collection."
                     else:
-                        msg = "<strong>"+str(N_private)+"</strong> private "+obj_model._meta.verbose_name.title()+" added to the collection."
+                        msg = "<b>"+str(N_private)+"</b> private "+obj_model._meta.verbose_name.title()+" added to the collection."
                 messages.add_message(self.request,messages.SUCCESS,msg)
                 return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':col.id}))
         else:
@@ -283,9 +283,9 @@ class CollectionRemoveItemsView(BSModalUpdateView):
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
                 if res["N_removed"] == 1:
-                    msg = str(res["N_removed"]) + " " + obj_model._meta.verbose_name.title() + " removed from the collection."
+                    msg = "<b>" + str(res["N_removed"]) + " " + obj_model._meta.verbose_name.title() + "</b> removed from the collection."
                 else:
-                    msg = str(res["N_removed"]) + " " + obj_model._meta.verbose_name_plural.title() + " removed from the collection."
+                    msg = "<b>" + str(res["N_removed"]) + " " + obj_model._meta.verbose_name_plural.title() + "</b> removed from the collection."
                 messages.add_message(self.request,messages.SUCCESS,msg)
                 return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':col.id})) 
         else:
@@ -332,7 +332,7 @@ class CollectionCedeOwnershipView(BSModalUpdateView):
             heir_dict = heir.values('first_name','last_name')[0]
             justification = form.cleaned_data['justification']
             self.request.user.cedeOwnership(col,heir,justification)        
-            message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+            message = "User <b>"+heir[0].username+"</b> has been notified about your request."
             messages.add_message(self.request,messages.WARNING,message)
             return redirect('sled_collections:collections-list')
         else:
