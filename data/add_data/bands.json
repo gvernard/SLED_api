@@ -1,0 +1,46 @@
+[
+    {
+    "name": "u",
+    "info": ""
+    },
+    {
+    "name": "g",
+    "info": ""
+    },
+    {
+    "name": "G",
+    "info": "Gaia G-band"
+    },
+    {
+    "name": "BP",
+    "info": "Gaia BP-band"
+    },
+    {
+    "name": "RP",
+    "info": "Gaia RP-band"
+    },
+    {
+    "name": "r",
+    "info": ""
+    },
+    {
+    "name": "i",
+    "info": ""
+    },
+    {
+    "name": "z",
+    "info": ""
+    },
+    {
+    "name": "Y",
+    "info": ""
+    },
+    {
+	"name": "WFC",
+	"info": ""
+    },
+    {
+	"name": "FW401",
+	"info": ""
+    }
+]

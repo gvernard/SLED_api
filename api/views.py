@@ -29,28 +29,36 @@ class UploadData(APIView):
         # Then, Check that each given list of keys has the same length N.
 
         # Get number of lenses and the keys
-        Ndata = int(request.data.pop('N')[0])
-        data_type = str(request.data.pop('type')[0])
+        print('just got some fresh data in, mmm', request.data)
+        #uploaded_data = request.data.copy()
+        #print(uploaded_data)
+        uploaded_data = request.data.copy()
+        Ndata = int(uploaded_data.pop('N')[0])
+        data_type = str(uploaded_data.pop('type')[0])
+        print(uploaded_data)
         keys = []
-        for key,dum in request.data.items():
+        for key,dum in uploaded_data.items():
             keys.append(key)
         #print(Ndata,keys)
 
         # Reshape the data ('files') in the request to create one dict per lens
         list_of_lists = []
         for key in keys:
-            list_of_lists.append(request.data.getlist(key))
+            list_of_lists.append(uploaded_data.getlist(key))
         #print(list_of_lists)
         raw_data = []
         for i in range(0,Ndata):
             datum = {}
             for j,key in enumerate(keys):
+                print(j, key, list_of_lists[j])
                 datum[key] = list_of_lists[j][i]
+            datum['owner'] = request.user.pk
             raw_data.append(datum)
-        #print(raw_data)
+        print(raw_data)
 
         if data_type == "Imaging":
             serializer = ImagingDataUploadSerializer(data=raw_data,many=True)
+            print(serializer)
         elif data_type == "Spectrum":
             serializer = SpectrumDataUploadSerializer(data=raw_data,many=True)
         elif data_type == "Catalogue":
@@ -60,10 +68,10 @@ class UploadData(APIView):
                 "Error":"Unknown data type. Valid choices are: Imaging, Spectrum, and Catalogue."
             }
             return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
-        
+            
+        print(serializer.is_valid())
         if serializer.is_valid():
             data = serializer.create(serializer.validated_data)
-            
             # Get RA,dec separately
             ra = []
             dec = []
@@ -85,7 +93,6 @@ class UploadData(APIView):
             receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
             mytask = ConfirmationTask.create_task(self.request.user,receiver,'AddData',cargo)
             #print(cargo['objects'])
-            
             myurl = request.build_absolute_uri(reverse('lenses:add-data',kwargs={'pk':mytask.id}))
             response = {
                 "Warning":"Data uploaded successfully. Perform the final verification step by visiting the following URL:",
@@ -226,7 +233,4 @@ class GroupsAutocomplete(APIView):
         queryset.order_by('name')
         serializer = GroupsSerializer(queryset,many=True)
         return Response({"groups":serializer.data})
-
-
-
 

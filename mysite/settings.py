@@ -175,7 +175,8 @@ STATICFILES_DIRS = [
 # Media files, i.e. user uploaded files
 MEDIA_ROOT  = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'
-
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+FILE_UPLOAD_MAX_MEMORY_SIZE = 15242880
 
 ACTSTREAM_SETTINGS = {
     'FETCH_RELATIONS': True,

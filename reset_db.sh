@@ -27,8 +27,3 @@ python manage.py makemigrations
 
 echo "Migrate"
 python manage.py migrate
-python tests/database_control_scripts/populate_db.py
-python trial_sample/upload_lensed_quasars.py
-python tests/basic_tests/mini_give_access.py
-cd tests/test_instruments
-python add_instruments_bands.py

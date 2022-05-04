@@ -17,6 +17,7 @@ from django.forms import formset_factory, modelformset_factory, inlineformset_fa
 from django.contrib import messages
 from django.core import serializers
 from django.conf import settings
+from django.db.models import Max, Subquery
 import json
 from urllib.parse import urlparse
 
@@ -29,6 +30,8 @@ from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
 from actstream import action
+
+import numpy as np
 
 #=============================================================================================================================
 ### BEGIN: Modal views
@@ -273,7 +276,48 @@ class LensDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         #context['imagings'] = context['lens'].imaging.all(self.request.user)
-        context['imagings'] = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        allcataloguedata = Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        
+        #for each instrument associate only one image per band for now
+        instruments = allimages.values_list('instrument__name', flat=True).distinct()
+        #print(instruments)
+        display_images = {}
+        for instrument in instruments:
+            bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct()
+            print(bands)
+            #sort the bands
+            band_order = ['u', 'g', 'r', 'i', 'z', 'Y']
+            bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
+
+            which_imaging = {}
+            for band in bands:
+                #order this by exposure time in future
+                which_imaging[band] = allimages.filter(instrument__name=instrument).filter(band__name=band).first()
+            
+            if instrument=='PS1-GPC1':
+                instrument = 'Pan-STARRS'
+            display_images[instrument] = which_imaging
+
+
+        instruments_catalogue = allcataloguedata.values_list('instrument__name', flat=True).distinct()
+        catalogue_entries = {}
+        for instrument in instruments_catalogue:
+            catdata = allcataloguedata.filter(instrument__name=instrument)
+            detections = catdata.values('radet', 'decdet').annotate(Max('id'))
+
+            alldata = {}
+            for k, detection in enumerate(detections):
+                print(k, detection, catdata)
+                detdata = catdata.filter(radet=detection['radet'], decdet=detection['decdet'])
+                alldata[k] = detdata
+
+            catalogue_entries[instrument] = alldata
+
+        context['display_imagings'] = display_images
+        context['display_spectra'] = allspectra
+        context['display_catalogues'] = catalogue_entries
         return context
     
 
@@ -585,13 +629,20 @@ class LensAddDataView(TemplateView):
 
         ras = task.cargo['ra']
         decs = task.cargo['dec']
-        indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs)
+        indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user)
         existing = [None]*len(objs)
         choice_list = [None]*len(objs)
         for i,index in enumerate(indices):
-            existing[index] = neis[i]
+            #check to see if each potential lens match has similar data to those being uploaded, to add to a message on the confirmation page
+            if objs[i]._meta.model.__name__=='Imaging':
+                dataalreadyexists = [Imaging.accessible_objects.all(self.request.user).filter(lens=lens).filter(instrument=objs[i].instrument).filter(band=objs[i].band).exists() for lens in neis[i]]
+            elif objs[i]._meta.model.__name__=='Spectrum':
+                dataalreadyexists = [Spectrum.accessible_objects.all(self.request.user).filter(lens=lens).filter(instrument=objs[i].instrument).exists() for lens in neis[i]]
+            elif objs[i]._meta.model.__name__=='Catalogue':
+                dataalreadyexists = [Catalogue.accessible_objects.all(self.request.user).filter(lens=lens).filter(instrument=objs[i].instrument).exists() for lens in neis[i]]
+            existing[index] = zip(neis[i], dataalreadyexists)
             choice_list[index] = [(lens.id,lens.name) for lens in neis[i]]
-
+            
         return objs,indices,existing,choice_list
 
         

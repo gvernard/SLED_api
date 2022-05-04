@@ -664,15 +664,23 @@ class AddData(ConfirmationTask):
         lens_ids = []
         for id in dum:
             lens_ids.append(int(id))
-        lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,lens_ids)
+
+        #lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,lens_ids)
 
         
         new_data = []
+        #loop through the uploaded data objects, which we then associate with an owner (uploader)
+        # and associate the uploaded image (which was stored in the temporary dir)
         for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
             obj.object.owner = self.owner
+            #THIS IS a bit HACKY BECAUSE THE FUNCTION IN_IDS REMOVES DUPLICATES BUT WE SOMETIMES WANT DUPLICATES, SO I GET THE LENS OBJECTS INDIVIDUALLY HERE
+            lens_match = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,[lens_ids[i]])[0]
+
+        
             if not obj.object.pk:
-                obj.object.lens = lenses[i]
-                obj.object.image.name = 'temporary/' + self.owner.username + '/' + obj.object.image.name
+                obj.object.lens = lens_match
+                if 'image' in obj.object._meta.fields:
+                    obj.object.image.name = 'temporary/' + self.owner.username + '/' + obj.object.image.name
                 new_data.append(obj.object)
 
         # Save data in the database
