@@ -18,7 +18,7 @@ import abc
 import json
 import os
 
-from . import SingleObject, Collection, SledGroup
+from . import SingleObject, Collection, SledGroup, AdminCollection
 
 
 
@@ -102,7 +102,7 @@ class ConfirmationTask(SingleObject):
         return '%s_%s' % (self.task_type,str(self.id))
 
     def get_absolute_url(self):
-        return reverse('confirmation:single_task',kwargs={'task_id':self.id})
+        return reverse('sled_tasks:tasks-detail-owner',kwargs={'pk':self.id})
 
     def create_task(sender,users,task_type,cargo):
         """
@@ -261,12 +261,10 @@ class DeleteObject(ConfirmationTask):
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb='Your request to delete public objects was accepted.',
+                        verb='DeleteObjectsAccepted',
                         level='success',
                         timestamp=timezone.now(),
-                        note_type='DeleteObjects',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self)
 
             if self.cargo['object_type'] != 'Collection':
                 uqset = self.owner.get_collection_owners(objs)
@@ -279,12 +277,10 @@ class DeleteObject(ConfirmationTask):
         else:
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb='Your request to delete public objects was rejected.',
+                        verb='DeleteObjectsRejected',
                         level='error',
                         timestamp=timezone.now(),
-                        note_type='DeleteObjects',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self)
 
             
 class CedeOwnership(ConfirmationTask):
@@ -315,12 +311,15 @@ class CedeOwnership(ConfirmationTask):
             objs.update(owner=heir)
             pri = []
             for obj in objs:
-                if object_type != 'SledGroup':
-                    action.send(self.owner,
-                                target=obj,
-                                verb="Changed owner from %s to %s" % (self.owner,heir),
-                                level='success',
-                                action_type='CedeOwnership')
+                action.send(self.owner,
+                            target=obj,
+                            verb='CedeOwnershipSelf',
+                            level='success',
+                            previous_owner=self.owner.username,
+                            previous_owner_url=self.owner.get_absolute_url(),
+                            next_owner=heir.username,
+                            next_owner_url=heir.get_absolute_url())
+
                 if obj.access_level == 'PRI':
                     pri.append(obj)
 
@@ -333,71 +332,55 @@ class CedeOwnership(ConfirmationTask):
                     # Notify users with access
                     users_with_access,accessible_objects = heir.accessible_per_other(pri,'users')
                     for i,user in enumerate(users_with_access):
-                        obj_ids = []
+                        objects = []
                         for j in accessible_objects[i]:
-                            obj_ids.append(pri[j].id)
-                        if len(obj_ids) > 1:
-                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
-                        else:
-                            myverb = '%d private %s you have access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name.title())    
+                            objects.append(pri[j])
+                        ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                         notify.send(sender=self.owner,
                                     recipient=user,
-                                    verb=myverb,
+                                    verb='CedeOwnership',
                                     level='info',
                                     timestamp=timezone.now(),
-                                    note_type='CedeOwnership',
-                                    object_type=object_type,
-                                    object_ids=obj_ids)
+                                    action_object=ad_col,
+                                    previous_owner=self.owner.username,
+                                    previous_owner_url=self.owner.get_absolute_url(),
+                                    next_owner=heir.username,
+                                    next_owner_url=heir.get_absolute_url())
                         
                     # Notify groups with access
                     groups_with_access,accessible_objects = heir.accessible_per_other(pri,'groups')
                     id_list = [g.id for g in groups_with_access]
                     gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
                     for i,group in enumerate(groups_with_access):
-                        obj_ids = []
+                        objects = []
                         for j in accessible_objects[i]:
-                            obj_ids.append(pri[j].id)
-                        if len(obj_ids) > 1:
-                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name_plural.title())
-                        else:
-                            myverb = '%d private %s the group has access to changed owner.' % (len(obj_ids),model_ref._meta.verbose_name.title())    
+                            objects.append(pri[j])
+                        ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                         action.send(self.owner,
                                     target=gwa[i],
-                                    verb=myverb,
+                                    verb='CedeOwnership',
                                     level='info',
-                                    action_type='CedeOwnership',
-                                    object_type=object_type,
-                                    object_ids=obj_ids)
-
-            # Handle groups
-            if object_type == 'SledGroup':
-                # Notify group members
-                myverb='The group has changed owner from %s to %s.' % (self.owner,heir)
-                action.send(self.owner,
-                            target=objs[0],
-                            verb=myverb,
-                            level='info',
-                            action_type='CedeOwnership')
+                                    action_object=ad_col,
+                                    previous_owner=self.owner.username,
+                                    previous_owner_url=self.owner.get_absolute_url(),
+                                    next_owner=heir.username,
+                                    next_owner_url=heir.get_absolute_url())
                 
             # Confirm to the previous owner
             notify.send(sender=heir,
                         recipient=self.owner,
-                        verb='Your CedeOwnership request was accepted.',
+                        verb='CedeOwnershipAccepted',
                         level='success',
                         timestamp=timezone.now(),
-                        note_type='CedeOwnership',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self)
 
         else:
             notify.send(sender=heir,
                         recipient=self.owner,
-                        verb='Your CedeOwnership request was rejected.',
+                        verb='CedeOwnershipRejected',
                         level='error',
                         timestamp=timezone.now(),
-                        note_type='CedeOwnership',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self)
 
         
 class MakePrivate(ConfirmationTask):
@@ -422,10 +405,6 @@ class MakePrivate(ConfirmationTask):
         admin = Users.getAdmin().first()
         model_ref = apps.get_model(app_label="lenses",model_name=self.cargo['object_type'])
         objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
-        if len(self.cargo['object_ids']) > 1:
-            myverb = 'Your request to make %d %s private was ' % (len(objs),model_ref._meta.verbose_name_plural.title())
-        else:
-            myverb = 'Your request to make %d %s private was ' % (len(objs),model_ref._meta.verbose_name.title())
         if response == 'yes':
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
@@ -434,16 +413,14 @@ class MakePrivate(ConfirmationTask):
             assign_perm(perm,self.owner,objs) # don't forget to assign view permission to the owner for the private lenses
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb=myverb + ' accepted.',
+                        verb='MakePrivateAccepted',
                         level='success',
                         timestamp=timezone.now(),
-                        note_type='MakePrivate',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self)
 
             if self.cargo['object_type'] != 'Collection':
-                uqset = self.request.user.get_collection_owners(pri)
-                users = list(set( uqset.exclude(username=self.request.user.username) ))
+                uqset = self.owner.get_collection_owners(objs)
+                users = list(set( uqset.exclude(username=self.owner.username) ))
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 
@@ -452,12 +429,10 @@ class MakePrivate(ConfirmationTask):
         else:
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb=myverb + ' rejected.',
+                        verb='MakePrivateRejected',
                         level='error',
                         timestamp=timezone.now(),
-                        note_type='MakePrivate',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self)
         
 
 class ResolveDuplicates(ConfirmationTask):
@@ -523,27 +498,9 @@ class ResolveDuplicates(ConfirmationTask):
                 if pri:
                     assign_perm('view_lenses',self.owner,pri)
                 if len(pub) > 0:
-                    if mode == 'update':
-                        atype = 'Update'
-                        if len(pub) > 1:
-                            myverb = '%d Lenses were updated.' % len(pub)
-                        else:
-                            myverb = '1 Lens was updated.'
-                    else:
-                        atype = 'Add'    
-                        if len(pub) > 1:
-                            myverb = '%d new Lenses were added.' % len(pub)
-                        else:
-                            myverb = '1 new Lens was added.'
                     from . import Users
-                    admin = Users.objects.get(username='admin')
-                    action.send(self.owner,
-                                target=admin,
-                                verb=myverb,
-                                level='success',
-                                action_type=atype,
-                                object_type='Lenses',
-                                object_ids=[obj.id for obj in pub])
+                    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                    action.send(self.owner,target=Users.getAdmin().first(),verb=atype,level='success',action_object=ad_col)
             else:
                 lenses = Lenses.objects.bulk_create(lenses)
                 # Here I need to upload and rename the images accordingly.
@@ -591,18 +548,12 @@ class AskPrivateAccess(ConfirmationTask):
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             objs_owner.giveAccess(objs,task_owner) # this sends a notification as well.
         else:
-            if len(self.cargo['object_ids']) > 1:
-                myverb = 'Your request to access %d private %s was rejected.' % (len(self.cargo['object_ids']),model_ref._meta.verbose_name_plural.title())
-            else:
-                myverb = 'Your request to access %d private %s was rejected.' % (len(self.cargo['object_ids']),model_ref._meta.verbose_name.title())         
             notify.send(sender=objs_owner,
                         recipient=self.owner,
-                        verb=myverb,
+                        verb='AskPrivateAccessRejected',
                         level='error',
                         timestamp=timezone.now(),
-                        note_type='AskPrivateAccess',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self)
 
 
 class AskToJoinGroup(ConfirmationTask):
@@ -633,12 +584,12 @@ class AskToJoinGroup(ConfirmationTask):
         else:
             notify.send(sender=group_owner,
                         recipient=self.owner,
-                        verb='Your request to join group %s was rejected.' % group.name,
+                        verb='AskToJoinGroupRejected',
                         level='error',
                         timestamp=timezone.now(),
-                        note_type='AskToJoinGroup',
-                        object_type=self._meta.model.__name__,
-                        object_ids=[self.id])
+                        action_object=self,
+                        group_name=group.name,
+                        group_url=group.get_absolute_url())
 
 
 
@@ -698,20 +649,9 @@ class AddData(ConfirmationTask):
             if pri:
                 assign_perm('view_lenses',self.owner,pri)
             if len(pub) > 0:
-                # main activity post
-                if len(pub) > 1:
-                    myverb = '%d new Data entries were added.' % len(pub)
-                else:
-                    myverb = '1 new Data entry was added.'
                 from . import Users
-                admin = Users.objects.get(username='admin')
-                action.send(self.owner,
-                            target=admin,
-                            verb=myverb,
-                            level='success',
-                            action_type='AddData',
-                            object_type='Data',
-                            object_ids=[obj.id for obj in pub])
+                ad_col = AdminCollection.objects.create(item_type=pub[0]._meta.model.__name__,myitems=pub)
+                action.send(self.owner,target=Users.getAdmin().first(),verb='AddData',level='success',action_object=ad_col)
         else:
             lenses = Lenses.objects.bulk_create(lenses)
             # Here I need to upload and rename the images accordingly.

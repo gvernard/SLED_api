@@ -5,7 +5,7 @@ from django.urls import reverse
 
 import simplejson as json
 
-from . import SingleObject
+from . import SingleObject, AdminCollection
 
 from notifications.signals import notify
 from actstream import action
@@ -39,9 +39,8 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
-                        verb="Fields have been updated",
+                        verb='UpdateSelf',
                         level='success',
-                        action_type='UpdateSingle',
                         object_type='SledGroup',
                         fields=json.dumps(dirty))
 
@@ -88,22 +87,15 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             for new_member in sled_user_qset:
                 notify.send(sender=owner,
                             recipient=new_member,
-                            verb='Your were successfully added to the group %s.' % self.name,
+                            verb='AddedToGroup',
                             level='success',
                             timestamp=timezone.now(),
-                            note_type='AddedToGroup')
+                            action_object=self)
 
-            to_add = sled_user_qset.values_list('username',flat=True)
-            if len(to_add) > 1:
-                myverb = 'New users %s were added to the group.' % ','.join(to_add)
-            else:
-                myverb = 'New user %s was added to the group.' % to_add[0]
-            action.send(owner,
-                        target=self,
-                        verb=myverb,
-                        level='info',
-                        action_type='AddedToGroup')
-
+            #to_add = sled_user_qset.values_list('username',flat=True)
+            #action.send(owner,target=self,verb='AddedToGroup',level='info',user_names=[u.username for u in to_add],user_urls=[u.get_absolute_url() for u in to_add])
+            ad_col = AdminCollection.objects.create(item_type="Users",myitems=sled_user_qset)
+            action.send(owner,target=self,verb='AddedToGroup',level='info',action_object=ad_col)
 
             
     def removeMember(self,owner,sled_user_qset):
@@ -127,21 +119,15 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             for removed_member in sled_user_qset:
                 notify.send(sender=owner,
                             recipient=removed_member,
-                            verb='Your were removed from the group %s.' % self.name,
+                            verb='RemovedFromGroup',
                             level='error',
                             timestamp=timezone.now(),
-                            note_type='RemovedFromGroup')
+                            action_object=self)
 
-            to_remove = sled_user_qset.values_list('username',flat=True)
-            if len(to_remove) > 1:
-                myverb = 'Users %s were removed from the group.' % ','.join(to_remove)
-            else:
-                myverb = 'User %s was removed from the group.' % to_remove[0]
-            action.send(owner,
-                        target=self,
-                        verb=myverb,
-                        level='info',
-                        action_type='RemovedFromGroup')
+            #to_remove = sled_user_qset.values_list('username',flat=True)
+            #action.send(owner,target=self,verb='RemovedFromGroup',level='info',user_names=[u.usernames for u in to_remove],user_urls=[u.get_absolute_url() for u in to_remove])
+            ad_col = AdminCollection.objects.create(item_type="Users",myitems=sled_user_qset)
+            action.send(owner,target=self,verb='RemovedFromGroup',level='info',action_object=ad_col)
 
 
     def delete(self, *args, **kwargs):
@@ -150,9 +136,11 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         for member in members:
             notify.send(sender=self.owner,
                         recipient=member,
-                        verb='Group %s has been deleted.' % self.name,
+                        verb='DeletedGroup',
                         level='warning',
                         timestamp=timezone.now(),
-                        note_type='Deleted')
+                        group_name=self.name,
+                        owner_name=self.owner.username,
+                        owner_url=self.owner.get_absolute_url())
 
         super().delete(*args, **kwargs)  # Call the "real" delete() method.

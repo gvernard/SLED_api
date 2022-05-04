@@ -41,7 +41,6 @@ EMAIL_PORT = 1025
 # Application definition
 
 INSTALLED_APPS = [
-    'actstream',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -59,14 +58,17 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'bootstrap_modal_forms',
     'sled_collections',
+    'sled_admin_collections',
     'sled_notifications',
     'sled_tasks',
     'sled_queries',
     'sled_instrument',
+    'sled_band',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
     'sled_users.apps.UsersConfig',
+    'actstream',
 ]
 
 SITE_ID = 1
@@ -102,6 +104,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            'libraries': {
+                'project_tags': 'templatetags.sled_extras'
+            },
         },
     },
 ]

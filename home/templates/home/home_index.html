@@ -7,22 +7,9 @@
   <div class="jb-container">
     <div class="jb-homepage-left-text">
       <h1 class="jb-heading-1">Welcome to the Strong Lensing Database</h1>
-      {% if stream %}
-      <br></br>
-      <table class="jb-activity">
-        <tbody>
-          {% for action in stream %}
-          <tr>
-            <td>{{ action.timestamp|timesince }} ago</td>
-            <td>{{ action.actor }}</td>
-            <td>{{ action.verb }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <p class="jb-homepage-activity">No activity to display</p>
-      {% endif %}
+      <div class="jb-activity">
+	{% include "activity_container.html" with stream=stream %}
+      </div>
     </div>
     <div class="jb-homepage-right-image">
       <img src="{% static 'images/JB_Homepage_Grid.png' %}">

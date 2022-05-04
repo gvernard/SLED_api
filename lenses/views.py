@@ -21,7 +21,7 @@ from django.db.models import Max, Subquery
 import json
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, Imaging, Spectrum, Catalogue
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue
 
 from . import forms
 
@@ -83,7 +83,7 @@ class LensCedeOwnershipView(ModalIdsBaseMixin):
         justification = form.cleaned_data['justification']
         self.request.user.cedeOwnership(lenses,heir,justification)
         heir_dict = heir.values('first_name','last_name')[0]
-        message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+        message = "User <b>"+heir.username+"</b> has been notified about your request."
         messages.add_message(self.request,messages.WARNING,message)
 
 
@@ -107,8 +107,8 @@ class LensDeleteView(ModalIdsBaseMixin):
             for obj in pub:
                 cargo['object_ids'].append(obj.id)
             mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
-            message = 'The admins have been notified to approve or reject the deletion of %d public lenses.' % (len(pub))
-            messages.add_message(self.request,messages.SUCCESS,message)
+            message = "The admins have been notified of your request to delete <b>%d</b> public lenses." % (len(pub))
+            messages.add_message(self.request,messages.WARNING,message)
 
         pri = qset.filter(access_level='PRI')
         if pri:
@@ -119,47 +119,32 @@ class LensDeleteView(ModalIdsBaseMixin):
             ### Notifications per user #####################################################
             users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
             for i,user in enumerate(users_with_access):
-                obj_ids = []
+                objects = []
                 names = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(pri[j].id)
+                    objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,user,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                if len(obj_ids) > 1:
-                    myverb = '%d private %s you had access to have been deleted.' % (len(obj_ids),pri[0]._meta.verbose_name_plural.title())
-                else:
-                    myverb = '1 private %s you had access to has been deleted.' % (pri[0]._meta.verbose_name.title())
+                remove_perm(perm,user,objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self.request.user,
                             recipient=user,
-                            verb=myverb,
+                            verb='DeleteObjectPrivate',
                             level='warning',
                             timestamp=timezone.now(),
-                            note_type='DeleteObject',
                             object_type=object_type,
-                            object_ids=names)
+                            object_names=names)
 
             ### Notifications per group #####################################################
             groups_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'groups')
             id_list = [g.id for g in groups_with_access]
             gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
-                obj_ids = []
+                objects = []
                 names = []
                 for j in accessible_objects[i]:
-                    obj_ids.append(pri[j].id)
+                    objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # (just 1 query)
-                if len(obj_ids) > 1:
-                    myverb = '%d private %s the group had access to have been deleted.' % (len(obj_ids),pri[0]._meta.verbose_name_plural.title())
-                else:
-                    myverb = '1 private %s the group had access to has been deleted.' % (pri[0]._meta.verbose_name.title())
-                action.send(self.request.user,
-                            target=gwa[i],
-                            verb=myverb,
-                            level='warning',
-                            action_type='DeleteObject',
-                            object_type=object_type,
-                            object_ids=names)
+                remove_perm(perm,group,objects) # (just 1 query)
+                action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=object_type,object_names=names)
 
             ### Notifications per collection #####################################################
             uqset = self.request.user.get_collection_owners(pri)
@@ -170,7 +155,7 @@ class LensDeleteView(ModalIdsBaseMixin):
             ### Finally, delete the private lenses
             for lens in pri:
                 lens.delete()
-            message = '%d private lenses have been deleted.' % (len(pri))
+            message = "<b>%d</b> private lenses have been deleted." % (len(pri))
             messages.add_message(self.request,messages.SUCCESS,message)
 
 
@@ -187,7 +172,10 @@ class LensMakePublicView(ModalIdsBaseMixin):
 
         if len(indices) == 0:
             output = self.request.user.makePublic(lenses)
-            messages.add_message(self.request,messages.SUCCESS,output['message'])
+            if output['success']:
+                messages.add_message(self.request,messages.SUCCESS,output['message'])
+            else:
+                messages.add_message(self.request,messages.ERROR,output['message'])
         else:
             # Create ResolveDuplicates task here
             for lens in lenses:
@@ -220,22 +208,22 @@ class LensGiveRevokeAccessView(ModalIdsBaseMixin):
             self.request.user.giveAccess(lenses,target_users)
             ug_message = []
             if len(users) > 0:
-                ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
             if len(groups) > 0:
-                ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
-            message = 'Access to %d lenses given to %s' % (len(lenses),' and '.join(ug_message))
+                ug_message.append('Groups: <em>%s</em>' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
+            message = "Access to <b>%d</b> lenses given to %s" % (len(lenses),' and '.join(ug_message))
             messages.add_message(self.request,messages.SUCCESS,message)
         elif mode == 'revoke':
             self.request.user.revokeAccess(lenses,target_users)
             ug_message = []
             if len(users) > 0:
-                ug_message.append('Users: %s' % (','.join([user.username for user in users])))
+                ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
             if len(groups) > 0:
-                ug_message.append('Groups: <em>%s</em>' % (','.join([group.name for group in groups])))
-            message = 'Access to %d lenses revoked from %s' % (len(lenses),' and '.join(ug_message))
+                ug_message.append('Groups: <em>%s</em>' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
+            message = "Access to <b>%d</b> lenses revoked from %s" % (len(lenses),' and '.join(ug_message))
             messages.add_message(self.request,messages.SUCCESS,message)
         else:
-            messages.add_message(self.request,messages.ERROR,'Unknown action! Can either be <em>give</em> or <em>revoke</em>.')
+            messages.add_message(self.request,messages.ERROR,"Unknown action! Can either be <b>give</b> or <b>revoke</b>.")
 
 
 @method_decorator(login_required,name='dispatch')
@@ -249,7 +237,7 @@ class LensMakePrivateView(ModalIdsBaseMixin):
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         justification = form.cleaned_data['justification']
         self.request.user.makePrivate(lenses,justification)
-        message = 'The admins have been notified to approve or reject changing %d public lenses to private.' % (len(lenses))
+        message = "The admins have been notified of your request to change <b>%d</b> public lenses to private." % (len(lenses))
         messages.add_message(self.request,messages.WARNING,message)
 
 
@@ -380,17 +368,8 @@ class LensAddView(TemplateView):
                         self.make_collection(instances,request.user)
                         # Main activity stream for public lenses
                         if len(pub) > 0:
-                            if len(pub) > 1:
-                                myverb = '%d new Lenses were added.' % len(pub)
-                            else:
-                                myverb = '1 new Lens was added.'
-                            action.send(request.user,
-                                        target=Users.objects.get(username='admin'),
-                                        verb=myverb,
-                                        level='success',
-                                        action_type='Add',
-                                        object_type='Lenses',
-                                        object_ids=[obj.id for obj in pub])
+                            ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                            action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         new_lenses = Lenses.objects.bulk_create(instances)
@@ -419,19 +398,6 @@ class LensAddView(TemplateView):
                     mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
                     return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
             else:
-                # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                # path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                # if not os.path.exists(path):
-                #     os.makedirs(path)
-                # for form in myformset.forms:
-                #     if form.instance.mugshot:
-                #         input_field_name = form['mugshot'].html_name
-                #         f = request.FILES[input_field_name]
-                #         with open(path + form.instance.mugshot.name,'wb+') as destination:
-                #            for chunk in f.chunks():
-                #                destination.write(chunk)
-                #         form.instance.mugshot = '/temporary/' + self.request.user.username + '/' + form.instance.mugshot.name
-
                 context = {'lens_formset': myformset}
                 return self.render_to_response(context)
 
@@ -472,17 +438,8 @@ class LensUpdateView(TemplateView):
                         if lens.access_level == 'PUB':
                             pub.append(lens)
                     if len(pub) > 0:
-                        if len(pub) > 1:
-                            myverb = '%d Lenses were updated.' % len(pub)
-                        else:
-                            myverb = '1 Lens was updated.'
-                        action.send(request.user,
-                                    target=Users.objects.get(username='admin'),
-                                    verb=myverb,
-                                    level='success',
-                                    action_type='Update',
-                                    object_type='Lenses',
-                                    object_ids=[obj.id for obj in pub])
+                        ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                        action.send(request.user,target=Users.getAdmin().first(),verb='Update',level='success',action_object=ad_col)
                     message = 'Lenses successfully updated!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:
@@ -697,7 +654,7 @@ class LensAddDataView(TemplateView):
                 task.responses_allowed = [my_response]
                 task.registerResponse(request.user,my_response,'Some comment')
                 task.finalizeTask()
-                #task.delete()
+                task.delete()
                 message = 'Data uploaded successfully!'
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
@@ -754,6 +711,11 @@ class LensQueryView(TemplateView):
         keywords = list(form.keys())
         values = [form[keyword] for keyword in keywords]
 
+
+        # if form['ids']:
+        #     id_list = form['ids'].split(',')
+        #     lenses = Lenses.accessible_objects.in_ids(user,id_list)
+
         #start with available lenses
         lenses = Lenses.accessible_objects.all(user)
 
@@ -796,7 +758,7 @@ class LensQueryView(TemplateView):
                             value = False
                             args = {keywords[k]:value}
                             lenses = lenses.filter(**args)
-                        
+                            
         #come back to the special case where RA_min is less than 0hours
         if over_meridian:
             lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])

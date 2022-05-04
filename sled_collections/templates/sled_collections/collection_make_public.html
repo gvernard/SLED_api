@@ -9,7 +9,7 @@ Make collection {{ collection.name }} public?
 {% block content %}
 <div class="{% if form.non_field_errors %}invalid{% endif %}">
   {% for error in form.non_field_errors %}
-  {{ error }}
+  {{ error|safe }}
   {% endfor %}
 </div>
 

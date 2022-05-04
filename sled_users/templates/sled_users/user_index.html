@@ -2,12 +2,7 @@
 {% load static %}
 
 {% block content %}
-<!-- Modal div -->
-<div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content"></div>
-  </div>
-</div>
+{% include "modal_container.html" %}
 
 
 <div class="jb-container">
@@ -21,7 +16,13 @@
     </div>
 
     <div>
-      <h1 class="jb-heading-2">My Details</h1>
+      <h1 class="jb-heading-2">
+        My Details
+        <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_users:user-update' user.pk %}">
+          <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+          Update
+        </button>
+    </h1>
       <div>
 	<table>
 	  <thead>
@@ -40,7 +41,7 @@
               <td>{{ user.last_name }}</td>
               <td>{{ user.affiliation }}</td>
               <td>{{ user.email }}</td>
-              <td>{{ user.homepage }}</td>
+              <td><a href="{{ user.homepage }}">{{ user.homepage }}</a></td>
               <td>{{ user.info }}</td>
             </tr>
 	  </tbody>
@@ -175,30 +176,7 @@
   <div>
     <h1 class="jb-heading-2">New Notifications ({{ N_note_unread }})</h1>
     <div>
-      {% if unread_notifications %}
-      <table>
-	<thead>
-          <tr>
-            <th>Sender</th>
-            <th>Sent at</th>
-            <th>Level</th>
-            <th>Verb</th>
-          </tr>
-	</thead>
-	<tbody>
-          {% for note in unread_notifications %}
-          <tr>
-            <td>{{ note.actor }}</td>
-            <td>{{ note.timestamp }}</td>
-            <td>{{ note.level }}</td>
-            <td>{{ note.verb }}</td>
-          </tr>
-          {% endfor %}
-	</tbody>
-      </table>
-      {% else %}
-      <p class="jb-paragraph-2">No new notifications</p>
-      {% endif %}
+      {% include "notifications_container.html" with notifications=unread_notifications %}
       <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
     </div>
   </div>
@@ -349,6 +327,13 @@
               });
           }
 
+      });
+    // Modals
+    $(".sled-modal").each(function(){
+	  $(this).modalForm({
+              formURL: $(this).data("form-url"),
+ 	      modalID: "#id-modal"
+	  });
       });
   });
 </script>

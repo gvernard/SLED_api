@@ -1,4 +1,5 @@
 from .singleobject import SingleObject
+from .admin_collection import AdminCollection
 from .sledgroup import SledGroup
 from .lenses import Lenses
 from .collection import Collection

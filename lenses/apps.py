@@ -12,3 +12,4 @@ class LensesConfig(AppConfig):
         registry.register(self.get_model('Users'))
         registry.register(self.get_model('SledGroup'))
         registry.register(self.get_model('Collection'))
+        registry.register(self.get_model('AdminCollection'))

@@ -11,7 +11,7 @@ sys.path.append(base_dir)
 os.environ['DJANGO_SETTINGS_MODULE'] = "mysite.settings"
 django.setup()
 
-from lenses.models import Users, SledGroup, Lenses, SingleObject, Collection
+from lenses.models import Users, SledGroup, Lenses, SingleObject, Collection, AdminCollection
 from guardian.shortcuts import assign_perm
 
 from actstream import action
@@ -107,18 +107,8 @@ for lens in mylenses:
 if pri:
     assign_perm('view_lenses',owner,pri)
 if len(pub) > 0:
-    if len(pub) > 1:
-        myverb = '%d new Lenses were added.' % len(pub)
-    else:
-        myverb = '1 new Lens was added.'
-    action.send(owner,
-                target=Users.objects.get(username='admin'),
-                verb=myverb,
-                level='success',
-                action_type='Add',
-                object_type='Lenses',
-                object_ids=[obj.id for obj in pub])
-
+    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+    action.send(owner,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
 
 
 # Give access to some private lenses

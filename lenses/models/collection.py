@@ -9,7 +9,6 @@ from django.db.models import F
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm
 from gm2m import GM2MField
-from notifications.signals import notify
 import simplejson as json
 from actstream import action
 from dirtyfields import DirtyFieldsMixin
@@ -18,7 +17,7 @@ import inspect
 from itertools import groupby
 from operator import itemgetter
 
-from . import SingleObject
+from . import SingleObject, AdminCollection
 
 
 
@@ -63,9 +62,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
-                        verb="Fields have been updated",
+                        verb='UpdateSelf',
                         level='success',
-                        action_type='UpdateSingle',
                         object_type='Collection',
                         fields=json.dumps(dirty))
 
@@ -228,14 +226,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
             
     def finalizeAddItems(self,user,objects):
         self.myitems.add(*objects)        
-
-        action.send(self.owner,
-                    target=self,
-                    verb="Items added to the colletion.",
-                    level='success',
-                    action_type='AddedToCollection',
-                    object_type=objects[0]._meta.model.__name__,
-                    object_ids=[obj.id for obj in objects])
+        ad_col = AdminCollection.objects.create(item_type=self.item_type,myitems=objects)
+        action.send(self.owner,target=self,verb='AddedToCollection',level='success',action_object=ad_col)
 
         # Return the number of inserted items
         response = {"status":"ok","N_added":len(objects)}
@@ -267,13 +259,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
         self.myitems.remove(*objects)
         N_removed = objects.count()
 
-        action.send(self.owner,
-                    target=self,
-                    verb="Items removed from the colletion.",
-                    level='success',
-                    action_type='RemovedFromCollection',
-                    object_type=objects[0]._meta.model.__name__,
-                    object_ids=[obj.id for obj in objects])
+        ad_col = AdminCollection.objects.create(item_type=self.item_type,myitems=objects)
+        action.send(self.owner,target=self,verb='RemovedFromCollection',level='success',action_object=ad_col)
 
         response = {"status":"ok","N_removed":N_removed}
         return response

@@ -4,13 +4,8 @@
 {% load lenses_extras %}
 
 {% block content %}
+{% include "modal_container.html" %}
 
-<!-- Modal divs -->
-<div class="modal fade" id="id-modal" tabindex="-1" role="dialog">
-  <div class="modal-dialog">
-    <div class="modal-content"></div>
-  </div>
-</div>
 
 <div class="jb-container">
   <h1 class="jb-heading-1">{{ collection.name }}</h1>
@@ -24,7 +19,7 @@
     <p>Access level: {{ collection.access_level }}</p>
 
     {% if collection.owner == user %}
-    <button type="button" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
       <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
       Update
     </button>
@@ -32,7 +27,7 @@
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Delete
     </button>
-    <button type="button" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
       <img src="{% static 'icons/trash.svg' %}" alt="trash">
       Cede ownership
     </button>
@@ -62,21 +57,7 @@
 
   <div class="jb-activity">
     {% activity_stream 'target' collection %}
-    {% if stream %}
-    <table>
-      <tbody>
-        {% for action in stream %}
-        <tr>
-          <td>{{ action.timestamp|timesince }} ago</td>
-          <td>{{ action.actor }}</td>
-          <td>{{ action.verb }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    No activity to display
-    {% endif %}
+    {% include "activity_container.html" with stream=stream %}
   </div>
 
 

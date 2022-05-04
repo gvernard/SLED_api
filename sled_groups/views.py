@@ -99,7 +99,7 @@ class GroupAskToJoinView(BSModalUpdateView):
             cargo = {'object_type':'SledGroup','object_ids': [group.id],'comment':form.cleaned_data['justification']}
             receiver = Users.objects.filter(username=group.owner.username) # receiver must be a queryset
             mytask = ConfirmationTask.create_task(self.request.user,receiver,'AskToJoinGroup',cargo)
-            msg = "User " + group.owner.username + " who is the owner of group " + group.name + " has been notified about your request to join"
+            msg = "User <b>" + group.owner.username + "</b> who manages the group <b>" + group.name + "</b> has been notified about your request to join."
             messages.add_message(self.request,messages.WARNING,msg)
         response = super().form_valid(form)
         return response
@@ -136,7 +136,7 @@ class GroupCreateView(BSModalFormView):
             sledgroup = SledGroup(name=name, owner=self.request.user, description=description)
             sledgroup.save()
             sledgroup.addMember(self.request.user,add_user_names)
-            messages.add_message(self.request,messages.SUCCESS,'Group <b>"'+name+'"</b> was successfully created!')
+            messages.add_message(self.request,messages.SUCCESS,"Group <b>"+name+"</b> was successfully created!")
         response = super().form_valid(form)
         return response
 
@@ -167,7 +167,7 @@ class GroupLeaveView(BSModalUpdateView):
             if group.owner != self.request.user:
                 self.request.user.leaveGroup(group)
                 # Notify group
-                messages.add_message(self.request,messages.SUCCESS,'You have left group <b>"'+group.name+'"</b>!')
+                messages.add_message(self.request,messages.SUCCESS,"You have left the group <b>"+group.name+"</b>!")
                 return redirect('sled_groups:group-list')
             else:
                 messages.add_message(self.request,messages.ERROR,"The group owner cannot leave the group, but you shouldn't be seeing this message anyway")
@@ -195,7 +195,8 @@ class GroupCedeOwnershipView(BSModalUpdateView):
             heir_dict = heir.values('first_name','last_name')[0]
             justification = form.cleaned_data['justification']
             self.request.user.cedeOwnership(group,heir,justification)        
-            message = 'User <b>%s %s</b> has been notified about your request.' % (heir_dict['first_name'],heir_dict['last_name'])
+            #message = "User <b>%s %s</b> has been notified about your request." % (heir_dict['first_name'],heir_dict['last_name'])
+            message = "User <b>"+heir[0].username+"</b> has been notified about your request."
             messages.add_message(self.request,messages.WARNING,message)
             return redirect('sled_groups:group-list')
         else:
@@ -225,17 +226,17 @@ class GroupAddRemoveMembersView(BSModalUpdateView):
             if mode == 'add':
                 group.addMember(self.request.user,users)
                 if len(users) == 1:
-                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+users[0].username+'"</b> was successfully added to group!')
+                    messages.add_message(self.request,messages.SUCCESS,"User <b>"+users[0].username+"</b> was successfully added to the group!")
                 else:
-                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(users.values_list('username',flat=True))+'"</b> were successfully added to group!')
+                    messages.add_message(self.request,messages.SUCCESS,"Users <b>"+','.join(users.values_list('username',flat=True))+"</b> were successfully added to the group!")
                 # Notify user
                 # Notify group
             else:
                 group.removeMember(self.request.user,users)
                 if len(users) == 1:
-                    messages.add_message(self.request,messages.SUCCESS,'User <b>"'+users[0].username+'"</b> was successfully removed from the group!')
+                    messages.add_message(self.request,messages.SUCCESS,"User <b>"+users[0].username+"</b> was successfully removed from the group!")
                 else:
-                    messages.add_message(self.request,messages.SUCCESS,'Users <b>"'+','.join(users.values_list('username',flat=True))+'"</b> were successfully removed from the group!')
+                    messages.add_message(self.request,messages.SUCCESS,"Users <b>"+','.join(users.values_list('username',flat=True))+"</b> were successfully removed from the group!")
                 # Notify user
                 # Notify group
         response = super().form_valid(form)
