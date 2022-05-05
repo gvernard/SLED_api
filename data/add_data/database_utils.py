@@ -1,4 +1,5 @@
 import os
+import datetime
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -14,7 +15,7 @@ from django.conf import settings
 from lenses.models import Catalogue, Imaging, Spectrum, Instrument, Band, Users, Lenses
 from api.serializers import ImagingDataUploadSerializer
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
-
+from django.utils.timezone import make_aware
 
 def match_to_lens(ra, dec):
     qset = Lenses.objects.all().annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=10.)
@@ -94,9 +95,12 @@ def upload_imaging_to_db_direct(datalist, username):
         finaldata.pop('dec')
 
         imaging = Imaging(**finaldata)
+
         imaging.owner_id = Users.objects.get(username=username).id
         if data['exists']:
             imaging.image.name = '/temporary/admin/' + savename
+        if 'date_taken' in finaldata.keys():
+            imaging.date_taken = make_aware(datetime.datetime.fromisoformat(finaldata['date_taken']))
         imaging.save()
 
     return None
@@ -128,10 +132,13 @@ def upload_spectrum_to_db_direct(datalist, username):
         finaldata.pop('ra')
         finaldata.pop('dec')
 
+
         spectrum = Spectrum(**finaldata)
         spectrum.owner_id = Users.objects.get(username=username).id
         if data['exists']:
             spectrum.image.name = '/temporary/admin/' + savename
+        if 'date_taken' in finaldata.keys():
+            spectrum.date_taken = make_aware(datetime.datetime.fromisoformat(finaldata['date_taken']))
         spectrum.save()
     return 0
 
@@ -150,5 +157,7 @@ def upload_catalogue_to_db_direct(datalist, username):
         finaldata.pop('dec')
         catalogue = Catalogue(**finaldata)
         catalogue.owner_id = Users.objects.get(username=username).id
+        if 'date_taken' in finaldata.keys():
+            catalogue.date_taken = make_aware(datetime.datetime.fromisoformat(finaldata['date_taken']))
         catalogue.save()
     return 0

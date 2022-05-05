@@ -33,6 +33,7 @@ data = Table.read('./lensed_quasars_uploadtable.fits')
 ras, decs = data['RA'], data['DEC']
 names = data['Name']
 z_source, z_lens = data['z_qso'], data['z_lens']
+z_lens[45] = '-'
 nimg = data['N_images']
 separation = data['separation']
 confirmed = data['confirmed']
@@ -83,8 +84,10 @@ for i in range(len(ras)):
     except Exception:
         pass
     try:
+        print(z_lens[i])
         z_l = float(z_lens[i])
         lens.z_lens = z_l
+        print(z_l)
     except Exception:
         pass
     if access[i]=='PRI':

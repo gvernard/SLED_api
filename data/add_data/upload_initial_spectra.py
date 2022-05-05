@@ -31,7 +31,7 @@ direct_upload = True
 username, password = 'admin', '123'
 
 survey = 'SDSS DR16'
-offline = False
+offline = True
 
 #data = Table.read('../trial_sample/lensed_quasars_uploadtable.fits')
 lenses = Lenses.objects.all()
@@ -42,7 +42,7 @@ for lens in lenses:
 
     print('checking for spectra')
     if offline:
-        spectra = glob.glob(jsonpath+name+'_SDSSDR16*.json')
+        spectra = glob.glob(jsonpath+name+'_SDSSDR16_*.json')
         if spectra is not None:
             specids = [spec.split('_')[-1][:-5] for spec in spectra]
     else:
