@@ -75,7 +75,6 @@ class UserProfileView(TemplateView):
         # Get unread notifications
         unread_notifications = user.notifications.unread()
         N_note_unread = unread_notifications.count()
-        unread_notifications = unread_notifications[:5]
 
 
         # Get queries

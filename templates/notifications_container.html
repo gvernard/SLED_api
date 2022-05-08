@@ -5,7 +5,11 @@
 <table class="jb-activity">
   <tbody>
     {% for note in notifications %}
+    {% with N=note.action_object.myitems.all|length %}
+    {% if N > 0 or note.data.object_names|length > 0 %}
+
     <tr class="sled-notification-row">
+      <td>{{ note.level }}</td>
       <td>{{ note.timestamp }}</td>
       <td>
 	{% if note.actor != "admin" %}
@@ -27,9 +31,11 @@
 
 	
 	{% elif note.verb == "DeleteObjectsPrivate" %}
-	<b>{{ note.data.object_names|length }} private {% singular_or_plural note.data.object_type note.data.object_names|length %}</b> that you had access to were deleted.
+	{% if N == 1 %}
+	Private {{ note.data.object_type|get_name_singular }} <b>{{ note.data.object.names.first }}</b> that you had access to was deleted.
+	{% else %}
+	<a class="sled-open-tooltip">{{ note.data.object_names|length }} private {{ note.data.object_type|get_name_plural }}</a> that you had access to were deleted.
 	<div class="sled-notification-tooltip" style="display:none">
-	  The following {{ note.data.object_names|length }} private {% singular_or_plural note.data.object_type note.data.object_names|length %}:
 	  <table>
 	    {% for name in note.data.object_names %}
 	    <tr>
@@ -37,23 +43,24 @@
 	    </tr>
 	    {% endfor %}
 	  </table>
-	  that you had access to
-	  {% if action.action_object.myitems.all|length == 1 %}
-	  was
-	  {% else %}
-	  were
-	  {% endif %}
-	  deleted.
 	</div>
+	{% endif %}
 
 
 	
 
 	{% elif note.verb == "CedeOwnership" %}
-	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
-	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
+	{% if N == 1 %}
+	Private {{ note.action_object.item_type|get_name_singular }}
+	<a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">
+	  {{ note.action_object.myitems.first }}
 	</a>
-	you have access to changed owner from
+	{% else %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
+	  {{ N }} private {{ note.action_object.item_type|get_name_plural }}
+	</a>
+	{% endif %}
+	that you have access to changed owner from
 	<a href="{{ note.data.previous_owner_url }}" target="_blank">{{ note.data.previous_owner }}</a>
 	to
 	<a href="{{ note.data.next_owner_url }}" target="_blank">{{ note.data.next_owner }}</a>.
@@ -78,14 +85,17 @@
 	
 	
 	{% elif note.verb == "MakePublic" %}
-	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
-	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
+	{% if N == 1 %}
+	Private {{ note.action_object.item_type|get_name_singular }}
+	<a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">
+	  {{ note.action_object.myitems.first }}
 	</a>
-	you had access to
-	{% if note.action_object.myitems.all|length == 1 %}
-	is
+	that you had access to is
 	{% else %}
-	are
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
+	  {{ N }} private {{ note.action_object.item_type|get_name_plural }}
+	</a>
+	that you had access to are
 	{% endif %}
 	now public.
 	
@@ -112,18 +122,36 @@
 	
 	{% elif note.verb == "GiveAccess" %}
 	You were given access to
-	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
-	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
+	{% if N == 1 %}
+	private {{ note.action_object.item_type|get_name_singular }}
+	<a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">
+	  {{ note.action_object.myitems.first }}
 	</a>.
-	
+	{% else %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
+	  {{ N }} private {{ note.action_object.item_type|get_name_plural }}
+	</a>.
+	{% endif %}
+
 	
 	{% elif note.verb == "RevokeAccess" %}
 	Your access to
-	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">
-	  {{ note.action_object.myitems.all|length }} private {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}
-	</a>
+	{% if N == 1 %}
+	private {{ note.action_object.item_type|get_name_singular }} {{ note.action_object.myitems.first }}
+	{% else %}
+	<a class="sled-open-tooltip" href="">{{ N }} private {{ note.action_object.item_type|get_name_plural }}</a>
+	<div class="sled-notification-tooltip" style="display:none">
+	  <table>
+	    {% for col in note.action_object.myitems.all %}
+	    <tr>
+	      <td>{{ col.name }}</td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	</div>	{% endif %}
 	was revoked.
-	
+
+
 	
 	{% elif note.verb == "AskPrivateAccessRejected" %}
 	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>access private objects</b> was accepted.
@@ -132,26 +160,32 @@
 
 
 	{% elif note.verb == "RemovedFromCollection" %}
-	Private objects were removed from <b>{{ note.action_object.myitems.all|length}} {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %}</b> that you own.
-	
+	{% if N == 1 %}
+	Private objects were removed from Collection <a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ note.action_object.myitems.first.name }}</a> that you own.
+	{% else %}
+	Private objects were removed from <a class="sled-open-tooltip">{{ N }} Collections</a> that you own.
 	<div class="sled-notification-tooltip" style="display:none">
-	  The following {{ note.action_object.myitems.all|length }} {% singular_or_plural note.action_object.item_type note.action_object.myitems.all|length %} were affected:
 	  <table>
-	    {% for col in note.action_object.myitems %}
+	    {% for col in note.action_object.myitems.all %}
 	    <tr>
 	      <td><a href="{{ col.get_absolute_url }}" target="_blank">{{ col.name }}</a></td>
 	    </tr>
 	    {% endfor %}
 	  </table>
 	</div>
+	{% endif %}
+	
 
 	
 	{% endif %}
       </td>
     </tr>
+    {% endif %}
+    {% endwith %}
     {% endfor %}
   </tbody>
 </table>
+
 {% else %}
-<p class="jb-paragraph-2">No new notifications</p>
+<p>No notifications</p>
 {% endif %}
