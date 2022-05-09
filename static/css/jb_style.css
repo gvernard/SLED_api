@@ -323,12 +323,10 @@
   }
 
   .sled-duplicate-required {
-    outline: thin solid black;
     background-color: rgba(255, 0, 0, 0.25)
   }
 
   .sled-duplicate-yes {
-    outline: thin solid black;
     background-color: rgba(0, 255, 0, 0.25)
   }
 
@@ -452,4 +450,18 @@
     color: #000;
     font-size: 25px;
     font-weight: 500;
+  }
+
+  .jb-modal-field {
+    width: 100%;
+  }
+
+  .jb-modal-field input {
+    width: 100%;
+    padding-bottom: 10px;
+  }
+
+  .jb-modal-field textarea {
+    width: 100%;
+    padding-top: 20px;
   }
