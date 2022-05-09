@@ -7,18 +7,20 @@ Make collection {{ collection.name }} public?
 
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error|safe }}
-  {% endfor %}
-</div>
+<div class="jb-container">
+  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+    {% for error in form.non_field_errors %}
+    {{ error|safe }}
+    {% endfor %}
+  </div>
 
-<div>
-  Are you sure you want to make this private collection public?
+  <div>
+    Are you sure you want to make this private collection public?
+  </div>
 </div>
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Make public</button>
+<button type="submit" class="jb-submit-button-1">Make public</button>
 {% endblock action_button %}

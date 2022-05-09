@@ -7,26 +7,28 @@ Create new group?
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-container">
+  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+    {% for error in form.non_field_errors %}
+    {{ error }}
+    {% endfor %}
+  </div>
 
-<div>
-  {{ form.name }}
-</div>
+  <div>
+    {{ form.name }}
+  </div>
 
-<div>
-  {{ form.description }}
-</div>
+  <div>
+    {{ form.description }}
+  </div>
 
-<div>
-  {{ form.users }}
-</div>
+  <div>
+    {{ form.users }}
+  </div>
 
-<div>
-  {{ form.access_level }}
+  <div>
+    {{ form.access_level }}
+  </div>
 </div>
 {% endblock content %}
 
