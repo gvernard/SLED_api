@@ -3,8 +3,12 @@
 
 {% block content %}
 <div class="jb-container">
-  SKATA
-  {{ sled_user.first_name }}
-  {{ sled_user.last_name }}
-</div>
-{% endblock content %}
+
+  <div>
+    <div class="jb-float-child-1">
+      <h1 class="jb-heading-1"> {{ sled_user.first_name }} {{ sled_user.last_name }}</h1>
+    </div>
+    <div class="jb-float-child-2">
+      <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
+    </div>
+    {% endblock content %}
