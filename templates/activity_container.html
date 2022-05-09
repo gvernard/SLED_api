@@ -8,7 +8,7 @@
     {% with N=action.action_object.myitems.all|length %}
     {% if N > 0 or action.data.object_names|length > 0 %}
     <tr class="sled-action-row" data-index="{{ forloop.counter0 }}">
-      <td style="text-align:right">
+      <td style="text-align:left">
 
 
         {% if action.verb == "Add" %}
