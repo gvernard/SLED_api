@@ -1,0 +1,55 @@
+[
+    {
+	"name": "HST",
+	"extended_name": "Hubble Space Telescope",
+	"info": ""
+    },
+    {
+    "name": "VLT",
+    "extended_name": "Very Large Telescope",
+    "info": ""
+    },
+    {
+    "name": "Gaia-DR1",
+    "extended_name": "The first data release of Gaia",
+    "info": ""
+    },
+    {
+    "name": "Gaia-DR2",
+    "extended_name": "The second data release of Gaia",
+    "info": ""
+    },
+    {
+    "name": "Pan-STARRS1",
+    "extended_name": "PS1-GPC1, Pan-STARRS Gigapixel Camera #1 Survey data",
+    "info": ""
+    },
+    {
+    "name": "Legacy Survey (South)",
+    "extended_name": "DeCAM/DECaLS",
+    "info": ""
+    },
+    {
+    "name": "Legacy Survey (North)",
+    "extended_name": "BASS/MzLS",
+    "info": ""
+    },
+    {
+    "name": "HSC (DR2)",
+    "extended_name": "Subaru - Hyper Suprime Cam Survey second data rleease",
+    "info": ""
+    },
+    {
+    "name": "SDSS-spec",
+    "extended_name": "The first of the SDSS spectrographs (before BOSS)",
+    "info": ""
+    },
+    {
+    "name": "BOSS-spec",
+    "extended_name": "The BOSS spectrograph",
+    "info": ""
+    }
+
+
+
+]

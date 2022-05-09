@@ -126,10 +126,13 @@ trial_sample/images/
 lenses/static/lenses/mugshots/*.png
 static/js/*
 !static/js/jquery.bootstrap.modal.forms.js
-
+<<<<<<< HEAD
 data/images_to_upload/*/*.png
 data/images_to_upload/*/*.json
 data/images_to_upload/*/*.fits
 data/images_to_upload/*/*.jpg
 
+
+=======
 static/css/vendors/*
+>>>>>>> origin

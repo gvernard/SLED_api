@@ -44,12 +44,17 @@ class Band(models.Model):
 class DataBase(models.Model):
     lens = models.ForeignKey(Lenses,on_delete=models.CASCADE,related_name="%(class)s")
     instrument = models.ForeignKey(Instrument,to_field='name',on_delete=models.CASCADE)
-    date_taken = models.DateField()
+    date_taken = models.DateTimeField(blank=True, null=True)
+    exists = models.BooleanField(default=True,
+                                 blank=True, 
+                                 verbose_name="Exists flag",
+                                 help_text="This field is a flag to help with bookkeeping of which objects have been checked for which data.")
     future = models.BooleanField(default=False,
                                  blank=True,
                                  verbose_name="Future",
                                  help_text="Set to true if this is related to an observation scheduled in the future. Then the date_taken field becomes a future date.")
     info = models.TextField(blank=True,
+                            null=True,
                             default='',
                             help_text="Description of any important aspects of the observation.")
 
@@ -58,15 +63,15 @@ class DataBase(models.Model):
 
         
 class Imaging(SingleObject,DataBase):
-    exposure_time = models.DecimalField(blank=False,
-                                        null=False,
-                                        max_digits=7,
+    exposure_time = models.DecimalField(blank=True,
+                                        null=True,
+                                        max_digits=10,
                                         decimal_places=3,
-                                        verbose_name="Exposure time",
-                                        help_text="The exposure time of the image.",
+                                        verbose_name="Exposure time (s)",
+                                        help_text="The exposure time of the image (in seconds).",
                                         validators=[MinValueValidator(0.0,"Exposure time must be positive."),])
-    pixel_size = models.DecimalField(blank=False,
-                                     null=False,
+    pixel_size = models.DecimalField(blank=True,
+                                     null=True,
                                      max_digits=7,
                                      decimal_places=3,
                                      verbose_name="Pixel size",
@@ -84,30 +89,30 @@ class Imaging(SingleObject,DataBase):
 
 
 class Spectrum(SingleObject,DataBase):
-    lambda_min = models.DecimalField(blank=False,
-                                     null=False,
-                                     max_digits=7,
+    lambda_min = models.DecimalField(blank=True,
+                                     null=True,
+                                     max_digits=10,
                                      decimal_places=3,
                                      verbose_name="Minimum wavelength",
                                      help_text="The minimum wavelength of the spectrum.",
                                      validators=[MinValueValidator(0.0,"Minimum wavelength must be positive."),])
-    lambda_max = models.DecimalField(blank=False,
-                                     null=False,
-                                     max_digits=7,
+    lambda_max = models.DecimalField(blank=True,
+                                     null=True,
+                                     max_digits=10,
                                      decimal_places=3,
                                      verbose_name="Maximum wavelength",
                                      help_text="The maximum wavelength of the spectrum.",
                                      validators=[MinValueValidator(0.0,"Maximum wavelength must be positive."),])
-    exposure_time = models.DecimalField(blank=False,
-                                        null=False,
-                                        max_digits=7,
+    exposure_time = models.DecimalField(blank=True,
+                                        null=True,
+                                        max_digits=10,
                                         decimal_places=3,
                                         verbose_name="Exposure time",
                                         help_text="The exposure time of the image.",
                                         validators=[MinValueValidator(0.0,"Exposure time must be positive."),])
-    resolution = models.DecimalField(blank=False,
-                                     null=False,
-                                     max_digits=7,
+    resolution = models.DecimalField(blank=True,
+                                     null=True,
+                                     max_digits=10,
                                      decimal_places=3,
                                      verbose_name="Resolution",
                                      help_text="The resolution of the spectrum.",
@@ -122,20 +127,34 @@ class Spectrum(SingleObject,DataBase):
 
 
 class Catalogue(SingleObject,DataBase):
-    mag = models.DecimalField(blank=False,
-                              null=False,
-                              max_digits=7,
+    radet = models.DecimalField(blank=True,
+                              null=True,
+                              max_digits=10,
+                              decimal_places=7,
+                              verbose_name="R.A.",
+                              help_text="Right ascension of detection")
+    decdet = models.DecimalField(blank=True,
+                              null=True,
+                              max_digits=10,
+                              decimal_places=7,
+                              verbose_name="Dec.",
+                              help_text="Declination of detection")
+    mag = models.DecimalField(blank=True,
+                              null=True,
+                              default=None,
+                              max_digits=10,
                               decimal_places=3,
                               verbose_name="Magnitude",
                               help_text="The magnitude from some catalogue.")
-    Dmag = models.DecimalField(blank=False,
-                              null=False,
+    Dmag = models.DecimalField(blank=True,
+                              null=True,
+                              default=None,
                               max_digits=7,
                               decimal_places=3,
                               verbose_name="Delta magnitude",
                               help_text="Uncertainty on the magnitude.")
-    distance = models.DecimalField(blank=False,
-                                   null=False,
+    distance = models.DecimalField(blank=True,
+                                   null=True,
                                    max_digits=7,
                                    decimal_places=3,
                                    verbose_name="Distance",
@@ -146,4 +165,6 @@ class Catalogue(SingleObject,DataBase):
     class Meta():
         constraints = [
             CheckConstraint(check=Q(distance__gt=0),name='distance'),
+            CheckConstraint(check=Q(radet__range=(0,360)),name='radet_range'),
+            CheckConstraint(check=Q(decdet__range=(-90,90)),name='decdet_range'),
         ]

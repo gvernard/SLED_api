@@ -44,6 +44,14 @@
         </table>
       </div>
     </div>
+
+    <div>
+      {% if N_note_unread > 0 %}
+      You have <b>{{ N_note_unread }}</b> new notifications
+      {% endif %}
+      <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
+    </div>
+    
   </div>
 
   <button type="button" class="jb-submit-button-1" data-form-url="{% url 'sled_users:user-update' user.pk %}">

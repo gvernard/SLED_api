@@ -8,7 +8,7 @@ from astropy.table import Table
 import random
 
 dirname = os.path.dirname(__file__)
-base_dir = os.path.join(dirname,'../')
+base_dir = os.path.join(dirname,'../../')
 sys.path.append(base_dir)
 
 #Database init
@@ -24,7 +24,7 @@ users = list(Users.objects.filter(username__in=['Cameron','Fred','gvernard']))
 
 # Adding lenses
 print('Populating the database with known lensed quasars')
-data = Table.read('./trial_sample/lensed_quasars_uploadtable.fits')
+data = Table.read('./lensed_quasars_uploadtable.fits')
 
 # for i in range(0,len(data['separation'])):
 #     if float(data['separation'][i]) > 20 or float(data['separation'][i]) < 0:
@@ -33,6 +33,7 @@ data = Table.read('./trial_sample/lensed_quasars_uploadtable.fits')
 ras, decs = data['RA'], data['DEC']
 names = data['Name']
 z_source, z_lens = data['z_qso'], data['z_lens']
+z_lens[45] = '-'
 nimg = data['N_images']
 separation = data['separation']
 confirmed = data['confirmed']
@@ -83,8 +84,10 @@ for i in range(len(ras)):
     except Exception:
         pass
     try:
+        print(z_lens[i])
         z_l = float(z_lens[i])
         lens.z_lens = z_l
+        print(z_l)
     except Exception:
         pass
     if access[i]=='PRI':
@@ -133,7 +136,7 @@ for j in range(0,len(users)-1):
 lensedquasars = Lenses.objects.all()
 for lens in lensedquasars:
     fname = 'upload_'+str(lens.id) + '.png'
-    os.system('cp ../images_of_quasars/'+lens.name+'.png ./media/lenses/' + fname)
+    os.system('cp ../images_to_upload/initial_mugshots/'+lens.name+'.png ../../media/lenses/' + fname)
     lens.mugshot.name = 'lenses/' + fname
     lens.save()
 

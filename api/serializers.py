@@ -44,10 +44,14 @@ class BaseDataFileUploadListSerializer(serializers.ListSerializer):
                 raise serializers.ValidationError('More than one files have the same name and size which could indicate duplicates!')
 
         ### Check that there is at least one matching lens per datum
+        print(attrs)
         for i in range(0,len(attrs)):
             ra = attrs[i].get('ra')
             dec = attrs[i].get('dec')
-            mybool = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec)
+            user = attrs[i].get('owner')
+            print(user, user)
+            mybool = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user=attrs[i].get('owner'))
+            print(mybool)
             if not mybool:
                 raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any public lens in the database!' % (ra,dec))
 
@@ -60,7 +64,7 @@ class ImagingDataUploadSerializer(serializers.ModelSerializer):
 
     class Meta():
         model = Imaging
-        exclude = ['lens','owner','created_at','modified_at']
+        exclude = ['lens','created_at','modified_at']
         list_serializer_class = BaseDataFileUploadListSerializer
         
     def create(self,validated_data):
@@ -75,7 +79,7 @@ class SpectrumDataUploadSerializer(serializers.ModelSerializer):
 
     class Meta():
         model = Spectrum
-        exclude = ['lens','owner','created_at','modified_at']
+        exclude = ['lens','created_at','modified_at']
         list_serializer_class = BaseDataFileUploadListSerializer
         
     def create(self,validated_data):
@@ -87,16 +91,19 @@ class SpectrumDataUploadSerializer(serializers.ModelSerializer):
 class CatalogueDataUploadSerializer(serializers.ModelSerializer):
     ra = serializers.DecimalField(max_digits=7,decimal_places=4)
     dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    mag = serializers.DecimalField(max_digits=10, decimal_places=3, allow_null=True)
+
 
     class Meta():
         model = Catalogue
-        exclude = ['lens','owner','created_at','modified_at']
-        list_serializer_class = BaseDataFileUploadListSerializer
+        exclude = ['lens','created_at','modified_at']
+        #extra_kwargs = {'mag': {'allow_null': True}, 'Dmag': {'allow_null': True}} 
+        #list_serializer_class = BaseDataFileUploadListSerializer
         
     def create(self,validated_data):
         validated_data.pop('ra')
         validated_data.pop('dec')
-        return Spectrum(**validated_data)
+        return Catalogue(**validated_data)
 
     
     

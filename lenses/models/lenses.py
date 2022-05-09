@@ -83,6 +83,27 @@ class ProximateLensManager(models.Manager):
         else:
             return False
 
+    def get_DB_neighbours_anywhere_user_specific(self,ra,dec,user,radius=None):
+        """
+        Same as get_DB_neighbours but this time untied to any lens object (from the database or not).
+
+        Args:
+            ra: the RA of any point on the sky.
+            dec: the DEC of any point on the sky.
+            radius: in arcsec (optional).
+
+        Returns:
+            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+        """
+        if not radius:
+            radius = self.check_radius
+        print(user)
+        qset = Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+        if qset.count() > 0:
+            return qset
+        else:
+            return False
+
         
     def get_DB_neighbours_anywhere_many(self,ras,decs,radius=None):
         """
@@ -102,6 +123,29 @@ class ProximateLensManager(models.Manager):
         neis_list = [] # A list of non-empty querysets
         for i in range(0,len(ras)):
             neis = self.get_DB_neighbours_anywhere(ras[i],decs[i],radius)
+            if neis:
+                index_list.append(i)
+                neis_list.append(neis)
+        return index_list,neis_list
+        
+    def get_DB_neighbours_anywhere_many_user_specific(self,ras,decs,user,radius=None):
+        """
+        Loops over a list of Ra and dec and calls repeatedly get_DB_neighbours_anywhere.
+
+        Args:
+            ra [List(`float`)]: A list of RA values.
+            dec [List(`float`)]: A list of dec values.
+
+        Returns:
+            index_list (List[int]): A list of indices to the original input list indicating those lenses that have proximate existing lenses. 
+            neis_list (List[`Lenses`]): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+        """   
+        if not radius:
+            radius = self.check_radius
+        index_list = []
+        neis_list = [] # A list of non-empty querysets
+        for i in range(0,len(ras)):
+            neis = self.get_DB_neighbours_anywhere_user_specific(ras[i],decs[i],user,radius)
             if neis:
                 index_list.append(i)
                 neis_list.append(neis)

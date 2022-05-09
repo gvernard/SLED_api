@@ -34,7 +34,7 @@
 	
 	<tr>
 	  <td>
-	    {{ datum.instrument }}
+	    {{ datum.instrument.name }}
 	    {{ datum.date_taken }}
 	    {{ datum.future }}
 	    {{ datum.info }}
@@ -52,8 +52,12 @@
 	    {% endif %}  
 	  </td>
 	  <td>
-	    {% for lens in existing %}
+	    {% for lens,hasdata in existing %}
 	    {% include 'lenses/lens_visit_card.html' with lens=lens %}
+        {% if hasdata %}
+            <p>This lens already has data from the survey you are trying to upload! </p>
+            <p> Take a look at the lens page and see if this data really needs uploading again. </p>
+        {% endif %}
 	    {% empty %}
 	    No duplicates!
 	    {% endfor %}

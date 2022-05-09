@@ -14,13 +14,16 @@ Notification = load_model('notifications', 'Notification')
 
 
 @method_decorator(login_required,name='dispatch')
-class NotificationListView(ListView):
-    model = Notification
+class NotificationListView(TemplateView):
     template_name = 'sled_notifications/notifications_list.html'
-    context_object_name = 'notes'
     
-    def get_queryset(self):
-        return self.request.user.notifications.all().order_by('-unread','-timestamp')
+    def get_context_data(self, **kwargs):
+        read = self.request.user.notifications.read().order_by('-timestamp')
+        unread = self.request.user.notifications.unread().order_by('-timestamp')
+        context = {'unread': list(unread), 'read': list(read)}
+        self.request.user.notifications.unread().mark_all_as_read()
+        return context
+
 
 
 @method_decorator(login_required,name='dispatch')

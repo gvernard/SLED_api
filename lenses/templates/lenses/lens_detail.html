@@ -55,17 +55,39 @@
 
   <div>
     <h1 class="jb-heading-2">Imaging Data</h1>
-    {% for imaging in imagings %}
-    <img src="{{ imaging.image.url }}">
+    {% for instrument, imaging in display_imagings.items %} 
+      {{ instrument }}
+      <br>
+      {% for band, image in imaging.items %}
+        {{ band }}
+        <img src="{{ image.image.url }}">
+      {% endfor %}
+      <br>
     {% endfor %}
   </div>
 
   <div>
     <h1 class="jb-heading-2">Spectroscopic Data</h1>
+      {% for spec in display_spectra %}
+        Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
+        <img src="{{ spec.image.url }}"> 
+      {% endfor %}
   </div>
 
   <div>
     <h1 class="jb-heading-2">Catalogue Data</h1>
+    {% for instrument, detections in display_catalogues.items %} 
+      {{ instrument }}
+      <br>
+      {% for k, detection in detections.items %}
+      RA, Dec: {{ detection.0.radet }}, {{ detection.0.decdet }}
+        {% for phot in detection %}
+          {{ phot.band.name }}: {{ phot.mag }} +- {{ phot.Dmag }} 
+        {% endfor %}
+         <br>
+      {% endfor %}
+      <br>
+    {% endfor %}
   </div>
 
   <div>
