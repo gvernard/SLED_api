@@ -82,8 +82,8 @@ class ConfirmationTask(SingleObject):
     
     class Meta():
         db_table = "confirmation_tasks"
-        verbose_name = "confirmation_task"
-        verbose_name_plural = "confirmation_tasks"
+        verbose_name = "task"
+        verbose_name_plural = "tasks"
         ordering = ["-status","-modified_at"]
         # constrain the number of recipients?
         

@@ -21,8 +21,8 @@ class SledQuery(SingleObject):
 
     class Meta(SingleObject.Meta):
         db_table = "sled_query"
-        verbose_name = "sled_query"
-        verbose_name_plural = "sled_queries"
+        verbose_name = "sled query"
+        verbose_name_plural = "sled queries"
         ordering = ["created_at"]
         
     def __str__(self):

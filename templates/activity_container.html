@@ -168,26 +168,12 @@
     {% elif action.verb == "AddData" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 new
-      {% if action.action_object.item_type == "Imaging" %}
-      Imaging data entry
-      {% elif action.action_object.item_type == "Spectrum" %}
-      Spectrum
-      {% elif action.action_object.item_type == "Catalogue" %}
-      Catalogue data entry
-      {% endif %}
+      1 new {{ action.action_object.item_type|get_name_singular }}
     </a>
     was
     {% else %}
     <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} new
-      {% if action.action_object.item_type == "Imaging" %}
-      Imaging data entries
-      {% elif action.action_object.item_type == "Spectrum" %}
-      Spectra
-      {% elif action.action_object.item_type == "Catalogue" %}
-      Catalogue data entries
-      {% endif %}
+      {{ N }} new {{ action.action_object.item_type|get_name_plural }}
     </a>
     were
     {% endif %}

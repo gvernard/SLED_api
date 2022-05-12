@@ -51,8 +51,8 @@ class AdminCollection(models.Model):
     
     class Meta():
         db_table = "admin_collection"
-        verbose_name = "admin_collection"
-        verbose_name_plural = "admin_collections"
+        verbose_name = "admin collection"
+        verbose_name_plural = "admin collections"
         ordering = ["created_at"]
 
 

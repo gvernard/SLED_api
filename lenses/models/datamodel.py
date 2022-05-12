@@ -86,7 +86,9 @@ class Imaging(SingleObject,DataBase):
             CheckConstraint(check=Q(exposure_time__gt=0),name='imaging_exp_time'),
             CheckConstraint(check=Q(pixel_size__gt=0),name='pix_size'),
         ]
-
+        db_table = "imaging"
+        verbose_name = "Imaging data entry"
+        verbose_name_plural = "Imaging data entries"
 
 class Spectrum(SingleObject,DataBase):
     lambda_min = models.DecimalField(blank=True,
@@ -124,6 +126,9 @@ class Spectrum(SingleObject,DataBase):
             CheckConstraint(check=Q(exposure_time__gt=0),name='spectrum_exp_time'),
             CheckConstraint(check=Q(lambda_min__lt=F("lambda_max")),name='wavelength_range'),
         ]
+        db_table = "spectra"
+        verbose_name = "spectrum"
+        verbose_name_plural = "spectra"
 
 
 class Catalogue(SingleObject,DataBase):
@@ -168,3 +173,6 @@ class Catalogue(SingleObject,DataBase):
             CheckConstraint(check=Q(radet__range=(0,360)),name='radet_range'),
             CheckConstraint(check=Q(decdet__range=(-90,90)),name='decdet_range'),
         ]
+        db_table = "catalogue"
+        verbose_name = "Catalogue data entry"
+        verbose_name_plural = "Catalogue data entries"
