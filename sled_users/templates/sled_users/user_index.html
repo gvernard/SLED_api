@@ -307,20 +307,21 @@
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
-        $(".sled-process-lenses").click(function() {
-
-          // Construct get query string
-          var values = [];
-          $('#exe_summary input[type="checkbox"]:checked').each(function() {
-            values.push('ids=' + $(this).val());
-          });
-          // Modals
-          $(".sled-modal").each(function() {
-            $(this).modalForm({
-              formURL: $(this).data("form-url"),
-              modalID: "#id-modal"
-            });
-          });
+    $(".sled-process-lenses").click(function() {
+      alert('hello');
+      // Construct get query string
+      var values = [];
+      $('#exe_summary input[type="checkbox"]:checked').each(function() {
+        values.push('ids=' + $(this).val());
+      });
+      // Modals
+      $(".sled-modal").each(function() {
+        $(this).modalForm({
+          formURL: $(this).data("form-url"),
+          modalID: "#id-modal"
         });
+      });
+    });
+  });
 </script>
 {% endblock extrascripts %}
