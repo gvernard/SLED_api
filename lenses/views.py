@@ -9,6 +9,7 @@ from django.db.models import CharField
 from django.utils import timezone
 from django.apps import apps
 from django.core.paginator import Paginator
+from django.core.files import File
 
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
@@ -460,6 +461,26 @@ class LensUpdateView(TemplateView):
                     mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
                     return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
             else:
+                print('NOT VALID')
+
+                # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory and replace image source in the formset 
+                path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                for i,form in enumerate(myformset.forms):
+                    if 'mugshot' in myformset.forms[i].changed_data:
+                        print(myformset.forms[i].cleaned_data['mugshot'])
+                        input_field_name = myformset.forms[i]['mugshot'].html_name
+                        name = myformset.forms[i].cleaned_data['mugshot'].name
+                        f = request.FILES[input_field_name]
+                        with open(path + name,'wb+') as destination:
+                            for chunk in f.chunks():
+                                destination.write(chunk)
+                                
+                        #myformset.forms[i].instance.mugshot = 'temporary/' + self.request.user.username + '/'+name
+                        #myformset.forms[i]['mugshot'].name = 'temporary/' + self.request.user.username + '/'+name
+
+
                 context = {'lens_formset': myformset}
                 return self.render_to_response(context)
         else:
