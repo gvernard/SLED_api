@@ -65,10 +65,32 @@
   {% if collection.owner == user %}
   <div>
     <h1 class="jb-heading-2">Access to the Collection</h1>
-    <p>Users:</p>
-    {{ collection.getUsersWithAccessNoOwner|join:"," }}
-    <p>Groups:</p>
-    {{ collection.getGroupsWithAccessNoOwner|join:"," }}
+    <table>
+      <tbody>
+	<tr>
+	  <td>Users:</td>
+	  <td>
+	    {% for user in collection.getUsersWithAccessNoOwner %}
+	    <a href="{{user.get_absolute_url}}">{{user}}</a>
+	    {% if not forloop.last %}
+	    ,
+	    {% endif %}
+	    {% endfor %}
+	  </td>
+	</tr>
+	<tr>
+	  <td>Groups:</td>
+	  <td>
+	    {% for obj in collection.getGroupsWithAccessNoOwner %}
+	    <a href="{% url 'sled_groups:group-detail' obj.id %}">{{obj}}</a>
+	    {% if not forloop.last %}
+	    ,
+	    {% endif %}
+	    {% endfor %}
+	  </td>
+	</tr>
+      </tbody>
+    </table>
   </div>
   {% else %}
   <div>
