@@ -7,7 +7,7 @@ Create new group?
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="jb-container">
+<div class="jb-modal-field">
   <div class="{% if form.non_field_errors %}invalid{% endif %}">
     {% for error in form.non_field_errors %}
     {{ error }}
@@ -22,11 +22,11 @@ Create new group?
     {{ form.description }}
   </div>
 
-  <div>
+  <div class="jb-modal-field">
     {{ form.users }}
   </div>
 
-  <div>
+  <div class="jb-modal-field">
     {{ form.access_level }}
   </div>
 </div>

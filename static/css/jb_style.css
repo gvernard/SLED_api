@@ -454,14 +454,18 @@
 
   .jb-modal-field {
     width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-family: basic-sans, sans-serif !important;
   }
 
   .jb-modal-field input {
-    width: 100%;
+    width: 100% !important;
     padding-bottom: 10px;
   }
 
   .jb-modal-field textarea {
     width: 100%;
-    padding-top: 20px;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }

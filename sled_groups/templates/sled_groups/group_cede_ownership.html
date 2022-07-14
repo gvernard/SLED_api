@@ -8,18 +8,18 @@ Cede ownership of group {{ sledgroup.name }}?
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="jb-container body-div">
-  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+<div class="jb-modal-field">
+  <div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
     {% for error in form.non_field_errors %}
     {{ error }}
     {% endfor %}
   </div>
 
-  <div>
+  <div class="jb-modal-field">
     {{ form.heir }}
   </div>
 
-  <div>
+  <div class="jb-modal-field">
     {{ form.justification }}
   </div>
 </div>

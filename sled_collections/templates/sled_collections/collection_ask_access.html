@@ -6,16 +6,17 @@ Ask private object owners for access?
 
 
 {% block content %}
-{{ form.justification }}
-{% endblock content %}
+<div class="jb-modal-field">
+  {{ form.justification }}
+  {% endblock content %}
 
 
-{% block action_button %}
-<button type="submit" class="jb-submit-button-1">
-  Ask access
-</button>
-{% endblock action_button %}
-
+  {% block action_button %}
+  <button type="submit" class="jb-submit-button-1">
+    Ask access
+  </button>
+  {% endblock action_button %}
+</div>
 
 {% block extrascripts %}
 {% endblock extrascripts %}

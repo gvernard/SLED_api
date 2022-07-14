@@ -10,7 +10,7 @@ Give access to Users and Groups?
 
 
 {% block content %}
-<div class="jb-container">
+<div class="jb-modal-field">
   <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
   <input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
 
@@ -20,11 +20,11 @@ Give access to Users and Groups?
     {% endfor %}
   </div>
 
-  <div>
+  <div class="jb-modal-field">
     {{ form.users }}
   </div>
 
-  <div>
+  <div class="jb-modal-field">
     {{ form.groups }}
   </div>
 </div>
