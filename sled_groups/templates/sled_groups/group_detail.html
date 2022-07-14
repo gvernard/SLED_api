@@ -77,12 +77,16 @@
     <h1 class="jb-heading-2">List of Group Members</h1>
     <table>
       <tr>
-        <th>Name</th>
+        <th>Username</th>
+        <th>First name</th>
+        <th>Last name</th>
         <th>Affiliation</th>
       </tr>
       {% for user in group.getAllMembers %}
       <tr>
-        <td>{{user.username}}</td>
+        <td><a href="{{user.get_absolute_url}}">{{user.username}}</a></td>
+        <td>{{user.first_name}}</td>
+        <td>{{user.last_name}}</td>
         <td>{{user.affiliation}}</td>
       </tr>
       {% endfor %}

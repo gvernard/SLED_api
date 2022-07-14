@@ -278,11 +278,6 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
         else:
             groups = get_groups_with_perms(self)
             if groups:
-                # # this trick is required to convert Group (used by django guardian) to SledGroup
-                # ids = []
-                # for group in groups:
-                #     ids.append(group.id)
-                # return list(Group.objects.filter(id__in=ids))
                 return list(groups)
             else:
                 return []

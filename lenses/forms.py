@@ -156,16 +156,19 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
         duplicate_files = []
         for i in range(0,len(self.forms)-1):
             form1 = self.forms[i]
-            name1 = form1.cleaned_data['mugshot'].name
-            size1 = form1.cleaned_data['mugshot'].size
-            
-            for j in range(i+1,len(self.forms)):
-                form2 = self.forms[j]
-                name2 = form2.cleaned_data['mugshot'].name
-                size2 = form2.cleaned_data['mugshot'].size
+            if 'mugshot' in form1.changed_data:
+                print(i)
+                name1 = form1.cleaned_data['mugshot'].name
+                size1 = form1.cleaned_data['mugshot'].size
+                
+                for j in range(i+1,len(self.forms)):
+                    form2 = self.forms[j]
+                    if 'mugshot' in form2.changed_data:
+                        name2 = form2.cleaned_data['mugshot'].name
+                        size2 = form2.cleaned_data['mugshot'].size
 
-                if name1 == name2 and size1 == size2:
-                    duplicate_files.append(name1)
+                        if name1 == name2 and size1 == size2:
+                            duplicate_files.append(name1)
                     
         if len(duplicate_files) > 0:
             raise ValidationError('More than one files have the same name and size which could indicate duplicates!')            
