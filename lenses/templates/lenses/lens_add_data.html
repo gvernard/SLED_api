@@ -8,13 +8,13 @@
   <p>
     Duplicates are:
   </p>
-
-
+  
+  
   <form id="formset" method="POST">
     {% csrf_token %}
     {{ myformset.management_form }}
     {{ myformset.non_form_errors }}
-
+    
     <div>
       <table>
         <thead>

@@ -9,7 +9,13 @@
 
   <div>
     <div class="jb-float-child-1">
-      <h1 class="jb-heading-1">{{ user.username }}</h1>
+      <h1 class="jb-heading-1">
+	{{ user.username }}
+        <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_users:user-update' user.pk %}">
+          <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+          Update
+        </button>
+      </h1>
     </div>
     <div class="jb-float-child-2">
       <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
@@ -306,22 +312,39 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
-  $(document).ready(function() {
-    $(".sled-process-lenses").click(function() {
-      alert('hello');
-      // Construct get query string
-      var values = [];
-      $('#exe_summary input[type="checkbox"]:checked').each(function() {
-        values.push('ids=' + $(this).val());
+  $(document).ready(function(){
+      $(".sled-process-lenses").click(function() {  
+          // Construct get query string
+          var values = [];
+          $('#exe_summary input[type="checkbox"]:checked').each(function() {
+              values.push('ids=' + $(this).val());
+          });
+	  
+          if (values.length == 0) {
+              alert('You need to select at least one item!');
+          } else {
+              var get_str = '?' + values.join('&') + '&';
+	      
+              // Fetch only the first part of the URL (without any GET arguments)
+              var url = $(this).data('form-url').split('?');
+              var url_core = url[0];
+	      
+              // Trigger modal
+              var new_form_url = url_core + get_str;
+              $(this).modalFormTrigger({
+                  formURL: new_form_url,
+                  modalID: "#id-modal"
+              });
+          }
       });
+      
       // Modals
       $(".sled-modal").each(function() {
-        $(this).modalForm({
-          formURL: $(this).data("form-url"),
-          modalID: "#id-modal"
-        });
+          $(this).modalForm({
+              formURL: $(this).data("form-url"),
+              modalID: "#id-modal"
+          });
       });
-    });
   });
 </script>
 {% endblock extrascripts %}
