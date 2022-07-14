@@ -4,74 +4,76 @@
 
 
 {% block content %}
-<p>
-  Duplicates are:
-</p>
+<div class="jb-container">
+  <p>
+    Duplicates are:
+  </p>
 
 
-<form id="formset" method="POST">
-  {% csrf_token %}
-  {{ myformset.management_form }}
-  {{ myformset.non_form_errors }}
+  <form id="formset" method="POST">
+    {% csrf_token %}
+    {{ myformset.management_form }}
+    {{ myformset.non_form_errors }}
 
-  <div>
-    <table>
-      <thead>
-	<tr>
-	  <th>
-	    Data that require checking
-	  </th>
-	  <th>
-	    &nbsp;
-	  </th>
-	  <th>
-	    Existing lenses
-	  </th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for datum,form,existing in data_form_existing %}
-	
-	<tr>
-	  <td>
-	    {{ datum.instrument.name }}
-	    {{ datum.date_taken }}
-	    {{ datum.future }}
-	    {{ datum.info }}
-	    {% if datum|get_class_name != "Catalogue" %}
-	    <div>
-	      <img class="sled-image" src="{{ datum.image.url }}">
-	    </div>
-	    {% endif %}
-	  </td>
-	  <td>
-	    {% if form %}
-	    {{ form.mychoices.errors }}
-	    {{ form.mychoices.label_tag }}
-	    {{ form.mychoices }}
-	    {% endif %}  
-	  </td>
-	  <td>
-	    {% for lens,hasdata in existing %}
-	    {% include 'lenses/lens_visit_card.html' with lens=lens %}
-        {% if hasdata %}
-            <p>This lens already has data from the survey you are trying to upload! </p>
-            <p> Take a look at the lens page and see if this data really needs uploading again. </p>
-        {% endif %}
-	    {% empty %}
-	    No duplicates!
-	    {% endfor %}
-	  </td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-  </div>
-  
-  <div>
-    <label>Resolve duplicates and submit?</label>
-    <button type="submit">Submit</button>
-  </div>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>
+              Data that require checking
+            </th>
+            <th>
+              &nbsp;
+            </th>
+            <th>
+              Existing lenses
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for datum,form,existing in data_form_existing %}
 
-</form>
+          <tr>
+            <td>
+              {{ datum.instrument.name }}
+              {{ datum.date_taken }}
+              {{ datum.future }}
+              {{ datum.info }}
+              {% if datum|get_class_name != "Catalogue" %}
+              <div>
+                <img class="sled-image" src="{{ datum.image.url }}">
+              </div>
+              {% endif %}
+            </td>
+            <td>
+              {% if form %}
+              {{ form.mychoices.errors }}
+              {{ form.mychoices.label_tag }}
+              {{ form.mychoices }}
+              {% endif %}
+            </td>
+            <td>
+              {% for lens,hasdata in existing %}
+              {% include 'lenses/lens_visit_card.html' with lens=lens %}
+              {% if hasdata %}
+              <p>This lens already has data from the survey you are trying to upload! </p>
+              <p> Take a look at the lens page and see if this data really needs uploading again. </p>
+              {% endif %}
+              {% empty %}
+              No duplicates!
+              {% endfor %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <label>Resolve duplicates and submit?</label>
+      <button type="submit">Submit</button>
+    </div>
+
+  </form>
+</div>
 {% endblock content %}

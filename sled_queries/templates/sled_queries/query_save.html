@@ -11,22 +11,24 @@ Update query
 
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-container">
+  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+    {% for error in form.non_field_errors %}
+    {{ error }}
+    {% endfor %}
+  </div>
 
-{% for field in form %}
-<div>
-  {{ field }}
+  {% for field in form %}
+  <div>
+    {{ field }}
+  </div>
 </div>
 {% endfor %}
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">
+<button type="submit" class="jb-submit-button-1">
   {% if request.resolver_match.url_name == 'query-save' %}
   Save
   {% else %}

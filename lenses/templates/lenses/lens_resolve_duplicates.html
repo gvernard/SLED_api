@@ -13,7 +13,7 @@
     {{ insert_formset.non_form_errors }}
 
     <div>
-      <table>
+      <table class="jb-table-no-lines">
         <thead>
           <tr>
             <th>
@@ -67,20 +67,20 @@
 
 {% block extrascripts %}
 <script type="text/javascript">
-  $(document).ready(function(){
+  $(document).ready(function() {
 
 
-      $('.sled-dupl-yes-no').on('click',function(){
-	  if( $(this).is(':checked') ){
-	      $(this).closest('.sled-main-row').removeClass("sled-duplicate-required");
-	      if( $(this).val() == 'yes' ){
-		  $(this).closest('.sled-main-row').removeClass("sled-duplicate-no").addClass("sled-duplicate-yes");
-              } else {
-		  $(this).closest('.sled-main-row').removeClass("sled-duplicate-yes").addClass("sled-duplicate-no");
-	      }
-          }
-      })
-      
+    $('.sled-dupl-yes-no').on('click', function() {
+      if ($(this).is(':checked')) {
+        $(this).closest('.sled-main-row').removeClass("sled-duplicate-required");
+        if ($(this).val() == 'yes') {
+          $(this).closest('.sled-main-row').removeClass("sled-duplicate-no").addClass("sled-duplicate-yes");
+        } else {
+          $(this).closest('.sled-main-row').removeClass("sled-duplicate-yes").addClass("sled-duplicate-no");
+        }
+      }
+    })
+
   });
 </script>
 {% endblock extrascripts %}

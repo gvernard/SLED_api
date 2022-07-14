@@ -7,22 +7,24 @@ Request to join group
 
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-modal-field">
+  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+    {% for error in form.non_field_errors %}
+    {{ error }}
+    {% endfor %}
+  </div>
 
-<div>
-  Send request to join the group named <strong>{{ sledgroup.name }}</strong>?
-</div>
+  <div>
+    Send request to join the group named <strong>{{ sledgroup.name }}</strong>?
+  </div>
 
-<div>
-  {{ form.justification }}
+  <div>
+    {{ form.justification }}
+  </div>
 </div>
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-danger">Send</button>
+<button type="submit" class="jb-submit-button-1">Send</button>
 {% endblock action_button %}

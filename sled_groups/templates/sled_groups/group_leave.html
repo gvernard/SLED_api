@@ -7,18 +7,20 @@ Leave group
 
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-modal-field">
+  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+    {% for error in form.non_field_errors %}
+    {{ error }}
+    {% endfor %}
+  </div>
 
-<div>
-  Are you sure you want to leave the group named <strong>{{ sledgroup.name }}</strong>?
+  <div>
+    Are you sure you want to leave the group named <strong>{{ sledgroup.name }}</strong>?
+  </div>
 </div>
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-danger">Leave</button>
+<button type="submit" class="jb-submit-button-1">Leave</button>
 {% endblock action_button %}

@@ -6,6 +6,7 @@
     margin: auto;
     max-width: 940px;
     font-family: basic-sans, sans-serif;
+    padding-bottom: 50px;
   }
 
   .jb-container a {
@@ -276,27 +277,59 @@
     border-top: 1px solid #ACACAC;
   }
 
-  .jb-number-input {border:1px solid red}
-  .jb-myselect2 {width:200px}
-  .jb-checkbox-input {border:1px solid blue}
+  .jb-table-no-lines table td {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    border-top: 0px solid #ACACAC;
+  }
 
-  .jb-add-update-lenses-number {border:1px solid orange}
-  .jb-lens-info {border:1px solid magenta}
-  
-  .jb-duplicate-unselected {color:red}
-  .jb-duplicate-no {color:none}
-  .jb-duplicate-yes {color:green}
+  .jb-number-input {
+    width: 120px;
+  }
 
+  .jb-myselect2 {
+    width: 200px;
+  }
 
-  .sled-duplicate-no {outline: none;
-		      background-color:none}
-  .sled-duplicate-required {outline: thin solid black;
-			    background-color:rgba(255,0,0,0.25)}
-  .sled-duplicate-yes {outline: thin solid black;
-		       background-color:rgba(0,255,0,0.25)}
+  .jb-checkbox-input {
+    background: #6F73DE;
+  }
 
-  
-  
+  .jb-add-update-lenses-number {
+    width: 100px;
+  }
+
+  .jb-lens-info {
+    height: 100px;
+  }
+
+  .jb-duplicate-unselected {
+    color: red;
+    outline: 1px solid;
+  }
+
+  .jb-duplicate-no {
+    color: none
+  }
+
+  .jb-duplicate-yes {
+    color: green;
+    outline: 1px solid;
+  }
+
+  .sled-duplicate-no {
+    outline: none;
+    background-color: none
+  }
+
+  .sled-duplicate-required {
+    background-color: rgba(255, 0, 0, 0.25)
+  }
+
+  .sled-duplicate-yes {
+    background-color: rgba(0, 255, 0, 0.25)
+  }
+
   .jb-submit-button-1 {
     position: static;
     display: inline;
@@ -364,6 +397,10 @@
     font-size: 14px;
   }
 
+  .jb-notifications-table {
+    font-size: 13px;
+  }
+
   .jb-left-details {
     display: table-cell;
     vertical-align: middle;
@@ -384,4 +421,51 @@
     width: 250px;
     height: 250px;
     float: right;
+  }
+
+  .jb-pagination-table {
+    table-layout: auto;
+    padding-top: 40px;
+    padding-bottom: 20px;
+    font-size: 20px;
+    color: #ACACAC !important;
+  }
+
+  .jb-pagination-numbers {
+    letter-spacing: 5px;
+  }
+
+  .jb-add-lens table td {
+    padding-right: 25px;
+    width: 100%;
+  }
+
+  .jb-modal {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+  }
+
+  .jb-modal-heading {
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 25px;
+    font-weight: 500;
+  }
+
+  .jb-modal-field {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-family: basic-sans, sans-serif !important;
+  }
+
+  .jb-modal-field input {
+    width: 100% !important;
+    padding-bottom: 10px;
+  }
+
+  .jb-modal-field textarea {
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }

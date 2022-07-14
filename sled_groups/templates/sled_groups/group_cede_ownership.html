@@ -8,24 +8,26 @@ Cede ownership of group {{ sledgroup.name }}?
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-modal-field">
+  <div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
+    {% for error in form.non_field_errors %}
+    {{ error }}
+    {% endfor %}
+  </div>
 
-<div>
-  {{ form.heir }}
-</div>
+  <div class="jb-modal-field">
+    {{ form.heir }}
+  </div>
 
-<div>
-  {{ form.justification }}
+  <div class="jb-modal-field">
+    {{ form.justification }}
+  </div>
 </div>
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-danger">Cede ownership</button>
+<button type="submit" class="jb-submit-button-1">Cede ownership</button>
 {% endblock action_button %}
 
 
@@ -33,11 +35,10 @@ Cede ownership of group {{ sledgroup.name }}?
 <script>
   users_autocomplete('id_heir');
   $('#id_heir').select2({
-      width: '100%',
-      placeholder: 'Search for a user',
-      minimumInputLength: 1,
-      dropdownParent: $('#id-modal')
+    width: '100%',
+    placeholder: 'Search for a user',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
   });
-  
 </script>
 {% endblock extrascripts %}

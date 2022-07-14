@@ -7,12 +7,14 @@ Delete group
 
 
 {% block content %}
-<div>
-  Are you sure you want to delete the group named <strong>{{ group.name }}</strong>?
+<div class="jb-container">
+  <div>
+    Are you sure you want to delete the group named <strong>{{ group.name }}</strong>?
+  </div>
 </div>
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-danger">Delete</button>
+<button type="submit" class="jb-submit-button-1">Delete</button>
 {% endblock action_button %}

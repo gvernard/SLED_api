@@ -5,30 +5,34 @@ Make collection?
 {% endblock title %}
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-container">
 
-<div>
-  <ul>
-    {% for item in items %}
-    <li>{{ item }}</li>
+  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+    {% for error in form.non_field_errors %}
+    {{ error }}
     {% endfor %}
-  </ul>
-</div>
+  </div>
 
-<div>
-  {{ form.name }}
-</div>
+  <div>
+    <ul>
+      {% for item in items %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
 
-<div>
-  {{ form.description }}
-</div>
+  <div class="jb-modal-field">
+    {{ form.name }}
+  </div>
 
-<div>
-  {{ form.access_level }}
+  <div class="jb-modal-field">
+    {{ form.description }}
+  </div>
+
+  <div>
+    {{ form.access_level }}
+  </div>
+
 </div>
 
 {{ form.item_type }}
@@ -37,5 +41,5 @@ Make collection?
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Make collection</button>
+<button type="submit" class="jb-submit-button-1">Make collection</button>
 {% endblock action_button %}

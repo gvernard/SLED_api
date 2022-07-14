@@ -6,27 +6,27 @@ Add new members to the group
 {% else %}
 Remove members from the group
 {% endif %}
- {{ sledgroup.name }}?
+{{ sledgroup.name }}?
 {% endblock title %}
 
 
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
+<div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
   {% for error in form.non_field_errors %}
   {{ error }}
   {% endfor %}
 </div>
 
-<div>
+<div class="jb-modal-field">
   {{ form.users }}
 </div>
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">
+<button type="submit" class="jb-submit-button-1">
   {% if view.kwargs.mode == 'add' %}
   Add users
   {% else %}
@@ -40,10 +40,10 @@ Remove members from the group
 <script>
   users_autocomplete('id_users');
   $('#id_users').select2({
-      width: '100%',
-      placeholder: 'Search for a user',
-      minimumInputLength: 1,
-      dropdownParent: $('#id-modal')
+    width: '100%',
+    placeholder: 'Search for a user',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
   });
 </script>
 {% endblock extrascripts %}

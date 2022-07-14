@@ -5,7 +5,7 @@ Remove items from collection {{ collection.name }}?
 {% endblock title %}
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
+<div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
   {% for error in form.non_field_errors %}
   {{ error }}
   {% endfor %}
@@ -24,5 +24,5 @@ Remove items from collection {{ collection.name }}?
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-danger">Remove</button>
+<button type=" submit" class="jb-submit-button-1">Remove</button>
 {% endblock action_button %}

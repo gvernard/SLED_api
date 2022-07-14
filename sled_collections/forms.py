@@ -13,7 +13,7 @@ class CollectionCreateForm(BSModalModelForm):
         fields = ['name','description','access_level','item_type']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
-            'description': forms.Textarea(attrs={'placeholder':'Please provide a description for your collection.','rows':3,'cols':30}),
+            'description': forms.Textarea(attrs={'placeholder':'Please provide a description for your collection.','rows':3,}),
             'access_level': forms.Select(),
             'item_type': forms.TextInput(attrs={'readonly':'readonly'})
         }
@@ -36,15 +36,15 @@ class CollectionUpdateForm(BSModalModelForm):
             'description': forms.Textarea({'placeholder':'Provide a description for your collection.','rows':3,'cols':30})
         }
 
-        
+
 class CollectionAskAccessForm(BSModalModelForm):
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the lens owners, justifying why you require access to the private objects.','rows':3,'cols':30}))
 
     class Meta:
         model = Collection
-        fields = ['id'] 
+        fields = ['id']
 
-        
+
 class CollectionGiveRevokeAccessForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
     groups = forms.ModelMultipleChoiceField(label='Groups',queryset=SledGroup.objects.all(),required=False)
@@ -65,7 +65,7 @@ class CollectionGiveRevokeAccessForm(BSModalModelForm):
         if not users and not groups:
             self.add_error('__all__',"Select at least one User and/or Group.")
             return
-        
+
         # Owner access cannot be given or revoked
         owner = self.instance.owner
         if owner in users:
@@ -139,7 +139,7 @@ class CollectionAddItemsForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
     target_collection = forms.ModelChoiceField(label='Collection',queryset=Collection.accessible_objects.none(),widget=forms.RadioSelect())
     obj_type = 'dum' # necessary to define selg.obj_type
-    
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.obj_type = kwargs.pop('obj_type')
@@ -171,12 +171,12 @@ class CollectionAddItemsForm(BSModalForm):
 
 class CollectionRemoveItemsForm(BSModalModelForm):
     ids = forms.CharField(widget=forms.HiddenInput())
-    
+
     class Meta:
         model = Collection
         fields = ['id','ids']
 
-        
+
 class CollectionMakePublicForm(BSModalModelForm):
     class Meta:
         model = Collection
@@ -188,12 +188,12 @@ class CollectionMakePublicForm(BSModalModelForm):
         N_priv = self.instance.getSpecificModelInstances(owner).filter(access_level__exact='PRI').count()
         if N_priv > 0:
             self.add_error('__all__',"Collection cannot be made public because it contains <strong>"+str(N_priv)+"</strong> private objects.")
-        
+
 
 class CollectionCedeOwnershipForm(BSModalModelForm):
     heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
-                
+
     class Meta:
         model = Collection
         fields = ['id','justification','heir']
@@ -205,7 +205,7 @@ class CollectionCedeOwnershipForm(BSModalModelForm):
         if self.instance.access_level == 'PRI' and not heir.has_perm('view_collection',self.instance):
             self.add_error('__all__',"User does not have access to the collection.")
             return
-        
+
         # Heir must have access to all the objects in the collection.
         all_items = self.instance.getSpecificModelInstances(self.instance.owner)
         accessible_by_heir = self.instance.getSpecificModelInstances(heir)

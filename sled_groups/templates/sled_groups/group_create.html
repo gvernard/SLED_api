@@ -7,31 +7,33 @@ Create new group?
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-modal-field">
+  <div class="{% if form.non_field_errors %}invalid{% endif %}">
+    {% for error in form.non_field_errors %}
+    {{ error }}
+    {% endfor %}
+  </div>
 
-<div>
-  {{ form.name }}
-</div>
+  <div class="jb-modal-field">
+    {{ form.name }}
+  </div>
 
-<div>
-  {{ form.description }}
-</div>
+  <div class="jb-modal-field">
+    {{ form.description }}
+  </div>
 
-<div>
-  {{ form.users }}
-</div>
+  <div class="jb-modal-field">
+    {{ form.users }}
+  </div>
 
-<div>
-  {{ form.access_level }}
+  <div class="jb-modal-field">
+    {{ form.access_level }}
+  </div>
 </div>
 {% endblock content %}
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Create</button>
+<button type="submit" class="jb-submit-button-1">Create</button>
 {% endblock action_button %}
 
 
@@ -39,11 +41,10 @@ Create new group?
 <script>
   users_autocomplete("id_users");
   $('#id_users').select2({
-      width: '100%',
-      placeholder: 'Search for a user',
-      minimumInputLength: 1,
-      dropdownParent: $('#id-modal')
+    width: '100%',
+    placeholder: 'Search for a user',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
   });
 </script>
 {% endblock extrascripts %}
-

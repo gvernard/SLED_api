@@ -8,131 +8,131 @@
     {% with N=action.action_object.myitems.all|length %}
     {% if N > 0 or action.data.object_names|length > 0 %}
     <tr class="sled-action-row" data-index="{{ forloop.counter0 }}">
-      <td style="text-align:right">
-	
-	
-	{% if action.verb == "Add" %}
-	{% if N == 1 %}
-	1 new {{ action.action_object.item_type|get_name_singular }} was
-	{% else %}
-	{{ N }} new {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	added
-
-	
-	{% elif action.verb == "AddData" %}
-	{% if N == 1 %}
-	1 new {{ action.action_object.item_type|get_name_singular }} was
-	{% else %}
-	{{ N }} new {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	added
-
-	
-	{% elif action.verb == "UpdateSelf" %}
-	Field(s) were updated
-
-	
-	{% elif action.verb == "Update" %}
-	{% if N == 1 %}
-	1 {{ action.action_object.item_type|get_name_singular }} was
-	{% else %}
-	{{ N }} {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	updated
-
-	
-	{% elif action.verb == "DeleteObject" %}
-	{% if N == 1 %}
-	1 {{ action.action_object.item_type|get_name_singular }} was
-	{% else %}
-	{{ N }} {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	deleted
+      <td style="text-align:left">
 
 
-	{% elif action.verb == "LeftGroup" %}
-        User <a href="{{ action.data.user_url }}" target="_blank">{{ action.data.user_name }}</a> left the group 
+        {% if action.verb == "Add" %}
+        {% if N == 1 %}
+        1 new {{ action.action_object.item_type|get_name_singular }} was
+        {% else %}
+        {{ N }} new {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        added
 
 
-	{% elif action.verb == "RemovedFromGroup" %}
-	{% if N == 1 %}
-	1 {{ action.action_object.item_type|get_name_singular }} was
-	{% else %}
-	{{ N }} {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	removed from the group
-
-    
-	{% elif action.verb == "AddedToGroup" %}
-	{% if N == 1 %}
-	1 {{ action.action_object.item_type|get_name_plural }} was
-	{% else %}
-	{{ N }} {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	added to the group
+        {% elif action.verb == "AddData" %}
+        {% if N == 1 %}
+        1 new {{ action.action_object.item_type|get_name_singular }} was
+        {% else %}
+        {{ N }} new {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        added
 
 
-	{% elif action.verb == "AddedToCollection" %}
-	{% if N == 1 %}
-	1 {{ action.action_object.item_type|get_name_singular }} was
-	{% else %}
-	{{ N }} {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	added to the collection
+        {% elif action.verb == "UpdateSelf" %}
+        Field(s) were updated
 
 
-	{% elif action.verb == "RemovedFromCollection" %}
-	{% if N == 1 %}
-	1 {{ action.action_object.item_type|get_name_plural }} was
-	{% else %}
-	{{ N }} {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	removed from the collection
+        {% elif action.verb == "Update" %}
+        {% if N == 1 %}
+        1 {{ action.action_object.item_type|get_name_singular }} was
+        {% else %}
+        {{ N }} {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        updated
 
 
-	{% elif action.verb == "MadePublicGroup" %}
-	{% if N == 1 %}
-	1 private {{ action.action_object.item_type|get_name_singular }} that the group had access to was
-	{% else %}
-	{{ N }} private {{ action.action_object.item_type|get_name_plural }} that the group had access to were
-	{% endif %}
-	made public 
+        {% elif action.verb == "DeleteObject" %}
+        {% if N == 1 %}
+        1 {{ action.action_object.item_type|get_name_singular }} was
+        {% else %}
+        {{ N }} {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        deleted
 
 
-	{% elif action.verb == "MadePublic" %}
-	{% if N == 1 %}
-	1 {{ action.action_object.item_type|get_name_plural }} was
-	{% else %}
-	{{ N }} {{ action.action_object.item_type|get_name_plural }} were
-	{% endif %}
-	made public
+        {% elif action.verb == "LeftGroup" %}
+        User <a href="{{ action.data.user_url }}" target="_blank">{{ action.data.user_name }}</a> left the group
 
 
-	{% elif action.verb == "GiveAccess" %}
-	The group was granted access to {{ N }} private {% singular_or_plural action.action_object.item_type N %}
+        {% elif action.verb == "RemovedFromGroup" %}
+        {% if N == 1 %}
+        1 {{ action.action_object.item_type|get_name_singular }} was
+        {% else %}
+        {{ N }} {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        removed from the group
 
 
-	{% elif action.verb == "RevokeAccess" %}
-	The group's access to {{ N }} private {% singular_or_plural action.action_object.item_type N %} was revoked
+        {% elif action.verb == "AddedToGroup" %}
+        {% if N == 1 %}
+        1 {{ action.action_object.item_type|get_name_plural }} was
+        {% else %}
+        {{ N }} {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        added to the group
 
 
-	{% elif action.verb == "CedeOwnershipSelf" %}
-	The owner changed from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
-	to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a> 
-
-    
-	{% elif action.verb == "CedeOwnership" %}
-	{{ N }} private {% singular_or_plural action.action_object.item_type N %}
-	the group has access to changed owner
-	from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
-	to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a> 
+        {% elif action.verb == "AddedToCollection" %}
+        {% if N == 1 %}
+        1 {{ action.action_object.item_type|get_name_singular }} was
+        {% else %}
+        {{ N }} {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        added to the collection
 
 
-	{% endif %}
+        {% elif action.verb == "RemovedFromCollection" %}
+        {% if N == 1 %}
+        1 {{ action.action_object.item_type|get_name_plural }} was
+        {% else %}
+        {{ N }} {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        removed from the collection
+
+
+        {% elif action.verb == "MadePublicGroup" %}
+        {% if N == 1 %}
+        1 private {{ action.action_object.item_type|get_name_singular }} that the group had access to was
+        {% else %}
+        {{ N }} private {{ action.action_object.item_type|get_name_plural }} that the group had access to were
+        {% endif %}
+        made public
+
+
+        {% elif action.verb == "MadePublic" %}
+        {% if N == 1 %}
+        1 {{ action.action_object.item_type|get_name_plural }} was
+        {% else %}
+        {{ N }} {{ action.action_object.item_type|get_name_plural }} were
+        {% endif %}
+        made public
+
+
+        {% elif action.verb == "GiveAccess" %}
+        The group was granted access to {{ N }} private {% singular_or_plural action.action_object.item_type N %}
+
+
+        {% elif action.verb == "RevokeAccess" %}
+        The group's access to {{ N }} private {% singular_or_plural action.action_object.item_type N %} was revoked
+
+
+        {% elif action.verb == "CedeOwnershipSelf" %}
+        The owner changed from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
+        to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
+
+
+        {% elif action.verb == "CedeOwnership" %}
+        {{ N }} private {% singular_or_plural action.action_object.item_type N %}
+        the group has access to changed owner
+        from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
+        to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
+
+
+        {% endif %}
       </td>
       <td>
-	{{ action.timestamp|timesince }} ago
+        {{ action.timestamp|timesince }} ago
       </td>
     </tr>
     {% endif %}
@@ -164,7 +164,7 @@
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "AddData" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
@@ -181,7 +181,7 @@
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "UpdateSelf" %}
     The following updates were performed on this {{ action.data.object_type }}:
     <div class="sled-dirty-fields">
@@ -189,7 +189,7 @@
     </div>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "Update" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
@@ -206,13 +206,13 @@
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "DeleteObject" %}
     The following {{ action.data.object_names|length }} {% singular_or_plural action.data.object_type action.data.object_names|length %}:
     <table>
       {% for name in action.data.object_names %}
       <tr>
-	<td>name</td>
+        <td>name</td>
       </tr>
       {% endfor %}
     </table>
@@ -225,13 +225,13 @@
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "RemovedFromGroup" %}
     The following {{ N }} {% singular_or_plural action.action_object.item_type N %}:
     <table>
       {% for user in action.action_object.myitems.all %}
       <tr>
-	<td><a href="{{ user.get_absolute_url }}" target="_blank">{{ user.username }}</a></td>
+        <td><a href="{{ user.get_absolute_url }}" target="_blank">{{ user.username }}</a></td>
       </tr>
       {% endfor %}
     </table>
@@ -242,13 +242,13 @@
     {% endif %}
     removed from the group at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "AddedToGroup" %}
     The following {{ N }} {% singular_or_plural action.action_object.item_type N %}:
     <table>
       {% for user in action.action_object.myitems.all %}
       <tr>
-	<td><a href="{{ user.get_absolute_url }}" target="_blank">{{ user.username }}</a></td>
+        <td><a href="{{ user.get_absolute_url }}" target="_blank">{{ user.username }}</a></td>
       </tr>
       {% endfor %}
     </table>
@@ -259,11 +259,11 @@
     {% endif %}
     added to the group at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "LeftGroup" %}
     NONE
 
-    
+
     {% elif action.verb == "RemovedFromCollection" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
@@ -278,7 +278,7 @@
     {% endif %}
     removed from the collection at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "AddedToCollection" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
@@ -293,7 +293,7 @@
     {% endif %}
     added to the collection at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "MadePublic" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
@@ -310,7 +310,7 @@
     Performed by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "MadePublicGroup" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
@@ -325,20 +325,20 @@
     {% endif %}
     made public at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "RevokeAccess" %}
     The group's access was revoked from the following {{ N }} private {% singular_or_plural action.action_object.item_type N %}:
     <table>
       {% for obj in action.action_object.myitems.all %}
       <tr>
-	<td>obj</td>
+        <td>obj</td>
       </tr>
       {% endfor %}
     </table>
     by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "GiveAccess" %}
     The group was granted access to
     {% if N == 1 %}
@@ -353,11 +353,11 @@
     by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 
-    
+
     {% elif action.verb == "CedeOwnershipSelf" %}
     NONE
 
-    
+
     {% elif action.verb == "CedeOwnership" %}
     {% if N == 1 %}
     <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
@@ -372,9 +372,9 @@
     <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
     to
     <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
-    at <em>{{ action.timestamp }}</em>    
+    at <em>{{ action.timestamp }}</em>
 
-    
+
     {% endif %}
   </div>
   {% endif %}
@@ -389,32 +389,32 @@
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 
 <script>
-  $('.sled-dirty-fields').each(function(index){
-      var fields = JSON.parse($(this).html());
-      var new_html = $('<table>').addClass('jb-fields-update-table');
-      const keys = Object.keys(fields);
-      keys.forEach((key, index) => {
-	  var tr = $('<tr>');
-	  tr.append('<td>'+key+':</td>');
-	  tr.append('<td>'+fields[key]['saved']+'</td>');
-	  tr.append('<td>&rarr;</td>');
-	  tr.append('<td>'+fields[key]['current']+'</td>');
-	  new_html.append(tr);
-      });
-      $(this).html(new_html);
+  $('.sled-dirty-fields').each(function(index) {
+    var fields = JSON.parse($(this).html());
+    var new_html = $('<table>').addClass('jb-fields-update-table');
+    const keys = Object.keys(fields);
+    keys.forEach((key, index) => {
+      var tr = $('<tr>');
+      tr.append('<td>' + key + ':</td>');
+      tr.append('<td>' + fields[key]['saved'] + '</td>');
+      tr.append('<td>&rarr;</td>');
+      tr.append('<td>' + fields[key]['current'] + '</td>');
+      new_html.append(tr);
+    });
+    $(this).html(new_html);
   });
-  
-  $('.sled-action-row').each(function(){
-      var mycontent = $( "#tooltip-"+String($(this).attr('data-index')) ).html().trim();
-      if( mycontent != 'NONE' ){
-	  $(this).tooltipster({
-	      position: 'left',
-	      theme: 'tooltipster-shadow',
-	      interactive: true,
-	      contentAsHTML: true,
-	      content: mycontent,
-	  });
-      }
+
+  $('.sled-action-row').each(function() {
+    var mycontent = $("#tooltip-" + String($(this).attr('data-index'))).html().trim();
+    if (mycontent != 'NONE') {
+      $(this).tooltipster({
+        position: 'left',
+        theme: 'tooltipster-shadow',
+        interactive: true,
+        contentAsHTML: true,
+        content: mycontent,
+      });
+    }
   });
 </script>
 
