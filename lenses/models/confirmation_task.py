@@ -222,11 +222,6 @@ class ConfirmationTask(SingleObject):
     def finalizeTask(self):
         pass
 
-    # To be overwritten by the proxy models
-    #@abc.abstractmethod
-    def getForm(self):
-        pass
-        
      
 class ConfirmationResponse(models.Model):
     confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
@@ -239,16 +234,8 @@ class DeleteObject(ConfirmationTask):
     class Meta:
         proxy = True
         
-    class myForm(forms.Form):
-        mychoices = [('yes','Yes'),('no','No')]
-        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
-        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
-
     def allowed_responses(self):
         return ['yes','no']
-
-    def getForm(self):
-        return self.myForm()
 
     def finalizeTask(self):
         # Here, only one recipient to get a response from
@@ -287,16 +274,8 @@ class CedeOwnership(ConfirmationTask):
     class Meta:
         proxy = True
 
-    class myForm(forms.Form):
-        mychoices = [('yes','Yes'),('no','No')]
-        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
-        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
-
     def allowed_responses(self):
         return ['yes','no']
-
-    def getForm(self):
-        return self.myForm()
 
     def finalizeTask(self,**kwargs):
         # Here, only one recipient to get a response from
@@ -387,16 +366,8 @@ class MakePrivate(ConfirmationTask):
     class Meta:
         proxy = True
         
-    class myForm(forms.Form):
-        mychoices = [('yes','Yes'),('no','No')]
-        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
-        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
-
     def allowed_responses(self):
         return ['yes','no']
-
-    def getForm(self):
-        return self.myForm()
 
     def finalizeTask(self):
         # Here, only one recipient to get a response from
@@ -441,14 +412,8 @@ class ResolveDuplicates(ConfirmationTask):
 
     responses_allowed = []
     
-    class myForm(forms.Form):
-        pass
-    
     def allowed_responses(self):
         return self.responses_allowed
-
-    def getForm(self):
-        return self.myForm()
 
     def finalizeTask(self):
         # First find the lenses that where selected as duplicates (to be rejected)
@@ -528,16 +493,8 @@ class AskPrivateAccess(ConfirmationTask):
     class Meta:
         proxy = True
         
-    class myForm(forms.Form):
-        mychoices = [('yes','Yes'),('no','No')]
-        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
-        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
-
     def allowed_responses(self):
         return ['yes','no']
-
-    def getForm(self):
-        return self.myForm()
 
     def finalizeTask(self):
         # Here, only one recipient to get a response from
@@ -560,16 +517,8 @@ class AskToJoinGroup(ConfirmationTask):
     class Meta:
         proxy = True
         
-    class myForm(forms.Form):
-        mychoices = [('yes','Yes'),('no','No')]
-        response = forms.ChoiceField(label='Response',widget=forms.RadioSelect,choices=mychoices)
-        response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back'}))
-
     def allowed_responses(self):
         return ['yes','no']
-
-    def getForm(self):
-        return self.myForm()
 
     def finalizeTask(self):
         # Here, only one recipient to get a response from
@@ -600,14 +549,8 @@ class AddData(ConfirmationTask):
 
     responses_allowed = []
     
-    class myForm(forms.Form):
-        pass
-    
     def allowed_responses(self):
         return self.responses_allowed
-
-    def getForm(self):
-        return self.myForm()
 
     def finalizeTask(self):
         obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()

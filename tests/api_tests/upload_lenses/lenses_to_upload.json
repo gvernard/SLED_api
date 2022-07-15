@@ -15,7 +15,7 @@
 	"lens_type": null,
 	"source_type": null
     },
-        {
+    {
 	"access_level": "PUB",
 	"ra": 52,
 	"dec": 52,
@@ -29,6 +29,6 @@
 	"mugshot": "that_lens.png",
 	"image_conf": null,
 	"lens_type": null,
-	"source_type": null
+	"source_type": null,
     }
 ]

@@ -83,8 +83,7 @@ class LensCedeOwnershipView(ModalIdsBaseMixin):
         heir = Users.objects.filter(id=heir.id)
         justification = form.cleaned_data['justification']
         self.request.user.cedeOwnership(lenses,heir,justification)
-        heir_dict = heir.values('first_name','last_name')[0]
-        message = "User <b>"+heir.username+"</b> has been notified about your request."
+        message = "User <b>"+heir[0].username+"</b> has been notified about your request."
         messages.add_message(self.request,messages.WARNING,message)
 
 

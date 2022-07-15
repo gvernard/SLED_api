@@ -1,17 +1,19 @@
 {% extends 'master_header.html' %}
+{% load static %}
+
 {% block content %}
+{% include "modal_container.html" %}
+
 <div class="jb-container">
-  <h1 class="jb-heading-1">My Tasks</h1>
 
   <div class="tasks_owned">
-    <h1 class="jb-heading-2">Tasks Initiated by Me</h1>
+    <h1 class="jb-heading-1">Tasks Initiated by Me</h1>
     <table>
       <thead>
         <tr>
-          <th>Task type</th>
-          <th>Owner</th>
-          <th>Created at</th>
           <th>Status</th>
+          <th>Task type</th>
+          <th>Created at</th>
           <th>Recipients</th>
           <th></th>
         </tr>
@@ -19,16 +21,19 @@
       <tbody>
         {% for task in owner %}
         <tr>
-          <td>{{ task.task_type }}</td>
-          <td>{{ task.owner }}</td>
-          <td>{{ task.created_at }}</td>
           <td>{{ task.status }}</td>
+          <td>{{ task.task_type }}</td>
+          <td>{{ task.created_at }}</td>
           <td>{{ task.recipients.all|join:", " }}</td>
-          <td><a href="{% url 'sled_tasks:tasks-detail-owner' task.id %}">go</a></td>
+	  <td>
+	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
+	      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+	    </button>
+	  </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="6">No tasks</td>
+          <td colspan="5">No tasks</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -37,31 +42,33 @@
 
 
   <div class="tasks_recipient">
-    <h1 class="jb-heading-2">Tasks Addressed to Me</h1>
+    <h1 class="jb-heading-1">Tasks Addressed to Me</h1>
     <table>
       <thead>
         <tr>
-          <th>Task type</th>
-          <th>Owner</th>
-          <th>Created at</th>
           <th>Status</th>
-          <th>Recipients</th>
+          <th>Task type</th>
+          <th>Created at</th>
+          <th>From</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         {% for task in recipient %}
         <tr>
-          <td>{{ task.task_type }}</td>
-          <td>{{ task.owner }}</td>
-          <td>{{ task.created_at }}</td>
           <td>{{ task.status }}</td>
-          <td>{{ task.recipients.all|join:", " }}</td>
-          <td><a href="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">go</a></td>
+          <td>{{ task.task_type }}</td>
+          <td>{{ task.created_at }}</td>
+          <td>{{ task.owner }}</td>
+          <td>
+	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}" alt="people">
+	    </button>
+	  </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="6">No tasks</td>
+          <td colspan="5">No tasks</td>
         </tr>
         {% endfor %}
       </tbody>
@@ -70,3 +77,21 @@
 
 </div>
 {% endblock content %}
+
+
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+      // Modals
+      $(".sled-modal").each(function() {
+          $(this).modalForm({
+              formURL: $(this).data("form-url"),
+              modalID: "#id-modal"
+          });
+      });
+  });
+</script>
+{% endblock extrascripts %}
