@@ -95,7 +95,7 @@ for i in range(len(ras)):
     elif access[i]=='PUB':
         lens.access_level = SingleObject.AccessLevel.PUBLIC
 
-    lens.mugshot_name = names[i]+'.png'
+    lens.mugshot.name = names[i]+'.png'
     lens.source_type = 'QUASAR'
     lens.lens_type = 'GALAXY'
     if names[i] in ['SDSSJ1004+4112', 'SDSSJ1029+2623', 'J1325+4806', 'SDSSJ2222+2745']:

@@ -102,3 +102,28 @@ def legacy_survey_layer_band_image_and_json(name, ra, dec, band, layer, jsonpath
     outfile.close()
 
     return json_outname
+
+def legacy_survey_colour_image(ra, dec, layer='ls-dr9', size=60):
+    """
+    parameter explanations
+    """
+    url = 'https://www.legacysurvey.org/viewer/cutout.jpg?ra='+str(ra)+'&dec='+str(dec)+'&layer='+layer+'&pixscale=0.262'+'&size='+str(size)
+
+    r = requests.get(url)
+    im = Image.open(BytesIO(r.content))
+    return im
+
+
+
+def savecolorim(ra, dec, arcsec_width, outpath):
+    size = int(arcsec_width/0.262)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    im = legacy_survey_colour_image(ra=ra, dec=dec, size=size)
+    ax.imshow(im, origin='lower', interpolation='nearest')
+    ax.set_xticks([])
+    ax.set_yticks([])
+    plt.savefig(outpath, bbox_inches='tight')
+    plt.close()
+
+

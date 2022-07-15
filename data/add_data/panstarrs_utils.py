@@ -423,3 +423,11 @@ def checklegal(table,release):
     if table not in tablelist:
         raise ValueError("Bad value for table (for {} must be one of {})".format(release, ", ".join(tablelist)))
 
+
+def savecolorim(ra, dec, arcsec_width, outpath):
+    size = arcsec_width/0.25
+    plt.figure()
+    im = getcolorim(ra=ra, dec=dec, size=size)
+    plt.imshow(im, origin='lower', interpolation='nearest')
+    plt.savefig(outpath, bbox_inches='tight')
+    plt.close()
