@@ -18,6 +18,11 @@
     <p>Description: {{ collection.description }}</p>
     <p>Access level: {{ collection.access_level }}</p>
 
+    <div class="jb-activity">
+      {% activity_stream 'target' collection %}
+      {% include "activity_container.html" with stream=stream %}
+    </div>
+
     {% if collection.owner == user %}
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
       <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
@@ -54,11 +59,6 @@
     {% endif %}
   </div>
 
-  <div class="jb-activity">
-    {% activity_stream 'target' collection %}
-    {% include "activity_container.html" with stream=stream %}
-  </div>
-
 
   {% if collection.access_level == 'PRI' %}
   {% if collection.owner == user %}
@@ -66,28 +66,28 @@
     <h1 class="jb-heading-2">Access to the Collection</h1>
     <table>
       <tbody>
-	<tr>
-	  <td>Users:</td>
-	  <td>
-	    {% for user in collection.getUsersWithAccessNoOwner %}
-	    <a href="{{user.get_absolute_url}}">{{user}}</a>
-	    {% if not forloop.last %}
-	    ,
-	    {% endif %}
-	    {% endfor %}
-	  </td>
-	</tr>
-	<tr>
-	  <td>Groups:</td>
-	  <td>
-	    {% for obj in collection.getGroupsWithAccessNoOwner %}
-	    <a href="{% url 'sled_groups:group-detail' obj.id %}">{{obj}}</a>
-	    {% if not forloop.last %}
-	    ,
-	    {% endif %}
-	    {% endfor %}
-	  </td>
-	</tr>
+        <tr>
+          <td>Users:</td>
+          <td>
+            {% for user in collection.getUsersWithAccessNoOwner %}
+            <a href="{{user.get_absolute_url}}">{{user}}</a>
+            {% if not forloop.last %}
+            ,
+            {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        <tr>
+          <td>Groups:</td>
+          <td>
+            {% for obj in collection.getGroupsWithAccessNoOwner %}
+            <a href="{% url 'sled_groups:group-detail' obj.id %}">{{obj}}</a>
+            {% if not forloop.last %}
+            ,
+            {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>

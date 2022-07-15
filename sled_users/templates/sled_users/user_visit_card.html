@@ -11,36 +11,46 @@
   </div>
 
   <div>
-    <table class="dum">
-      <tbody>
-        <tr>
-          <td>Affiliation:</td>
-          <td>{{ user.affiliation }}</td>
-	</tr>
-	<tr>
-          <td>Email:</td>
-          <td>{{ user.email }}</td>
-	</tr>
-	<tr>
-          <td>Homepage:</td>
-          <td><a href="{{ user.homepage }}">{{ user.homepage }}</a></td>
-	</tr>
-	<tr>
-	  <td>Information:</td>
-	  <td>
-	    <div class="user-info" style="width:80%;border:1px solid red">
-	      {% if user.info|length > 0 %}
-	      {{ user.info }}
-	      {% else %}
-	      -
-	      {% endif %}
-	    </div>
-	  </td>
-	</tr>
-      </tbody>
-    </table>
+    <h1 class="jb-heading-2">
+      User Details
+    </h1>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Affiliation</th>
+            <th>Email</th>
+            <th>Homepage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.affiliation }}</td>
+            <td>{{ user.email }}</td>
+            <td><a href="{{ user.homepage }}">{{ user.homepage }}</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <thead>
+          <tr>
+            <th>Info</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ user.info }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+
   </div>
-  
 </div>
- 
+
 {% endblock content %}

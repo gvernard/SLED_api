@@ -8,11 +8,11 @@ Cede ownership?
 {% block content %}
 <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div>
+<div class="jb-modal-field">
   {{ form.heir }}
 </div>
 
-<div>
+<div class="jb-modal-field">
   <ul>
     {% for lens in lenses %}
     <li>{{ lens }}</li>
@@ -20,7 +20,7 @@ Cede ownership?
   </ul>
 </div>
 
-<div>
+<div class="jb-modal-field">
   {{ form.justification }}
 </div>
 

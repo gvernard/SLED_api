@@ -5,7 +5,7 @@ Delete lenses?
 {% endblock title %}
 
 {% block content %}
-<div>
+<div class="jb-modal-field">
   <ul>
     {% for lens in lenses %}
     <li>{{ lens }}</li>
@@ -13,7 +13,7 @@ Delete lenses?
   </ul>
 </div>
 
-<div>
+<div class="jb-modal-field">
   {{ form.justification }}
 </div>
 

@@ -20,6 +20,14 @@
     <p> Access to private objects: </p>
   </div>
 
+  <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
+  {% if user == group.owner or request.user|has_group:group.name %}
+  <div class="jb-activity">
+    {% activity_stream 'target' group %}
+    {% include "activity_container.html" with stream=stream %}
+  </div>
+
+
 
   <!-- Div with different actions depending on if the user is owner, member, or neither -->
   <div>
@@ -64,13 +72,6 @@
 
 
 
-
-  <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
-  {% if user == group.owner or request.user|has_group:group.name %}
-  <div class="jb-activity">
-    {% activity_stream 'target' group %}
-    {% include "activity_container.html" with stream=stream %}
-  </div>
 
 
   <div>
