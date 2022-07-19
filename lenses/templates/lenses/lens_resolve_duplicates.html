@@ -28,7 +28,6 @@
         </thead>
         <tbody>
           {% for new_lens,form,existing in new_form_existing %}
-
           <tr class=" sled-main-row sled-duplicate-required">
             <td>
               {% include 'lenses/lens_visit_card.html' with lens=new_lens %}
@@ -42,7 +41,7 @@
             </td>
           </tr>
           <tr>
-            <td>
+            <td colspan="2">
               {% if form %}
               {{ form.insert.errors }}
               {{ form.insert.label_tag }}
@@ -68,20 +67,18 @@
 
 {% block extrascripts %}
 <script type="text/javascript">
-  $(document).ready(function() {
-
-
-    $('.sled-dupl-yes-no').on('click', function() {
-      if ($(this).is(':checked')) {
-        $(this).closest('.sled-main-row').removeClass("sled-duplicate-required");
-        if ($(this).val() == 'yes') {
-          $(this).closest('.sled-main-row').removeClass("sled-duplicate-no").addClass("sled-duplicate-yes");
-        } else {
-          $(this).closest('.sled-main-row').removeClass("sled-duplicate-yes").addClass("sled-duplicate-no");
-        }
-      }
-    })
-
+  $(document).ready(function() { 
+      $('.sled-dupl-yes-no').on('click', function() {
+	  if ($(this).is(':checked')) {
+	      var target = $(this).parents('tr').siblings('.sled-main-row');
+              target.removeClass("sled-duplicate-required");
+              if ($(this).val() == 'yes') {
+		  target.removeClass("sled-duplicate-no").addClass("sled-duplicate-yes");
+              } else {
+		  target.removeClass("sled-duplicate-yes").addClass("sled-duplicate-no");
+              }
+	  }
+      })
   });
 </script>
 {% endblock extrascripts %}
