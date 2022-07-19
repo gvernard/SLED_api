@@ -7,14 +7,14 @@ Update your information
 
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
+<div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
   {% for error in form.non_field_errors %}
   {{ error }}
   {% endfor %}
 </div>
 
 {% for field in form %}
-<div>
+<div class="jb-modal-field">
   {{ field }}
 </div>
 {% endfor %}
@@ -22,7 +22,7 @@ Update your information
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary jb-submit-button-1">
+<button type="submit" class="jb-submit-button-1">
   Update
 </button>
 {% endblock action_button %}

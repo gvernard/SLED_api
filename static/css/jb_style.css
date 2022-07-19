@@ -381,7 +381,7 @@
   .jb-activity {
     color: #ACACAC !important;
     font-size: 12px;
-    padding-top: 20px;
+    padding-top: 10px;
   }
 
   .jb-activity td {
@@ -454,7 +454,7 @@
 
   .jb-modal-field {
     width: 100%;
-    padding-top: 10px;
+    padding-top: 0px;
     padding-bottom: 10px;
     font-family: basic-sans, sans-serif !important;
   }

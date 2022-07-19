@@ -1,9 +1,11 @@
 {% extends 'master_header.html' %}
 {% load static %}
 
-
 {% block content %}
+
+
 <div class="jb-container">
+
   <h1 class="jb-heading-1">Duplicates</h1>
 
 
@@ -16,11 +18,8 @@
       <table class="jb-table-no-lines">
         <thead>
           <tr>
-            <th>
+            <th style="width: 50%">
               Lenses that require checking
-            </th>
-            <th>
-              &nbsp;
             </th>
             <th>
               Existing lenses
@@ -30,17 +29,9 @@
         <tbody>
           {% for new_lens,form,existing in new_form_existing %}
 
-          <tr class="sled-main-row sled-duplicate-required">
+          <tr class=" sled-main-row sled-duplicate-required">
             <td>
               {% include 'lenses/lens_visit_card.html' with lens=new_lens %}
-            </td>
-            <td>
-              {% if form %}
-              {{ form.insert.errors }}
-              {{ form.insert.label_tag }}
-              {{ form.insert }}
-              {{ form.index }}
-              {% endif %}
             </td>
             <td>
               {% for lens in existing %}
@@ -50,13 +41,23 @@
               {% endfor %}
             </td>
           </tr>
+          <tr>
+            <td>
+              {% if form %}
+              {{ form.insert.errors }}
+              {{ form.insert.label_tag }}
+              {{ form.insert }}
+              {{ form.index }}
+              {% endif %}
+            </td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
 
     <div>
-      <label>Resolve duplicates and submit?</label>
+      <label>Resolve duplicates and submit? </label>
       <button type="submit" class="jb-submit-button-1">Submit</button>
     </div>
 
