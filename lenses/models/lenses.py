@@ -169,6 +169,11 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     name = models.CharField(blank=True,
                             max_length=100,
                             help_text="An identification for the lens, e.g. the usual phone numbers.")
+
+    alt_name = models.CharField(max_length=200,
+                                blank=True,
+                                null=True,
+                                help_text="A list of comma-separated strings for the alternative names of the systems")
     # alt_name = models.CharField(max_length=100,
     #                             help_text="A colloquial name with which the lens is know, e.g. 'The Einstein cross', etc.")  # This could become a comma separated list of names.
     #discovered_at = models.DateField(help_text="The date when the lens was discovered, or the discovery paper published.")
@@ -180,6 +185,20 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                            blank=True,
                                            verbose_name="Contaminant",
                                            help_text="Set to true if the object has been confirmed as NOT a lens by a publication.")
+    flag_candidate = models.BooleanField(default=False,
+                                           blank=True,
+                                           verbose_name="Candidate",
+                                           help_text="Set to true if the object is a candidate.")
+
+    candidate_score = models.DecimalField(blank=True,
+                             null=True,
+                             max_digits=7,
+                             decimal_places=4,
+                             verbose_name="Candidate score",
+                             help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
+                             validators=[MinValueValidator(0.0,"Score must be positive."),
+                                         MaxValueValidator(3.,"Score must be less than or equal to 3.")])
+
     image_sep = models.DecimalField(blank=True,
                                     null=True,
                                     max_digits=4,
@@ -196,6 +215,13 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                    help_text="The redshift of the source, if known.",
                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
+
+    z_source_secure = models.BooleanField(default=False,
+                                           blank=True,
+                                           verbose_name="Secure source redshift flag",
+                                           help_text="Set to true if the lens redshift is definite for (one of) the source(s).")
+
+
     z_lens = models.DecimalField(blank=True,
                                  null=True,
                                  max_digits=4,
@@ -204,6 +230,12 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                  help_text="The redshift of the lens, if known.",
                                  validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                              MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
+
+    z_lens_secure = models.BooleanField(default=False,
+                                           blank=True,
+                                           verbose_name="Secure lens redshift flag",
+                                           help_text="Set to true if the lens redshift is definite for (one of) the lensing galaxy/galaxies, and not possibly due to another absorption system.")
+
     info = models.TextField(blank=True,
                             default='',
                             help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
@@ -258,6 +290,25 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                    blank=True,
                                    null=True,
                                    choices=SourceTypeChoices)
+
+    ContaminantTypeChoices = (
+        ('PROJECTED QUASARS', 'Projected quasars'),
+        ('DUAL QUASAR', 'Dual quasar'),
+        ('PROJECTED QUASAR+STAR', 'Projected quasar + star'),
+        ('STAR+STAR', 'Star + star'),
+        ('PROJECTED GALAXIES', 'Projected Galaxies'),
+        ('PROJECTED GALAXY + QUASAR', 'Projected galaxy + quasar'),
+        ('RING GALAXY', 'Ring Galaxy')
+    )
+
+    contaminant_type = models.CharField(max_length=100,
+                                   blank=True,
+                                   null=True,
+                                   choices=ContaminantTypeChoices)
+
+
+
+
     FIELDS_TO_CHECK = ['ra','dec','name','flag_confirmed','flag_contaminant','image_sep','z_lens','z_source','image_conf','info','n_img','lens_type','source_type']
 
     
