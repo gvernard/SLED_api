@@ -17,7 +17,7 @@ from bootstrap_modal_forms.generic import (
 )
 
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper
 
 from .forms import UserUpdateForm
 
@@ -58,6 +58,9 @@ class UserProfileView(TemplateView):
         N_groups = groups.count()
         groups = groups[:5]
 
+        # Get user papers
+        papers = Paper.accessible_objects.owned(user)
+        N_papers = papers.count()
         
         # get pending confirmation tasks
         tasks = list(ConfirmationTask.custom_manager.pending_for_user(user)[:5])
@@ -126,6 +129,8 @@ class UserProfileView(TemplateView):
         context={'user':user,
                  'groups':groups,
                  'N_groups': N_groups,
+                 'papers':papers,
+                 'N_papers': N_papers,
                  'queries': queries,
                  'N_queries': N_queries,
                  'pending_conf':zipped,

@@ -108,7 +108,27 @@
     {% endfor %}
   </table>
 
+  <div>
+    <h1 class="jb-heading-2">My Papers ({{N_papers}})</h1>
+    <div>
+      {% if N_papers %}
+      <table>
+        <tbody>
+          {% for paper in papers %}
+          <tr>
+            <td><a href="{% url 'sled_papers:paper-detail' pk=paper.pk %}">{{paper.cite_as}}</td>
+            <td>{{paper.title}}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p>No papers to display</p>
+      {% endif %}
+    </div>
+  </div>
 
+  
   <div>
     <h1 class="jb-heading-2">My Groups ({{N_groups}})</h1>
     <div>

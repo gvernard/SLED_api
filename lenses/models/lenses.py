@@ -22,7 +22,7 @@ class ProximateLensManager(models.Manager):
     Attributes:
         check_radius (`float`): A radius in arcsec, representing an area around each existing lens.
     """
-    check_radius = 16 # in arcsec
+    check_radius = 5 # in arcsec
 
     
     def get_DB_neighbours(self,lens):

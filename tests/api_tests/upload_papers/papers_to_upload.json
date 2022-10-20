@@ -1,0 +1,52 @@
+[
+    {
+	"bibcode": "2022MNRAS.516.1347V",
+	"lenses": [
+	    {
+		"ra": 2.8344,
+		"dec": -8.7643,
+		"discovery": true,
+		"classification": false,
+		"redshift": false,
+		"model": false
+	    },
+	    {
+		"ra": 3.3481,
+		"dec": 51.3183,
+		"discovery": false,
+		"classification": false,
+		"redshift": true,
+		"model": true
+	    }
+	]
+    },
+    {
+	"bibcode": "2022arXiv220607714L",
+	"lenses": [
+	    {
+		"ra": 1,
+		"dec": 1,
+		"discovery": true,
+		"classification": false,
+		"redshift": false,
+		"model": false
+	    },
+	    {
+		"ra": 3.3481,
+		"dec": 51.3183,
+		"discovery": false,
+		"classification": false,
+		"redshift": true,
+		"model": true
+	    },
+	    {
+		"ra": 6,
+		"dec": 6,
+		"discovery": false,
+		"classification": false,
+		"redshift": false,
+		"model": true
+	    }
+	]
+    }
+]

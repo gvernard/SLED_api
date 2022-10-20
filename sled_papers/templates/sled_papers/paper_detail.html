@@ -1,0 +1,51 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+
+
+{% block content %}
+{% include "modal_container.html" %}
+
+<div class="jb-container">
+  <div>
+    <p> {{ paper.title }} </p>
+    <p> <a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a> </p>
+    <p> Owner: {{ paper.owner }} </p>
+  </div>
+  
+  {% include "lenses/lens_list_paper.html" with pairs=pairs  %}
+
+  <div>
+    {% if user == paper.owner %}
+    <button type="button" id="delete-paper" class="jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-delete' paper.pk %}">
+      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      Delete
+    </button>
+    {% endif %}
+  </div>
+
+  
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    // Modals
+    $('#delete-paper').modalForm({
+      formURL: $('#delete-paper').data("form-url"),
+      modalID: "#id-modal",
+      isDeleteForm: true
+    });
+
+  });
+</script>
+{% endblock extrascripts %}

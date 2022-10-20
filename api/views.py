@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q,F
 from django.conf import settings
 from django.db import connection
 from django.core import serializers
@@ -9,8 +9,8 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
-from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection
+from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper
 
 from guardian.shortcuts import assign_perm
 from actstream import action
@@ -102,8 +102,34 @@ class UploadData(APIView):
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
+        
+class UploadPapers(APIView):
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self,request):
+        serializer = PaperUploadSerializer(data=request.data,many=True)
+        if serializer.is_valid():
+            validated_data = serializer.validated_data
+            papers = validated_data["papers"]
+            lenses_pp = validated_data["lenses_per_paper"]
+            flags_pp = validated_data["flags_per_paper"]
+            
+            for i,paper in enumerate(papers):
+                paper["owner"] = request.user
+                paper["access_level"] = "PUB"
+                paper_obj = Paper.objects.create(**paper)
 
-
+                for j in range(0,len(lenses_pp[i])):
+                    paper_obj.lenses_in_paper.add(lenses_pp[i][j],through_defaults=flags_pp[i][j])
+                print(paper_obj.pk)
+                
+            response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
+            return Response(response)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+ 
+        
 class UploadLenses(APIView):
     parser_classes = [MultiPartParser]
     authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]

@@ -32,11 +32,11 @@ class Collection(SingleObject,DirtyFieldsMixin):
         myitems (): A generic many-to-many field
     """
     name = models.CharField(max_length=30,
-                            help_text="A name for your collection")
+                            help_text="A name for your collection.")
     description = models.CharField(max_length=200,
                                    null=True,
                                    blank=True,
-                                   help_text="A description for your collection"
+                                   help_text="A description for your collection."
                                    )
     myitems = GM2MField('Lenses')
     ItemTypeChoices = (

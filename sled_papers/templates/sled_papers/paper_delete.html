@@ -1,0 +1,20 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Delete paper
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container">
+  <div>
+    Are you sure you want to delete the paper <strong>{{ paper.cite_as }}</strong>?
+  </div>
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Delete</button>
+{% endblock action_button %}
