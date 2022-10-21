@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, DetailView, ListView
-from lenses.models import Paper
+from lenses.models import Lenses, Paper
 from django.db.models import F, Q
 from django.urls import reverse_lazy
 import datetime
@@ -81,7 +81,22 @@ class PaperDetailView(DetailView):
         mylabels = [ ','.join(x) for x in labels ]
 
         lenses = self.object.lenses_in_paper.all()
+        
+        lenses2 = Lenses.accessible_objects.in_ids(self.request.user,[lens.id for lens in lenses])
+        if len(lenses2) != len(lenses):
+            key_val = {}
+            for i,lens in enumerate(lenses):
+                key_val[lens.id] = i
+            
+            new_labels = []
+            new_lenses = []
+            for lens in lenses2:
+                new_lenses.append( lens )
+                new_labels.append( mylabels[key_val[lens.id]] )
+            lenses = new_lenses
+            mylabels = new_labels
 
+            
         context['pairs'] = zip(lenses,mylabels)
         context['Nlenses'] = len(lenses)
         return context
