@@ -170,7 +170,7 @@ class LensesUploadSerializer(serializers.ModelSerializer):
 ################################################################################
 class PaperUploadListSerializer(serializers.ListSerializer):
     def validate(self,papers):
-
+        
         bibcodes = [paper['bibcode'] for paper in papers]
 
         ## Check for duplicate bibcodes within the uploaded data
@@ -236,29 +236,32 @@ class PaperUploadListSerializer(serializers.ListSerializer):
         ## If not all lenses exist, return paper and RA,DEC that do not exist.
         lenses_per_paper = []
         for paper in papers:
-            dum_lenses = []
+            N_lenses = len(paper['lenses']) 
+            ras  = []
+            decs = []
             for lens in paper['lenses']:
-                dum_lens = Lenses(ra=lens['ra'],dec=lens['dec'])
-                dum_lenses.append( dum_lens )
-
-            indices,neis = Lenses.proximate.get_DB_neighbours_many(dum_lenses)
-            if len(indices) != len(dum_lenses):
+                ras.append(lens['ra'])
+                decs.append(lens['dec'])
+            user = self.context['request'].user
+            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=3) # This call includes PRI lenses visible to the user
+            
+            if len(indices) != N_lenses:
                 setA = set(indices)
-                setB = set(range(0,len(dum_lenses)))
+                setB = set(range(0,N_lenses))
                 missing = setB - setA
                 labels = []
                 for k in missing:
-                    labels.append( '(' + str(dum_lenses[k].ra) + ',' + str(dum_lenses[k].dec) + ')' )
+                    labels.append( '(' + str(ras[k]) + ',' + str(decs[k]) + ')' )
                 raise serializers.ValidationError('These RA,DEC do NOT correspond to any lens in the database:\n '+'\n'.join(labels))
             else:
                 lenses = list( neis )
-                if len(lenses) != len(dum_lenses):
+                if len(lenses) != N_lenses:
                     # This means that one (or more) lens(es) from dum_lenses matched to more than one lens from the DB
                     # It is a duplicate problem...
                     labels = []
                     for k in range(0,len(neis)):
                         if len(neis[k]) > 1:
-                            labels.append( '(' + str(dum_lenses[k].ra) + ',' + str(dum_lenses[k].dec) + ')' )
+                            labels.append( '(' + str(ras[k]) + ',' + str(decs[k]) + ')' )
                     raise serializers.ValidationError('Contact the admins: potential duplicates in the database for: ' + '\n'.join(labels))
                 else:
                     # Queryset evaluation happens here

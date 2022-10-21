@@ -4,7 +4,50 @@
 
 
 {% block content %}
-Paper query page
+<div class="jb-container">
+  <h1 class="jb-heading-1">Search Papers</h1>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
+      {% for error in form.non_field_errors %}
+      {{ error }}
+      {% endfor %}
+    </div>
+    <p>
+      {{ form.search_term }}
+      {{ form.year_min }}
+      &leq; Pub. year &leq;
+      {{ form.year_max }}
+      <input type="submit" value="Search">
+    </p>
+  </form>
+  {% if papers_search %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+        <th>Author(s)</th>
+        <th>Title</th>
+        <th>Created at</th>
+        <th>Created by</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for paper in papers_search %}
+      <tr>
+        <td><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
+        <td><i>"{{ paper.title }}"</i></td>
+        <td>{{ paper.created_at }}</td>
+        <td><a href="{{ paper.owner.get_absolute_url }}">{{ paper.owner }}</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No papers to show
+  </p>
+  {% endif %}
+</div>
 {% endblock content %}
 
 

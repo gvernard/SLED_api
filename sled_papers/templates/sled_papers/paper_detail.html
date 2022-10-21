@@ -7,12 +7,14 @@
 {% include "modal_container.html" %}
 
 <div class="jb-container">
+
   <div>
-    <p> {{ paper.title }} </p>
-    <p> <a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a> </p>
-    <p> Owner: {{ paper.owner }} </p>
+    <p class="jb-heading-paper-title"> "{{ paper.title }}" </p>
+    <p style="font-size:30px;"> <a href="{{ paper.get_ads_url }}">{{ paper.cite_as }}</a> </p>
+    <p> Created at {{ paper.created_at }} by <a href="{{ paper.owner.get_absolute_url }}">{{paper.owner}}</a></p>
+    <p> Contains the following <b>{{ Nlenses }}</b> lenses: </p>
   </div>
-  
+
   {% include "lenses/lens_list_paper.html" with pairs=pairs  %}
 
   <div>

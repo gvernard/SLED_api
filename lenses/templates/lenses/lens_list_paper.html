@@ -11,7 +11,7 @@
       {% for lens,label in pairs %}
       <tr>
         <td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
-	<td>{{ lens.name }}</td>
+	<td><a href="{{ lens.get_absolute_url }}">{{ lens.name }}</td>
 	<td>{{ label }}</td>
       </tr>
       {% endfor %}

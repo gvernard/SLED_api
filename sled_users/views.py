@@ -61,7 +61,8 @@ class UserProfileView(TemplateView):
         # Get user papers
         papers = Paper.accessible_objects.owned(user)
         N_papers = papers.count()
-        
+        papers = papers[:5]
+
         # get pending confirmation tasks
         tasks = list(ConfirmationTask.custom_manager.pending_for_user(user)[:5])
         recipients = []

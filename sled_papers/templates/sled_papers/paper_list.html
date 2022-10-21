@@ -1,0 +1,44 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+{% include "modal_container.html" %}
+
+<div class="jb-container">
+  <h1 class="jb-heading-1">Papers that I added to SLED</h1>
+  {% if papers %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+	<th>Author</th>
+	<th>Title</th>
+	<th>Added at</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for paper in papers %}
+      <tr>
+	<td><a href="{% url 'sled_papers:paper-detail' paper.pk %}">{{paper.cite_as}}</td>
+	<td><i>"{{paper.title}}"</i></td>
+	<td>{{paper.created_at}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No papers to show
+  </p>
+  {% endif %}
+  
+  <a href="">How to add a paper</a>
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+{% endblock extrascripts %}

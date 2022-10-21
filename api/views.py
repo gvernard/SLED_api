@@ -108,7 +108,8 @@ class UploadPapers(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        serializer = PaperUploadSerializer(data=request.data,many=True)
+        Paper.objects.all().delete()
+        serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
         if serializer.is_valid():
             validated_data = serializer.validated_data
             papers = validated_data["papers"]

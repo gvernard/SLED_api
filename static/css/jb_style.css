@@ -4,7 +4,7 @@
 
   .jb-container {
     margin: auto;
-    max-width: 940px;
+    max-width: 1040px;
     font-family: basic-sans, sans-serif;
     padding-bottom: 50px;
   }
@@ -35,7 +35,7 @@
 
   .jb-navbar-container {
     margin: auto;
-    max-width: 940px;
+    max-width: 1040px;
     padding-top: 20px;
     padding-bottom: 20px;
   }
@@ -82,6 +82,16 @@
     line-height: 50px;
     font-weight: 500;
     padding-top: 20px;
+  }
+
+  .jb-heading-paper-title {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 30px;
+    font-weight: 500;
+    font-style: italic;
+    padding-top: 75px;
   }
 
   .jb-heading-3 {

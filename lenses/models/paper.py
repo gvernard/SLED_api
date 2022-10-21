@@ -76,6 +76,9 @@ class Paper(SingleObject):
         return '%s' % (self.cite_as)
 
     def get_absolute_url(self):
+        return reverse('sled_papers:paper-detail',kwargs={'pk':self.id})
+
+    def get_ads_url(self):
         return "https://ui.adsabs.harvard.edu/abs/" + self.bibcode
    
     

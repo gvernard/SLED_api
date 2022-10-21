@@ -76,6 +76,7 @@
         <!-- <a href="{% if '/sled_groups/' in url_base %}selected{% endif %}"></a> -->
         <a href="{% url 'sled_groups:group-list' %}">Groups</a>
         <a href="{% url 'sled_collections:collections-list' %}">Collections</a>
+        <a href="{% url 'sled_papers:paper-query' %}">Papers</a>
         {% if user.is_authenticated %}
         <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>
         <a href="{% url 'logout'%}" class="jb-navbar-login"><span class="text-span">Logout</span></a>

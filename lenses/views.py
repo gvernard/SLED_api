@@ -5,7 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 from django.db import connection
-from django.db.models import CharField
+from django.db.models import F,CharField
 from django.utils import timezone
 from django.apps import apps
 from django.core.paginator import Paginator
@@ -288,7 +288,6 @@ class LensDetailView(DetailView):
                 instrument = 'Pan-STARRS'
             display_images[instrument] = which_imaging
 
-
         instruments_catalogue = allcataloguedata.values_list('instrument__name', flat=True).distinct()
         catalogue_entries = {}
         for instrument in instruments_catalogue:
@@ -303,6 +302,29 @@ class LensDetailView(DetailView):
 
             catalogue_entries[instrument] = alldata
 
+
+        # All papers are public, no need for the accessible_objects manager
+        allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
+                                                    model=F('paperlensconnection__model'),
+                                                    classification=F('paperlensconnection__classification'),
+                                                    redshift=F('paperlensconnection__redshift')
+                                                    )
+        labels = []
+        for paper in allpapers:
+            flags = []
+            if paper.discovery:
+                flags.append('discovery')
+            if paper.redshift:
+                flags.append('redshift')
+            if paper.model:
+                flags.append('model')
+            if paper.classification:
+                flags.append('classification')
+            labels.append(flags)
+        paper_labels = [ ','.join(x) for x in labels ]
+
+            
+        context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
         context['display_catalogues'] = catalogue_entries

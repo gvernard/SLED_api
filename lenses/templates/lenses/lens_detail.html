@@ -13,10 +13,7 @@
           <h1 class="jb-heading-1">{{lens.name}}</h1>
         </div>
         <p>
-          Owner: {{ lens.owner }}
-        </p>
-        <p>
-          Created at: {{ lens.created_at }}
+          Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
         </p>
         <div class="jb-activity">
           {% activity_stream 'target' lens %}
@@ -38,7 +35,6 @@
         <th>Image separation</th>
         <th>Lens redshift</th>
         <th>Source redshift </th>
-        <th>Lens owner </th>
       </tr>
       <tr>
         <td>{{lens.ra|floatformat:5}}</td>
@@ -46,12 +42,24 @@
         <td>{{lens.image_sep|floatformat:5}}</td>
         <td>{{lens.z_lens|floatformat:4}}</td>
         <td>{{lens.z_source|floatformat:4}}</td>
-        <td>{{lens.owner}}</td>
       </tr>
     </table>
   </div>
 
-
+  <div>
+    <h1 class="jb-heading-2">Papers</h1>
+    <table>
+      {% for paper,label in all_papers %}
+      <tr>
+	<td>{{ label }}</td>
+	<td><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
+	<td><i>"{{ paper.title }}"</i></td>
+      </tr>
+      {% empty %}
+      No papers associated with this lens in the database
+      {% endfor %}
+    </table>
+  </div>
 
   <div>
     <h1 class="jb-heading-2">Imaging Data</h1>

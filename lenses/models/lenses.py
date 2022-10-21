@@ -97,7 +97,6 @@ class ProximateLensManager(models.Manager):
         """
         if not radius:
             radius = self.check_radius
-        print(user)
         qset = Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
         if qset.count() > 0:
             return qset
