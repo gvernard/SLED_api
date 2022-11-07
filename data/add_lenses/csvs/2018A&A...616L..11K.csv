@@ -1,0 +1,4 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+GRAL1131-4419,172.75,-44.3333,PUB,,2018A&A...616L..11K,True ,,,,,,,QUASAR,GALAXY,4.0,FOLD,1.7,True,,,,,,
+GRAL1226-4542,186.6188,-45.7029,PUB,,2018A&A...616L..11K,True ,,,,,,,QUASAR,GALAXY,4.0,,,False,,,,True,QUASAR+STAR,Not a lens based on Gaia proper motion of one object
+GRAL2038-4008,309.5113,-40.1371,PUB,,2018A&A...616L..11K,True ,,,,,,,QUASAR,GALAXY,4.0,,2.87,True,,,,,,Also discovered by Agnello et al. 2018

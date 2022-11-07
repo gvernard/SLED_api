@@ -296,37 +296,89 @@ class LensQueryForm(forms.ModelForm):
                                     validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                 MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     
-    flag_confirmed     = forms.BooleanField(required=False,
+    flag_confirmed     = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                            help_text="Select only confirmed lenses (confirmed field set to True).")
-    flag_unconfirmed   = forms.BooleanField(required=False,
+                                            help_text="Select only confirmed lenses (confirmed field set to True).", initial=None)
+    flag_unconfirmed   = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                            help_text="Select only un-confirmed lenses (confirmed field set to False).")
-    flag_contaminant   = forms.BooleanField(required=False,
+                                            help_text="Select only un-confirmed lenses (confirmed field set to False).", initial='1')
+    flag_contaminant   = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                            help_text="Select only confirmed contaminants (contaminant field set to True).")
-    flag_uncontaminant = forms.BooleanField(required=False,
+                                            help_text="Select only confirmed contaminants (contaminant field set to True).", initial=None)
+    flag_uncontaminant = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                            help_text="Select only unconfirmed contaminants (contaminant field set to False).")
+                                            help_text="Select only unconfirmed contaminants (contaminant field set to False).", initial='1')
+
+    LensTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('SPIRAL','Spiral galaxy'),
+        ('GALAXY PAIR','Galaxy pair'),
+        ('GROUP','Group of galaxies'),
+        ('CLUSTER','Galaxy cluster'),
+        ('CLUSTER MEMBER','Galaxy cluster member'),
+        ('QUASAR','Quasar')
+    )
+    lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, widget=forms.SelectMultiple(), required=False)
+
+    SourceTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('QUASAR','Quasar'),
+        ('DLA','DLA'),
+        ('PDLA','PDLA'),
+        ('RADIO-LOUD','Radio-loud'),
+        ('BAL QUASAR','BAL Quasar'),
+        ('ULIRG','ULIRG'),
+        ('BL Lac','BL Lac'),
+        ('LOBAL QUASAR','LoBAL Quasar'),
+        ('FELOBAL QUASAR','FeLoBAL Quasar'),
+        ('EXTREME RED OBJECT','Extreme Red Object'),
+        ('RED QUASAR','Red Quasar'),
+        ('GW','Gravitational Wave'),
+        ('FRB','Fast Radio Burst'),
+        ('GRB','Gamma Ray Burst'),
+        ('SN','Supernova')
+    )
+    source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, widget=forms.SelectMultiple(), required=False)
+    
+
+
+    ImageConfChoices = (
+        ('LONG-AXIS CUSP','Long-axis Cusp'),
+        ('SHORT-AXIS CUSP','Short-axis Cusp'),
+        ('NAKED CUSP','Naked Cusp'),
+        ('CUSP','Cusp'),
+        ('CENTRAL IMAGE','Central Image'),
+        ('FOLD','Fold'),
+        ('CROSS','Cross'),
+        ('DOUBLE','Double'),
+        ('QUAD','Quad'),
+        ('RING','Ring'),
+        ('ARC','Arc')
+    )
+    image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, widget=forms.SelectMultiple(), required=False)
+    
+
     page = forms.IntegerField(required=False,widget=forms.HiddenInput())
     
     class Meta:
         model = Lenses
-        fields = ['image_conf','lens_type','source_type']
-        widgets = {
-            'lens_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
-            'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
-            'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
-        }
+        fields = []
 
     def clean(self):
-        if self.cleaned_data.get('flag_contaminant') and (self.cleaned_data.get('image_conf') or self.cleaned_data.get('lens_type') or self.cleaned_data.get('source_type')): # contaminant_check
-            raise ValidationError('The query cannot be restricted to contaminants and have a lens or source type, or an image configuration.')
+        #C.L.: I think we want this sometimes!
+        #if self.cleaned_data.get('flag_contaminant') and (self.cleaned_data.get('image_conf') or self.cleaned_data.get('lens_type') or self.cleaned_data.get('source_type')): # contaminant_check
+        #    raise ValidationError('The query cannot be restricted to contaminants and have a lens or source type, or an image configuration.')
 
-        if self.cleaned_data.get('ra_min') and self.cleaned_data.get('ra_max'):
-            if float(self.cleaned_data.get('ra_min')) > float(self.cleaned_data.get('ra_max')):
-                raise ValidationError('The maximum ra is lower than the minimum.')
-            
+        #C.L.: We want this sometimes!
+        #if self.cleaned_data.get('ra_min') and self.cleaned_data.get('ra_max'):
+        #    if float(self.cleaned_data.get('ra_min')) > float(self.cleaned_data.get('ra_max')):
+        #        raise ValidationError('The maximum ra is lower than the minimum.')
+        for flag in ['flag_confirmed', 'flag_unconfirmed', 'flag_contaminant', 'flag_uncontaminant']:
+            if not self.cleaned_data.get(flag):
+                print(flag)
+                self.cleaned_data = self.cleaned_data.copy()
+                self.cleaned_data[flag] = None
+                print(self.data)
         if self.cleaned_data.get('dec_min') and self.cleaned_data.get('dec_max'):
             if float(self.cleaned_data.get('dec_min')) > float(self.cleaned_data.get('dec_max')):
                 raise ValidationError('The maximum dec is lower than the minimum.')
@@ -338,6 +390,11 @@ class LensQueryForm(forms.ModelForm):
         if self.cleaned_data.get('image_sep_min') and self.cleaned_data.get('image_sep_max'):
             if float(self.cleaned_data.get('image_sep_min')) > float(self.cleaned_data.get('image_sep_max')):
                 raise ValidationError('The maximum image separation is lower than the minimum.')
+
+        #for list_option in ['image_conf', 'lens_type', 'source_type']:
+        #    self.cleaned_data = self.cleaned_data.copy()
+        #    if self.cleaned_data[list_option]==[]:
+        #        self.cleaned_data[list_option] = None
 
         # Redshift checks
         z_lens_min   = self.cleaned_data.get('z_lens_min')
@@ -353,7 +410,7 @@ class LensQueryForm(forms.ModelForm):
         if z_lens_min and z_source_max:
             if float(z_lens_min) > float(z_source_max):
                 raise ValidationError('The maximum source redshift is lower than the minimum lens redshift.')
-            
+        print('all ok')
         return
 
 

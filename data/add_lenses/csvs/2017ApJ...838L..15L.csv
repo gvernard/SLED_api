@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+DESJ0408-5354,62.0905,-53.8999,PUB,,2017ApJ...838L..15L,True ,2.375,True,True,0.597,True,True,QUASAR,GALAXY PAIR,5.0,FOLD,4.29,True,,,,,,

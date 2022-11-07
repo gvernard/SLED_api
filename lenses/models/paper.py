@@ -90,7 +90,7 @@ class PaperLensConnection(models.Model):
     model = models.BooleanField(help_text="A flag for a modelling paper.")
     redshift = models.BooleanField(help_text="A flag for a paper measuring the redshift.")
 
-    class Meta():
-        constraints = [
-            UniqueConstraint(fields=['lens'],condition=Q(discovery=True),name='unique_discovery')
-        ]
+    #class Meta():
+    #    constraints = [
+    #        UniqueConstraint(fields=['lens'],condition=Q(discovery=True),name='unique_discovery')
+    #    ]

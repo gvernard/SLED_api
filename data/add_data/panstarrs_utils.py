@@ -194,7 +194,7 @@ def save_single_band_stack_fits(outname, ra, dec, size=240, filter="g"):
     return outname
 
 
-def getcolorim(ra, dec, size=240, output_size=None, filters="grizy", format="jpg"):
+def getcolorim(ra, dec, size=240, output_size=None, filters="grizy", format="png"):
     
     """Get color image at a sky position
     
@@ -425,9 +425,14 @@ def checklegal(table,release):
 
 
 def savecolorim(ra, dec, arcsec_width, outpath):
-    size = arcsec_width/0.25
-    plt.figure()
+    size = int(arcsec_width/0.25)
+    #plt.figure()
     im = getcolorim(ra=ra, dec=dec, size=size)
-    plt.imshow(im, origin='lower', interpolation='nearest')
+    fig, ax = plt.subplots()
+    ax.imshow(im, interpolation='nearest')
+    ax.set_xticks([])
+    ax.set_yticks([])
+
     plt.savefig(outpath, bbox_inches='tight')
+
     plt.close()

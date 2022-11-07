@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+SDSSJ2222+2745,335.5354,27.7594,PUB,,2013ApJ...773..146D,True ,2.82,True,True,0.49,True,True,QUASAR,CLUSTER,6.0,,15.1,True ,,,,,,

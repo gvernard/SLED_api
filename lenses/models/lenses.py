@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
 from django.urls import reverse
 from django.conf import settings
+from multiselectfield import MultiSelectField
 
 from dirtyfields import DirtyFieldsMixin
 from actstream import action
@@ -153,14 +154,14 @@ class ProximateLensManager(models.Manager):
     
     
 class Lenses(SingleObject,DirtyFieldsMixin):    
-    ra = models.DecimalField(max_digits=7,
-                             decimal_places=4,
+    ra = models.DecimalField(max_digits=10,
+                             decimal_places=6,
                              verbose_name="RA",
                              help_text="The RA of the lens [degrees].",
                              validators=[MinValueValidator(0.0,"RA must be positive."),
                                          MaxValueValidator(360,"RA must be less than 360 degrees.")])
-    dec = models.DecimalField(max_digits=6,
-                              decimal_places=4,
+    dec = models.DecimalField(max_digits=10,
+                              decimal_places=6,
                               verbose_name="DEC",
                               help_text="The DEC of the lens [degrees].",
                               validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
@@ -200,16 +201,16 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
     image_sep = models.DecimalField(blank=True,
                                     null=True,
-                                    max_digits=4,
-                                    decimal_places=2,
+                                    max_digits=6,
+                                    decimal_places=4,
                                     verbose_name="Separation",
                                     help_text="An estimate of the maximum image separation or arc radius [arcsec].",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                 MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
     z_source = models.DecimalField(blank=True,
                                    null=True,
-                                   max_digits=4,
-                                   decimal_places=3,
+                                   max_digits=5,
+                                   decimal_places=4,
                                    verbose_name="Z source",
                                    help_text="The redshift of the source, if known.",
                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
@@ -223,12 +224,12 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
     z_lens = models.DecimalField(blank=True,
                                  null=True,
-                                 max_digits=4,
-                                 decimal_places=3,
+                                 max_digits=5,
+                                 decimal_places=4,
                                  verbose_name="Z lens",
                                  help_text="The redshift of the lens, if known.",
                                  validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                             MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
+                                             MaxValueValidator(20.0,"If your lens is further than that then congrats! (but probably it's a mistake)")])
 
     z_lens_secure = models.BooleanField(default=False,
                                            blank=True,
@@ -252,27 +253,33 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     #                                help_text='File location of the mugshot image, relative to base directory')
     
     ImageConfChoices = (
+        ('LONG-AXIS CUSP','Long-axis Cusp'),
+        ('SHORT-AXIS CUSP','Short-axis Cusp'),
+        ('NAKED CUSP','Naked Cusp'),
         ('CUSP','Cusp'),
+        ('CENTRAL IMAGE','Central Image'),
         ('FOLD','Fold'),
         ('CROSS','Cross'),
         ('DOUBLE','Double'),
         ('QUAD','Quad'),
         ('RING','Ring'),
-        ('ARCS','Arcs')
+        ('ARC','Arc')
     )
-    image_conf = models.CharField(max_length=100,
+    image_conf = MultiSelectField(max_length=100,
                                   blank=True,
                                   null=True,
-                                  choices=ImageConfChoices,
-                                  verbose_name="Configuration")
+                                  choices=ImageConfChoices)
     
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('SPIRAL','Spiral galaxy'),
+        ('GALAXY PAIR','Galaxy pair'),
         ('GROUP','Group of galaxies'),
         ('CLUSTER','Galaxy cluster'),
+        ('CLUSTER MEMBER','Galaxy cluster member'),
         ('QUASAR','Quasar')
     )
-    lens_type = models.CharField(max_length=100,
+    lens_type = MultiSelectField(max_length=100,
                                  blank=True,
                                  null=True,
                                  choices=LensTypeChoices)
@@ -280,12 +287,22 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
         ('QUASAR','Quasar'),
+        ('DLA','DLA'),
+        ('PDLA','PDLA'),
+        ('RADIO-LOUD','Radio-loud'),
+        ('BAL QUASAR','BAL Quasar'),
+        ('ULIRG','ULIRG'),
+        ('BL Lac','BL Lac'),
+        ('LOBAL QUASAR','LoBAL Quasar'),
+        ('FELOBAL QUASAR','FeLoBAL Quasar'),
+        ('EXTREME RED OBJECT','Extreme Red Object'),
+        ('RED QUASAR','Red Quasar'),
         ('GW','Gravitational Wave'),
         ('FRB','Fast Radio Burst'),
         ('GRB','Gamma Ray Burst'),
         ('SN','Supernova')
     )
-    source_type = models.CharField(max_length=100,
+    source_type = MultiSelectField(max_length=100,
                                    blank=True,
                                    null=True,
                                    choices=SourceTypeChoices)
@@ -293,11 +310,25 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     ContaminantTypeChoices = (
         ('PROJECTED QUASARS', 'Projected quasars'),
         ('DUAL QUASAR', 'Dual quasar'),
-        ('PROJECTED QUASAR+STAR', 'Projected quasar + star'),
+        ('QUASAR+STAR', 'Projected quasar + star'),
         ('STAR+STAR', 'Star + star'),
+        ('STARS', 'Stars'),
+        ('STAR-FORMING GALAXY', 'Star-forming galaxy'),
+        ('STARS+GALAXY', 'Stars + galaxy'),
+        ('STAR+GALAXY', 'Star + galaxy'),
+        ('STAR+OTHER', 'Star + other'),
+        ('STAR+STAR+GALAXY', 'Star + star + galaxy'),
+        ('QUASAR+OTHER', 'Quasar + other'),
+        ('QUASAR PAIR', 'Quasar pair'),
+        ('QUASAR+GALAXY', 'Quasar + galaxy'),
+        ('GALAXY', 'Single galaxy'),
+        ('GALAXIES', 'Galaxies'),
+        ('GALAXY PAIR', 'Pair of galaxies'),
+        ('QUASAR+HOST', 'Quasar + host'),
         ('PROJECTED GALAXIES', 'Projected Galaxies'),
         ('PROJECTED GALAXY + QUASAR', 'Projected galaxy + quasar'),
-        ('RING GALAXY', 'Ring Galaxy')
+        ('RING GALAXY', 'Ring Galaxy'),
+        ('PLANETARY NEBULA', 'Ring Galaxy')
     )
 
     contaminant_type = models.CharField(max_length=100,
@@ -329,22 +360,24 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             CheckConstraint(check=Q(image_sep__range=(0,40)),name='image_sep_range'),
             CheckConstraint(check=Q(z_lens__lt=F('z_source')),name='z_lens_lt_z_source'),
             CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
-            CheckConstraint(check=~( Q(flag_contaminant=True) &
-                                     (
-                                         (Q(image_conf__isnull=False) | ~Q(image_conf__exact='')) |
-                                         (Q(lens_type__isnull=False) | ~Q(lens_type__exact='')) |
-                                         (Q(source_type__isnull=False) | ~Q(source_type__exact=''))
-                                     )
-                                    ),
-                            name='contaminant_check'),
+            #I think it can be useful to know what people thought contaminants looked like
+            #CheckConstraint(check=~( Q(flag_contaminant=True) &
+                                     #(
+                                         #(Q(image_conf__isnull=False) | ~Q(image_conf__exact='')) |  
+                                         #(Q(lens_type__isnull=False) | ~Q(lens_type__exact='')) |
+                                         #(Q(source_type__isnull=False) | ~Q(source_type__exact=''))
+                                     #)
+                                    #),
+                            #name='contaminant_check'),
         ]
 
         
     def clean(self):
+
         if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
-        if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
-            raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
+        #if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
+        #    raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
         if self.z_lens and self.z_source: # z_lens_lt_z_source
             if self.z_lens > self.z_source:
                 raise ValidationError('The source redshift cannot be lower than the lens redshift.')
@@ -352,7 +385,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             
     def save(self,*args,**kwargs):
         dirty = self.get_dirty_fields(verbose=True)
-        dirty.pop('name',None)
+        #dirty.pop('name',None)
         if len(dirty) > 0:
             action.send(self.owner,
                         target=self,
@@ -374,12 +407,12 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             super(Lenses,self).save(*args,**kwargs)
 
             
-    def __str__(self):
-        if self.name:
-            return self.name
-        else:
-            c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
-            return 'J'+c.to_string('hmsdms')
+    #def __str__(self):
+    #    if self.name:
+    #        return self.name
+    #    else:
+    #        c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
+    #        return 'J'+c.to_string('hmsdms')
 
         
     def create_name(self):

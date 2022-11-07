@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+SDSSJ1326+4806,201.50006,48.11208,PUB,,2019MNRAS.489.4741S,TRUE,2.078,TRUE,TRUE,0.396,TRUE,TRUE,QUASAR,CLUSTER,2.0,,21.1,TRUE,,,,,,

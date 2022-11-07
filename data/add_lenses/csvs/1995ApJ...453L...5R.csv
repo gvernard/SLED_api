@@ -1,0 +1,3 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+HST14176+5226,214.3989,52.4462,PUB,,1995ApJ...453L...5R,True ,,,,,,,,GALAXY,4.0,CROSS,3.02,True,,,,,,
+HST12531-2914,193.27792,-29.24167,PUB,,1995ApJ...453L...5R,True ,,,,,,,,GALAXY,4.0,CROSS,1.13,True,,,,,,

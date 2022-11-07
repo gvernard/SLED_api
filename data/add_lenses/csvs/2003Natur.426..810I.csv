@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+SDSSJ1004+4112,151.14294,41.2118,PUB,,2003Natur.426..810I,True ,1.734,True,True,0.6799,True,True,QUASAR,GALAXY,5.0,"FOLD, CENTRAL IMAGE",14.72,True,,,,,,

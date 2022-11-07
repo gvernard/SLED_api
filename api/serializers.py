@@ -1,6 +1,6 @@
 from django.db.models import F
 from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper
-from rest_framework import serializers
+from rest_framework import serializers, fields
 from rest_framework.validators import UniqueValidator
 import ads
 from itertools import chain
@@ -113,8 +113,9 @@ class CatalogueDataUploadSerializer(serializers.ModelSerializer):
 ### Uploading lenses
 ################################################################################
 class LensesUploadListSerializer(serializers.ListSerializer):
+
     def validate(self,attrs):
-        
+        print('validating the lens')
         ### Check proximity here
         check_radius = 16 # arcsec
         proximal_lenses = []
@@ -155,11 +156,59 @@ class LensesUploadListSerializer(serializers.ListSerializer):
 
         return attrs
 
-            
+
 class LensesUploadSerializer(serializers.ModelSerializer):
+    #z_lens = serializers.DecimalField(allow_null=True)
+    LensTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('SPIRAL','Spiral galaxy'),
+        ('GALAXY PAIR','Galaxy pair'),
+        ('GROUP','Group of galaxies'),
+        ('CLUSTER','Galaxy cluster'),
+        ('CLUSTER MEMBER','Galaxy cluster member'),
+        ('QUASAR','Quasar')
+    )
+    lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
+    
+    SourceTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('QUASAR','Quasar'),
+        ('DLA','DLA'),
+        ('PDLA','PDLA'),
+        ('RADIO-LOUD','Radio-loud'),
+        ('BAL QUASAR','BAL Quasar'),
+        ('ULIRG','ULIRG'),
+        ('BL Lac','BL Lac'),
+        ('LOBAL QUASAR','LoBAL Quasar'),
+        ('FELOBAL QUASAR','FeLoBAL Quasar'),
+        ('EXTREME RED OBJECT','Extreme Red Object'),
+        ('RED QUASAR','Red Quasar'),
+        ('GW','Gravitational Wave'),
+        ('FRB','Fast Radio Burst'),
+        ('GRB','Gamma Ray Burst'),
+        ('SN','Supernova')
+    )
+    source_type = fields.MultipleChoiceField(choices=SourceTypeChoices, required=False)
+
+    ImageConfChoices = (
+        ('LONG-AXIS CUSP','Long-axis Cusp'),
+        ('SHORT-AXIS CUSP','Short-axis Cusp'),
+        ('NAKED CUSP','Naked Cusp'),
+        ('CUSP','Cusp'),
+        ('CENTRAL IMAGE','Central Image'),
+        ('FOLD','Fold'),
+        ('CROSS','Cross'),
+        ('DOUBLE','Double'),
+        ('QUAD','Quad'),
+        ('RING','Ring'),
+        ('ARC','Arc')
+    )
+
+    image_conf = fields.MultipleChoiceField(choices=ImageConfChoices, required=False)
+
     class Meta:
         model = Lenses
-        exclude = ['name','owner','created_at','modified_at']
+        exclude = ['owner','created_at','modified_at']
         list_serializer_class = LensesUploadListSerializer
         
     def create(self,validated_data):

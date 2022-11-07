@@ -17,7 +17,7 @@ f.close()
 
 
 # Sending the request
-r = requests.post(url,json=data,auth=HTTPBasicAuth('gvernard','123'))
+r = requests.post(url,json=data,auth=HTTPBasicAuth('Cameron','123'))
 
 
 # Printing the response of the request

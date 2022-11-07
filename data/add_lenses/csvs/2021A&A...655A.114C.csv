@@ -1,0 +1,9 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+HSCJ095921+020638,149.84071,2.11068,PUB,,2021A&A...655A.114C,FALSE,,,,,,,QUASAR,GALAXY,,,,,,,3.0,,,Anguita et al. (2009)
+HSCJ100050+013251,150.20947,1.54775,PUB,,2021A&A...655A.114C,TRUE,,,,,,,GALAXY,GALAXY,,,,TRUE,,3.0,2.3,,,Probable lensed galaxy
+HSCJ095921+025700,149.84037,2.95013,PUB,,2021A&A...655A.114C,TRUE,,,,,,,QUASAR,GALAXY,,,,TRUE,,2.0,2.0,,,Probable lensed galaxy.
+HSCJ100307+020241,150.78256,2.04484,PUB,,2021A&A...655A.114C,TRUE,,,,,,,QUASAR,GALAXY,,,,TRUE,,1.7,1.7,,,No HST image
+HSCJ095943+022046,149.93252,2.34623,PUB,,2021A&A...655A.114C,TRUE,,,,,,,QUASAR,GALAXY,,,,TRUE,,1.5,1.7,,,
+HSCJ095744+023835,149.43571,2.64332,PUB,,2021A&A...655A.114C,TRUE,,,,,,,QUASAR,GALAXY,,,,TRUE,,1.0,1.7,,,
+HSCJ100050+031825,150.212,3.30706,PUB,,2021A&A...655A.114C,TRUE,,,,,,,QUASAR,GALAXY,,,,TRUE,,1.7,1.7,,,No HST image
+HSCJ100129+024427,150.37457,2.74093,PUB,,2021A&A...655A.114C,TRUE,,,,,,,GALAXY,GALAXY,,,,TRUE,,2.0,2.0,,,Lensed galaxy candidate by serendipitous discovery

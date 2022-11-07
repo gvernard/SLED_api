@@ -17,7 +17,9 @@ from actstream import action
 
 import os
 import json
-
+import base64
+from io import BytesIO, BufferedReader
+from django.core.files.base import ContentFile
 
 class UploadData(APIView):
     parser_classes = [MultiPartParser]
@@ -32,6 +34,7 @@ class UploadData(APIView):
         print('just got some fresh data in, mmm', request.data)
         #uploaded_data = request.data.copy()
         #print(uploaded_data)
+
         uploaded_data = request.data.copy()
         Ndata = int(uploaded_data.pop('N')[0])
         data_type = str(uploaded_data.pop('type')[0])
@@ -108,7 +111,7 @@ class UploadPapers(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        Paper.objects.all().delete()
+        #Paper.objects.all().delete()
         serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
         if serializer.is_valid():
             validated_data = serializer.validated_data
@@ -141,7 +144,11 @@ class UploadLenses(APIView):
         # Then, Check that each given list of keys has the same length N.
 
         # Get number of lenses and the keys
-        Nlenses = int(request.data.pop('N')[0])
+        #print(request.files)
+        #print(json.loads(request.data))
+        
+        #print(lenses[0])
+        '''Nlenses = int(request.data.pop('N')[0])
         keys = []
         for key,dum in request.data.items():
             keys.append(key)
@@ -158,14 +165,63 @@ class UploadLenses(APIView):
             for j,key in enumerate(keys):
                 lens[key] = list_of_lists[j][i]
             lenses.append(lens)
+        #print(lenses)'''
         #print(lenses)
 
-        serializer = LensesUploadSerializer(data=lenses,many=True)
+        lenses = list(json.loads(request.body))
+        #print(lenses[1])
+
+        #Keep non-empty fields
+        potential_headers = list(lenses[0].keys())
+        lenses = [{key:lens[key] for key in potential_headers if lens[key]!=''} for lens in lenses]
+        for lens in lenses:
+            #convert the string representation back to a content file for the mugshot
+            lens['mugshot'] = ContentFile(base64.b64decode(lens['mugshot']), name=lens['imagename'])
+            lens = {key:(lens[key] if lens[key]!='' else None) for key in lens.keys()}
+
+
+        #convert strings to lists for serializers for any multi-object-fields
+        print(lenses[0])
+        for key in ['lens_type', 'source_type', 'image_conf']:
+            for lens in lenses:
+                if key in lens.keys():
+                    if ',' in lens[key]:
+                        lens[key] = [field.strip() for field in lens[key].split(',')]
+                    else:
+                        lens[key] = [lens[key].strip()]
+        print(lenses[0])
+
+        #deal with multiple names
+        for lens in lenses:
+            if ',' in lens['name']:
+                lens['name'] = lens['name'].split(',')[0].strip()
+                lens['altname'] =[altname.strip() for altname in lens['name'].split(',')[1:]]
+
+        #remove any trailing spaces from strings:
+        for lens in lenses:
+            for key in lens.keys():
+                if type(lens[key])==str:
+                    lens[key] = lens[key].strip()
+
+        #print(lens)
+        #print(lenses)
+        #replace the 64 bit encoding with 
+
+        #lenses[0]['mugshot'] = BufferedReader(base64.b64decode(lenses[0]['mugshot'].encode('utf-8')))
+        #asbytes = BytesIO(base64.b64decode(lenses[0]['mugshot'].encode('utf-8')))
+        #asbytes.name = 'test'
+        #lenses[0]['mugshot'] = BufferedReader(asbytes)
+        
+        #print(dir(lenses[0]['mugshot']))
+        #lenses[0]['mugshot'].name = 
+
+
+        serializer = LensesUploadSerializer(data=lenses, many=True)
         if serializer.is_valid():
             lenses = serializer.create(serializer.validated_data)
             for lens in lenses:
                 lens.owner = request.user
-                lens.create_name()
+                #lens.create_name()
 
             indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
             if len(indices) == 0:

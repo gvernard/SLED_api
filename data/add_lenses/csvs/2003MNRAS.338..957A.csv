@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+B0445+123,72.09163,12.46539,PUB,,2003MNRAS.338..957A,True ,,,,0.5583,True,False,"QUASAR, RADIO-LOUD",GALAXY,2.0,,1.35,True,,,,,,

@@ -1,0 +1,9 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+GraLJ024612.2-184505.1,41.55083,-18.7514,PUB,,2019arXiv191208977K,TRUE,1.873,True,True,,,,QUASAR,GALAXY,2.0,,,,TRUE,,,,,detection at 9 GHz
+GraLJ034611.0+215444.6,56.54583,21.91238,PUB,,2019arXiv191208977K,TRUE,2.355,True,True,,,,QUASAR,GALAXY,2.0,,,,TRUE,,,,,
+GraLJ081830.5+060137.9,124.627,6.027194,PUB,,2019arXiv191208977K,FALSE,2.352,True,True,,,,QUASAR,GALAXY,2.0,,,,,,,,,"absorption at z = 1.007, 1.507"
+GraLJ090710.5+000321.7,136.7937,0.056027,PUB,,2019arXiv191208977K,TRUE,1.299,True,True,,,,QUASAR,GALAXY,2.0,,,True,,,,,,"absorption at z = 0.682, 0.771"
+GraLJ125955.5+124152.6,194.9812,12.69794,PUB,,2019arXiv191208977K,TRUE,2.196,True,True,,,,QUASAR,GALAXY,2.0,,,,TRUE,,,,,stronger self-absorption in one image
+GraLJ155656.1-135210.1,239.2337,-13.8694,PUB,,2019arXiv191208977K,TRUE,1.423,True,True,,,,QUASAR,GALAXY,2.0,,,,TRUE,,,,,absorption at z = 0.393
+GraLJ220015.6+144859.5,330.065,14.81652,PUB,,2019arXiv191208977K,TRUE,1.115,True,True,,,,QUASAR,GALAXY,2.0,,,,TRUE,,,,,absorption at z = 0.762
+GraLJ234330.6+043557.9,355.8774,4.599416,PUB,,2019arXiv191208977K,TRUE,1.604,True,True,,,,QUASAR,GALAXY,2.0,,,,TRUE,,,,,absorption at z = 0.855

@@ -37,13 +37,32 @@
         <th>Source redshift </th>
       </tr>
       <tr>
-        <td>{{lens.ra|floatformat:5}}</td>
-        <td>{{lens.dec|floatformat:5}}</td>
-        <td>{{lens.image_sep|floatformat:5}}</td>
-        <td>{{lens.z_lens|floatformat:4}}</td>
-        <td>{{lens.z_source|floatformat:4}}</td>
+        <td>{{lens.ra}}</td>
+        <td>{{lens.dec}}</td>
+        <td>{{lens.image_sep}}</td>
+        <td>{{lens.z_lens}}</td>
+        <td>{{lens.z_source}}</td>
       </tr>
     </table>
+    <table>
+      <tr>
+        <th>Lens Type </th>
+        <th>Source Type </th>
+        <th>Image Configuration</th>
+        <th>Flag Confirmed</th>
+        <th>Flag Candidate</th>
+        <th>Flag Contaminant </th>
+      </tr>
+      <tr>
+        <td>{{lens.lens_type}}</td>
+        <td>{{lens.source_type}}</td>
+        <td>{{lens.image_conf}}</td>
+        <td>{{lens.flag_confirmed}}</td>
+        <td>{{lens.flag_candidate}}</td>
+        <td>{{lens.flag_contaminant}}</td>
+      </tr>
+    </table>
+
   </div>
 
   <div>
