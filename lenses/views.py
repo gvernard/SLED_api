@@ -323,11 +323,18 @@ class LensDetailView(DetailView):
             labels.append(flags)
         paper_labels = [ ','.join(x) for x in labels ]
 
+        #decide whether the update button should be showed or not
+        #print(self.request.user, context['lens'].owner)
+        if self.request.user==context['lens'].owner:
+            updatable = True
+        else:
+            updatable = False
             
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
         context['display_catalogues'] = catalogue_entries
+        context['updatable'] = updatable
         return context
     
 

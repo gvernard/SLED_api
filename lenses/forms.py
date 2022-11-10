@@ -11,10 +11,10 @@ class BaseLensForm(forms.ModelForm):
         model = Lenses
         exclude = ['name']
         widgets = {
-            'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
-            'lens_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
-            'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
-            'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
+            'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30})#,
+            #'lens_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
+            #'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
+            #'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
         }
         
     def __init__(self, *args, **kwargs):

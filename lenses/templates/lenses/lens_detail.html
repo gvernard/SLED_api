@@ -26,6 +26,20 @@
     </div>
   </section>
 
+
+  {% if updatable %}
+    <div>
+      <form id="ids-form" method="POST">
+        {% csrf_token %}
+        <td><input name="ids" type="checkbox" value="{{ lens.id }}" checked hidden></td>
+      </form>
+      <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
+        <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+        Update lens
+      </button>
+    </div>
+  {% endif %}
+
   <div>
     <h1 class="jb-heading-2">System Information</h1>
     <table>
