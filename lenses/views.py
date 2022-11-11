@@ -394,7 +394,7 @@ class LensAddView(TemplateView):
                                 pub.append(lens)
                         if pri:
                             assign_perm('view_lenses',request.user,pri)
-                        self.make_collection(instances,request.user)
+                        #self.make_collection(instances,request.user)
                         # Main activity stream for public lenses
                         if len(pub) > 0:
                             ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
@@ -409,7 +409,7 @@ class LensAddView(TemplateView):
                                 pri.append(lens)
                         if pri:
                             assign_perm('view_lenses',request.user,pri)
-                        self.make_collection(instances,request.user)
+                        #self.make_collection(instances,request.user)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                 else:
                     # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
@@ -461,8 +461,8 @@ class LensUpdateView(TemplateView):
                 if len(indices) == 0:
                     pub = []
                     for i,lens in enumerate(instances):
-                        if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
-                            lens.create_name()
+                        #if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
+                        #    lens.create_name()
                         lens.save()
                         if lens.access_level == 'PUB':
                             pub.append(lens)

@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
-from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer
+from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper
 
 from guardian.shortcuts import assign_perm
@@ -129,6 +129,34 @@ class UploadPapers(APIView):
                 print(paper_obj.pk)
                 
             response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
+            return Response(response)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+ 
+
+class UploadCollection(APIView):
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self,request):
+        #Paper.objects.all().delete()
+        print(request.data)
+        serializer = CollectionUploadSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            validated_data = serializer.validated_data
+            lenses_pc = validated_data["lenses_in_collection"]
+            access_level = validated_data["access"]
+            name = validated_data["name"]
+            description = validated_data["description"]
+
+            #Collection.objects.create(**collectiondat)
+            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type='Lenses')
+            mycollection.save()
+            lens_ids = Lenses.accessible_objects.in_ids(self.request.user,lenses_pc)
+            mycollection.myitems = lens_ids
+            mycollection.save()
+
+            response = "Success! Collection uploaded!"
             return Response(response)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

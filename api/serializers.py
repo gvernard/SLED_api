@@ -1,5 +1,5 @@
 from django.db.models import F
-from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper
+from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper, Collection
 from rest_framework import serializers, fields
 from rest_framework.validators import UniqueValidator
 import ads
@@ -433,3 +433,47 @@ class PaperUploadSerializer(serializers.Serializer):
             raise serializers.ValidationError(message)
 
         return data
+
+class CollectionUploadSerializer(serializers.Serializer):
+
+    name = serializers.CharField(max_length=19)
+    description = serializers.CharField(max_length=100)
+    access = serializers.CharField(max_length=3)
+    lenses = serializers.ListField()
+
+    def create(self,validated_data):
+        return Collection(**validated_data)
+
+    def validate(self,data):
+        print('validating')
+        print('data', data)
+        ### Check proximity of given lenses with each other
+        '''check_radius = 16 # arcsec
+        proximal_lenses = []
+        for i in range(0,len(data['lenses'])-1):
+            ra1 = data['lenses'][i]['ra']
+            dec1 = data['lenses'][i]['dec']
+
+            for j in range(i+1,len(data['lenses'])):
+                ra2 = data['lenses'][j]['ra']
+                dec2 = data['lenses'][j]['dec']
+
+                if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
+                    proximal_lenses.append(j)
+
+        if len(proximal_lenses) > 0:
+            message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission is not allowed.'
+            raise serializers.ValidationError(message)'''
+
+        print(data)
+        lenses_in_collection = []
+        for lensinstance in data['lenses']:
+            ra, dec = lensinstance['ra'], lensinstance['dec']
+            user = self.context['request'].user
+            qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=3) # This call includes PRI lenses visible to the user
+            lenses_in_collection.append(qset.values_list('id', flat=True)[0])
+        print(lenses_in_collection)
+        data['lenses_in_collection'] = lenses_in_collection
+        return data
+
+
