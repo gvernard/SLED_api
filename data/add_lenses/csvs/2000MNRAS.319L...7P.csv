@@ -1,2 +1,2 @@
 name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-B0128+437,22.80585,43.97032,PUB,,2000MNRAS.319L...7P,TRUE,,,,,,,QUASAR,GALAXY,,,,TRUE,,,,,,
+B0128+437,22.80585,43.97032,PUB,,2000MNRAS.319L...7P,TRUE,,,,,,,"QUASAR, RADIO-LOUD",GALAXY,4.0,FOLD,0.542,TRUE,,,,,,

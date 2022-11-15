@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db import connection
 from django.core import serializers
 from django.urls import reverse,reverse_lazy
+from django.forms.models import model_to_dict
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -336,3 +337,46 @@ class GroupsAutocomplete(APIView):
         serializer = GroupsSerializer(queryset,many=True)
         return Response({"groups":serializer.data})
 
+
+
+class QueryLenses(APIView):
+    """
+    API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
+    """
+
+    def post(self,request):
+        user = request.user
+        ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)
+        
+        if lenses:
+            lensjsons = []
+            for lens in lenses:
+                print(lens)
+                json = model_to_dict(lens, exclude=['mugshot', 'owner', 'id'])
+                print(json)
+                lensjsons.append(json)
+        else:
+            lensjsons = []
+        return Response({'lenses':lensjsons})
+
+class UpdateLenses(APIView):
+    """
+    API function to update a lens; if the user then it can update immediately; if not comes later, but set a notification to the owner
+    """
+
+    def post(self,request):
+        user = request.user
+        ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)
+        
+        if lenses:
+            lensjsons = []
+            for lens in lenses:
+                print(lens)
+                json = model_to_dict(lens, exclude=['mugshot', 'owner', 'id'])
+                print(json)
+                lensjsons.append(json)
+        else:
+            lensjsons = []
+        return Response({'lenses':lensjsons})

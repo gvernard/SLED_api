@@ -1,4 +1,4 @@
 name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
 OGLEJ0218-7335,34.55142,-73.59328,PUB,,2018MNRAS.476..663K,True ,2.16,True,True,,,,QUASAR,GALAXY,2.0,,1.48,True,,,,,,
 OGLEJ0619-7059,94.94925,-70.9999,PUB,,2018MNRAS.476..663K,True ,1.465,True,True,,,,QUASAR,GALAXY,2.0,,,False,,,,True,QUASAR+OTHER,
-OGLEJ0605-6749,91.406083,-67.81975,PUB,,2018MNRAS.476..663K,True ,1.49,True,True,,,,QUASAR,GALAXY,2.0,,,False,,,,True,QUASAR+STAR,
+OGLEJ0605-6749,91.40608,-67.81975,PUB,,2018MNRAS.476..663K,True ,1.49,True,True,,,,QUASAR,GALAXY,2.0,,,False,,,,True,QUASAR+STAR,

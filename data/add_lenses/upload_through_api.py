@@ -88,8 +88,9 @@ for eachcsv in csvs:
     else:
         print(r.text)
         if 'duplicates' in r.text:
-            #print("Something went wrong!")
+            print("Something went wrong!")
             wait = input()
+            print('d///f')
     
 
 

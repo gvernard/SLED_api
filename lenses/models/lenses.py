@@ -317,10 +317,12 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ('STARS+GALAXY', 'Stars + galaxy'),
         ('STAR+GALAXY', 'Star + galaxy'),
         ('STAR+OTHER', 'Star + other'),
-        ('STAR+STAR+GALAXY', 'Star + star + galaxy'),
+        ('GALAXY+STARS', 'Galaxy + stars'),
+        ('GALAXY+OTHER', 'Galaxy + other'),
         ('QUASAR+OTHER', 'Quasar + other'),
         ('QUASAR PAIR', 'Quasar pair'),
         ('QUASAR+GALAXY', 'Quasar + galaxy'),
+        ('SINGLE QUASAR', 'Single quasar'),
         ('GALAXY', 'Single galaxy'),
         ('GALAXIES', 'Galaxies'),
         ('GALAXY PAIR', 'Pair of galaxies'),
@@ -339,7 +341,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
 
 
-    FIELDS_TO_CHECK = ['ra','dec','name','flag_confirmed','flag_contaminant','image_sep','z_lens','z_source','image_conf','info','n_img','lens_type','source_type']
+    FIELDS_TO_CHECK = ['ra','dec','name','flag_confirmed','flag_contaminant','image_sep','z_lens','z_source','image_conf','info','n_img','lens_type','source_type','contaminant_type']
 
     
     proximate = ProximateLensManager()

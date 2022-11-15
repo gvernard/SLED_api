@@ -12,5 +12,6 @@ urlpatterns = [
     path('upload-collection/', views.UploadCollection.as_view(), name="upload-collection-view"),
     path('upload-lenses/', views.UploadLenses.as_view(), name="upload-lenses-view"),
     path('upload-data/', views.UploadData.as_view(), name="upload-data-view"),
+    path('query-lenses/', views.QueryLenses.as_view(), name="query-lenses-view"),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

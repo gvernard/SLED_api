@@ -1,0 +1,49 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+HSCJ095921+020638,149.841,2.111,PUB,,2020A&A...636A..87C,TRUE,,,,,,,,,,,1.38,,,3.0,3.0,,,Selection: –; see also:Anguita et al. (2009)
+HSCJ115252+004733,178.218,0.793,PUB,,2020A&A...636A..87C,FALSE,3.76,TRUE,FALSE,0.466,TRUE,FALSE,,,,,2.78,,,3.0,3.0,,,Selection: –; see also:More et al. (2017)
+HSCJ090507-001030,136.281,-0.175,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.46,,TRUE,2.1,2.1,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ090709+005648,136.79,0.947,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.64,,TRUE,2.4,2.4,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ144307-004056,220.78,-0.682,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.06,,TRUE,2.1,2.1,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ143153-013353,217.973,-1.565,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,5.56,,TRUE,1.8,1.8,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ083943+004740,129.929,0.795,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.8,,TRUE,1.7,1.7,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ223406+012057,338.529,1.349,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.48,,TRUE,1.6,1.6,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ222801+012805,337.008,1.468,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,3.2,,TRUE,2.6,2.6,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ023817-054555,39.574,-5.765,PUB,,2020A&A...636A..87C,FALSE,1.763,TRUE,FALSE,0.599,TRUE,FALSE,GALAXY,,,,1.84,TRUE,,,2.8,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ023307-043838,38.279,-4.644,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,3.3,,TRUE,1.8,1.8,,,Selection: LRG: CMASS; see also:–
+HSCJ021200-040806,33.004,-4.135,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,3.18,,TRUE,1.5,1.5,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ144230-002353,220.629,-0.398,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.34,,TRUE,1.6,1.6,,,Selection: LRG: LOWZ; see also:–
+HSCJ224221+001144,340.59,0.196,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.82,,TRUE,2.9,2.9,,,Selection: LRG: LOWZ; see also:Sonnenfeld et al. (2018)
+HSCJ223359+015826,338.5,1.974,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,1.7,,TRUE,1.5,1.5,,,Selection: LRG: LOWZ; see also:Sonnenfeld et al. (2018)
+HSCJ015756-021809,29.486,-2.303,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.14,,TRUE,1.8,1.8,,,Selection: LRG: LOWZ; see also:Sonnenfeld et al. (2018)
+HSCJ022511-045433,36.296,-4.909,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,3.06,,TRUE,2.1,2.1,,,Selection: LRG: LOWZ; see also:–
+HSCJ163257+424611,248.241,42.77,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,3.28,,TRUE,3.0,3.0,,,Selection: LRG: Kazin et al. (2010); see also:–
+HSCJ090613+032939,136.555,3.494,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,1.88,,TRUE,1.6,1.6,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ091506+041716,138.776,4.288,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.46,,TRUE,1.5,1.5,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ091608+034710,139.036,3.786,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.3,,TRUE,2.9,2.9,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ092101+035521,140.256,3.923,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.42,,TRUE,2.6,2.6,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ121052-011904,182.718,-1.318,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.32,,TRUE,2.6,2.6,,,Selection: LRG: CMASS; see also:–
+HSCJ140929-011410,212.374,-1.236,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.48,,TRUE,3.0,3.0,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ141300-012608,213.25,-1.436,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.26,,TRUE,2.8,2.8,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ145732-015917,224.386,-1.988,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.4,,TRUE,3.0,3.0,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ155517+415138,238.824,41.861,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.62,,TRUE,3.0,3.0,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ155826+432830,239.611,43.475,PUB,,2020A&A...636A..87C,TRUE,,,,,,,GALAXY,,,,2.82,,TRUE,2.0,2.0,,,Selection: LRG: CMASS; see also:Sonnenfeld et al. (2018)
+HSCJ092455+021923,141.233,2.323,PUB,,2020A&A...636A..87C,FALSE,,,,,,,,,,,,TRUE,,,3.0,,,Selection: –; see also:Inada et al. (2003)
+HSCJ022059-045554,35.249,-4.932,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,2.04,,TRUE,0.25,1.6,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ022622-042522,36.593,-4.423,PUB,,2020A&A...636A..87C,TRUE,2.146,TRUE,TRUE,1.119,TRUE,TRUE,GALAXY,,,,1.62,TRUE,,,2.6,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ221608+005538,334.036,0.927,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.3,,TRUE,0.25,2.6,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ222022+000710,335.095,0.12,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.24,,TRUE,0.25,1.7,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ222618-011940,336.576,-1.328,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.14,,TRUE,0.25,1.6,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ162757+435849,246.988,43.98,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.04,,TRUE,0.75,1.8,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ161955+431024,244.982,43.173,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.54,,TRUE,1.0,1.7,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ022040-052056,35.168,-5.349,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.92,,TRUE,0.25,1.7,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ090412+000420,136.051,0.072,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.1,,TRUE,1.25,1.6,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ115943+012846,179.931,1.479,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.14,,TRUE,0.25,1.8,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ120045-005740,180.189,-0.961,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,3.14,,TRUE,1.0,1.9,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ115312+000206,178.304,0.035,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.16,,TRUE,0.75,1.6,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ115530+004141,178.879,0.695,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.28,,TRUE,0.25,1.6,,,Selection: QSO: Brescia et al. (2015); see also:–
+HSCJ221606+023139,334.026,2.528,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.16,,TRUE,2.75,1.8,,,Selection: QSO: Brescia et al. (2015); see also:–
+HSCJ083906-000000,129.777,0.0,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,3.68,,TRUE,1.25,1.8,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ090710+000320,136.794,0.056,PUB,,2020A&A...636A..87C,TRUE,,,,,,,QUASAR,,,,1.32,,TRUE,2.5,1.8,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ144320-012538,220.836,-1.427,PUB,,2020A&A...636A..87C,TRUE,1.703,TRUE,TRUE,0.89,TRUE,TRUE,GALAXY,,,,2.04,TRUE,,,2.7,,,Selection: QSO: SDSS+WISE; see also:–
+HSCJ091148+041852,137.954,4.315,PUB,,2020A&A...636A..87C,TRUE,2.627,TRUE,TRUE,0.861,TRUE,TRUE,,,,,,TRUE,,,,,,Selection: –; see also:Found by YATTALENS
+HSCJ141136-010216,212.902,-1.038,PUB,,2020A&A...636A..87C,TRUE,3.021,TRUE,TRUE,0.949,TRUE,TRUE,,,,,,TRUE,,,,,,Selection: –; see also:Found by YATTALENS
