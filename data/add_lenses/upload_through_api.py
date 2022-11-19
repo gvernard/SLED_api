@@ -18,7 +18,8 @@ download_missing_images_from_panstarrs_or_des = True
 
 # Specify the URL for the request to be sent
 url = "http://127.0.0.1:8000/api/upload-lenses/"
-
+urlquery = "http://127.0.0.1:8000/api/query-lenses/"
+urlupdatelens = "http://127.0.0.1:8000/api/update-lens/"
 # Specify the directory where the mugshot for each lens is found
 mugshot_dir = "../images_to_upload/initial_mugshots/"
 csv_dir = "csvs/"
@@ -61,11 +62,72 @@ for eachcsv in csvs:
         img = cv2.imread(mugshot_dir+lens_dict['imagename'])
         string_img = base64.b64encode(cv2.imencode('.jpg', img)[1]).decode()
         lens_dict['mugshot'] = string_img 
-        #image_files.append(open(mugshot_dir+lens_dict['imagename'], "rb"))
-        lens_dicts.append(lens_dict)
+
+        #CHECK IF LENS ALREADY EXISTS
+        
+        lensdata = {'ra':lens_dict['ra'], 'dec':lens_dict['dec'], 'radius':3.}
+        r = requests.post(urlquery, data=lensdata, auth=HTTPBasicAuth('Cameron','123'))
+        dbquery = json.loads(r.text)
+        dblenses = dbquery['lenses']
+        if len(dblenses)>0:
+            dblens = dblenses[0]
+            print('EXISTING LENS!')
+            print('CHECKING FOR UPDATED FIELDS')
+            update_data = {'ra':dblens['ra'], 'dec':dblens['dec']}
+            send_update = False
+
+            #CONSTRUCT UPDATE PARAMETER LIST
+            for field in dblens.keys():
+                #ONLY UPDATE FIELDS THAT ARE GIVEN
+                if (field in lens_dict.keys()):
+                    #AND ARE NOT EMPTY
+                    if lens_dict[field]!='':
+                        value = lens_dict[field]
+                        if (value=='') & (field!='info'):
+                            value = None
+                        if (value==None)&(field=='z_lens_secure'):
+                            value = False
+                        if field in ['image_conf', 'lens_type', 'source_type']:
+                            if value!=None:
+                                value = [x.strip() for x in value.split(',')]
+                            else:
+                                value = []
+                        if value!=dblens[field]:
+                            send_update = True
+                            print(field)
+                            print('new value', value)
+                            print('old value', dblens[field])
+                            if (field=='name')&(lens_dict['flag_discovery']):
+                                print('Would you like to add this name and the current name to the alternative names list? And change the name to J...')
+                                answer = input()
+                                if answer.lower()=='y':
+                                    oldname = dblens['name']
+                                    for i, character in enumerate(oldname):
+                                        if character.isdigit():
+                                            break
+                                    newname = 'J'+oldname[i:]
+                                    if dblens['alt_name']:
+                                        altname = dblens['alt_name']+', '+oldname
+                                    else:
+                                        altname = oldname+', '+lens_dict['name']
+
+                                    update_data['name'] = newname
+                                    update_data['alt_name'] = altname
+                            else:
+                                update_data[field] = lens_dict[field]
+                                
+
+            if send_update:
+                r = requests.post(urlupdatelens, json=update_data, auth=HTTPBasicAuth('Cameron','123'))
+                print(r.text)
+                #wait = input()
+
+        else:
+            lens_dicts.append(lens_dict)
 
     form_data = lens_dicts
-
+    if len(form_data)==0:
+        continue
     '''form_data = [
         ('N', ('',str(len(lenses)))),
         ('ra', ('',str(lenses[0]['ra']))),

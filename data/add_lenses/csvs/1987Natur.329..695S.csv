@@ -1,2 +1,2 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
 "Q0142-100, UM673, PHL3703",26.3194,-9.75475,PUB,,1987Natur.329..695S,True,2.719,True,True,0.491,True,True,QUASAR,GALAXY,2.0,,2.23,True,,,,,,

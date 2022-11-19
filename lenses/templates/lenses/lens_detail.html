@@ -12,6 +12,16 @@
         <div>
           <h1 class="jb-heading-1">{{lens.name}}</h1>
         </div>
+        {% if lens.alt_name %}
+        <p>
+          Alternative names: {{lens.alt_name}}
+        </p>
+        {% endif %}
+        <p>
+          Uploader information: {{lens.info}}
+        </p>
+
+
         <p>
           Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
         </p>
@@ -49,6 +59,7 @@
         <th>Image separation</th>
         <th>Lens redshift</th>
         <th>Source redshift </th>
+        <th>Score </th>
       </tr>
       <tr>
         <td>{{lens.ra}}</td>
@@ -56,6 +67,7 @@
         <td>{{lens.image_sep}}</td>
         <td>{{lens.z_lens}}</td>
         <td>{{lens.z_source}}</td>
+        <td>{{lens.score}}</td>
       </tr>
     </table>
     <table>

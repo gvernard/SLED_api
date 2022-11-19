@@ -1,2 +1,2 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-SBS1520+530 ,230.43679,52.9135,PUB,,1997A&A...318L..67C,True ,1.855,True,True,0.761,False,False,"QUASAR, BAL QUASAR",GALAXY,2.0,,1.59,True,,,,,,
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+SBS1520+530 ,230.43679,52.9135,PUB,,1997A&A...318L..67C,True,1.855,True,True,0.761,False,False,"QUASAR, BAL QUASAR",GALAXY,2.0,,1.59,True,,,,,,

@@ -1,176 +1,176 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-SDSS J074248.40+270412.2,115.7016,27.07005,PUB,,2012AJ....143..119I,True,0.626,,,,,,QUASAR,,,,0.78,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J081405.56+582840.9,123.5231,58.47802,PUB,,2012AJ....143..119I,True,1.429,,,,,,QUASAR,,,,0.5,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J090404.15+151254.5,136.0172,15.21513,PUB,,2012AJ....143..119I,True,1.825,,,,,,QUASAR,,,,1.04,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
-SDSS J090645.62+122512.8,136.69,12.42022,PUB,,2012AJ....143..119I,True,0.602,,,,,,QUASAR,,,,0.63,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J092718.37+211357.4,141.8265,21.23261,PUB,,2012AJ....143..119I,True,1.845,,,,,,QUASAR,,,,2.36,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; no lensing object; C.L.: QUASAR+STAR based on gaia
-SDSS J093139.97+402548.4,142.9165,40.43011,PUB,,2012AJ....143..119I,True,1.028,,,,,,QUASAR,,,,0.43,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J093527.90+232525.0,143.8662,23.42361,PUB,,2012AJ....143..119I,True,2.014,,,,,,QUASAR,,,,1.78,False,False,,,TRUE,QUASAR+GALAXY,Morphological candidate; QSO+galaxy
-SDSS J095036.63+261706.1,147.6526,26.28502,PUB,,2012AJ....143..119I,True,1.264,,,,,,QUASAR,,,,0.44,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J095122.57+263513.9,147.844,26.58719,PUB,,2012AJ....143..119I,True,1.246,,,,,,QUASAR,,,,1.08,True,False,,,False,,Morphological candidate; known lens (FBQ0951+2635)
-SDSS J095228.95+191014.8,148.1206,19.17077,PUB,,2012AJ....143..119I,True,0.884,,,,,,QUASAR,,,,0.52,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J095511.67+194112.2,148.7986,19.68672,PUB,,2012AJ....143..119I,True,1.362,,,,,,QUASAR,,,,0.97,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; no lensing object; C.L.: QUASAR+STAR based on gaia
-SDSS J095636.42+690028.3,149.1517,69.00786,PUB,,2012AJ....143..119I,True,1.975,,,,,,QUASAR,,,,0.77,False,True,1.5,,False,,Morphological candidate; no lensing object; C.L.: In the outskirts of M81
-SDSS J101232.69+224004.7,153.1362,22.66797,PUB,,2012AJ....143..119I,True,1.843,,,,,,QUASAR,,,,0.43,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J105247.46+282310.2,163.1977,28.38616,PUB,,2012AJ....143..119I,True,0.796,,,,,,QUASAR,,,,0.42,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J105440.83+273306.4,163.6701,27.55177,PUB,,2012AJ....143..119I,True,1.451,,,,,,QUASAR,,,,1.2,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
-SDSS J111107.19+180201.5,167.7799,18.03375,PUB,,2012AJ....143..119I,True,0.754,,,,,,QUASAR,,,,0.45,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J112135.13+302254.5,170.3963,30.3818,PUB,,2012AJ....143..119I,True,0.639,,,,,,QUASAR,,,,0.76,False,False,,,TRUE,QUASAR+GALAXY,Morphological candidate; QSO+galaxy; C.L.:possibly offset AGN
-SDSS J112137.34+222823.7,170.4055,22.47324,PUB,,2012AJ....143..119I,True,0.608,,,,,,QUASAR,,,,0.4,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J112235.03+232634.9,170.6459,23.44302,PUB,,2012AJ....143..119I,True,1.249,,,,,,QUASAR,,,,0.7,False,True,2.5,,False,,Morphological candidate; separation 0.7 arcsec; has follow-up spectrum
-SDSS J112648.19+204512.7,171.7007,20.75352,PUB,,2012AJ....143..119I,True,1.118,,,,,,QUASAR,,,,0.42,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J112818.49+240217.4,172.077,24.03816,PUB,,2012AJ....143..119I,True,1.607,,,,,,QUASAR,,,,0.77,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
-SDSS J113217.68+182740.7,173.0736,18.4613,PUB,,2012AJ....143..119I,True,0.852,,,,,,QUASAR,,,,0.41,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J113454.49+300526.3,173.727,30.09063,PUB,,2012AJ....143..119I,True,0.613,,,,,,QUASAR,,,,0.51,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J114019.74+205853.4,175.0822,20.98149,PUB,,2012AJ....143..119I,True,1.789,,,,,,QUASAR,,,,3.21,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; no lensing object; C.L.: QUASAR+STAR based on gaia
-SDSS J120929.39+213323.9,182.3724,21.55663,PUB,,2012AJ....143..119I,True,1.104,,,,,,QUASAR,,,,0.4,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J121333.78+233521.1,183.3907,23.58919,PUB,,2012AJ....143..119I,True,2.105,,,,,,QUASAR,,,,0.46,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J121724.18+214914.4,184.3507,21.82066,PUB,,2012AJ....143..119I,True,0.669,,,,,,QUASAR,,,,0.57,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J122249.86+334750.4,185.7077,33.79733,PUB,,2012AJ....143..119I,True,0.945,,,,,,QUASAR,,,,0.49,False,False,,,TRUE,QUASAR+GALAXY,Morphological candidate; QSO+galaxy
-SDSS J122839.19+035749.2,187.1632,3.96367,PUB,,2012AJ....143..119I,True,0.607,,,,,,QUASAR,,,,0.49,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J124257.32+254303.0,190.7388,25.71749,PUB,,2012AJ....143..119I,True,0.826,,,,,,QUASAR,,,,2.77,False,False,,,TRUE,QUASAR PAIR,"Morphological candidate; QSO pair (z = 0.827, 0.824); has follow-up spectrum"
-SDSS J125107.57+293540.5,192.7815,29.59458,PUB,,2012AJ....143..119I,True,0.802,,,,,,QUASAR,,,,1.23,True,False,,,False,,Morphological candidate; SDSS lens
-SDSS J130451.52+161138.2,196.2146,16.19394,PUB,,2012AJ....143..119I,True,0.709,,,,,,QUASAR,,,,0.48,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J132559.51+144110.3,201.4979,14.68619,PUB,,2012AJ....143..119I,True,1.102,,,,,,QUASAR,,,,0.62,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; no lensing object; C.L.: QUASAR+STAR based on gaia
-SDSS J132752.04+103627.2,201.9668,10.60755,PUB,,2012AJ....143..119I,True,1.895,,,,,,QUASAR,,,,0.54,False,True,1.0,,False,,Morphological candidate; no lensing object; C.L.: Are there really two components?
-SDSS J133018.64+181032.1,202.5776,18.17558,PUB,,2012AJ....143..119I,True,1.393,,,,,,QUASAR,,,,1.11,True,False,,,False,,Morphological candidate; SDSS lens
-SDSS J133243.66+343300.5,203.1819,34.55013,PUB,,2012AJ....143..119I,True,1.925,,,,,,QUASAR,,,,1.16,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; no lensing object; C.L.: QUASAR+STAR based on gaia
-SDSS J140515.42+095931.3,211.3142,9.99203,PUB,,2012AJ....143..119I,True,1.81,,,,,,QUASAR,,,,1.84,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
-SDSS J140901.87+294633.6,212.2577,29.776,PUB,,2012AJ....143..119I,True,1.583,,,,,,QUASAR,,,,0.95,False,True,1.5,,False,,Morphological candidate; no lensing object
-SDSS J141737.89+293510.0,214.4078,29.58611,PUB,,2012AJ....143..119I,True,0.835,,,,,,QUASAR,,,,0.63,False,True,1.25,,False,,Morphological candidate; no lensing object
-SDSS J142341.94+204001.5,215.9247,20.66708,PUB,,2012AJ....143..119I,True,0.842,,,,,,QUASAR,,,,1.06,False,False,,,True,QUASAR PAIR,"Morphological candidate; QSO pair (z = 0.842, 0.842); has follow-up spectrum"
-SDSS J143451.86+155624.7,218.716,15.94019,PUB,,2012AJ....143..119I,True,1.758,,,,,,QUASAR,,,,0.42,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J144208.76+260903.7,220.5365,26.15102,PUB,,2012AJ....143..119I,True,1.418,,,,,,QUASAR,,,,1.72,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
-SDSS J144738.24+230034.1,221.9093,23.00947,PUB,,2012AJ....143..119I,True,1.604,,,,,,QUASAR,,,,1.26,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; single QSO
-SDSS J145501.91+144734.8,223.7579,14.793,PUB,,2012AJ....143..119I,True,1.424,,,,,,QUASAR,,,,1.72,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
-SDSS J145816.37+222624.5,224.5682,22.44013,PUB,,2012AJ....143..119I,True,0.979,,,,,,QUASAR,,,,0.6,False,False,,,TRUE,SINGLE QUASAR,Morphological candidate; single QSO
-SDSS J150248.48+133631.7,225.7019,13.6088,PUB,,2012AJ....143..119I,True,2.063,,,,,,QUASAR,,,,1.25,False,True,2.75,,False,,Morphological candidate; QSO+galaxy; C.L.: Changed to candidate because of likely counterimage in Legacy Survey imaging
-SDSS J151538.59+151135.8,228.9107,15.19327,PUB,,2012AJ....143..119I,True,2.054,,,,,,QUASAR,,,,2.03,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
-SDSS J152024.49+211155.3,230.102,21.19869,PUB,,2012AJ....143..119I,True,1.505,,,,,,QUASAR,,,,1.24,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
-SDSS J153417.62+253847.0,233.5734,25.64638,PUB,,2012AJ....143..119I,True,0.645,,,,,,QUASAR,,,,0.84,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
-SDSS J154817.88+044101.4,237.0744,4.68372,PUB,,2012AJ....143..119I,True,1.035,,,,,,QUASAR,,,,1.22,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
-SDSS J155259.18+230104.9,238.2465,23.01802,PUB,,2012AJ....143..119I,True,1.357,,,,,,QUASAR,,,,0.83,False,False,,,TRUE,QUASAR+STAR,Morphological candidate; no lensing object; C.L.: QUASAR+STAR based on gaia
-SDSS J161320.01+170839.2,243.3333,17.14422,PUB,,2012AJ....143..119I,True,1.549,,,,,,QUASAR,,,,0.78,False,True,2.0,,False,,Morphological candidate; no lensing object
-SDSS J161512.49+182354.0,243.802,18.39833,PUB,,2012AJ....143..119I,True,1.026,,,,,,QUASAR,,,,2.2,False,False,,,True,QUASAR+GALAXY,Morphological candidate; QSO+galaxy
-SDSS J161848.15+171459.4,244.7006,17.24983,PUB,,2012AJ....143..119I,True,1.247,,,,,,QUASAR,,,,1.15,False,True,2.0,,False,,Morphological candidate; no lensing object
-SDSS J080713.57+155844.5,121.8054,15.97819,PUB,,2012AJ....143..119I,True,2.159,,,,,,QUASAR,,,,9.72,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/2.159
-SDSS J080753.56+131505.7,121.9735,13.25155,PUB,,2012AJ....143..119I,True,1.131,,,,,,QUASAR,,,,2.47,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.131
-SDSS J081753.35+125821.5,124.4737,12.97465,PUB,,2012AJ....143..119I,True,1.975,,,,,,QUASAR,,,,17.57,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.975/1.700
-SDSS J082234.33+170935.9,125.6431,17.16262,PUB,,2012AJ....143..119I,True,1.78,,,,,,QUASAR,,,,19.02,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.780/1.798
-SDSS J082911.62+114008.7,127.2963,11.66955,PUB,,2012AJ....143..119I,True,1.476,,,,,,QUASAR,,,,15.23,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.476/0.802
-SDSS J083805.87+145152.2,129.524,14.86456,PUB,,2012AJ....143..119I,True,0.981,,,,,,QUASAR,,,,2.64,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/0.981
-SDSS J084629.79+161729.4,131.6237,16.29118,PUB,,2012AJ....143..119I,True,1.858,,,,,,QUASAR,,,,3.26,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.858
-SDSS J084836.45+571917.0,132.1525,57.32141,PUB,,2012AJ....143..119I,True,1.958,,,,,,QUASAR,,,,2.72,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.958
-SDSS J085139.53+155300.3,132.915,15.88352,PUB,,2012AJ....143..119I,True,1.59,,,,,,QUASAR,,,,2.36,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.590
-SDSS J090327.11+194842.2,135.8622,19.812,PUB,,2012AJ....143..119I,True,0.743,,,,,,QUASAR,,,,5.53,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.743
-SDSS J090437.50+113427.7,136.156,11.57415,PUB,,2012AJ....143..119I,True,0.918,,,,,,QUASAR,,,,2.06,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/0.918; C.L.: QUASAR+STAR based on Gaia
-SDSS J091146.01+235112.6,137.942,23.85372,PUB,,2012AJ....143..119I,True,1.463,,,,,,QUASAR,,,,2.61,False,False,,,True,QUASAR+GALAXY,Colour candidate; no lensing object/1.463
-SDSS J091655.54+193437.8,139.2332,19.57598,PUB,,2012AJ....143..119I,True,1.666,,,,,,QUASAR,,,,15.0,False,False,,,True,QUASAR+OTHER,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.666
-SDSS J091808.86+243550.0,139.5373,24.59916,PUB,,2012AJ....143..119I,True,1.218,,,,,,QUASAR,,,,14.22,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.218/1.223
-SDSS J093230.57+161008.5,143.1277,16.1687,PUB,,2012AJ....143..119I,True,1.918,,,,,,QUASAR,,,,3.32,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.918; C.L.: QUASAR+STAR based on Gaia
-SDSS J094234.97+231031.1,145.6458,23.175,PUB,,2012AJ....143..119I,True,1.833,,,,,,QUASAR,,,,2.45,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.833/1.833
-SDSS J094316.97+644333.1,145.8202,64.72616,PUB,,2012AJ....143..119I,True,1.549,,,,,,QUASAR,,,,2.55,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.549
-SDSS J095106.40+195537.6,147.7766,19.92665,PUB,,2012AJ....143..119I,True,1.412,,,,,,QUASAR,,,,3.37,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.412
-SDSS J095256.20+222651.0,148.2342,22.44545,PUB,,2012AJ....143..119I,True,1.537,,,,,,QUASAR,,,,14.84,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.537
-SDSS J095657.64+212818.6,149.2405,21.46911,PUB,,2012AJ....143..119I,True,1.548,,,,,,QUASAR,,,,19.92,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.548; C.L.: QUASAR+STAR based on Gaia
-SDSS J100817.27+141908.6,152.0732,14.31912,PUB,,2012AJ....143..119I,True,1.513,,,,,,QUASAR,,,,8.93,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.513; C.L.: QUASAR+STAR based on Gaia
-SDSS J100941.34+250104.0,152.4206,25.01637,PUB,,2012AJ....143..119I,True,1.873,,,,,,QUASAR,,,,14.59,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.873/1.982
-SDSS J101344.23+285043.5,153.4341,28.84466,PUB,,2012AJ....143..119I,True,1.559,,,,,,QUASAR,,,,5.53,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.559; C.L.: QUASAR+STAR based on Gaia
-SDSS J102143.28+193425.4,155.4309,19.57311,PUB,,2012AJ....143..119I,True,1.436,,,,,,QUASAR,,,,6.01,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.436/1.870
-SDSS J102631.99+250830.2,156.6304,25.14252,PUB,,2012AJ....143..119I,True,1.936,,,,,,QUASAR,,,,19.63,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.936
-SDSS J104048.76+263444.0,160.206,26.57923,PUB,,2012AJ....143..119I,True,1.832,,,,,,QUASAR,,,,18.57,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.832
-SDSS J104143.09+195722.1,160.4311,19.95645,PUB,,2012AJ....143..119I,True,1.843,,,,,,QUASAR,,,,10.91,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.843/2.144
-SDSS J104705.64+231437.8,161.7727,23.24131,PUB,,2012AJ....143..119I,True,1.599,,,,,,QUASAR,,,,18.93,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.599
-SDSS J104836.68+213843.9,162.1526,21.64275,PUB,,2012AJ....143..119I,True,1.856,,,,,,QUASAR,,,,20.09,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.856; C.L.: QUASAR+STAR based on Gaia and new SDSS spec
-SDSS J105406.95+315644.6,163.5302,31.94775,PUB,,2012AJ....143..119I,True,1.389,,,,,,QUASAR,,,,16.55,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.389; C.L.: QUASAR+STAR based on Gaia 
-SDSS J110049.03+205129.7,165.2059,20.85901,PUB,,2012AJ....143..119I,True,2.161,,,,,,QUASAR,,,,12.03,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/2.161; C.L.: QUASAR+STAR based on Gaia 
-SDSS J110502.55+183115.2,166.2603,18.52079,PUB,,2012AJ....143..119I,True,1.139,,,,,,QUASAR,,,,1.96,False,True,2.0,,False,,Colour candidate; QSO+galaxy/1.139; C.L.: changed to candidate since two Gaia detections
-SDSS J110807.90+330611.2,167.0337,33.10279,PUB,,2012AJ....143..119I,True,1.508,,,,,,QUASAR,,,,5.41,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.508/2.340
-SDSS J111427.40+232729.2,168.6139,23.45825,PUB,,2012AJ....143..119I,True,1.111,,,,,,QUASAR,,,,1.71,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.111; C.L.: QUASAR+STAR based on Gaia 
-SDSS J112713.53+170954.8,171.8056,17.16759,PUB,,2012AJ....143..119I,True,1.501,,,,,,QUASAR,,,,17.82,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.501
-SDSS J113120.92+172217.9,172.8378,17.36911,PUB,,2012AJ....143..119I,True,1.522,,,,,,QUASAR,,,,18.83,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.522
-SDSS J113736.00+194324.3,174.402,19.72233,PUB,,2012AJ....143..119I,True,1.623,,,,,,QUASAR,,,,16.05,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.623
-SDSS J113933.12+261319.9,174.889,26.22313,PUB,,2012AJ....143..119I,True,0.72,,,,,,QUASAR,,,,9.37,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.720
-SDSS J115844.67+272356.9,179.6841,27.3988,PUB,,2012AJ....143..119I,True,2.156,,,,,,QUASAR,,,,13.27,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/2.156
-SDSS J123316.04+174854.8,188.3152,17.81716,PUB,,2012AJ....143..119I,True,2.187,,,,,,QUASAR,,,,17.5,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/2.187/1.643
-SDSS J124300.48+204246.7,190.7516,20.71298,PUB,,2012AJ....143..119I,True,1.98,,,,,,QUASAR,,,,2.13,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.980
-SDSS J125022.32+174144.5,192.595,17.69538,PUB,,2012AJ....143..119I,True,1.246,,,,,,QUASAR,,,,13.91,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.246/1.241
-SDSS J125150.47+250438.4,192.9602,25.07933,PUB,,2012AJ....143..119I,True,1.526,,,,,,QUASAR,,,,14.3,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.526; C.L.: QUASAR+STAR based on Gaia 
-SDSS J125313.42+101926.4,193.3054,10.32229,PUB,,2012AJ....143..119I,True,0.716,,,,,,QUASAR,,,,12.95,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.716
-SDSS J130424.98+353326.0,196.1036,35.55884,PUB,,2012AJ....143..119I,True,1.988,,,,,,QUASAR,,,,11.79,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.988
-SDSS J130439.13+210559.9,196.1614,21.09934,PUB,,2012AJ....143..119I,True,2.015,,,,,,QUASAR,,,,11.6,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/2.015; C.L.: QUASAR+STAR based on Gaia 
-SDSS J130548.06+261930.0,196.4518,26.32537,PUB,,2012AJ....143..119I,True,1.496,,,,,,QUASAR,,,,10.67,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.496; C.L.: QUASAR+STAR based on Gaia 
-SDSS J131017.23+105448.3,197.5737,10.9148,PUB,,2012AJ....143..119I,True,2.134,,,,,,QUASAR,,,,16.93,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/2.134; C.L.: QUASAR+STAR based on Gaia 
-SDSS J131531.76+262132.3,198.8824,26.35673,PUB,,2012AJ....143..119I,True,1.525,,,,,,QUASAR,,,,16.14,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.525; C.L.: QUASAR+STAR based on Gaia 
-SDSS J131847.14+105245.0,199.6947,10.87758,PUB,,2012AJ....143..119I,True,0.844,,,,,,QUASAR,,,,16.41,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/0.844/1.910
-SDSS J132059.17+164402.5,200.2477,16.73445,PUB,,2012AJ....143..119I,True,1.502,,,,,,QUASAR,,,,8.59,False,True,,,False,,Colour candidate; SDSS lens; has follow-up spectrum/1.502/1.502
-SDSS J132551.85+080957.2,201.4659,8.16447,PUB,,2012AJ....143..119I,True,1.448,,,,,,QUASAR,,,,10.32,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.448; C.L.: QUASAR+STAR based on Gaia 
-SDSS J133139.33+082647.1,202.9129,8.44558,PUB,,2012AJ....143..119I,True,1.586,,,,,,QUASAR,,,,9.15,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.586; C.L.: QUASAR+STAR based on new SDSS spectrum
-SDSS J133353.11+132614.0,203.4714,13.43694,PUB,,2012AJ....143..119I,True,1.786,,,,,,QUASAR,,,,2.35,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.786; C.L.: QUASAR+STAR based on Gaia 
-SDSS J133818.02+095210.8,204.575,9.86988,PUB,,2012AJ....143..119I,True,1.69,,,,,,QUASAR,,,,1.5,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.690; C.L.: QUASAR+STAR based on Gaia 
-SDSS J134953.90+220927.7,207.4743,22.15558,PUB,,2012AJ....143..119I,True,1.308,,,,,,QUASAR,,,,15.25,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.308; C.L.: QUASAR+STAR based on Gaia and WISE
-SDSS J135020.67+190337.8,207.5858,19.06083,PUB,,2012AJ....143..119I,True,1.261,,,,,,QUASAR,,,,3.12,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.261; C.L.: QUASAR+STAR based on Gaia 
-SDSS J135302.69+230259.8,208.2619,23.05133,PUB,,2012AJ....143..119I,True,1.542,,,,,,QUASAR,,,,11.18,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.542
-SDSS J135455.03+072926.8,208.7297,7.48843,PUB,,2012AJ....143..119I,True,0.872,,,,,,QUASAR,,,,17.18,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/0.872/1.351
-SDSS J135530.93+195808.1,208.8791,19.96837,PUB,,2012AJ....143..119I,True,0.801,,,,,,QUASAR,,,,4.31,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/0.801; C.L.: QUASAR+STAR based on Gaia 
-SDSS J135607.71+162044.9,209.0323,16.34588,PUB,,2012AJ....143..119I,True,1.184,,,,,,QUASAR,,,,1.85,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.184
-SDSS J135809.86+232610.0,209.5427,23.43534,PUB,,2012AJ....143..119I,True,1.555,,,,,,QUASAR,,,,12.46,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.555/1.543
-SDSS J140012.27+232346.7,210.0523,23.39702,PUB,,2012AJ....143..119I,True,1.877,,,,,,QUASAR,,,,9.5,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.877/1.867
-SDSS J140914.66+163054.4,212.3105,16.51569,PUB,,2012AJ....143..119I,True,1.223,,,,,,QUASAR,,,,5.78,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.223/0.303
-SDSS J141023.94+315953.5,212.6001,31.99805,PUB,,2012AJ....143..119I,True,1.181,,,,,,QUASAR,,,,2.61,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.181; C.L.: QUASAR+STAR based on Gaia 
-SDSS J141118.48+083945.3,212.8277,8.66238,PUB,,2012AJ....143..119I,True,1.143,,,,,,QUASAR,,,,5.37,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.143; C.L.: QUASAR+STAR based on Gaia 
-SDSS J141302.61+194938.0,213.2624,19.82752,PUB,,2012AJ....143..119I,True,1.54,,,,,,QUASAR,,,,10.7,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.540; C.L.: QUASAR+STAR based on Gaia 
-SDSS J142054.41+160333.3,215.2277,16.06059,PUB,,2012AJ....143..119I,True,2.021,,,,,,QUASAR,,,,11.96,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/2.021/2.066
-SDSS J142630.23+252743.2,216.6239,25.46044,PUB,,2012AJ....143..119I,True,1.922,,,,,,QUASAR,,,,17.22,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.922; C.L.: QUASAR+STAR based on Gaia 
-SDSS J142931.29+261654.1,217.3801,26.27952,PUB,,2012AJ....143..119I,True,1.403,,,,,,QUASAR,,,,15.73,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.403; C.L.: QUASAR+STAR based on Gaia 
-SDSS J143002.88+071411.3,217.5115,7.23707,PUB,,2012AJ....143..119I,True,1.258,,,,,,QUASAR,,,,5.41,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair (see reference)/1.258/1.246
-SDSS J143226.30+080730.4,218.1098,8.12661,PUB,,2012AJ....143..119I,True,1.729,,,,,,QUASAR,,,,10.97,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.729/2.125
-SDSS J143350.94+145008.1,218.4625,14.83523,PUB,,2012AJ....143..119I,True,1.506,,,,,,QUASAR,,,,3.34,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.506/1.506
-SDSS J143553.39+185403.2,218.9712,18.90099,PUB,,2012AJ....143..119I,True,1.168,,,,,,QUASAR,,,,8.4,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.168
-SDSS J144035.91+224023.2,220.15,22.67388,PUB,,2012AJ....143..119I,True,1.599,,,,,,QUASAR,,,,6.26,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.599; C.L.: QUASAR+STAR based on Gaia 
-SDSS J144144.92+225808.9,220.4389,22.96719,PUB,,2012AJ....143..119I,True,2.193,,,,,,QUASAR,,,,18.54,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/2.193
-SDSS J144147.28+223346.3,220.4478,22.56038,PUB,,2012AJ....143..119I,True,1.458,,,,,,QUASAR,,,,18.6,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.458; C.L.: QUASAR+STAR based on Gaia 
-SDSS J145030.61+214818.1,222.629,21.80308,PUB,,2012AJ....143..119I,True,2.09,,,,,,QUASAR,,,,17.33,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/2.090
-SDSS J145103.50+221551.0,222.7654,22.26212,PUB,,2012AJ....143..119I,True,1.509,,,,,,QUASAR,,,,15.83,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.509/1.554
-SDSS J145224.60+090424.2,223.1016,9.07507,PUB,,2012AJ....143..119I,True,1.873,,,,,,QUASAR,,,,13.56,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.873; C.L.: QUASAR+STAR based on Gaia 
-SDSS J145517.56+282126.0,223.8252,28.356,PUB,,2012AJ....143..119I,True,0.867,,,,,,QUASAR,,,,16.15,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.867
-SDSS J145529.98+215352.6,223.8724,21.89943,PUB,,2012AJ....143..119I,True,1.306,,,,,,QUASAR,,,,19.85,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.306; C.L.: QUASAR+STAR based on Gaia 
-SDSS J150429.73+070619.8,226.1249,7.10644,PUB,,2012AJ....143..119I,True,2.116,,,,,,QUASAR,,,,10.01,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/2.116; C.L.: QUASAR+STAR based on Gaia 
-SDSS J150506.13+080604.5,226.2758,8.10385,PUB,,2012AJ....143..119I,True,1.249,,,,,,QUASAR,,,,18.81,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.249/2.154
-SDSS J151245.20+092939.8,228.1888,9.49382,PUB,,2012AJ....143..119I,True,1.638,,,,,,QUASAR,,,,5.72,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.638; C.L.: QUASAR+STAR based on Gaia 
-SDSS J152050.18+263740.8,230.2087,26.62801,PUB,,2012AJ....143..119I,True,1.365,,,,,,QUASAR,,,,1.94,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.365
-SDSS J152100.33+063653.5,230.2495,6.61569,PUB,,2012AJ....143..119I,True,1.555,,,,,,QUASAR,,,,14.36,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.555
-SDSS J152105.50+165424.2,230.2719,16.90901,PUB,,2012AJ....143..119I,True,1.551,,,,,,QUASAR,,,,17.7,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.551; C.L.: QUASAR+STAR based on Gaia 
-SDSS J152118.34+242555.8,230.3246,24.43365,PUB,,2012AJ....143..119I,True,2.188,,,,,,QUASAR,,,,16.04,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/2.188; C.L.: QUASAR+STAR based on Gaia 
-SDSS J152122.41+092650.8,230.3432,9.44794,PUB,,2012AJ....143..119I,True,0.748,,,,,,QUASAR,,,,3.65,False,False,,,TRUE,QUASAR+OTHER,"Colour candidate; no lensing object/0.748; note nearest point source is likely a star, but another 20 arcseconds away is a quasar"
-SDSS J152310.55+175410.2,230.793,17.90033,PUB,,2012AJ....143..119I,True,2.122,,,,,,QUASAR,,,,19.17,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/2.122
-SDSS J152501.48+262732.3,231.2537,26.45969,PUB,,2012AJ....143..119I,True,1.581,,,,,,QUASAR,,,,16.33,False,False,,,TRUE,QUASAR+OTHER,Colour candidate; no lensing object/1.581
-SDSS J152719.52+264929.3,231.8311,26.82547,PUB,,2012AJ....143..119I,True,0.78,,,,,,QUASAR,,,,4.9,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/0.780; C.L.: QUASAR+STAR based on Gaia 
-SDSS J152806.63+132345.8,232.0276,13.3962,PUB,,2012AJ....143..119I,True,0.675,,,,,,QUASAR,,,,1.13,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/0.675; C.L.: QUASAR+STAR based on Gaia 
-SDSS J153019.08+191948.5,232.582,19.3293,PUB,,2012AJ....143..119I,True,1.294,,,,,,QUASAR,,,,18.16,False,False,,,TRUE,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.294/1.465
-SDSS J153043.60+254909.6,232.6817,25.81898,PUB,,2012AJ....143..119I,True,1.49,,,,,,QUASAR,,,,2.52,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.490; C.L.: QUASAR+STAR based on Gaia 
-SDSS J153254.75+092454.9,233.2292,9.41707,PUB,,2012AJ....143..119I,True,2.123,,,,,,QUASAR,,,,15.35,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/2.123; C.L.: QUASAR+STAR based on Gaia 
-SDSS J153444.54+015249.4,233.6857,1.87932,PUB,,2012AJ....143..119I,True,1.064,,,,,,QUASAR,,,,7.78,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.064
-SDSS J153452.12+093251.0,233.7156,9.54713,PUB,,2012AJ....143..119I,True,1.168,,,,,,QUASAR,,,,11.47,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.168
-SDSS J153530.86+131310.6,233.8788,13.2195,PUB,,2012AJ....143..119I,True,1.018,,,,,,QUASAR,,,,2.35,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.018; C.L.: QUASAR+STAR based on Gaia 
-SDSS J153920.08+150902.1,234.8326,15.15254,PUB,,2012AJ....143..119I,True,1.474,,,,,,QUASAR,,,,15.69,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.474
-SDSS J153927.07+042518.1,234.8625,4.42183,PUB,,2012AJ....143..119I,True,0.739,,,,,,QUASAR,,,,1.89,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/0.739; C.L.: QUASAR+STAR based on Gaia 
-SDSS J154043.50+154416.1,235.1818,15.73563,PUB,,2012AJ....143..119I,True,1.577,,,,,,QUASAR,,,,16.06,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.577; C.L.: QUASAR+STAR based on Gaia 
-SDSS J154356.31+021344.0,235.9856,2.22961,PUB,,2012AJ....143..119I,True,1.121,,,,,,QUASAR,,,,9.22,False,False,,,TRUE,QUASAR+OTHER,Colour candidate; no lensing object/1.121
-SDSS J154405.23+143455.2,236.0214,14.58098,PUB,,2012AJ....143..119I,True,1.406,,,,,,QUASAR,,,,7.66,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.406; C.L.: QUASAR+STAR based on Gaia 
-SDSS J154503.01+164234.4,236.2602,16.70841,PUB,,2012AJ....143..119I,True,1.481,,,,,,QUASAR,,,,18.02,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.481
-SDSS J154632.34+223637.8,236.6346,22.61083,PUB,,2012AJ....143..119I,True,1.984,,,,,,QUASAR,,,,2.47,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.984; C.L.: QUASAR+STAR based on Gaia 
-SDSS J154936.47+115833.2,237.4017,11.9759,PUB,,2012AJ....143..119I,True,1.248,,,,,,QUASAR,,,,1.96,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.248; C.L.: QUASAR+STAR based on Gaia 
-SDSS J155052.40+183655.1,237.7191,18.61405,PUB,,2012AJ....143..119I,True,1.823,,,,,,QUASAR,,,,10.59,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.823; C.L.: QUASAR+STAR based on Gaia 
-SDSS J155446.59+040443.2,238.6956,4.07664,PUB,,2012AJ....143..119I,True,2.157,,,,,,QUASAR,,,,18.21,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/2.157; C.L.: QUASAR+STAR based on Gaia 
-SDSS J155520.86+075418.8,238.8371,7.90511,PUB,,2012AJ....143..119I,True,1.464,,,,,,QUASAR,,,,1.63,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.464; C.L.: QUASAR+STAR based on Gaia 
-SDSS J155626.90+103457.3,239.1107,10.58072,PUB,,2012AJ....143..119I,True,1.902,,,,,,QUASAR,,,,16.59,False,False,,,TRUE,QUASAR+OTHER,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.902
-SDSS J160734.18+035034.0,241.8899,3.84343,PUB,,2012AJ....143..119I,True,1.304,,,,,,QUASAR,,,,18.02,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.304; C.L.: QUASAR+STAR based on Gaia 
-SDSS J161914.41+093615.8,244.8097,9.60567,PUB,,2012AJ....143..119I,True,1.63,,,,,,QUASAR,,,,9.46,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.630; C.L.: QUASAR+STAR based on Gaia 
-SDSS J162026.14+120342.0,245.1092,12.06143,PUB,,2012AJ....143..119I,True,1.157,,,,,,QUASAR,,,,2.57,True,False,,,False,,Colour candidate; SDSS lens; has follow-up spectrum/1.157/1.158
-SDSS J162033.71+121121.2,245.1382,12.18805,PUB,,2012AJ....143..119I,True,1.629,,,,,,QUASAR,,,,17.9,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.629; C.L.: QUASAR+STAR based on Gaia 
-SDSS J162438.27+105106.8,246.1589,10.85168,PUB,,2012AJ....143..119I,True,1.227,,,,,,QUASAR,,,,4.28,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.227; C.L.: QUASAR+STAR based on Gaia 
-SDSS J162531.13+103110.5,246.3789,10.51872,PUB,,2012AJ....143..119I,True,1.312,,,,,,QUASAR,,,,8.18,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.312; C.L.: QUASAR+STAR based on Gaia 
-SDSS J163017.91+113725.0,247.5752,11.62155,PUB,,2012AJ....143..119I,True,1.637,,,,,,QUASAR,,,,15.45,False,False,,,TRUE,QUASAR+OTHER,Colour candidate; no lensing object/1.637; C.L.: likely quasar pair given WISE colours
-SDSS J163326.49+203014.6,248.3593,20.50493,PUB,,2012AJ....143..119I,True,1.553,,,,,,QUASAR,,,,9.18,False,False,,,TRUE,QUASAR+STAR,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.553; C.L.: QUASAR+STAR based on Gaia 
-SDSS J170924.22+352514.2,257.3511,35.42059,PUB,,2012AJ....143..119I,True,1.843,,,,,,QUASAR,,,,1.12,False,False,,,TRUE,QUASAR+STAR,Colour candidate; no lensing object/1.843; C.L.: QUASAR+STAR based on Gaia 
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+SDSS J074248.40+270412.2,115.7016,27.07005,PUB,,2012AJ....143..119I,True,0.626,True,,,,,QUASAR,,,,0.78,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J081405.56+582840.9,123.5231,58.47802,PUB,,2012AJ....143..119I,True,1.429,True,,,,,QUASAR,,,,0.5,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J090404.15+151254.5,136.0172,15.21513,PUB,,2012AJ....143..119I,False,1.825,True,,,,,QUASAR,,,,1.04,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
+SDSS J090645.62+122512.8,136.69,12.42022,PUB,,2012AJ....143..119I,True,0.602,True,,,,,QUASAR,,,,0.63,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J092718.37+211357.4,141.8265,21.23261,PUB,,2012AJ....143..119I,True,1.845,True,,,,,QUASAR,,,,2.36,False,False,,,True,QUASAR+STAR,Morphological candidate; no lensing object; C.L.:QUASAR+STAR based on gaia
+SDSS J093139.97+402548.4,142.9165,40.43011,PUB,,2012AJ....143..119I,True,1.028,True,,,,,QUASAR,,,,0.43,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J093527.90+232525.0,143.8662,23.42361,PUB,,2012AJ....143..119I,True,2.014,True,,,,,QUASAR,,,,1.78,False,False,,,True,QUASAR+GALAXY,Morphological candidate; QSO+galaxy
+SDSS J095036.63+261706.1,147.6526,26.28502,PUB,,2012AJ....143..119I,True,1.264,True,,,,,QUASAR,,,,0.44,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J095122.57+263513.9,147.844,26.58719,PUB,,2012AJ....143..119I,False,1.246,True,,,,,QUASAR,,,,1.08,True,False,,,False,,Morphological candidate; known lens (FBQ0951+2635)
+SDSS J095228.95+191014.8,148.1206,19.17077,PUB,,2012AJ....143..119I,True,0.884,True,,,,,QUASAR,,,,0.52,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J095511.67+194112.2,148.7986,19.68672,PUB,,2012AJ....143..119I,True,1.362,True,,,,,QUASAR,,,,0.97,False,False,,,True,QUASAR+STAR,Morphological candidate; no lensing object; C.L.:QUASAR+STAR based on gaia
+SDSS J095636.42+690028.3,149.1517,69.00786,PUB,,2012AJ....143..119I,True,1.975,True,,,,,QUASAR,,,,0.77,False,True,1.5,,False,,Morphological candidate; no lensing object; C.L.:In the outskirts of M81
+SDSS J101232.69+224004.7,153.1362,22.66797,PUB,,2012AJ....143..119I,True,1.843,True,,,,,QUASAR,,,,0.43,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J105247.46+282310.2,163.1977,28.38616,PUB,,2012AJ....143..119I,True,0.796,True,,,,,QUASAR,,,,0.42,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J105440.83+273306.4,163.6701,27.55177,PUB,,2012AJ....143..119I,False,1.451,True,,,,,QUASAR,,,,1.2,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
+SDSS J111107.19+180201.5,167.7799,18.03375,PUB,,2012AJ....143..119I,True,0.754,True,,,,,QUASAR,,,,0.45,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J112135.13+302254.5,170.3963,30.3818,PUB,,2012AJ....143..119I,True,0.639,True,,,,,QUASAR,,,,0.76,False,False,,,True,QUASAR+GALAXY,Morphological candidate; QSO+galaxy; C.L.:possibly offset AGN
+SDSS J112137.34+222823.7,170.4055,22.47324,PUB,,2012AJ....143..119I,True,0.608,True,,,,,QUASAR,,,,0.4,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J112235.03+232634.9,170.6459,23.44302,PUB,,2012AJ....143..119I,True,1.249,True,,,,,QUASAR,,,,0.7,False,True,2.5,,False,,Morphological candidate; separation 0.7 arcsec; has follow-up spectrum
+SDSS J112648.19+204512.7,171.7007,20.75352,PUB,,2012AJ....143..119I,True,1.118,True,,,,,QUASAR,,,,0.42,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSSJ1128+2402,172.077,24.03816,PUB,,2012AJ....143..119I,False,1.607,True,,,,,QUASAR,,,,0.77,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
+SDSS J113217.68+182740.7,173.0736,18.4613,PUB,,2012AJ....143..119I,True,0.852,True,,,,,QUASAR,,,,0.41,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J113454.49+300526.3,173.727,30.09063,PUB,,2012AJ....143..119I,True,0.613,True,,,,,QUASAR,,,,0.51,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J114019.74+205853.4,175.0822,20.98149,PUB,,2012AJ....143..119I,True,1.789,True,,,,,QUASAR,,,,3.21,False,False,,,True,QUASAR+STAR,Morphological candidate; no lensing object; C.L.:QUASAR+STAR based on gaia
+SDSS J120929.39+213323.9,182.3724,21.55663,PUB,,2012AJ....143..119I,True,1.104,True,,,,,QUASAR,,,,0.4,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J121333.78+233521.1,183.3907,23.58919,PUB,,2012AJ....143..119I,True,2.105,True,,,,,QUASAR,,,,0.46,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J121724.18+214914.4,184.3507,21.82066,PUB,,2012AJ....143..119I,True,0.669,True,,,,,QUASAR,,,,0.57,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J122249.86+334750.4,185.7077,33.79733,PUB,,2012AJ....143..119I,True,0.945,True,,,,,QUASAR,,,,0.49,False,False,,,True,QUASAR+GALAXY,Morphological candidate; QSO+galaxy
+SDSS J122839.19+035749.2,187.1632,3.96367,PUB,,2012AJ....143..119I,True,0.607,True,,,,,QUASAR,,,,0.49,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J124257.32+254303.0,190.7388,25.71749,PUB,,2012AJ....143..119I,True,0.826,True,,,,,QUASAR,,,,2.77,False,False,,,True,QUASAR PAIR,"Morphological candidate; QSO pair (z = 0.827, 0.824); has follow-up spectrum"
+SDSS J125107.57+293540.5,192.7815,29.59458,PUB,,2012AJ....143..119I,False,0.802,True,,,,,QUASAR,,,,1.23,True,False,,,False,,Morphological candidate; SDSS lens
+SDSS J130451.52+161138.2,196.2146,16.19394,PUB,,2012AJ....143..119I,True,0.709,True,,,,,QUASAR,,,,0.48,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J132559.51+144110.3,201.4979,14.68619,PUB,,2012AJ....143..119I,True,1.102,True,,,,,QUASAR,,,,0.62,False,False,,,True,QUASAR+STAR,Morphological candidate; no lensing object; C.L.:QUASAR+STAR based on gaia
+SDSS J132752.04+103627.2,201.9668,10.60755,PUB,,2012AJ....143..119I,True,1.895,True,,,,,QUASAR,,,,0.54,False,True,1.0,,False,,Morphological candidate; no lensing object; C.L.:Are there really two components?
+SDSS J133018.64+181032.1,202.5776,18.17558,PUB,,2012AJ....143..119I,False,1.393,True,,,,,QUASAR,,,,1.11,True,False,,,False,,Morphological candidate; SDSS lens
+SDSS J133243.66+343300.5,203.1819,34.55013,PUB,,2012AJ....143..119I,True,1.925,True,,,,,QUASAR,,,,1.16,False,False,,,True,QUASAR+STAR,Morphological candidate; no lensing object; C.L.:QUASAR+STAR based on gaia
+SDSSJ1405+0959,211.3142,9.99203,PUB,,2012AJ....143..119I,False,1.81,True,,,,,QUASAR,,,,1.84,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
+SDSS J140901.87+294633.6,212.2577,29.776,PUB,,2012AJ....143..119I,True,1.583,True,,,,,QUASAR,,,,0.95,False,True,1.5,,False,,Morphological candidate; no lensing object
+SDSS J141737.89+293510.0,214.4078,29.58611,PUB,,2012AJ....143..119I,True,0.835,True,,,,,QUASAR,,,,0.63,False,True,1.25,,False,,Morphological candidate; no lensing object
+SDSS J142341.94+204001.5,215.9247,20.66708,PUB,,2012AJ....143..119I,True,0.842,True,,,,,QUASAR,,,,1.06,False,False,,,True,QUASAR PAIR,"Morphological candidate; QSO pair (z = 0.842, 0.842); has follow-up spectrum"
+SDSS J143451.86+155624.7,218.716,15.94019,PUB,,2012AJ....143..119I,True,1.758,True,,,,,QUASAR,,,,0.42,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J144208.76+260903.7,220.5365,26.15102,PUB,,2012AJ....143..119I,True,1.418,True,,,,,QUASAR,,,,1.72,False,False,,,True,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
+SDSS J144738.24+230034.1,221.9093,23.00947,PUB,,2012AJ....143..119I,True,1.604,True,,,,,QUASAR,,,,1.26,False,False,,,True,QUASAR+STAR,Morphological candidate; single QSO
+SDSS J145501.91+144734.8,223.7579,14.793,PUB,,2012AJ....143..119I,False,1.424,True,,,,,QUASAR,,,,1.72,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
+SDSS J145816.37+222624.5,224.5682,22.44013,PUB,,2012AJ....143..119I,True,0.979,True,,,,,QUASAR,,,,0.6,False,False,,,True,SINGLE QUASAR,Morphological candidate; single QSO
+SDSS J150248.48+133631.7,225.7019,13.6088,PUB,,2012AJ....143..119I,True,2.063,True,,,,,QUASAR,,,,1.25,False,True,2.75,,False,,Morphological candidate; QSO+galaxy; C.L.:Changed to candidate because of likely counterimage in Legacy Survey imaging
+SDSSJ1515+1511,228.9107,15.19327,PUB,,2012AJ....143..119I,False,2.054,True,,,,,QUASAR,,,,2.03,True,False,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
+SDSS J152024.49+211155.3,230.102,21.19869,PUB,,2012AJ....143..119I,True,1.505,True,,,,,QUASAR,,,,1.24,False,False,,,True,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
+SDSS J153417.62+253847.0,233.5734,25.64638,PUB,,2012AJ....143..119I,True,0.645,True,,,,,QUASAR,,,,0.84,False,False,,,True,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
+SDSS J154817.88+044101.4,237.0744,4.68372,PUB,,2012AJ....143..119I,True,1.035,True,,,,,QUASAR,,,,1.22,False,False,,,True,QUASAR+STAR,Morphological candidate; QSO+star; has follow-up spectrum
+SDSS J155259.18+230104.9,238.2465,23.01802,PUB,,2012AJ....143..119I,True,1.357,True,,,,,QUASAR,,,,0.83,False,False,,,True,QUASAR+STAR,Morphological candidate; no lensing object; C.L.:QUASAR+STAR based on gaia
+SDSS J161320.01+170839.2,243.3333,17.14422,PUB,,2012AJ....143..119I,True,1.549,True,,,,,QUASAR,,,,0.78,False,True,2.0,,False,,Morphological candidate; no lensing object
+SDSS J161512.49+182354.0,243.802,18.39833,PUB,,2012AJ....143..119I,True,1.026,True,,,,,QUASAR,,,,2.2,False,False,,,True,QUASAR+GALAXY,Morphological candidate; QSO+galaxy
+SDSS J161848.15+171459.4,244.7006,17.24983,PUB,,2012AJ....143..119I,True,1.247,True,,,,,QUASAR,,,,1.15,False,True,2.0,,False,,Morphological candidate; no lensing object
+SDSS J080713.57+155844.5,121.8054,15.97819,PUB,,2012AJ....143..119I,True,2.159,True,,,,,QUASAR,,,,9.72,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/2.159
+SDSS J080753.56+131505.7,121.9735,13.25155,PUB,,2012AJ....143..119I,True,1.131,True,,,,,QUASAR,,,,2.47,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.131
+SDSS J081753.35+125821.5,124.4737,12.97465,PUB,,2012AJ....143..119I,True,1.975,True,,,,,QUASAR,,,,17.57,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.975/1.700
+SDSS J082234.33+170935.9,125.6431,17.16262,PUB,,2012AJ....143..119I,True,1.78,True,,,,,QUASAR,,,,19.02,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.780/1.798
+SDSS J082911.62+114008.7,127.2963,11.66955,PUB,,2012AJ....143..119I,True,1.476,True,,,,,QUASAR,,,,15.23,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.476/0.802
+SDSS J083805.87+145152.2,129.524,14.86456,PUB,,2012AJ....143..119I,True,0.981,True,,,,,QUASAR,,,,2.64,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/0.981
+SDSS J084629.79+161729.4,131.6237,16.29118,PUB,,2012AJ....143..119I,True,1.858,True,,,,,QUASAR,,,,3.26,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.858
+SDSS J084836.45+571917.0,132.1525,57.32141,PUB,,2012AJ....143..119I,True,1.958,True,,,,,QUASAR,,,,2.72,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.958
+SDSS J085139.53+155300.3,132.915,15.88352,PUB,,2012AJ....143..119I,True,1.59,True,,,,,QUASAR,,,,2.36,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.590
+SDSS J090327.11+194842.2,135.8622,19.812,PUB,,2012AJ....143..119I,True,0.743,True,,,,,QUASAR,,,,5.53,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.743
+SDSS J090437.50+113427.7,136.156,11.57415,PUB,,2012AJ....143..119I,True,0.918,True,,,,,QUASAR,,,,2.06,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/0.918; C.L.:QUASAR+STAR based on Gaia
+SDSS J091146.01+235112.6,137.942,23.85372,PUB,,2012AJ....143..119I,True,1.463,True,,,,,QUASAR,,,,2.61,False,False,,,True,QUASAR+GALAXY,Colour candidate; no lensing object/1.463
+SDSS J091655.54+193437.8,139.2332,19.57598,PUB,,2012AJ....143..119I,True,1.666,True,,,,,QUASAR,,,,15.0,False,False,,,True,QUASAR+OTHER,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.666
+SDSS J091808.86+243550.0,139.5373,24.59916,PUB,,2012AJ....143..119I,True,1.218,True,,,,,QUASAR,,,,14.22,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.218/1.223
+SDSS J093230.57+161008.5,143.1277,16.1687,PUB,,2012AJ....143..119I,True,1.918,True,,,,,QUASAR,,,,3.32,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.918; C.L.:QUASAR+STAR based on Gaia
+SDSS J094234.97+231031.1,145.6458,23.175,PUB,,2012AJ....143..119I,True,1.833,True,,,,,QUASAR,,,,2.45,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.833/1.833
+SDSS J094316.97+644333.1,145.8202,64.72616,PUB,,2012AJ....143..119I,True,1.549,True,,,,,QUASAR,,,,2.55,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.549
+SDSS J095106.40+195537.6,147.7766,19.92665,PUB,,2012AJ....143..119I,True,1.412,True,,,,,QUASAR,,,,3.37,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.412
+SDSS J095256.20+222651.0,148.2342,22.44545,PUB,,2012AJ....143..119I,True,1.537,True,,,,,QUASAR,,,,14.84,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.537
+SDSS J095657.64+212818.6,149.2405,21.46911,PUB,,2012AJ....143..119I,True,1.548,True,,,,,QUASAR,,,,19.92,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.548; C.L.:QUASAR+STAR based on Gaia
+SDSS J100817.27+141908.6,152.0732,14.31912,PUB,,2012AJ....143..119I,True,1.513,True,,,,,QUASAR,,,,8.93,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.513; C.L.:QUASAR+STAR based on Gaia
+SDSS J100941.34+250104.0,152.4206,25.01637,PUB,,2012AJ....143..119I,True,1.873,True,,,,,QUASAR,,,,14.59,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.873/1.982
+SDSS J101344.23+285043.5,153.4341,28.84466,PUB,,2012AJ....143..119I,True,1.559,True,,,,,QUASAR,,,,5.53,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.559; C.L.:QUASAR+STAR based on Gaia
+SDSS J102143.28+193425.4,155.4309,19.57311,PUB,,2012AJ....143..119I,True,1.436,True,,,,,QUASAR,,,,6.01,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.436/1.870
+SDSS J102631.99+250830.2,156.6304,25.14252,PUB,,2012AJ....143..119I,True,1.936,True,,,,,QUASAR,,,,19.63,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.936
+SDSS J104048.76+263444.0,160.206,26.57923,PUB,,2012AJ....143..119I,True,1.832,True,,,,,QUASAR,,,,18.57,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.832
+SDSS J104143.09+195722.1,160.4311,19.95645,PUB,,2012AJ....143..119I,True,1.843,True,,,,,QUASAR,,,,10.91,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.843/2.144
+SDSS J104705.64+231437.8,161.7727,23.24131,PUB,,2012AJ....143..119I,True,1.599,True,,,,,QUASAR,,,,18.93,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.599
+SDSS J104836.68+213843.9,162.1526,21.64275,PUB,,2012AJ....143..119I,True,1.856,True,,,,,QUASAR,,,,20.09,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.856; C.L.:QUASAR+STAR based on Gaia and new SDSS spec
+SDSS J105406.95+315644.6,163.5302,31.94775,PUB,,2012AJ....143..119I,True,1.389,True,,,,,QUASAR,,,,16.55,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.389; C.L.:QUASAR+STAR based on Gaia 
+SDSS J110049.03+205129.7,165.2059,20.85901,PUB,,2012AJ....143..119I,True,2.161,True,,,,,QUASAR,,,,12.03,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/2.161; C.L.:QUASAR+STAR based on Gaia 
+SDSS J110502.55+183115.2,166.2603,18.52079,PUB,,2012AJ....143..119I,True,1.139,True,,,,,QUASAR,,,,1.96,False,True,2.0,,False,,Colour candidate; QSO+galaxy/1.139; C.L.:changed to candidate since two Gaia detections
+SDSS J110807.90+330611.2,167.0337,33.10279,PUB,,2012AJ....143..119I,True,1.508,True,,,,,QUASAR,,,,5.41,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.508/2.340
+SDSS J111427.40+232729.2,168.6139,23.45825,PUB,,2012AJ....143..119I,True,1.111,True,,,,,QUASAR,,,,1.71,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.111; C.L.:QUASAR+STAR based on Gaia 
+SDSS J112713.53+170954.8,171.8056,17.16759,PUB,,2012AJ....143..119I,True,1.501,True,,,,,QUASAR,,,,17.82,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.501
+SDSS J113120.92+172217.9,172.8378,17.36911,PUB,,2012AJ....143..119I,True,1.522,True,,,,,QUASAR,,,,18.83,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.522
+SDSS J113736.00+194324.3,174.402,19.72233,PUB,,2012AJ....143..119I,True,1.623,True,,,,,QUASAR,,,,16.05,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.623
+SDSS J113933.12+261319.9,174.889,26.22313,PUB,,2012AJ....143..119I,True,0.72,True,,,,,QUASAR,,,,9.37,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.720
+SDSS J115844.67+272356.9,179.6841,27.3988,PUB,,2012AJ....143..119I,True,2.156,True,,,,,QUASAR,,,,13.27,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/2.156
+SDSS J123316.04+174854.8,188.3152,17.81716,PUB,,2012AJ....143..119I,True,2.187,True,,,,,QUASAR,,,,17.5,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/2.187/1.643
+SDSS J124300.48+204246.7,190.7516,20.71298,PUB,,2012AJ....143..119I,True,1.98,True,,,,,QUASAR,,,,2.13,False,False,,,True,QUASAR+GALAXY,Colour candidate; QSO+galaxy/1.980
+SDSS J125022.32+174144.5,192.595,17.69538,PUB,,2012AJ....143..119I,True,1.246,True,,,,,QUASAR,,,,13.91,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.246/1.241
+SDSS J125150.47+250438.4,192.9602,25.07933,PUB,,2012AJ....143..119I,True,1.526,True,,,,,QUASAR,,,,14.3,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.526; C.L.:QUASAR+STAR based on Gaia 
+SDSS J125313.42+101926.4,193.3054,10.32229,PUB,,2012AJ....143..119I,True,0.716,True,,,,,QUASAR,,,,12.95,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.716
+SDSS J130424.98+353326.0,196.1036,35.55884,PUB,,2012AJ....143..119I,True,1.988,True,,,,,QUASAR,,,,11.79,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.988
+SDSS J130439.13+210559.9,196.1614,21.09934,PUB,,2012AJ....143..119I,True,2.015,True,,,,,QUASAR,,,,11.6,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/2.015; C.L.:QUASAR+STAR based on Gaia 
+SDSS J130548.06+261930.0,196.4518,26.32537,PUB,,2012AJ....143..119I,True,1.496,True,,,,,QUASAR,,,,10.67,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.496; C.L.:QUASAR+STAR based on Gaia 
+SDSS J131017.23+105448.3,197.5737,10.9148,PUB,,2012AJ....143..119I,True,2.134,True,,,,,QUASAR,,,,16.93,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/2.134; C.L.:QUASAR+STAR based on Gaia 
+SDSS J131531.76+262132.3,198.8824,26.35673,PUB,,2012AJ....143..119I,True,1.525,True,,,,,QUASAR,,,,16.14,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.525; C.L.:QUASAR+STAR based on Gaia 
+SDSS J131847.14+105245.0,199.6947,10.87758,PUB,,2012AJ....143..119I,True,0.844,True,,,,,QUASAR,,,,16.41,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/0.844/1.910
+SDSSJ1320+1644,200.2477,16.73445,PUB,,2012AJ....143..119I,True,1.502,True,,,,,QUASAR,,,,8.59,False,True,,,False,,Colour candidate; SDSS lens; has follow-up spectrum/1.502/1.502
+SDSS J132551.85+080957.2,201.4659,8.16447,PUB,,2012AJ....143..119I,True,1.448,True,,,,,QUASAR,,,,10.32,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.448; C.L.:QUASAR+STAR based on Gaia 
+SDSS J133139.33+082647.1,202.9129,8.44558,PUB,,2012AJ....143..119I,True,1.586,True,,,,,QUASAR,,,,9.15,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.586; C.L.:QUASAR+STAR based on new SDSS spectrum
+SDSS J133353.11+132614.0,203.4714,13.43694,PUB,,2012AJ....143..119I,True,1.786,True,,,,,QUASAR,,,,2.35,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.786; C.L.:QUASAR+STAR based on Gaia 
+SDSS J133818.02+095210.8,204.575,9.86988,PUB,,2012AJ....143..119I,True,1.69,True,,,,,QUASAR,,,,1.5,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.690; C.L.:QUASAR+STAR based on Gaia 
+SDSS J134953.90+220927.7,207.4743,22.15558,PUB,,2012AJ....143..119I,True,1.308,True,,,,,QUASAR,,,,15.25,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.308; C.L.:QUASAR+STAR based on Gaia and WISE
+SDSS J135020.67+190337.8,207.5858,19.06083,PUB,,2012AJ....143..119I,True,1.261,True,,,,,QUASAR,,,,3.12,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.261; C.L.:QUASAR+STAR based on Gaia 
+SDSS J135302.69+230259.8,208.2619,23.05133,PUB,,2012AJ....143..119I,True,1.542,True,,,,,QUASAR,,,,11.18,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.542
+SDSS J135455.03+072926.8,208.7297,7.48843,PUB,,2012AJ....143..119I,True,0.872,True,,,,,QUASAR,,,,17.18,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/0.872/1.351
+SDSS J135530.93+195808.1,208.8791,19.96837,PUB,,2012AJ....143..119I,True,0.801,True,,,,,QUASAR,,,,4.31,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/0.801; C.L.:QUASAR+STAR based on Gaia 
+SDSS J135607.71+162044.9,209.0323,16.34588,PUB,,2012AJ....143..119I,True,1.184,True,,,,,QUASAR,,,,1.85,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.184
+SDSS J135809.86+232610.0,209.5427,23.43534,PUB,,2012AJ....143..119I,True,1.555,True,,,,,QUASAR,,,,12.46,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.555/1.543
+SDSS J140012.27+232346.7,210.0523,23.39702,PUB,,2012AJ....143..119I,True,1.877,True,,,,,QUASAR,,,,9.5,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.877/1.867
+SDSS J140914.66+163054.4,212.3105,16.51569,PUB,,2012AJ....143..119I,True,1.223,True,,,,,QUASAR,,,,5.78,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.223/0.303
+SDSS J141023.94+315953.5,212.6001,31.99805,PUB,,2012AJ....143..119I,True,1.181,True,,,,,QUASAR,,,,2.61,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.181; C.L.:QUASAR+STAR based on Gaia 
+SDSS J141118.48+083945.3,212.8277,8.66238,PUB,,2012AJ....143..119I,True,1.143,True,,,,,QUASAR,,,,5.37,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.143; C.L.:QUASAR+STAR based on Gaia 
+SDSS J141302.61+194938.0,213.2624,19.82752,PUB,,2012AJ....143..119I,True,1.54,True,,,,,QUASAR,,,,10.7,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.540; C.L.:QUASAR+STAR based on Gaia 
+SDSS J142054.41+160333.3,215.2277,16.06059,PUB,,2012AJ....143..119I,True,2.021,True,,,,,QUASAR,,,,11.96,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/2.021/2.066
+SDSS J142630.23+252743.2,216.6239,25.46044,PUB,,2012AJ....143..119I,True,1.922,True,,,,,QUASAR,,,,17.22,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.922; C.L.:QUASAR+STAR based on Gaia 
+SDSS J142931.29+261654.1,217.3801,26.27952,PUB,,2012AJ....143..119I,True,1.403,True,,,,,QUASAR,,,,15.73,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.403; C.L.:QUASAR+STAR based on Gaia 
+SDSS J143002.88+071411.3,217.5115,7.23707,PUB,,2012AJ....143..119I,True,1.258,True,,,,,QUASAR,,,,5.41,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair (see reference)/1.258/1.246
+SDSS J143226.30+080730.4,218.1098,8.12661,PUB,,2012AJ....143..119I,True,1.729,True,,,,,QUASAR,,,,10.97,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.729/2.125
+SDSS J143350.94+145008.1,218.4625,14.83523,PUB,,2012AJ....143..119I,True,1.506,True,,,,,QUASAR,,,,3.34,False,False,,,True,QUASAR PAIR,Colour candidate; QSO pair; has follow-up spectrum/1.506/1.506
+SDSS J143553.39+185403.2,218.9712,18.90099,PUB,,2012AJ....143..119I,True,1.168,True,,,,,QUASAR,,,,8.4,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.168
+SDSS J144035.91+224023.2,220.15,22.67388,PUB,,2012AJ....143..119I,True,1.599,True,,,,,QUASAR,,,,6.26,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.599; C.L.:QUASAR+STAR based on Gaia 
+SDSS J144144.92+225808.9,220.4389,22.96719,PUB,,2012AJ....143..119I,True,2.193,True,,,,,QUASAR,,,,18.54,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/2.193
+SDSS J144147.28+223346.3,220.4478,22.56038,PUB,,2012AJ....143..119I,True,1.458,True,,,,,QUASAR,,,,18.6,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.458; C.L.:QUASAR+STAR based on Gaia 
+SDSS J145030.61+214818.1,222.629,21.80308,PUB,,2012AJ....143..119I,True,2.09,True,,,,,QUASAR,,,,17.33,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/2.090
+SDSS J145103.50+221551.0,222.7654,22.26212,PUB,,2012AJ....143..119I,True,1.509,True,,,,,QUASAR,,,,15.83,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.509/1.554
+SDSS J145224.60+090424.2,223.1016,9.07507,PUB,,2012AJ....143..119I,True,1.873,True,,,,,QUASAR,,,,13.56,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.873; C.L.:QUASAR+STAR based on Gaia 
+SDSS J145517.56+282126.0,223.8252,28.356,PUB,,2012AJ....143..119I,True,0.867,True,,,,,QUASAR,,,,16.15,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/0.867
+SDSS J145529.98+215352.6,223.8724,21.89943,PUB,,2012AJ....143..119I,True,1.306,True,,,,,QUASAR,,,,19.85,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.306; C.L.:QUASAR+STAR based on Gaia 
+SDSS J150429.73+070619.8,226.1249,7.10644,PUB,,2012AJ....143..119I,True,2.116,True,,,,,QUASAR,,,,10.01,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/2.116; C.L.:QUASAR+STAR based on Gaia 
+SDSS J150506.13+080604.5,226.2758,8.10385,PUB,,2012AJ....143..119I,True,1.249,True,,,,,QUASAR,,,,18.81,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.249/2.154
+SDSS J151245.20+092939.8,228.1888,9.49382,PUB,,2012AJ....143..119I,True,1.638,True,,,,,QUASAR,,,,5.72,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.638; C.L.:QUASAR+STAR based on Gaia 
+SDSS J152050.18+263740.8,230.2087,26.62801,PUB,,2012AJ....143..119I,True,1.365,True,,,,,QUASAR,,,,1.94,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.365
+SDSS J152100.33+063653.5,230.2495,6.61569,PUB,,2012AJ....143..119I,True,1.555,True,,,,,QUASAR,,,,14.36,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.555
+SDSS J152105.50+165424.2,230.2719,16.90901,PUB,,2012AJ....143..119I,True,1.551,True,,,,,QUASAR,,,,17.7,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.551; C.L.:QUASAR+STAR based on Gaia 
+SDSS J152118.34+242555.8,230.3246,24.43365,PUB,,2012AJ....143..119I,True,2.188,True,,,,,QUASAR,,,,16.04,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/2.188; C.L.:QUASAR+STAR based on Gaia 
+SDSS J152122.41+092650.8,230.3432,9.44794,PUB,,2012AJ....143..119I,True,0.748,True,,,,,QUASAR,,,,3.65,False,False,,,True,QUASAR+OTHER,"Colour candidate; no lensing object/0.748; note nearest point source is likely a star, but another 20 arcseconds away is a quasar"
+SDSS J152310.55+175410.2,230.793,17.90033,PUB,,2012AJ....143..119I,True,2.122,True,,,,,QUASAR,,,,19.17,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/2.122
+SDSS J152501.48+262732.3,231.2537,26.45969,PUB,,2012AJ....143..119I,True,1.581,True,,,,,QUASAR,,,,16.33,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.581
+SDSS J152719.52+264929.3,231.8311,26.82547,PUB,,2012AJ....143..119I,True,0.78,True,,,,,QUASAR,,,,4.9,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/0.780; C.L.:QUASAR+STAR based on Gaia 
+SDSS J152806.63+132345.8,232.0276,13.3962,PUB,,2012AJ....143..119I,True,0.675,True,,,,,QUASAR,,,,1.13,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/0.675; C.L.:QUASAR+STAR based on Gaia 
+SDSS J153019.08+191948.5,232.582,19.3293,PUB,,2012AJ....143..119I,True,1.294,True,,,,,QUASAR,,,,18.16,False,False,,,True,PROJECTED QUASARS,Colour candidate; QSO pair; has follow-up spectrum/1.294/1.465
+SDSS J153043.60+254909.6,232.6817,25.81898,PUB,,2012AJ....143..119I,True,1.49,True,,,,,QUASAR,,,,2.52,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.490; C.L.:QUASAR+STAR based on Gaia 
+SDSS J153254.75+092454.9,233.2292,9.41707,PUB,,2012AJ....143..119I,True,2.123,True,,,,,QUASAR,,,,15.35,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/2.123; C.L.:QUASAR+STAR based on Gaia 
+SDSS J153444.54+015249.4,233.6857,1.87932,PUB,,2012AJ....143..119I,True,1.064,True,,,,,QUASAR,,,,7.78,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.064
+SDSS J153452.12+093251.0,233.7156,9.54713,PUB,,2012AJ....143..119I,True,1.168,True,,,,,QUASAR,,,,11.47,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.168
+SDSS J153530.86+131310.6,233.8788,13.2195,PUB,,2012AJ....143..119I,True,1.018,True,,,,,QUASAR,,,,2.35,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.018; C.L.:QUASAR+STAR based on Gaia 
+SDSS J153920.08+150902.1,234.8326,15.15254,PUB,,2012AJ....143..119I,True,1.474,True,,,,,QUASAR,,,,15.69,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.474
+SDSS J153927.07+042518.1,234.8625,4.42183,PUB,,2012AJ....143..119I,True,0.739,True,,,,,QUASAR,,,,1.89,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/0.739; C.L.:QUASAR+STAR based on Gaia 
+SDSS J154043.50+154416.1,235.1818,15.73563,PUB,,2012AJ....143..119I,True,1.577,True,,,,,QUASAR,,,,16.06,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.577; C.L.:QUASAR+STAR based on Gaia 
+SDSS J154356.31+021344.0,235.9856,2.22961,PUB,,2012AJ....143..119I,True,1.121,True,,,,,QUASAR,,,,9.22,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.121
+SDSS J154405.23+143455.2,236.0214,14.58098,PUB,,2012AJ....143..119I,True,1.406,True,,,,,QUASAR,,,,7.66,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.406; C.L.:QUASAR+STAR based on Gaia 
+SDSS J154503.01+164234.4,236.2602,16.70841,PUB,,2012AJ....143..119I,True,1.481,True,,,,,QUASAR,,,,18.02,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+star; has follow-up spectrum/1.481
+SDSS J154632.34+223637.8,236.6346,22.61083,PUB,,2012AJ....143..119I,True,1.984,True,,,,,QUASAR,,,,2.47,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.984; C.L.:QUASAR+STAR based on Gaia 
+SDSS J154936.47+115833.2,237.4017,11.9759,PUB,,2012AJ....143..119I,True,1.248,True,,,,,QUASAR,,,,1.96,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.248; C.L.:QUASAR+STAR based on Gaia 
+SDSS J155052.40+183655.1,237.7191,18.61405,PUB,,2012AJ....143..119I,True,1.823,True,,,,,QUASAR,,,,10.59,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.823; C.L.:QUASAR+STAR based on Gaia 
+SDSS J155446.59+040443.2,238.6956,4.07664,PUB,,2012AJ....143..119I,True,2.157,True,,,,,QUASAR,,,,18.21,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/2.157; C.L.:QUASAR+STAR based on Gaia 
+SDSS J155520.86+075418.8,238.8371,7.90511,PUB,,2012AJ....143..119I,True,1.464,True,,,,,QUASAR,,,,1.63,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.464; C.L.:QUASAR+STAR based on Gaia 
+SDSS J155626.90+103457.3,239.1107,10.58072,PUB,,2012AJ....143..119I,True,1.902,True,,,,,QUASAR,,,,16.59,False,False,,,True,QUASAR+OTHER,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.902
+SDSS J160734.18+035034.0,241.8899,3.84343,PUB,,2012AJ....143..119I,True,1.304,True,,,,,QUASAR,,,,18.02,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.304; C.L.:QUASAR+STAR based on Gaia 
+SDSS J161914.41+093615.8,244.8097,9.60567,PUB,,2012AJ....143..119I,True,1.63,True,,,,,QUASAR,,,,9.46,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.630; C.L.:QUASAR+STAR based on Gaia 
+SDSS J162026.14+120342.0,245.1092,12.06143,PUB,,2012AJ....143..119I,False,1.157,True,,,,,QUASAR,,,,2.57,True,False,,,False,,Colour candidate; SDSS lens; has follow-up spectrum/1.157/1.158
+SDSS J162033.71+121121.2,245.1382,12.18805,PUB,,2012AJ....143..119I,True,1.629,True,,,,,QUASAR,,,,17.9,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.629; C.L.:QUASAR+STAR based on Gaia 
+SDSS J162438.27+105106.8,246.1589,10.85168,PUB,,2012AJ....143..119I,True,1.227,True,,,,,QUASAR,,,,4.28,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.227; C.L.:QUASAR+STAR based on Gaia 
+SDSS J162531.13+103110.5,246.3789,10.51872,PUB,,2012AJ....143..119I,True,1.312,True,,,,,QUASAR,,,,8.18,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.312; C.L.:QUASAR+STAR based on Gaia 
+SDSS J163017.91+113725.0,247.5752,11.62155,PUB,,2012AJ....143..119I,True,1.637,True,,,,,QUASAR,,,,15.45,False,False,,,True,QUASAR+OTHER,Colour candidate; no lensing object/1.637; C.L.:likely quasar pair given WISE colours
+SDSS J163326.49+203014.6,248.3593,20.50493,PUB,,2012AJ....143..119I,True,1.553,True,,,,,QUASAR,,,,9.18,False,False,,,True,QUASAR+STAR,Colour candidate; QSO+unknown(not QSO); has follow-up spectrum/1.553; C.L.:QUASAR+STAR based on Gaia 
+SDSS J170924.22+352514.2,257.3511,35.42059,PUB,,2012AJ....143..119I,True,1.843,True,,,,,QUASAR,,,,1.12,False,False,,,True,QUASAR+STAR,Colour candidate; no lensing object/1.843; C.L.:QUASAR+STAR based on Gaia 

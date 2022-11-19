@@ -1,1 +1,1 @@
-[{"bibcode": "2018MNRAS.476..927L", "lenses": [{"ra": 173.6688, "dec": -21.05625, "discovery": true, "redshift": true, "classification": false, "model": false}, {"ra": 197.5835, "dec": -17.24939, "discovery": true, "redshift": true, "classification": false, "model": false}]}]
+[{"bibcode": "2018MNRAS.476..927L", "lenses": [{"ra": 173.6688, "dec": -21.05625, "discovery": true, "redshift": false, "classification": false, "model": false}, {"ra": 197.5835, "dec": -17.24939, "discovery": true, "redshift": true, "classification": false, "model": false}]}]

@@ -1,42 +1,42 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-A1507-1442,226.95084,-14.7033,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.01,TRUE,GALAXY+STARS,Contaminant; Galaxy seen through two stars
-A1132-0730,173.03091,-7.5118,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,2.0,2.4,FALSE,,NIQ; zs = 1.99
-A1112-0335,168.18096,-3.5859,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,2.0,2.35,FALSE,,NIQ; zs = 1.27
-A1428-0302,217.48956,-3.0414,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,,2.0,TRUE,STARS,Contaminant; Stars?; C.L. Based on Gaia proper motions
-A0326-3122,51.52828,-31.3816,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,2.0,2.0,FALSE,,NIQ; zs = 1.35
-A2338-2700,354.52705,-27.0151,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.5,TRUE,GALAXIES,"Contaminant; z = 0.68 (Mg II), merging NLGs"
-A2213-2652,333.41012,-26.8742,PUB,,2018MNRAS.475.2086A,TRUE,1.27,TRUE,TRUE,,,,QUASAR,,2.0,,,TRUE,FALSE,,2.24,FALSE,,NIQ/lens; zs = 1.27
-A0008-3655,2.12243,-36.9231,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,2.5,2.0,FALSE,,Unclear; z ≈ 1.715 qso
-A0015-1116,3.98259,-11.283,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.21,TRUE,QUASAR+STAR,Contaminant; Star + qso z ≈ 1.55
-A0054-3951,13.53024,-39.8643,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,1.0,1.5,FALSE,,Uncertain; z = 0.475 or z = 1.16
-A0106-1030,16.70878,-10.5097,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.0,TRUE,QUASAR+STAR,Contaminant; Star + qso z = 1.995
-A0355-3448,58.75462,-34.8005,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.18,TRUE,PROJECTED QUASARS,"Contaminant; qso + qso, z = 1.19, 2.04"
-A2145-3927,326.38489,-39.4589,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.36,TRUE,QUASAR+STAR,"Contaminant; Single qso z ≈ 0.45; C.L.: incorrectly classified, nearby companion is a star based on Gaia proper motions"
-A2243-3840,340.86579,-38.669,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.09,TRUE,QUASAR+GALAXY,Contaminant; qso z ≈ 2.7 and galaxy
-A2356-1213,359.12339,-12.2251,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.31,TRUE,QUASAR+STAR,Contaminant; Star + qso z ≈ 2
-S1128+2402,172.07705,24.0382,PUB,,2018MNRAS.475.2086A,FALSE,,,,,,,QUASAR,,,,,TRUE,FALSE,,2.83,FALSE,,"NIQ; zs = 1.608; C.L.: Already a known lens, see SDSSJ1128+2402"
-S1030+6055,157.71612,60.9351,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.89,TRUE,QUASAR+STAR,Contaminant; z = 1.71 qso + star
-S1332+3433,203.18195,34.5502,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.2,TRUE,QUASAR+STAR,Contaminant; z = 1.925 qso + star
-S0332-0021,53.20212,-0.3654,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,2.78,TRUE,QUASAR+OTHER,Contaminant; z = 1.71 qso + qso; C.L.: companion looks like likely star
-A0140-1152,25.0125,-11.8719,PUB,,2018MNRAS.475.2086A,TRUE,1.805,TRUE,TRUE,0.277,TRUE,TRUE,QUASAR,,2.0,,,TRUE,FALSE,,,FALSE,,"Lens; zs ≈ 1.805, zl ≈ 0.277; independently discovered/confirmed in Lemon et al. 2018"
-A1044-1639,161.19583,-16.6575,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,GALAXIES,Contaminant; NLG z ≈ 0.3
-A1020-1002,155.2275,-10.0389,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,2.25,,FALSE,,Pair/NIQ; z = 2.03
-A0054-2404,13.60917,-24.0778,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,GALAXY+OTHER,Contaminant; NLG + qso at z ≈ 0.35?; also presented in Treu et al. 2018
-A0202-2850,30.54375,-28.8414,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,GALAXY+OTHER,Contaminant; NLG z ≈ 0.31
-A0303-3331,45.89875,-33.5261,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,GALAXIES,Contaminant; NLGs?
-A2201-3613,330.42125,-36.2167,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,STARS,Contaminant; Stars
-A1012-0307,153.06625,-3.1175,PUB,,2018MNRAS.475.2086A,FALSE,,,,,,,QUASAR,,,,,,FALSE,,,FALSE,,"Known lens; zs = 2.745, fr=3.0(λ/9000∘A)-1; LBQS1009-0252"
-A1501-1404,225.40789,-14.0727,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,2.0,2.34,FALSE,,Photometric candidate; Good
-A1523-0517,230.90516,-5.2847,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,1.91,TRUE,QUASAR+STAR,Photometric candidate; Good; C.L.: QSO+star based on Gaia proper motions
-A1528-1341,232.14813,-13.6901,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,1.91,TRUE,QUASAR+STAR,Photometric candidate; Good; C.L.: QSO+star based on Gaia proper motions
-WGA0336-2406,54.2099,-24.106,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,0.25,,FALSE,,Photometric candidate; Dubious
-WGA0235-2433,38.86426,-24.5537,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,3.0,,FALSE,,Photometric candidate; discovery/confirmation presented in Lemon et al. 2018.
-WGA0259-2338,44.88965,-23.6338,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,3.0,,FALSE,,Photometric candidate; discovery/confirmation presented in Lemon et al. 2018.
-WGA0146-1133,26.63699,-11.5608,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,3.0,,FALSE,,Photometric candidate; discovery/confirmation presented in Lemon et al. 2018.
-WGA0343-3309,55.92359,-33.1555,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,QUASAR+STAR,Outside footprint; C.L.: QSO+star based on Gaia proper motions
-WGA0030-2326,7.50094,-23.4345,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,QUASAR+STAR,Low S/N; Good; C.L.: QSO+star based on Gaia proper motions
-WGA1216-1138,184.13079,-11.6446,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,QUASAR+STAR,Contaminant; C.L.: QSO+star based on Gaia proper motions
-WGA1112-1855,168.22245,-18.9166,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,QUASAR+STAR,Contaminant; C.L.: QSO+star based on Gaia proper motions
-WGA1409-1444,212.25021,-14.7336,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,FALSE,,,TRUE,QUASAR+STAR,Contaminant; C.L.: QSO+star based on Gaia proper motions
-A1201-0324,180.26731,-3.4024,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,0.1,2.45,FALSE,,Contaminan; C.L.: very likely star companion given colours
-A1333-0453,203.26196,-4.8982,PUB,,2018MNRAS.475.2086A,TRUE,,,,,,,QUASAR,,,,,,TRUE,0.25,2.34,FALSE,,Contaminant
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+A1507-1442,226.95084,-14.7033,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.01,True,GALAXY+STARS,Contaminant; Galaxy seen through two stars
+A1132-0730,173.03091,-7.5118,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,2.0,2.4,False,,NIQ; zs = 1.99
+A1112-0335,168.18096,-3.5859,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,2.0,2.35,False,,NIQ; zs = 1.27
+A1428-0302,217.48956,-3.0414,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,,2.0,True,STARS,Contaminant; Stars?; C.L. Based on Gaia proper motions
+A0326-3122,51.52828,-31.3816,PUB,,2018MNRAS.475.2086A,False,,,,,,,QUASAR,,,,,,True,2.0,2.0,False,,NIQ; zs = 1.35
+A2338-2700,354.52705,-27.0151,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.5,True,GALAXIES,"Contaminant; z = 0.68 (Mg II), merging NLGs"
+A2213-2652,333.41012,-26.8742,PUB,,2018MNRAS.475.2086A,True,1.27,True,True,,,,QUASAR,,2.0,,,True,False,,2.24,False,,NIQ/lens; zs = 1.27
+A0008-3655,2.12243,-36.9231,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,2.5,2.0,False,,Unclear; z ≈ 1.715 qso
+A0015-1116,3.98259,-11.283,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.21,True,QUASAR+STAR,Contaminant; Star + qso z ≈ 1.55
+A0054-3951,13.53024,-39.8643,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,1.0,1.5,False,,Uncertain; z = 0.475 or z = 1.16
+A0106-1030,16.70878,-10.5097,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.0,True,QUASAR+STAR,Contaminant; Star + qso z = 1.995
+A0355-3448,58.75462,-34.8005,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.18,True,PROJECTED QUASARS,"Contaminant; qso + qso, z = 1.19, 2.04"
+A2145-3927,326.38489,-39.4589,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.36,True,QUASAR+STAR,"Contaminant; Single qso z ≈ 0.45; C.L.:incorrectly classified, nearby companion is a star based on Gaia proper motions"
+A2243-3840,340.86579,-38.669,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.09,True,QUASAR+GALAXY,Contaminant; qso z ≈ 2.7 and galaxy
+A2356-1213,359.12339,-12.2251,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.31,True,QUASAR+STAR,Contaminant; Star + qso z ≈ 2
+S1128+2402,172.07705,24.0382,PUB,,2018MNRAS.475.2086A,False,,,,,,,QUASAR,,,,,True,False,,2.83,False,,"NIQ; zs = 1.608; C.L.:Already a known lens, see SDSSJ1128+2402"
+S1030+6055,157.71612,60.9351,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.89,True,QUASAR+STAR,Contaminant; z = 1.71 qso + star
+S1332+3433,203.18195,34.5502,PUB,,2018MNRAS.475.2086A,False,,,,,,,QUASAR,,,,,,False,,2.2,True,QUASAR+STAR,Contaminant; z = 1.925 qso + star
+S0332-0021,53.20212,-0.3654,PUB,,2018MNRAS.475.2086A,False,,,,,,,QUASAR,,,,,,False,,2.78,True,QUASAR+OTHER,Contaminant; z = 1.71 qso + qso; C.L.: likely incorrect conclusion by Agnello et al. since companion looks like star in Gaia and was already ruled out as such by earlier paper
+A0140-1152,25.0125,-11.8719,PUB,,2018MNRAS.475.2086A,True,1.805,True,True,0.277,True,True,QUASAR,,2.0,,,True,False,,,False,,"Lens; zs ≈ 1.805, zl ≈ 0.277; independently discovered/confirmed in Lemon et al. 2018"
+A1044-1639,161.19583,-16.6575,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXIES,Contaminant; NLG z ≈ 0.3
+A1020-1002,155.2275,-10.0389,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,2.25,,False,,Pair/NIQ; z = 2.03
+A0054-2404,13.60917,-24.0778,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXY+OTHER,Contaminant; NLG + qso at z ≈ 0.35?; also presented in Treu et al. 2018
+A0202-2850,30.54375,-28.8414,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXY+OTHER,Contaminant; NLG z ≈ 0.31
+A0303-3331,45.89875,-33.5261,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXIES,Contaminant; NLGs?
+A2201-3613,330.42125,-36.2167,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contaminant; Stars
+A1012-0307,153.06625,-3.1175,PUB,,2018MNRAS.475.2086A,False,,,,,,,QUASAR,,,,,,False,,,False,,"Known lens; zs = 2.745, fr=3.0(λ/9000∘A)-1; LBQS1009-0252"
+A1501-1404,225.40789,-14.0727,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,2.0,2.34,False,,Photometric candidate; Good
+A1523-0517,230.90516,-5.2847,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,1.91,True,QUASAR+STAR,Photometric candidate; Good; C.L.:QSO+star based on Gaia proper motions
+A1528-1341,232.14813,-13.6901,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,1.91,True,QUASAR+STAR,Photometric candidate; Good; C.L.:QSO+star based on Gaia proper motions
+WGA0336-2406,54.2099,-24.106,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Photometric candidate; Dubious
+WGA0235-2433,38.86426,-24.5537,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,3.0,,False,,Photometric candidate; discovery/confirmation presented in Lemon et al. 2018.
+WGA0259-2338,44.88965,-23.6338,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,3.0,,False,,Photometric candidate; discovery/confirmation presented in Lemon et al. 2018.
+WGA0146-1133,26.63699,-11.5608,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,3.0,,False,,Photometric candidate; discovery/confirmation presented in Lemon et al. 2018.
+WGA0343-3309,55.92359,-33.1555,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Outside footprint; C.L.:QSO+star based on Gaia proper motions
+WGA0030-2326,7.50094,-23.4345,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Low S/N; Good; C.L.:QSO+star based on Gaia proper motions
+WGA1216-1138,184.13079,-11.6446,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contaminant; C.L.:QSO+star based on Gaia proper motions
+WGA1112-1855,168.22245,-18.9166,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contaminant; C.L.:QSO+star based on Gaia proper motions
+WGA1409-1444,212.25021,-14.7336,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contaminant; C.L.:QSO+star based on Gaia proper motions
+A1201-0324,180.26731,-3.4024,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,0.1,2.45,False,,Contaminan; C.L.:very likely star companion given colours
+A1333-0453,203.26196,-4.8982,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,0.25,2.34,False,,Contaminant

@@ -1,2 +1,2 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-RXJ1131-1231,172.9644,-12.5329,PUB,,2003A&A...406L..43S,True ,0.658,True,True,0.295,True,True,QUASAR,GALAXY,4.0,"LONG-AXIS CUSP, CUSP",3.23,True,,,,,,
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+RXJ1131-1231,172.9644,-12.5329,PUB,,2003A&A...406L..43S,True,0.658,True,True,0.295,True,True,QUASAR,GALAXY,4.0,"LONG-AXIS CUSP, CUSP",3.23,True,,,,,,

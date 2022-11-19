@@ -296,6 +296,21 @@ class LensQueryForm(forms.ModelForm):
                                     validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                 MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     
+    score_min = forms.DecimalField(required=False,
+                         max_digits=7,
+                         decimal_places=4,
+                         help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
+                         validators=[MinValueValidator(0.0,"Score must be positive."),
+                                     MaxValueValidator(3.,"Score must be less than or equal to 3.")])
+
+    score_max = forms.DecimalField(required=False,
+                         max_digits=7,
+                         decimal_places=4,
+                         help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
+                         validators=[MinValueValidator(0.0,"Score must be positive."),
+                                     MaxValueValidator(3.,"Score must be less than or equal to 3.")])
+
+
     flag_confirmed     = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
                                             help_text="Select only confirmed lenses (confirmed field set to True).", initial=None)

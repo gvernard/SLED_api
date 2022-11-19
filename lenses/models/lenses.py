@@ -190,7 +190,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                            verbose_name="Candidate",
                                            help_text="Set to true if the object is a candidate.")
 
-    candidate_score = models.DecimalField(blank=True,
+    score = models.DecimalField(blank=True,
                              null=True,
                              max_digits=7,
                              decimal_places=4,
@@ -232,9 +232,9 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                              MaxValueValidator(20.0,"If your lens is further than that then congrats! (but probably it's a mistake)")])
 
     z_lens_secure = models.BooleanField(default=False,
-                                           blank=True,
-                                           verbose_name="Secure lens redshift flag",
-                                           help_text="Set to true if the lens redshift is definite for (one of) the lensing galaxy/galaxies, and not possibly due to another absorption system.")
+                                        blank=True,
+                                        verbose_name="Secure lens redshift flag",
+                                        help_text="Set to true if the lens redshift is definite for (one of) the lensing galaxy/galaxies, and not possibly due to another absorption system.")
 
     info = models.TextField(blank=True,
                             default='',

@@ -1,2 +1,2 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-MG0751+2716,117.9212,27.2757,PUB,,1993AAS...183.3307L,True ,3.2,True,False,0.351,True,False,RADIO-LOUD,GALAXY,,RING,,True,,,,,,
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+MG0751+2716,117.9212,27.2757,PUB,,1993AAS...183.3307L,True,3.2,True,False,0.351,True,False,RADIO-LOUD,GALAXY,,RING,,True,,,,,,

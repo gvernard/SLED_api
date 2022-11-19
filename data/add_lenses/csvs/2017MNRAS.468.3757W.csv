@@ -1,2 +1,2 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-SDSSJ1640+1932,250.19029,19.54921,PUB,,2017MNRAS.468.3757W,TRUE,0.778,TRUE,TRUE,0.195,TRUE,TRUE,QUASAR,GALAXY,4.0,FOLD,5.1,TRUE,,,,,,
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+SDSSJ1640+1932,250.19029,19.54921,PUB,,2017MNRAS.468.3757W,True,0.778,True,True,0.195,True,True,QUASAR,GALAXY,4.0,FOLD,5.1,True,,,,,,

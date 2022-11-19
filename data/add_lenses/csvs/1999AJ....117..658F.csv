@@ -1,2 +1,2 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-B2045+265,311.83479,26.73367,PUB,,1999AJ....117..658F,True ,1.28,True,True,0.8673,True,True,"QUASAR, RADIO-LOUD",GALAXY,4.0,,1.9,True,,,,,,
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+B2045+265,311.83479,26.73367,PUB,,1999AJ....117..658F,True,1.28,True,True,0.8673,True,True,"QUASAR, RADIO-LOUD",GALAXY,4.0,,1.9,True,,,,,,

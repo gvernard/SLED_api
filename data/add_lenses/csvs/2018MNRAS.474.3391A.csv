@@ -1,2 +1,2 @@
 name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,candidate_score,original_score,flag_contaminant,contaminant_type,info
-SDSSJ1433+6007,218.345,60.121,PUB,,2018MNRAS.474.3391A,True ,2.737,True,True,0.407,True,True,QUASAR,GALAXY,4.0,,3.6,True,,,,,,
+SDSSJ1433+6007,218.345,60.121,PUB,,2018MNRAS.474.3391A,True,2.737,True,True,0.407,True,True,QUASAR,GALAXY,4.0,,3.6,True,,,,,,
