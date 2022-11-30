@@ -30,12 +30,14 @@ csv_dir = "csvs/"
 csvs = np.sort(glob.glob(csv_dir+'*.csv'))
 
 for eachcsv in csvs:
+    #for i in [0]:
+    #eachcsv = './csvs/2022MNRAS.509..738D.csv'
     print(eachcsv)
     lens_dicts = []
     data = pd.read_csv(eachcsv, skipinitialspace=True)
 
     #this deals with nans where you have empty entries
-    data = data.fillna({key:(False if 'flag' in key else '') for key in data.keys()})
+    data = data.fillna({key:'' for key in data.keys()})
     for i in range(len(data)):
 
         lens_dict = data.iloc[i].to_dict()
@@ -65,7 +67,7 @@ for eachcsv in csvs:
 
         #CHECK IF LENS ALREADY EXISTS
         
-        lensdata = {'ra':lens_dict['ra'], 'dec':lens_dict['dec'], 'radius':3.}
+        lensdata = {'ra':lens_dict['ra'], 'dec':lens_dict['dec'], 'radius':10.}
         r = requests.post(urlquery, data=lensdata, auth=HTTPBasicAuth('Cameron','123'))
         dbquery = json.loads(r.text)
         dblenses = dbquery['lenses']
@@ -97,22 +99,24 @@ for eachcsv in csvs:
                             print(field)
                             print('new value', value)
                             print('old value', dblens[field])
-                            if (field=='name')&(lens_dict['flag_discovery']):
-                                print('Would you like to add this name and the current name to the alternative names list? And change the name to J...')
-                                answer = input()
-                                if answer.lower()=='y':
-                                    oldname = dblens['name']
-                                    for i, character in enumerate(oldname):
-                                        if character.isdigit():
-                                            break
-                                    newname = 'J'+oldname[i:]
-                                    if dblens['alt_name']:
-                                        altname = dblens['alt_name']+', '+oldname
-                                    else:
-                                        altname = oldname+', '+lens_dict['name']
+                            if field=='name':
+                                if lens_dict['flag_discovery']:
+                                    #print('Would you like to add this name and the current name to the alternative names list? And change the name to J...')
+                                    #answer = input()
+                                    #if answer.lower()=='y':
+                                    if 1==1:
+                                        oldname = dblens['name']
+                                        for i, character in enumerate(oldname):
+                                            if character.isdigit():
+                                                break
+                                        newname = 'J'+oldname[i:]
+                                        if dblens['alt_name']:
+                                            altname = dblens['alt_name']+', '+oldname
+                                        else:
+                                            altname = oldname+', '+lens_dict['name']
 
-                                    update_data['name'] = newname
-                                    update_data['alt_name'] = altname
+                                        update_data['name'] = newname
+                                        update_data['alt_name'] = altname
                             else:
                                 update_data[field] = lens_dict[field]
                                 
@@ -142,6 +146,7 @@ for eachcsv in csvs:
     #         ('media', (image_files[0]))]
 
     # Sending the request
+
     r = requests.post(url, json=form_data, auth=HTTPBasicAuth('Cameron','123')) #, headers={'Accept': 'application/json', 'Content-Type': 'application/json'})
 
     # Printing the response of the request
@@ -154,5 +159,3 @@ for eachcsv in csvs:
             wait = input()
             print('d///f')
     
-
-

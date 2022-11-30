@@ -328,7 +328,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                 paper.cite_as = paper.first_author + ' et al. (' + paper.year + ')'
             else:
                 paper.cite_as = ' and '.join(in_ads[i].author) + ' (' + paper.year + ')'
-        #print(ads_ids)
+        print(ads_ids)
         
         ## Check that ads_id do not exist already in the database
         existing = Paper.objects.filter(ads_id__in=ads_ids).values('bibcode','cite_as')
@@ -350,18 +350,23 @@ class PaperUploadListSerializer(serializers.ListSerializer):
             for lens in paper['lenses']:
                 ras.append(lens['ra'])
                 decs.append(lens['dec'])
+
             user = self.context['request'].user
-            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=3) # This call includes PRI lenses visible to the user
+            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10) # This call includes PRI lenses visible to the user
             
             if len(indices) != N_lenses:
+                #print(neis)
                 setA = set(indices)
                 setB = set(range(0,N_lenses))
                 missing = setB - setA
+                #print(missing)
                 labels = []
                 for k in missing:
                     labels.append( '(' + str(ras[k]) + ',' + str(decs[k]) + ')' )
+                    print('missing: (' + str(ras[k]) + ',' + str(decs[k]) + ')')
                 raise serializers.ValidationError('These RA,DEC do NOT correspond to any lens in the database:\n '+'\n'.join(labels))
             else:
+
                 lenses = list( neis )
                 if len(lenses) != N_lenses:
                     # This means that one (or more) lens(es) from dum_lenses matched to more than one lens from the DB
@@ -378,7 +383,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                         dum.extend( list(q) )
                     lenses_per_paper.append( dum )
 
-
+        print('lenses per paper:', lenses_per_paper)
         
         ## Loop over papers and check for discovery
         lenses_with_discovery = []

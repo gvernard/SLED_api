@@ -38,6 +38,7 @@ for eachjson in jsons:
     else:
         print("Something went wrong!")
         print(eachjson)
+        df
     #x = input()
     #print(r.text)
 

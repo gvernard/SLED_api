@@ -101,11 +101,11 @@ J1659+4528,254.9166,45.47944,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,
 J1700+0058,255.1,0.97056,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=1.067) + star
 J1706+5353,256.5291,53.88666,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,GALAXIES,galaxy pair (z=0.191 + z=0.192)
 J1711+2848,257.8374,28.805,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=1.907) + star
-J1711+2929,257.7541,29.49722,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=1.328) + star
+J1711+2929,257.7541,29.49722,PUB,,2021ApJ...921...42S,False,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=1.328) + star
 J1718+5648,259.5125,56.81527,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=0.114) + star
 J1723+1753,260.8583,17.88388,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=1.523) + star
 J1730-6044,262.6666,-60.7361,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,STARS,stars
-J1754+2140,268.6791,21.68166,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=1.206) + star
+J1754+2140,268.6791,21.68166,PUB,,2021ApJ...921...42S,False,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=1.206) + star
 J1756+2331,269.0916,23.52027,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,STARS,three stars
 J1801+5526,270.2749,55.44333,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,STAR+OTHER,"uncertain; could be close pair; C.L.:unclear of star, it is based on Gaia proper motion"
 J1817+5824,274.3416,58.41472,PUB,,2021ApJ...921...42S,True,,,,,,,QUASAR,GALAXY,,,,,,,,True,QUASAR+STAR,quasar (z=2.837) + star

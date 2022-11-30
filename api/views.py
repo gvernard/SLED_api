@@ -113,6 +113,7 @@ class UploadPapers(APIView):
     
     def post(self,request):
         #Paper.objects.all().delete()
+        print(request.data)
         serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
         if serializer.is_valid():
             validated_data = serializer.validated_data
@@ -374,7 +375,7 @@ class UpdateLenses(APIView):
     def post(self,request):
         user = request.user
         ra, dec = float(request.data['ra']), float(request.data['dec'])
-        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=5.)
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=10.)
         
         lens = lenses[0]
         update_data = request.data.copy()
