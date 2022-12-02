@@ -62,15 +62,15 @@ owner.giveAccess(mycollection,other_g)
 # Create collection
 ###################
 fred = Users.objects.get(username='Fred')
-pub_fred = Lenses.objects.filter(owner=fred).filter(access_level='PUB')
-pri_fred = Lenses.objects.filter(owner=fred).filter(access_level='PRI')
+pub_fred = list(Lenses.objects.filter(owner=fred).filter(access_level='PUB'))
+pri_fred = list(Lenses.objects.filter(owner=fred).filter(access_level='PRI'))
 
 fred.giveAccess(pri_fred[3:6],owner)
 
 mycollection = Collection(owner=owner,name="ERGO",access_level='PRI',description="Lets go fighting.",item_type="Lenses")
 mycollection.save()
 #pub = Lenses.objects.filter(access_level='PUB').order_by('ra')[4:8]
-mycollection.myitems = pub_fred[5:8]|pri_fred[3:6]
+mycollection.myitems = pub_fred[5:8] + pri_fred[3:6]
 mycollection.save()
 
 
@@ -85,7 +85,7 @@ fred.giveAccess(pri_fred[7:9],cam)
 mycollection = Collection(owner=cam,name="HAWK",access_level='PRI',description="Flies thoroughly up in the sky.",item_type="Lenses")
 mycollection.save()
 #pub = Lenses.objects.filter(access_level='PUB').order_by('ra')[4:8]
-mycollection.myitems = pub_fred[5:7]|pri_fred[7:9]
+mycollection.myitems = pub_fred[5:7] + pri_fred[7:9]
 mycollection.save()
 
 cam.giveAccess(mycollection,owner)

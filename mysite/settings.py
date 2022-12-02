@@ -129,16 +129,17 @@ if which_database == "local":
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-else:
+elif which_database == "remote":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'OPTIONS': {
-                'read_default_file': os.path.join(BASE_DIR, 'mysite/my.cnf'),
+                'read_default_file': os.path.join(BASE_DIR, '../sensitive_db_scripts/my.cnf'),
             }
         }
     }
-    
+else:
+    raise "Unknown database option: "+which_database
 
 
 # Password validation
