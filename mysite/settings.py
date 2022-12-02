@@ -121,7 +121,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-which_database="local"
+which_database="remote-mysql"
 
 if which_database == "local":
     DATABASES = {
@@ -130,12 +130,21 @@ if which_database == "local":
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-elif which_database == "remote":
+elif which_database == "remote-mysql":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'OPTIONS': {
-                'read_default_file': os.path.join(BASE_DIR, '../sensitive_db_scripts/my.cnf'),
+                'read_default_file': os.path.join(BASE_DIR, 'sensitive_db_scripts/remote-mysql.cnf'),
+            }
+        }
+    }
+elif which_database == "local-mysql":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'OPTIONS': {
+                'read_default_file': os.path.join(BASE_DIR, 'sensitive_db_scripts/local-mysql.cnf'),
             }
         }
     }

@@ -17,7 +17,7 @@ else
     # For the remote Mysql database server
     echo "Using remote MYSQL DB server..."
     echo "Dropping all tables"
-    bash ../sensitive_db_scripts/drop_all_tables.sh    
+    bash sensitive_db_scripts/drop_all_tables.sh    
 fi
 
 

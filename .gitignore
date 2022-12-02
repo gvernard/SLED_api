@@ -133,3 +133,5 @@ data/images_to_upload/*/*.fits
 data/images_to_upload/*/*.jpg
 
 static/css/vendors/*
+
+sensitive_db_scripts/*
