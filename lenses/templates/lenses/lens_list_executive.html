@@ -10,6 +10,9 @@
         <th>Name</th>
         <th>Right Ascension J2000</th>
         <th>Declination J2000</th>
+        <th>Source Redshift</th>
+        <th>Image Separation</th>
+        <th>Score</th>
         <th>Access level</th>
         <th>Accessible by</th>
       </tr>
@@ -22,6 +25,9 @@
         <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
         <td>{{ lens.ra }}</td>
         <td>{{ lens.dec }}</td>
+        <td>{{ lens.z_source }}</td>
+        <td>{{ lens.image_sep }}</td>
+        <td>{{ lens.score }}</td>
         <td>{{ lens.access_level }}</td>
         <td>
           {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>

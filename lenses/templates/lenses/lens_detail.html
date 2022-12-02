@@ -12,6 +12,16 @@
         <div>
           <h1 class="jb-heading-1">{{lens.name}}</h1>
         </div>
+        {% if lens.alt_name %}
+        <p>
+          Alternative names: {{lens.alt_name}}
+        </p>
+        {% endif %}
+        <p>
+          Uploader information: {{lens.info}}
+        </p>
+
+
         <p>
           Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
         </p>
@@ -26,6 +36,20 @@
     </div>
   </section>
 
+
+  {% if updatable %}
+    <div>
+      <form id="ids-form" method="POST">
+        {% csrf_token %}
+        <td><input name="ids" type="checkbox" value="{{ lens.id }}" checked hidden></td>
+      </form>
+      <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
+        <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+        Update lens
+      </button>
+    </div>
+  {% endif %}
+
   <div>
     <h1 class="jb-heading-2">System Information</h1>
     <table>
@@ -35,15 +59,36 @@
         <th>Image separation</th>
         <th>Lens redshift</th>
         <th>Source redshift </th>
+        <th>Score </th>
       </tr>
       <tr>
-        <td>{{lens.ra|floatformat:5}}</td>
-        <td>{{lens.dec|floatformat:5}}</td>
-        <td>{{lens.image_sep|floatformat:5}}</td>
-        <td>{{lens.z_lens|floatformat:4}}</td>
-        <td>{{lens.z_source|floatformat:4}}</td>
+        <td>{{lens.ra}}</td>
+        <td>{{lens.dec}}</td>
+        <td>{{lens.image_sep}}</td>
+        <td>{{lens.z_lens}}</td>
+        <td>{{lens.z_source}}</td>
+        <td>{{lens.score}}</td>
       </tr>
     </table>
+    <table>
+      <tr>
+        <th>Lens Type </th>
+        <th>Source Type </th>
+        <th>Image Configuration</th>
+        <th>Flag Confirmed</th>
+        <th>Flag Candidate</th>
+        <th>Flag Contaminant </th>
+      </tr>
+      <tr>
+        <td>{{lens.lens_type}}</td>
+        <td>{{lens.source_type}}</td>
+        <td>{{lens.image_conf}}</td>
+        <td>{{lens.flag_confirmed}}</td>
+        <td>{{lens.flag_candidate}}</td>
+        <td>{{lens.flag_contaminant}}</td>
+      </tr>
+    </table>
+
   </div>
 
   <div>

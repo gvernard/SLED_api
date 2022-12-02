@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+B2108+213,317.7253,21.5164,PUB,,2005MNRAS.356.1009M,True,0.67,False,False,0.3648,True,False,"QUASAR, BL Lac, RADIO-LOUD",GALAXY,2.0,,4.57,True,,,,,,

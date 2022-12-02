@@ -1,0 +1,43 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+DESJ234628.18-520331.6,356.6174,-52.0587,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,1.5,,False,,"Poss. a quad; zd = 0.48, zs = 1.87"
+DESJ024326.34-151729.8,40.85975,-15.2916,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.1,,False,,"Inconc. Two faint traces, no strong emission lines"
+DESJ030539.52-243459.8,46.41466,-24.5832,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.1,,False,,Inconc. Two point sources with no AO and 0.9arcsec seeing
+DESJ042316.01-375855.4,65.8167,-37.982,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,"Inconc. Broad emission line at 4967A QSO, spectrally unresolved; SOAR one point source + something extended"
+DESJ042407.95-593806.2,66.03312,-59.635,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Inconc. Point source + something extended
+DESJ054454.27-471138.1,86.22612,-47.1939,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,1.75,,False,,Inconc. SOAR two objects or elongated. bad seeing 0′′.9
+DESJ061553.23-600552.9,93.97179,-60.098,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,1.0,,False,,Inconc. QSO z =1.66 unresolved
+DESJ061838.92-495007.7,94.66216,-49.8354,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Inconc. Point source + something extended
+DESJ065959.89-563521.0,104.9995,-56.5891,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,1.0,,False,,Inconc. Point sources or galaxies?; C.L.:Is this object in DES??
+DESJ224752.94-431515.4,341.9705,-43.2542,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.75,,False,,Inconc. Two point objects; QSO at z = 0.74 + something faint
+DESJ220006.63-634447.8,330.0276,-63.7466,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Inconc. QSO z = 1.63 + faint unidentified trace
+DESJ004714.95-204838.5,11.81229,-20.8106,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STAR-FORMING GALAXY,Contam. z = 0 star forming galaxy
+DESJ005426.19-240434.0,13.60912,-24.0761,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXIES,Contam. Two point sources + galaxy? Emission line galaxy; z = 0.354 + faint no emission
+DESJ011753.38-044308.0,19.47241,-4.71888,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STAR-FORMING GALAXY,Contam. Star forming z = 0.138
+DESJ021722.30-551042.2,34.34291,-55.1783,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contam. QSO z = 1.08 + star (based on Mg5175 and NaD)
+DESJ034150.96-572205.8,55.46233,-57.3682,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Contam. QSO z = 1.19 + featureless spectrum (likely a star)
+DESJ043949.66-564319.8,69.95691,-56.7221,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXIES,Contam. Emission line galaxy at z = 0.351
+DESJ045152.71-534504.9,72.96962,-53.7513,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contam. QSO z = 1.21 + Star
+DESJ051207.72-222213.3,78.03216,-22.3703,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXY+OTHER,Contam. Narrow line AGN at z = 0.350 +featureless trace
+DESJ200531.34-534939.3,301.3805,-53.8275,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,"Contam:Two traces, one QSO at z = 1.73, + featureless (likely a star) "
+DESJ204725.72-612846.7,311.8571,-61.4796,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contam:QSOz = 0.93 (single line at 5379A) plus star
+DESJ214123.97-592705.8,325.3498,-59.4516,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXIES,Contam. Two traces:emission galaxy and absorption line companion at z = 0.47
+DESJ220501.19+003122.9,331.2549,0.52303,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Contam. QSO z = 1.65 + faint but different trace
+DESJ230317.10-454136.8,345.8212,-45.6935,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STAR-FORMING GALAXY,Contam. Star forming galaxy at z = 0.097
+DESJ233411.19-642139.9,353.5466,-64.361,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Contam. SOAR two point sources; Faint unresolved [OII] [OIII] emission at z = 0.60
+DESJ233520.73-464618.9,353.8363,-46.7719,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contam. QSO z = 1.65 + Star
+DESJ052553.73-555937.1,81.47387,-55.9936,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,True,0.25,,False,,Inconc. SOAR Two point sources. Single narrow emission line at 6894Å; but spectrum resolved into two components
+DESJ003848.42-480147.7,9.70175,-48.0299,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contam. SOAR:two point sources. Two stars
+DESJ013037.61-535419.0,22.6567,-53.9052,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contam. SOAR:two point sources. Two stars
+DESJ025629.40-413712.6,44.1225,-41.6201,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXIES,Contam. Emission line galaxy
+DESJ031908.53-410629.4,49.78554,-41.1081,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contam. SOAR:two point sources. Two stars
+DESJ032730.55-402712.0,51.87729,-40.4533,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR PAIR,"Contam. SOAR:two point sources. Single Mg II emission line, probably a quasar pair, 0.9079 and z = 0.9021 "
+DESJ040352.63-450052.3,60.96929,-45.0145,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contam. SOAR:two point sources. QSO z = 2.28 +star
+DESJ040934.96-521619.8,62.39566,-52.2721,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contam. SOAR:two point sources. Two stars
+DESJ044538.42-582847.0,71.41008,-58.4797,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contam. SOAR:two point sources. Two stars
+DESJ045613.66-582519.6,74.05691,-58.4221,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXIES,Contam. galaxies
+DESJ050713.60-584440.0,76.80666,-58.7444,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,"Contam. SOAR:two point sources, Two stars"
+DESJ051340.97-425352.5,78.4207,-42.8979,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contam. SOAR:two point sources. QSO + star
+DESJ051813.72-434216.3,79.55716,-43.7045,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Contam. SOAR:two point sources. QSO +star
+DESJ053232.64-445432.7,83.13599,-44.909,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,GALAXY+OTHER,Contam. Emission line galaxy + faint object
+DESJ053239.19-584823.0,83.16329,-58.8063,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contam. Two stars
+DESJ061727.03-482426.9,94.36262,-48.4074,PUB,,2018MNRAS.481.1041T,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Contam. Two stars

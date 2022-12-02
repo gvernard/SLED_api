@@ -1,0 +1,9 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+GRALJ0246-1845,41.55083,-18.7514,PUB,,2019arXiv191208977K,True,1.873,True,True,,,,QUASAR,GALAXY,2.0,,,,True,,,,,detection at 9 GHz
+GRALJ0346+2154,56.54583,21.91238,PUB,,2019arXiv191208977K,True,2.355,True,True,,,,QUASAR,GALAXY,2.0,,,,True,,,,,
+GRALJ0818+0601,124.627,6.02719,PUB,,2019arXiv191208977K,False,2.352,True,True,,,,QUASAR,GALAXY,2.0,,,,,,,,,"absorption at z = 1.007, 1.507"
+GRALJ0907+0003,136.7937,0.05603,PUB,,2019arXiv191208977K,True,1.299,True,True,,,,QUASAR,GALAXY,2.0,,,True,,,,,,"absorption at z = 0.682, 0.771"
+GRALJ1259+1241,194.9812,12.69794,PUB,,2019arXiv191208977K,True,2.196,True,True,,,,QUASAR,GALAXY,2.0,,,,True,,,,,stronger self-absorption in one image
+GRALJ1556-1352,239.2337,-13.8694,PUB,,2019arXiv191208977K,True,1.423,True,True,,,,QUASAR,GALAXY,2.0,,,,True,,,,,absorption at z = 0.393
+GRALJ2200+1448,330.065,14.81652,PUB,,2019arXiv191208977K,True,1.115,True,True,,,,QUASAR,GALAXY,2.0,,,,True,,,,,absorption at z = 0.762
+GRALJ2343+0435,355.8774,4.59942,PUB,,2019arXiv191208977K,True,1.604,True,True,,,,QUASAR,GALAXY,2.0,,,,True,,,,,absorption at z = 0.855

@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+PSS2322+1944,350.52985,19.7397,PUB,,2003Sci...300..773C,True,4.12,True,True,1.23,False,,QUASAR,,2.0,,1.49,True,False,,,False,,Originally discussed as a Djorgovski et al. 2000 paper but never published; this appears to be the first work which states it is a definite lens; see also Cox et al. 2002

@@ -1,0 +1,8 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+DESJ0247-6349,41.9782,-63.8231,PUB,,2019MNRAS.483.3888S,True,2.303,True,True,,,,QUASAR,GALAXY,2.0,,,True,,,,,,
+DESJ2158-5812,329.6554,-58.201,PUB,,2019MNRAS.483.3888S,True,1.756,True,True,,,,QUASAR,GALAXY,2.0,,,True,,,,,,
+KIDSJ2300-3104,345.0492,-31.0686,PUB,,2019MNRAS.483.3888S,False,,,,,,,QUASAR,GALAXY,2.0,,,,,,,True,STARS,
+KIDSJ2307-3039,346.8286,-30.6544,PUB,,2019MNRAS.483.3888S,False,2.64,True,True,,,,QUASAR,GALAXY,2.0,,,True,,,,,,
+DESJ2105-4249,316.2674,-42.8268,PUB,,2019MNRAS.483.3888S,True,,,,,,,QUASAR,GALAXY,2.0,,,,,,,True,QUASAR+STAR,C.L.:quasar+star based on Gaia proper motions
+J0152-2448,28.0796,-24.8105,PUB,,2019MNRAS.483.3888S,False,1.691,True,True,,,,QUASAR,GALAXY,2.0,,,True,,,,,,
+J0321-4428,50.4885,-44.4703,PUB,,2019MNRAS.483.3888S,False,2.094,True,True,,,,QUASAR,GALAXY,2.0,,,True,,,,,,

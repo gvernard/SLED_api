@@ -120,7 +120,7 @@ def savecolorim(ra, dec, arcsec_width, outpath):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     im = legacy_survey_colour_image(ra=ra, dec=dec, size=size)
-    ax.imshow(im, origin='lower', interpolation='nearest')
+    ax.imshow(im, interpolation='nearest')
     ax.set_xticks([])
     ax.set_yticks([])
     plt.savefig(outpath, bbox_inches='tight')

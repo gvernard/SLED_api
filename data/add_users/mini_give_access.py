@@ -23,6 +23,7 @@ print('Populating the database with a test set')
 owner = Users.objects.get(username='gvernard')
 mugshot_path = base_dir+'tests/test_mugshots/'
 
+
 mylenses = []
 for i in range(1,7):
     lens = Lenses(ra=i,dec=i,owner=owner)

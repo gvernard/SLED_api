@@ -1,0 +1,57 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+J0941+0518,145.34355,5.307,PUB,,2018MNRAS.477L..70W,True,1.54,True,True,0.343,True,True,QUASAR,,2.0,,,True,False,,,False,,"Lens; observed with  ESI, OSIRIS  ; selected by  PopMix, OutlierSel  ; comment:also independently selected by Lemon et al. 2018"
+J1640+1045,250.07599,10.7514,PUB,,2018MNRAS.477L..70W,True,1.7,True,True,,,,QUASAR,,2.0,,,True,False,,,False,,Lens; observed with DEIMOS ; selected by OutlierSel; comment:also independently selected by Lemon et al. 2018
+J2257+2349,344.35586,23.8251,PUB,,2018MNRAS.477L..70W,True,2.11,True,True,,,,QUASAR,,2.0,,,True,False,,,False,,"Lens; observed with  EFOSC2, NIRC2  ; selected by OutlierSel; comment:"
+J2211+1929,332.87638,19.487,PUB,,2018MNRAS.477L..70W,False,1.07,True,True,,,,QUASAR,,,,,,False,,,False,,"Lens; observed with  EFOSC2, ESI, NIRC2   ; selected by PopMix; comment:HS 2209+1914"
+J0048+2505,12.14571,25.0897,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.5,,False,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources
+J0118+4718,19.7397,47.3148,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.5,,False,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources
+J0130+4110,22.5127,41.1726,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources; C.L.:Stars based on Gaia proper motions
+J0213+1306,33.32627,13.11218,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.1,,False,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:bad AO correction
+J0252+3420,43.073,34.3382,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources; C.L.:STAR based on Gaia proper motions
+J0252-0855,43.08799,-8.921,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.1,,,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources
+J0852-0148,133.22458,-1.814,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,,,,,"Inconclusive; observed with  ESI, SAM   ; selected by PopMix; comment:two point sources"
+J0930+4614,142.58817,46.23968,PUB,,2018MNRAS.477L..70W,False,2.38,True,True,,,,QUASAR,,,,,,False,,,,,
+J0932+0722,143.0298,7.38092,PUB,,2018MNRAS.477L..70W,False,1.99,True,True,,,,QUASAR,,,,,,False,,,,,
+J1010+5705,152.71305,57.0919,PUB,,2018MNRAS.477L..70W,True,1.97,True,True,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,"Inconclusive; observed with ESI ; selected by PopMix; comment: one obvious, possibly two blended traces ; C.L.:Quasar + star based on Gaia proper motion"
+J1013+1041,153.41692,10.68779,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Inconclusive; observed with SAM ; selected by PopMix; comment:two point sources; C.L.:Quasar + star based on Gaia proper motion
+J1700+0058,255.10005,0.97087,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources; C.L.:Quasar + star based on Gaia proper motion
+J2103+1100,315.84197,11.00532,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.25,,,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources
+J2209+0045,332.27882,0.76218,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.25,,,,"Inconclusive; observed with  NIRC2, EFOSC2, SAM   ; selected by OutlierSel; comment:two point sources; C.L.:very unlikely at this redshift"
+J2246+3118,341.69171,31.30472,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,1.0,,,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources
+J2352+0105,358.1587,1.09787,PUB,,2018MNRAS.477L..70W,True,2.15,True,True,0.83,False,True,QUASAR,,,,,,True,0.1,,,,Inconclusive; observed with ESI ; selected by PopMix; comment:one obvious trace
+J2353-0539,358.46255,-5.66552,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,"Not a lens; observed with  NIRC2, EFOSC2  ; selected by PopMix; comment:QSO + star"
+J0037+0111,9.33269,1.18742,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+GALAXY,Not a lens; observed with NIRC2 ; selected by OutlierSel; comment:point source + galaxy
+J0120+2654,20.01903,26.91533,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+GALAXY,Not a lens; observed with NIRC2 ; selected by OutlierSel; comment:point source + galaxy
+J0141+0007,25.46092,0.13173,PUB,,2018MNRAS.477L..70W,True,1.35,True,True,,,,QUASAR,,,,,,False,,,True,QUASAR+GALAXY,"Not a lens; observed with  EFOSC2, ESI, SAM, NIRC2  ; selected by PopMix; comment: QSO + galaxy, z_gal = 0.279"
+J0255-0051,43.93993,-0.86503,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,"Not a lens; observed with NIRC2 ; selected by PopMix; comment: large separation, no sign of lens ; C.L.:qso+star based on Gaia proper motions"
+J0739+1350,114.9568,13.83667,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Not a lens; observed with ESI ; selected by PopMix; comment:QSO + star
+J0806-0135,121.67934,-1.59526,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Not a lens; observed with ESI ; selected by PopMix; comment:QSO + star
+J0808-0051,122.03698,-0.86434,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Not a lens; observed with ESI ; selected by PopMix; comment:QSO + star
+J0808+0118,122.19465,1.31101,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,"Not a lens; observed with  Goodman, SAM, SAM  ; selected by PopMix; comment:3 stars"
+J0836+4841,129.20649,48.69832,PUB,,2018MNRAS.477L..70W,False,,,,,,,QUASAR,,,,,,False,,,True,PROJECTED QUASARS,
+J0841+0312,130.2783,3.20191,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,Not a lens; observed with ESI ; selected by PopMix; comment:QSO + star
+J0940-0249,145.15931,-2.8267,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,STAR-FORMING GALAXY,Not a lens; observed with ESI ; selected by PopMix; comment:z ~ 0.092
+J1704+1817,256.13547,18.29102,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.5,,,,Not a lens; observed with NIRC2 ; selected by OutlierSel; comment:three point sources
+J1810+6344,272.51841,63.74072,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,QUASAR+GALAXY,Not a lens; observed with NIRC2 ; selected by PopMix; comment:point source + galaxy
+J2036-1801,309.21955,-18.02927,PUB,,2018MNRAS.477L..70W,True,2.32,True,True,,,,QUASAR,,,,,,False,,,True,QUASAR+STAR,"Not a lens; observed with  NIRC2, EFOSC2  ; selected by OutlierSel; comment:QSO + star"
+J2044+0314,311.20357,3.24864,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Not a lens; observed with NIRC2 ; selected by PopMix; comment:three souces in wrong configuration
+J2055-0515,313.8753,-5.25045,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,STAR+GALAXY,"Not a lens; observed with  NIRC2, EFOSC2  ; selected by OutlierSel; comment:QSO + star"
+J2350-0749,357.51073,-7.82589,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,STAR-FORMING GALAXY,"Not a lens; observed with  NIRC2, EFOSC2  ; selected by OutlierSel; comment:star forming galaxy"
+J0001+1411,0.31665,14.18974,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:SDSS - QSO"
+J0005+2031,1.49748,20.52355,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"
+J0024+0032,6.1838,0.53931,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by  PopMix, OutlierSel  ; comment:SDSS - QSO"
+J0116+4241,19.06776,42.6954,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"
+J0128+0055,22.04563,0.93174,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:SDSS - QSO"
+J0209-0028,32.44583,-0.47812,PUB,,2018MNRAS.477L..70W,True,1.31,True,True,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with  EFOSC2, SAM  ; selected by PopMix; comment:QSO"
+J0242+0057,40.668,0.95754,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:SDSS - QSO"
+J0340+0057,55.19833,0.95997,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"
+J0502+1310,75.61556,13.18222,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"
+J1738+3222,264.70178,32.37678,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"
+J2045-0101,311.40236,-1.03,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by PopMix; comment:SDSS - QSO"
+J2111-0012,317.78773,-0.21647,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:SDSS - QSO"
+J2121-0005,320.37559,-0.09087,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:SDSS - QSO"
+J2123-0050,320.87278,-0.84804,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by PopMix; comment:SDSS - QSO"
+J2146+0009,326.55547,0.15857,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:SDSS - QSO"
+J2158+1526,329.67363,15.43747,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"
+J2238+2718,339.53716,27.31368,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"
+J2358-0136,359.58584,-1.60291,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,SINGLE QUASAR,"Not a lens, single source; observed with NIRC2 ; selected by OutlierSel; comment:"

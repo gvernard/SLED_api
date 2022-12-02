@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+"Q2237+0305, Einstein Cross, Huchra's lens",340.1258,3.35855,PUB,,1985AJ.....90..691H,True,1.695,True,True,0.0394,True,True,QUASAR,GALAXY,4.0,CROSS,1.78,True,,,,,,

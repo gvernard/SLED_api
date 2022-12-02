@@ -65,6 +65,13 @@
                 <td>{{ form.z_source_max }}</td>
                 <td>{{ form.z_source_max.errors }}</td>
               </tr>
+              <tr>
+                <td>{{ form.score_min.errors }}</td>
+                <td>{{ form.score_min }}</td>
+                <td> &lt; Score &lt; </td>
+                <td>{{ form.score_max }}</td>
+                <td>{{ form.score_max.errors }}</td>
+              </tr>
             </table>
           </td>
 
@@ -135,7 +142,7 @@
         {% endif %}
       </tr>
       <tr>
-        | Showing {{ lenses.start_index }} - {{ lenses.end_index }}
+        | Showing {{ lenses.start_index }} - {{ lenses.end_index }} of {{ lenses_count }}
       </tr>
     </table>
   </div>

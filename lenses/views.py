@@ -18,7 +18,7 @@ from django.forms import formset_factory, modelformset_factory, inlineformset_fa
 from django.contrib import messages
 from django.core import serializers
 from django.conf import settings
-from django.db.models import Max, Subquery
+from django.db.models import Max, Subquery, Q
 import json
 from urllib.parse import urlparse
 
@@ -323,11 +323,18 @@ class LensDetailView(DetailView):
             labels.append(flags)
         paper_labels = [ ','.join(x) for x in labels ]
 
+        #decide whether the update button should be showed or not
+        #print(self.request.user, context['lens'].owner)
+        if self.request.user==context['lens'].owner:
+            updatable = True
+        else:
+            updatable = False
             
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
         context['display_catalogues'] = catalogue_entries
+        context['updatable'] = updatable
         return context
     
 
@@ -387,7 +394,7 @@ class LensAddView(TemplateView):
                                 pub.append(lens)
                         if pri:
                             assign_perm('view_lenses',request.user,pri)
-                        self.make_collection(instances,request.user)
+                        #self.make_collection(instances,request.user)
                         # Main activity stream for public lenses
                         if len(pub) > 0:
                             ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
@@ -402,7 +409,7 @@ class LensAddView(TemplateView):
                                 pri.append(lens)
                         if pri:
                             assign_perm('view_lenses',request.user,pri)
-                        self.make_collection(instances,request.user)
+                        #self.make_collection(instances,request.user)
                         return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                 else:
                     # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
@@ -454,8 +461,8 @@ class LensUpdateView(TemplateView):
                 if len(indices) == 0:
                     pub = []
                     for i,lens in enumerate(instances):
-                        if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
-                            lens.create_name()
+                        #if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
+                        #    lens.create_name()
                         lens.save()
                         if lens.access_level == 'PUB':
                             pub.append(lens)
@@ -750,9 +757,11 @@ class LensQueryView(TemplateView):
         '''
         This function performs the filtering on the lenses table, by parsing the filter values from the request
         '''
+        print('test test test')
         keywords = list(form.keys())
+        #print(keywords)
         values = [form[keyword] for keyword in keywords]
-
+        print(values)
 
         # if form['ids']:
         #     id_list = form['ids'].split(',')
@@ -770,37 +779,57 @@ class LensQueryView(TemplateView):
 
         #now apply the filter for each non-null entry
         for k, value in enumerate(values):
-            if value is not None:
+            if value!=None:
+                print(value, keywords[k])
+
                 #print(k, value, keywords[k])
                 if 'ra_' in keywords[k] and over_meridian:
                     continue
                 if '_min' in keywords[k]:
+                    print(keywords[k], value)
                     args = {keywords[k].split('_min')[0]+'__gte':float(value)}
+
+                    print(args)
                     lenses = lenses.filter(**args).order_by('ra')
                 elif '_max' in keywords[k]:
+                    print(keywords[k], value)
                     args = {keywords[k].split('_max')[0]+'__lte':float(value)}
+                    print(args)
                     lenses = lenses.filter(**args).order_by('ra')
 
                 if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
                     if len(value) > 0:
+                        search_params = Q()
+                        #should be able to pass a list
+                        #value = [value]
+                        #print(value, len(value))
                         for i in range(len(value)):
                             #print(k, value[i], keywords[k])
-                            args = {keywords[k]:value[i]}
-                            lenses_type = lenses.filter(**args)
-                            if i == 0:
-                                final_lenses = lenses_type
-                            else:
-                                final_lenses |= lenses_type
-                                lenses = final_lenses.order_by('ra')
+                            search_params = search_params | Q((keywords[k]+'__contains', value[i]))
+                            #args = {keywords[k]:value[i]}
+                            #print(args)
+                            #lenses_type = 
+                            print(search_params, i)
+                            if i==len(value)-1:
+                                #final_lenses = lenses_type
+                                #print(final_lenses)
+                                #if len(value)==1:
+                                #print('final query:', search_params)
+                                lenses = lenses.filter(search_params)
+                            #else:
+                            #    final_lenses = final_lenses | lenses_type
+                            #    lenses = final_lenses.order_by('ra')
                                 
                 if 'flag_' in keywords[k]:
-                    if value:
-                        if 'flag_un' in keywords[k]:
-                            keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
-                            value = False
-                            args = {keywords[k]:value}
-                            lenses = lenses.filter(**args)
-                            
+                    if 'flag_un' in keywords[k]:
+                        keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
+                        value = False
+                        args = {keywords[k]:value}
+                        lenses = lenses.filter(**args)
+                    else:
+                        args = {keywords[k]:value}
+                        lenses = lenses.filter(**args)    
+                        
         #come back to the special case where RA_min is less than 0hours
         if over_meridian:
             lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
@@ -829,7 +858,11 @@ class LensQueryView(TemplateView):
         return self.render_to_response(context)
     
     def post(self, request, *args, **kwargs):
-        form = forms.LensQueryForm(request.POST)
+        form = forms.LensQueryForm(request.POST, request.FILES)
+        #for debugging
+        for field in form:
+            print("Field Error:", field.name,  field.errors, field.value())
+
         if form.is_valid():
             lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
             context = {'lenses':lenses_page,

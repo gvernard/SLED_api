@@ -1,0 +1,3 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+WFIJ2026-4536 ,306.54346,-45.60753,PUB,,2004AJ....127.2617M,True,2.237,True,True,,,,QUASAR,GALAXY,4.0,FOLD,1.34,True,,,,,,
+WFIJ2033-4723,308.4257,-47.3956,PUB,,2004AJ....127.2617M,True,1.661,True,True,0.661,True,False,QUASAR,GALAXY,4.0,FOLD,2.53,True,,,,,,

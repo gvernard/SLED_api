@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+BRI0952-0115,148.75038,-1.50187,PUB,,1992Gemin..36....1M,True,4.5,True,True,0.632,True,False,QUASAR,GALAXY,2.0,,0.99,True,,,,,,

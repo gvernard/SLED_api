@@ -3,13 +3,14 @@ from django.conf import settings
 from django.db import connection
 from django.core import serializers
 from django.urls import reverse,reverse_lazy
+from django.forms.models import model_to_dict
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
-from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer
+from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper
 
 from guardian.shortcuts import assign_perm
@@ -17,7 +18,9 @@ from actstream import action
 
 import os
 import json
-
+import base64
+from io import BytesIO, BufferedReader
+from django.core.files.base import ContentFile
 
 class UploadData(APIView):
     parser_classes = [MultiPartParser]
@@ -32,6 +35,7 @@ class UploadData(APIView):
         print('just got some fresh data in, mmm', request.data)
         #uploaded_data = request.data.copy()
         #print(uploaded_data)
+
         uploaded_data = request.data.copy()
         Ndata = int(uploaded_data.pop('N')[0])
         data_type = str(uploaded_data.pop('type')[0])
@@ -108,7 +112,8 @@ class UploadPapers(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        Paper.objects.all().delete()
+        #Paper.objects.all().delete()
+        print(request.data)
         serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
         if serializer.is_valid():
             validated_data = serializer.validated_data
@@ -130,6 +135,34 @@ class UploadPapers(APIView):
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
+
+class UploadCollection(APIView):
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self,request):
+        #Paper.objects.all().delete()
+        print(request.data)
+        serializer = CollectionUploadSerializer(data=request.data, context={'request':request})
+        if serializer.is_valid():
+            validated_data = serializer.validated_data
+            lenses_pc = validated_data["lenses_in_collection"]
+            access_level = validated_data["access"]
+            name = validated_data["name"]
+            description = validated_data["description"]
+
+            #Collection.objects.create(**collectiondat)
+            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type='Lenses')
+            mycollection.save()
+            lens_ids = Lenses.accessible_objects.in_ids(self.request.user,lenses_pc)
+            mycollection.myitems = lens_ids
+            mycollection.save()
+
+            response = "Success! Collection uploaded!"
+            return Response(response)
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+ 
         
 class UploadLenses(APIView):
     parser_classes = [MultiPartParser]
@@ -141,7 +174,11 @@ class UploadLenses(APIView):
         # Then, Check that each given list of keys has the same length N.
 
         # Get number of lenses and the keys
-        Nlenses = int(request.data.pop('N')[0])
+        #print(request.files)
+        #print(json.loads(request.data))
+        
+        #print(lenses[0])
+        '''Nlenses = int(request.data.pop('N')[0])
         keys = []
         for key,dum in request.data.items():
             keys.append(key)
@@ -158,14 +195,65 @@ class UploadLenses(APIView):
             for j,key in enumerate(keys):
                 lens[key] = list_of_lists[j][i]
             lenses.append(lens)
+        #print(lenses)'''
         #print(lenses)
 
-        serializer = LensesUploadSerializer(data=lenses,many=True)
+        lenses = list(json.loads(request.body))
+        #print(lenses[1])
+        print(lenses)
+
+        #Keep non-empty fields
+        potential_headers = list(lenses[0].keys())
+        lenses = [{key:lens[key] for key in potential_headers if lens[key]!=''} for lens in lenses]
+        for lens in lenses:
+            #convert the string representation back to a content file for the mugshot
+            lens['mugshot'] = ContentFile(base64.b64decode(lens['mugshot']), name=lens['imagename'])
+            lens = {key:(lens[key] if lens[key]!='' else None) for key in lens.keys()}
+
+
+        #convert strings to lists for serializers for any multi-object-fields
+        #print(lenses[0])
+        for key in ['lens_type', 'source_type', 'image_conf']:
+            for lens in lenses:
+                if key in lens.keys():
+                    if ',' in lens[key]:
+                        lens[key] = [field.strip() for field in lens[key].split(',')]
+                    else:
+                        lens[key] = [lens[key].strip()]
+        print(lenses[0]['name'])
+
+        #deal with multiple names
+        for lens in lenses:
+            if ',' in lens['name']:
+                lens['name'] = lens['name'].split(',')[0].strip()
+                lens['altname'] =[altname.strip() for altname in lens['name'].split(',')[1:]]
+
+        #remove any trailing spaces from strings:
+        for lens in lenses:
+            for key in lens.keys():
+                if type(lens[key])==str:
+                    lens[key] = lens[key].strip()
+
+        #print(lens)
+        #print(lenses)
+        #replace the 64 bit encoding with 
+
+        #lenses[0]['mugshot'] = BufferedReader(base64.b64decode(lenses[0]['mugshot'].encode('utf-8')))
+        #asbytes = BytesIO(base64.b64decode(lenses[0]['mugshot'].encode('utf-8')))
+        #asbytes.name = 'test'
+        #lenses[0]['mugshot'] = BufferedReader(asbytes)
+        
+        #print(dir(lenses[0]['mugshot']))
+        #lenses[0]['mugshot'].name = 
+
+
+        serializer = LensesUploadSerializer(data=lenses, many=True)
         if serializer.is_valid():
             lenses = serializer.create(serializer.validated_data)
+            print(lenses[0])
             for lens in lenses:
                 lens.owner = request.user
-                lens.create_name()
+                #lens.create_name()
 
             indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
             if len(indices) == 0:
@@ -252,3 +340,91 @@ class GroupsAutocomplete(APIView):
         serializer = GroupsSerializer(queryset,many=True)
         return Response({"groups":serializer.data})
 
+
+
+class QueryLenses(APIView):
+    """
+    API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
+    """
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self,request):
+        user = request.user
+        ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)
+        
+        if lenses:
+            lensjsons = []
+            for lens in lenses:
+                print(lens)
+                json = model_to_dict(lens, exclude=['mugshot', 'owner', 'id'])
+                print(json)
+                lensjsons.append(json)
+        else:
+            lensjsons = []
+        return Response({'lenses':lensjsons})
+
+class UpdateLenses(APIView):
+    """
+    API function to update a lens; if the user then it can update immediately; if not set a notification to the owner (to be implemented..)
+    """
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self,request):
+        user = request.user
+        ra, dec = float(request.data['ra']), float(request.data['dec'])
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=10.)
+        
+        lens = lenses[0]
+        update_data = request.data.copy()
+        print(update_data)
+        #check for any update in parameters
+
+        '''for key in ['lens_type', 'source_type', 'image_conf']:
+            if key in update_data.keys():
+                if ',' in update_data[key]:
+                    update_data[key] = [field.strip() for field in update_data[key].split(',')]
+                else:
+                    update_data[key] = [update_data[key].strip()]'''
+
+        for key in ['lens_type', 'source_type', 'image_conf']:
+            if key in update_data.keys():
+                print(update_data[key])
+                if ',' in update_data[key]:
+                    update_data[key] = [field.strip() for field in update_data[key].split(',')]
+                    print(update_data[key])
+                else:
+                    print(update_data[key])
+                    update_data[key] = [update_data[key].strip()]
+
+
+        print(update_data)
+        print('about to serialize')
+        serializer = LensesUpdateSerializer(data=update_data, many=False)
+        if serializer.is_valid():
+            updated_lens = serializer.create(serializer.validated_data)
+            print('managed to serialize:', updated_lens)
+
+            for key in update_data.keys():
+                #do not update ra, dec; delete lens is likely best option, otherwise all external data-fetching tasks 
+                #will have to be restarted...
+                if key in ['ra', 'dec']:
+                    continue
+
+                print('Might be updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
+                value = getattr(lens, key)
+
+                if str(type(getattr(lens, key)))=="<class 'decimal.Decimal'>":
+                    value = float(value)
+
+                if value!=update_data[key]:
+                    print('Updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
+                    setattr(lens, key, getattr(updated_lens, key))
+
+            lens.save()
+
+            return Response('updated values')
+        else:
+            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)

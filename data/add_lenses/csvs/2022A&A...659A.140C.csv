@@ -1,0 +1,31 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+UNIONSJ0112+3307,18.198,33.1317,PUB,,2022A&A...659A.140C,True,0.243,True,True,,,,QUASAR,GALAXY,,,1.036,False,True,0.5,9,False,,Likely dual quasar given the spectrum of a z=0.243 AGN
+UNIONSJ0800+4059,120.0117,40.9908,PUB,,2022A&A...659A.140C,False,1.622,True,True,,,,QUASAR,GALAXY,,,0.826,False,False,,8,True,QUASAR+GALAXY,Not 100% a contaminant but clearly no counterimage in CFIS imaging
+UNIONSJ0805+3550,121.2732,35.8471,PUB,,2022A&A...659A.140C,True,1.668,True,True,,,,QUASAR,GALAXY,,,1.142,False,True,1.5,9,False,,No lensing galaxy residuals
+UNIONSJ0840+4631,130.2163,46.5239,PUB,,2022A&A...659A.140C,True,1.358,True,True,,,,QUASAR,GALAXY,,,2.471,False,False,,8,True,QUASAR+GALAXY,Not 100% a contaminant but clearly no counterimage in CFIS imaging
+UNIONSJ0922+4028,140.7213,40.4763,PUB,,2022A&A...659A.140C,True,1.28,True,True,,,,QUASAR,GALAXY,,,1.35,False,True,1.0,8.5,False,,Likely quasar pair given spectra
+UNIONSJ0926+3059,141.6438,30.9958,PUB,,2022A&A...659A.140C,True,2.257,True,True,,,,QUASAR,GALAXY,,,2.067,False,True,1.5,8,False,,No lensing galaxy residuals
+UNIONSJ0938+4216,144.5078,42.2675,PUB,,2022A&A...659A.140C,True,1.705,True,True,,,,QUASAR,GALAXY,,,0.797,False,True,1.25,9,False,,"Blended spectrum, perhaps two quasars"
+UNIONSJ0943+3532,145.8625,35.5439,PUB,,2022A&A...659A.140C,True,1.21,True,True,,,,QUASAR,GALAXY,,,0.831,True,False,,9.5,False,,
+UNIONSJ0958+4325,149.6563,43.432,PUB,,2022A&A...659A.140C,True,0.813,True,True,,,,QUASAR,GALAXY,,,0.985,False,True,1.5,8,False,,
+UNIONSJ1006+3040,151.5764,30.6766,PUB,,2022A&A...659A.140C,True,1.345,True,True,,,,QUASAR,GALAXY,,,0.837,False,True,2.75,8.5,False,QUASAR PAIR,QUASAR PAIR; possible lens given resolved spectra
+UNIONSJ1039+5126,159.8415,51.436,PUB,,2022A&A...659A.140C,True,2.05,True,True,,,,QUASAR,GALAXY,,,1.693,False,True,2.5,6.5,False,QUASAR PAIR,QUASAR PAIR; similar spectra except CIV lines
+UNIONSJ1111+3804,167.7773,38.0736,PUB,,2022A&A...659A.140C,True,3.02,True,True,,,,QUASAR,GALAXY,,,1.964,True,False,,10,False,,
+UNIONSJ1136+4227,174.0863,42.4582,PUB,,2022A&A...659A.140C,True,1.8,True,True,,,,QUASAR,GALAXY,,,2.143,False,True,1.0,8.5,False,QUASAR PAIR,Very likely quasar pair given CIV velocity offset
+UNIONSJ1146+3254,176.7198,32.903,PUB,,2022A&A...659A.140C,True,2.073,True,True,,,,QUASAR,GALAXY,,,2.441,True,False,,10,False,,
+UNIONSJ1201+4013,180.3289,40.2215,PUB,,2022A&A...659A.140C,True,1.94,True,True,,,,QUASAR,GALAXY,,,1.609,True,False,,9,False,,
+UNIONSJ1219+3453,184.7597,34.8952,PUB,,2022A&A...659A.140C,True,1.15,True,True,,,,QUASAR,GALAXY,,,4.15,False,True,2.0,9,False,QUASAR PAIR,"Outer PSFs are quasars with similar profiles at z=1.15, however central object is unclassified and likely a star. "
+UNIONSJ1223+3103,185.8387,31.0537,PUB,,2022A&A...659A.140C,True,0.887,True,True,,,,QUASAR,GALAXY,,,1.011,False,True,1.5,8.5,False,QUASAR+OTHER,Unclear what fainter PSF spectrum is
+UNIONSJ1325+3629,201.3387,36.4867,PUB,,2022A&A...659A.140C,True,1.21,True,True,,,,QUASAR,GALAXY,,,0.686,False,True,1.0,7.5,False,,Possible quasar pair given spectrum and clear absorption at CII of quasar
+UNIONSJ1454+4146,223.7024,41.777,PUB,,2022A&A...659A.140C,True,1.67,True,True,,,,QUASAR,GALAXY,,,1.414,False,True,2.0,7.5,False,,Unclear from spectra
+UNIONSJ1529+3841,232.2617,38.6842,PUB,,2022A&A...659A.140C,True,2.012,True,True,,,,QUASAR,GALAXY,,,0.918,False,True,2.0,8,False,,"Only SDSS spectrum available, no lens in residuals"
+UNIONSJ1537+3223,234.2544,32.3908,PUB,,2022A&A...659A.140C,True,1.825,True,True,,,,QUASAR,GALAXY,,,0.975,False,True,2.5,7.5,False,,Likely lens despite small spectrum differences
+UNIONSJ1551+3423,237.8845,34.3892,PUB,,2022A&A...659A.140C,True,1.832,True,True,,,,QUASAR,GALAXY,,,1.189,False,True,2.0,8,False,,"Only SDSS spectrum available, no lens in residuals"
+UNIONSJ1555+3118,238.7627,31.3125,PUB,,2022A&A...659A.140C,True,3.36,True,True,,,,QUASAR,GALAXY,,,1.64,True,False,,8,False,,
+UNIONSJ1555+3703,238.9975,37.061,PUB,,2022A&A...659A.140C,True,1.7,True,True,,,,QUASAR,GALAXY,,,0.926,False,True,1.75,8.5,False,,Unclear classification of fainter object
+UNIONSJ1555+3813,238.9831,38.2259,PUB,,2022A&A...659A.140C,True,2.525,True,True,,,,QUASAR,GALAXY,,,0.749,False,False,,8.5,True,QUASAR PAIR,"Very different spectra, likely a quasar pair"
+UNIONSJ1559+3839,239.8157,38.6531,PUB,,2022A&A...659A.140C,True,1.334,True,True,,,,QUASAR,GALAXY,,,0.885,False,True,2.75,9,False,,"No follow-up resolved spectra, but two PSFs+galaxy and a z=1.334 reddened quasar"
+UNIONSJ1633+4556,248.2873,45.9415,PUB,,2022A&A...659A.140C,True,1.412,True,True,,,,QUASAR,GALAXY,,,0.825,False,True,2.0,8,False,,z=1.412 from SDSS spec
+UNIONSJ1655+3746,253.7736,37.7773,PUB,,2022A&A...659A.140C,True,,,,,,,QUASAR,GALAXY,,,1.045,False,True,2.0,8,False,,No existing spectrum
+UNIONSJ1739+4355,264.848,43.9193,PUB,,2022A&A...659A.140C,True,2.515,True,True,,,,QUASAR,GALAXY,,,1.538,False,True,2.75,9,False,QUASAR PAIR,Smimilar spectra except for Lyman alpha blue wing; perhaps a quasar pair given lack of galaxy detection
+UNIONSJ2335+3201,353.8438,32.0192,PUB,,2022A&A...659A.140C,True,0.903,True,True,,,,QUASAR,GALAXY,,,0.62,False,True,1.75,8.5,False,,z=0.903 from SDSS spectrum

@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+MG0414+0534,63.65719,5.57862,PUB,,1989BAAS...21Q.718T,True,2.64,True,False,0.96,True,False,"RADIO-LOUD, QUASAR",GALAXY,4.0,FOLD,2.4,True,,,,,,

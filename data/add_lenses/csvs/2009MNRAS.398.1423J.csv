@@ -1,0 +1,5 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+ULASJ0820+0812,125.06706,8.20466,PUB,,2009MNRAS.398.1423J,True,2.024,True,True,0.803,True,True,QUASAR,GALAXY,2.0,,2.24,True,,,,,,
+J033248.5-002155,53.2023,-0.3653,PUB,,2009MNRAS.398.1423J,True,1.713,,,,,,QUASAR,GALAXY,2.0,,,False,,,,True,QUASAR+STAR,
+J034025.5-000820,55.1059,-0.139,PUB,,2009MNRAS.398.1423J,True,0.619,,,,,,QUASAR,GALAXY,2.0,,,False,,,,True,QUASAR+OTHER,
+J0917+2901,139.4606,29.0268,PUB,,2009MNRAS.398.1423J,True,1.816,,,,,,QUASAR,GALAXY,2.0,,,False,,,,True,QUASAR+STAR,

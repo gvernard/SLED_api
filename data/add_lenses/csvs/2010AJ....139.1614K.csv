@@ -1,0 +1,9 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+SDSSJ0904+1512,136.01744,15.21507,PUB,,2010AJ....139.1614K,True,1.826,True,True,0.365,False,True,QUASAR,GALAXY,2.0,,1.07,True,,,,,,
+SDSSJ1054+2733,163.67036,27.5517,PUB,,2010AJ....139.1614K,True,1.452,True,True,0.23,False,True,QUASAR,GALAXY,2.0,,1.27,True,,,,,,
+SDSSJ1055+4628,163.93938,46.4777,PUB,,2010AJ....139.1614K,True,1.249,True,True,0.388,True,False,QUASAR,GALAXY,2.0,,1.15,True,,,,,,
+SDSSJ1131+1915,172.9908,19.25761,PUB,,2010AJ....139.1614K,True,2.915,True,True,0.32,False,True,QUASAR,GALAXY,2.0,,1.4,True,,,,,,
+SDSSJ1304+2001 ,196.18166,20.01805,PUB,,2010AJ....139.1614K,True,2.175,True,True,0.39,False,True,QUASAR,GALAXY,2.0,,1.86,True,,,,,,
+SDSSJ1349+1227,207.37472,12.4521,PUB,,2010AJ....139.1614K,True,1.722,True,True,0.645,False,True,QUASAR,GALAXY,2.0,,3.01,True,,,,,,
+SDSSJ1455+1447,223.75782,14.79301,PUB,,2010AJ....139.1614K,True,1.424,True,True,0.4,False,True,QUASAR,GALAXY,2.0,,1.75,True,,,,,,
+SDSSJ1620+1203,245.10931,12.0613,PUB,,2010AJ....139.1614K,True,1.158,True,True,0.398,True,True,QUASAR,GALAXY,2.0,,2.81,True,,,,,,

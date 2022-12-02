@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+SDSSJ1029+2623,157.30765,26.39171,PUB,,2006ApJ...653L..97I,True,2.199,True,True,0.584,True,True,QUASAR,,3.0,"CUSP, NAKED CUSP",22.54,True,False,,,False,,

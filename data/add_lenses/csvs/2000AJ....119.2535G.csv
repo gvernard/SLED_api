@@ -1,0 +1,2 @@
+name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
+HE0512-3329,78.54541,-33.43958,PUB,,2000AJ....119.2535G,True,1.565,True,True,0.9313,False,True,QUASAR,GALAXY,2.0,,0.644,True,,,,,,

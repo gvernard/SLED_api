@@ -440,7 +440,7 @@ class ResolveDuplicates(ConfirmationTask):
             for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
                 if i not in reject_indices:
                     obj.object.owner = self.owner
-                    obj.object.create_name()
+                    #obj.object.create_name() #commented out because we need for old lenses this name
                     if not obj.object.pk:
                         obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
                     lenses.append(obj.object)
@@ -462,10 +462,10 @@ class ResolveDuplicates(ConfirmationTask):
                         pub.append(lens)
                 if pri:
                     assign_perm('view_lenses',self.owner,pri)
-                if len(pub) > 0:
-                    from . import Users
-                    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                    action.send(self.owner,target=Users.getAdmin().first(),verb=atype,level='success',action_object=ad_col)
+                #if len(pub) > 0:
+                #    from . import Users
+                #    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                #    action.send(self.owner,target=Users.getAdmin().first(),verb='some string goes here?',level='success',action_object=ad_col)
             else:
                 lenses = Lenses.objects.bulk_create(lenses)
                 # Here I need to upload and rename the images accordingly.

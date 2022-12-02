@@ -1,6 +1,6 @@
 from django.db.models import F
-from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper
-from rest_framework import serializers
+from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper, Collection
+from rest_framework import serializers, fields
 from rest_framework.validators import UniqueValidator
 import ads
 from itertools import chain
@@ -113,8 +113,9 @@ class CatalogueDataUploadSerializer(serializers.ModelSerializer):
 ### Uploading lenses
 ################################################################################
 class LensesUploadListSerializer(serializers.ListSerializer):
+
     def validate(self,attrs):
-        
+        print('validating the lens')
         ### Check proximity here
         check_radius = 16 # arcsec
         proximal_lenses = []
@@ -155,15 +156,122 @@ class LensesUploadListSerializer(serializers.ListSerializer):
 
         return attrs
 
-            
+
 class LensesUploadSerializer(serializers.ModelSerializer):
+    #z_lens = serializers.DecimalField(allow_null=True)
+    LensTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('SPIRAL','Spiral galaxy'),
+        ('GALAXY PAIR','Galaxy pair'),
+        ('GROUP','Group of galaxies'),
+        ('CLUSTER','Galaxy cluster'),
+        ('CLUSTER MEMBER','Galaxy cluster member'),
+        ('QUASAR','Quasar')
+    )
+    lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
+    
+    SourceTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('QUASAR','Quasar'),
+        ('DLA','DLA'),
+        ('PDLA','PDLA'),
+        ('RADIO-LOUD','Radio-loud'),
+        ('BAL QUASAR','BAL Quasar'),
+        ('ULIRG','ULIRG'),
+        ('BL Lac','BL Lac'),
+        ('LOBAL QUASAR','LoBAL Quasar'),
+        ('FELOBAL QUASAR','FeLoBAL Quasar'),
+        ('EXTREME RED OBJECT','Extreme Red Object'),
+        ('RED QUASAR','Red Quasar'),
+        ('GW','Gravitational Wave'),
+        ('FRB','Fast Radio Burst'),
+        ('GRB','Gamma Ray Burst'),
+        ('SN','Supernova')
+    )
+    source_type = fields.MultipleChoiceField(choices=SourceTypeChoices, required=False)
+
+    ImageConfChoices = (
+        ('LONG-AXIS CUSP','Long-axis Cusp'),
+        ('SHORT-AXIS CUSP','Short-axis Cusp'),
+        ('NAKED CUSP','Naked Cusp'),
+        ('CUSP','Cusp'),
+        ('CENTRAL IMAGE','Central Image'),
+        ('FOLD','Fold'),
+        ('CROSS','Cross'),
+        ('DOUBLE','Double'),
+        ('QUAD','Quad'),
+        ('RING','Ring'),
+        ('ARC','Arc')
+    )
+
+    image_conf = fields.MultipleChoiceField(choices=ImageConfChoices, required=False)
+
     class Meta:
         model = Lenses
-        exclude = ['name','owner','created_at','modified_at']
+        exclude = ['owner','created_at','modified_at']
         list_serializer_class = LensesUploadListSerializer
         
     def create(self,validated_data):
         return Lenses(**validated_data)
+
+
+class LensesUpdateSerializer(serializers.ModelSerializer):
+    #z_lens = serializers.DecimalField(allow_null=True)
+    LensTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('SPIRAL','Spiral galaxy'),
+        ('GALAXY PAIR','Galaxy pair'),
+        ('GROUP','Group of galaxies'),
+        ('CLUSTER','Galaxy cluster'),
+        ('CLUSTER MEMBER','Galaxy cluster member'),
+        ('QUASAR','Quasar')
+    )
+    lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
+    
+    SourceTypeChoices = (
+        ('GALAXY','Galaxy'),
+        ('QUASAR','Quasar'),
+        ('DLA','DLA'),
+        ('PDLA','PDLA'),
+        ('RADIO-LOUD','Radio-loud'),
+        ('BAL QUASAR','BAL Quasar'),
+        ('ULIRG','ULIRG'),
+        ('BL Lac','BL Lac'),
+        ('LOBAL QUASAR','LoBAL Quasar'),
+        ('FELOBAL QUASAR','FeLoBAL Quasar'),
+        ('EXTREME RED OBJECT','Extreme Red Object'),
+        ('RED QUASAR','Red Quasar'),
+        ('GW','Gravitational Wave'),
+        ('FRB','Fast Radio Burst'),
+        ('GRB','Gamma Ray Burst'),
+        ('SN','Supernova')
+    )
+    source_type = fields.MultipleChoiceField(choices=SourceTypeChoices, required=False)
+
+    ImageConfChoices = (
+        ('LONG-AXIS CUSP','Long-axis Cusp'),
+        ('SHORT-AXIS CUSP','Short-axis Cusp'),
+        ('NAKED CUSP','Naked Cusp'),
+        ('CUSP','Cusp'),
+        ('CENTRAL IMAGE','Central Image'),
+        ('FOLD','Fold'),
+        ('CROSS','Cross'),
+        ('DOUBLE','Double'),
+        ('QUAD','Quad'),
+        ('RING','Ring'),
+        ('ARC','Arc')
+    )
+
+    image_conf = fields.MultipleChoiceField(choices=ImageConfChoices, required=False)
+
+    class Meta:
+        model = Lenses
+        exclude = ['id', 'owner','created_at','modified_at', 'mugshot']
+        optional_fields = '__all__'
+        
+    def create(self,validated_data):
+        return Lenses(**validated_data)
+
 
 
 ### Uploading papers
@@ -220,7 +328,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                 paper.cite_as = paper.first_author + ' et al. (' + paper.year + ')'
             else:
                 paper.cite_as = ' and '.join(in_ads[i].author) + ' (' + paper.year + ')'
-        #print(ads_ids)
+        print(ads_ids)
         
         ## Check that ads_id do not exist already in the database
         existing = Paper.objects.filter(ads_id__in=ads_ids).values('bibcode','cite_as')
@@ -242,18 +350,23 @@ class PaperUploadListSerializer(serializers.ListSerializer):
             for lens in paper['lenses']:
                 ras.append(lens['ra'])
                 decs.append(lens['dec'])
+
             user = self.context['request'].user
-            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=3) # This call includes PRI lenses visible to the user
+            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10) # This call includes PRI lenses visible to the user
             
             if len(indices) != N_lenses:
+                #print(neis)
                 setA = set(indices)
                 setB = set(range(0,N_lenses))
                 missing = setB - setA
+                #print(missing)
                 labels = []
                 for k in missing:
                     labels.append( '(' + str(ras[k]) + ',' + str(decs[k]) + ')' )
+                    print('missing: (' + str(ras[k]) + ',' + str(decs[k]) + ')')
                 raise serializers.ValidationError('These RA,DEC do NOT correspond to any lens in the database:\n '+'\n'.join(labels))
             else:
+
                 lenses = list( neis )
                 if len(lenses) != N_lenses:
                     # This means that one (or more) lens(es) from dum_lenses matched to more than one lens from the DB
@@ -270,7 +383,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                         dum.extend( list(q) )
                     lenses_per_paper.append( dum )
 
-
+        print('lenses per paper:', lenses_per_paper)
         
         ## Loop over papers and check for discovery
         lenses_with_discovery = []
@@ -384,3 +497,47 @@ class PaperUploadSerializer(serializers.Serializer):
             raise serializers.ValidationError(message)
 
         return data
+
+class CollectionUploadSerializer(serializers.Serializer):
+
+    name = serializers.CharField(max_length=19)
+    description = serializers.CharField(max_length=100)
+    access = serializers.CharField(max_length=3)
+    lenses = serializers.ListField()
+
+    def create(self,validated_data):
+        return Collection(**validated_data)
+
+    def validate(self,data):
+        print('validating')
+        print('data', data)
+        ### Check proximity of given lenses with each other
+        '''check_radius = 16 # arcsec
+        proximal_lenses = []
+        for i in range(0,len(data['lenses'])-1):
+            ra1 = data['lenses'][i]['ra']
+            dec1 = data['lenses'][i]['dec']
+
+            for j in range(i+1,len(data['lenses'])):
+                ra2 = data['lenses'][j]['ra']
+                dec2 = data['lenses'][j]['dec']
+
+                if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
+                    proximal_lenses.append(j)
+
+        if len(proximal_lenses) > 0:
+            message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission is not allowed.'
+            raise serializers.ValidationError(message)'''
+
+        print(data)
+        lenses_in_collection = []
+        for lensinstance in data['lenses']:
+            ra, dec = lensinstance['ra'], lensinstance['dec']
+            user = self.context['request'].user
+            qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=3) # This call includes PRI lenses visible to the user
+            lenses_in_collection.append(qset.values_list('id', flat=True)[0])
+        print(lenses_in_collection)
+        data['lenses_in_collection'] = lenses_in_collection
+        return data
+
+
