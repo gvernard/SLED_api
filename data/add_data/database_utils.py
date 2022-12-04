@@ -57,7 +57,7 @@ def upload_data_to_db_API(datalist, datatype, username, password):
         print("Upload completed successfully!")
     else:
         print("Something went wrong!")
-    print(r.text)
+    #print(r.text)
     return 0
 
 

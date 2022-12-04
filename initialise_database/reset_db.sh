@@ -1,4 +1,5 @@
 #!/bin/bash
+cd ..
 
 # Give a command line argument to select the remote server, e.g. remote
 if [ $# -eq 0 ]
@@ -27,3 +28,7 @@ python manage.py makemigrations
 
 echo "Migrate"
 python manage.py migrate
+
+cd initialise_database
+
+python wait_tostart_db.py

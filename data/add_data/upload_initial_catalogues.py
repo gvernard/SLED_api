@@ -23,7 +23,7 @@ from django.db.models import Q, F, Func, FloatField, CheckConstraint
 
 outpath='../images_to_upload/jsons/'
 
-verbose = True
+verbose = False
 
 upload_again = True
 attempt_download = True
@@ -41,8 +41,9 @@ instruments = ['Pan-STARRS1', 'Gaia-DR1', 'Gaia-DR2']
 
 for kk in range(len(surveys)):
     survey, bands, instrument = surveys[kk], bandss[kk], instruments[kk]
-    uploads = []
+    
     for i in range(len(lenses)):
+        uploads = []
         #for kappa, lens in enumerate(lenses):
         #if kappa==5:
         #    df 
@@ -78,10 +79,10 @@ for kk in range(len(surveys)):
                     datafile = panstarrs_utils.query_vizier_panstarrs(ra, dec, radius=5.)
                 if survey=='Gaia-DR1':
                     datafile = gaia_utils.query_vizier_gaiadr1(ra, dec, radius=5.)
-                    print(survey, datafile)
+                    #print(survey, datafile)
                 if survey=='Gaia-DR2':
                     datafile = gaia_utils.query_vizier_gaiadr2(ra, dec, radius=5.)
-                    print(survey, datafile)
+                    #print(survey, datafile)
 
                 #if the data exists, create the json and image for upload
                 if datafile is not None:
@@ -111,8 +112,8 @@ for kk in range(len(surveys)):
                         uploadjson = gaia_utils.return_empty_photometry_json(json_outname=jsonfile, ra=ra, dec=dec, band=band, instrument='Gaia-DR2')
                     uploads.append(uploadjson)
 
-    if len(uploads)>0:
-        if direct_upload:
-            upload = database_utils.upload_catalogue_to_db_direct(datalist=uploads, username=username)
-        else:
-            upload = database_utils.upload_data_to_db_API(datalist=uploads, datatype='Catalogue', username=username, password=password)
+        if len(uploads)>0:
+            if direct_upload:
+                upload = database_utils.upload_catalogue_to_db_direct(datalist=uploads, username=username)
+            else:
+                upload = database_utils.upload_data_to_db_API(datalist=uploads, datatype='Catalogue', username=username, password=password)
