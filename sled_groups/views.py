@@ -75,7 +75,7 @@ class GroupSplitListView(TemplateView):
                 context['form'] = form
                 user_groups = request.user.groups.all().values_list('id',flat=True)
                 #groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(Q(name__contains=search_term) | Q(description__contains=search_term))
-                groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(name__contains=search_term)
+                groups = SledGroup.objects.filter(access_level='PUB').exclude(id__in=user_groups).exclude(owner=request.user).filter(name__icontains=search_term)
             context['groups_search'] = groups
         return self.render_to_response(context)
 
