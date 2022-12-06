@@ -123,7 +123,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 which_database="remote-mysql"
 
-if which_database == "local":
+if which_database == "local-sqlite":
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

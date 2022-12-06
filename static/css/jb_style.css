@@ -157,8 +157,8 @@
     max-height: none;
     max-width: 500px;
     margin-top: 100px;
-    background-color: #000;
-    color: #fff;
+    background-color: #fff;
+    color: #000;
   }
 
   .jb-image-1 {
@@ -179,7 +179,7 @@
 
   .jb-form {
     margin: 0 0 15px;
-    color: #fff;
+    color: #000;
     padding-top: 10px;
   }
 
@@ -237,7 +237,7 @@
 
   .jb-paragraph-1 {
     padding-top: 20px;
-    color: #fff;
+    color: #000;
     font-size: 18px;
     text-align: center;
   }
