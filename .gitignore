@@ -131,6 +131,7 @@ data/images_to_upload/*/*.png
 data/images_to_upload/*/*.json
 data/images_to_upload/*/*.fits
 data/images_to_upload/*/*.jpg
+data/add_papers/csvs/*.json
 
 static/css/vendors/*
 

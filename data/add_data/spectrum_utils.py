@@ -47,11 +47,19 @@ def download_spectrum(spid, fits_outname):
     fibre = spid.split('-')[2]
     plate = "{:04d}".format(int(plate))
     url = 'https://dr16.sdss.org/sas/dr16/sdss/spectro/redux/26/spectra/lite/'+plate+'/spec-'+plate+'-'+mjd+'-'+fibre+'.fits'
-    print(url)
+    #print(url)
     r = requests.get(url)
     if r.status_code != 200:
         url = 'https://dr16.sdss.org/sas/dr16/eboss/spectro/redux/v5_13_0/spectra/lite/'+plate+'/spec-'+plate+'-'+mjd+'-'+fibre+'.fits'
+        #print(url)
         r = requests.get(url)
+        if r.status_code != 200:
+            url = 'https://data.sdss.org/sas/dr16/sdss/spectro/redux/104/spectra/'+plate+'/spec-'+plate+'-'+mjd+'-'+fibre+'.fits'
+            #print(url)
+            r = requests.get(url)
+            if r.status_code != 200:
+                url = 'https://data.sdss.org/sas/dr16/sdss/spectro/redux/103/spectra/'+plate+'/spec-'+plate+'-'+mjd+'-'+fibre+'.fits'
+                #print(url)
 
 
 

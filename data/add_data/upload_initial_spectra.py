@@ -31,13 +31,15 @@ direct_upload = True
 username, password = 'admin', '123'
 
 survey = 'SDSS DR16'
-offline = True
+offline = False
 
 #data = Table.read('../trial_sample/lensed_quasars_uploadtable.fits')
 lenses = Lenses.objects.all()
-uploads = []
+
 #for i in range(0, 50):
-for lens in lenses: 
+for kk, lens in enumerate(lenses): 
+    uploads = []
+    print(kk, len(lenses))
     name, ra, dec = lens.name, float(lens.ra), float(lens.dec)
 
     print('checking for spectra')
@@ -104,8 +106,8 @@ for lens in lenses:
             if direct_upload:
                 uploads.append(upload_json)
 
-if len(uploads)>0:
-    if direct_upload:
-        upload = database_utils.upload_spectrum_to_db_direct(datalist=uploads, username=username)
-    else:
-        upload = database_utils.upload_data_to_db_API(uploads, 'Spectrum', username, password)
+    if len(uploads)>0:
+        if direct_upload:
+            upload = database_utils.upload_spectrum_to_db_direct(datalist=uploads, username=username)
+        else:
+            upload = database_utils.upload_data_to_db_API(uploads, 'Spectrum', username, password)

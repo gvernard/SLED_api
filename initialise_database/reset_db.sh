@@ -1,4 +1,5 @@
 #!/bin/bash
+cd ..
 
 # The value of 'which_database' needs to be specified in the settings.py file
 # Here we grabe the first occurrence of this variable
@@ -32,3 +33,7 @@ python manage.py makemigrations
 
 echo "Migrate"
 python manage.py migrate
+
+cd initialise_database
+
+python wait_tostart_db.py

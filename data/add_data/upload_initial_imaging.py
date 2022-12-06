@@ -35,11 +35,19 @@ lenses = Lenses.objects.all()
 surveys = ['PanSTARRS', 'LegacySurveySouth', 'LegacySurveyNorth']
 bandss = ['grizY', 'grz', 'grz']
 instruments = ['Pan-STARRS1', 'Legacy Survey (South)', 'Legacy Survey (North)']
+
+#surveys = ['LegacySurveySouth', 'LegacySurveyNorth']
+#bandss = ['grz', 'grz']
+#instruments = ['Legacy Survey (South)', 'Legacy Survey (North)']
+
+
+
 for kk in range(len(surveys)):
     survey, bands, instrument = surveys[kk], bandss[kk], instruments[kk]
-    uploads = []
     #for i in range(0, 50):
-    for lens in lenses: 
+    for kk, lens in enumerate(lenses): 
+        print(kk, '/',len(lenses), ':', lens.name)
+        uploads = []
         name, ra, dec = lens.name, float(lens.ra), float(lens.dec)
         for band in bands:
             jsonfile = jsonpath+name+'_'+survey+'_'+band+'.json'
@@ -89,10 +97,12 @@ for kk in range(len(surveys)):
 
                 #if the data does not exist, then upload an exists=False json so we know not to try again (DIRECT ONLY)
                 if (datafile is None) & direct_upload:
+                    print('no data was available; still creating the json')
                     uploadjson = imaging_utils.checked_and_nodata_json(jsonfile, name, ra, dec, band, instrument=instrument)
                     uploads.append(uploadjson)
 
-    if direct_upload:
-        upload = database_utils.upload_imaging_to_db_direct(datalist=uploads, username=username)
-    else:
-        upload = database_utils.upload_data_to_db_API(datalist=uploads, datatype='Imaging', username=username, password=password)
+        if direct_upload:
+            print('Uploading to database')
+            upload = database_utils.upload_imaging_to_db_direct(datalist=uploads, username=username)
+        else:
+            upload = database_utils.upload_data_to_db_API(datalist=uploads, datatype='Imaging', username=username, password=password)
