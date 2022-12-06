@@ -6,13 +6,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Strong Gravitational Lens database</title>
-  <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
 
   <!-- The line below is required to style the message -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
   <!-- <link rel="stylesheet" type="text/css" href="{% static 'css/global.css' %}" /> -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/jb_style.css' %}" />
-  <link rel="stylesheet" type="text/css" href="{% static 'css/sled-global.css' %}" />
+  <link href="{% static 'css/jb_style.css' %}" rel="stylesheet" />
+  <link href="{% static 'css/sled-global.css' %}" rel="stylesheet" />
   {% block extrastyles %}
   {% endblock extrastyles %}
 

@@ -218,21 +218,21 @@ CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
 
 
 if socket.gethostname()=='django01':
-    FORCE_SCRIPT_NAME = '/Recherche/lensdb'
-    #SUB_SITE = '/Recherche/lensdb'
-    #URL_PREFIX = '/Recherche/lensdb'
+    FORCE_SCRIPT_NAME = '/Research/twin_lenses'
+    #SUB_SITE = '/Research/twin_lenses'
+    #URL_PREFIX = '/Research/twin_lenses'
 
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    STATIC_URL = '/Recherche/lensdb/static/'
+    STATIC_URL = '/Research/twin_lenses/static/'
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'static'),
     ]    
 
-    LOGIN_URL = '/Recherche/lensdb/registration/login/'
-    LOGIN_REDIRECT_URL = '/Recherche/lensdb/'
+    LOGIN_URL = '/Research/twin_lenses/login/'
+    LOGIN_REDIRECT_URL = '/Research/twin_lenses/'
     
-    LOGOUT_URL = '/Recherche/lensdb/registration/login/'
-    LOGOUT_REDIRECT_URL = '/Recherche/lensdb/registration/login/'
+    LOGOUT_URL = '/Research/twin_lenses/login/'
+    LOGOUT_REDIRECT_URL = '/Research/twin_lenses/login/'
 
 
 # Default primary key field type
