@@ -442,7 +442,7 @@
   }
 
   .jb-pagination-numbers {
-    letter-spacing: 5px;
+    word-spacing: 3px;
   }
 
   .jb-add-lens table td {
