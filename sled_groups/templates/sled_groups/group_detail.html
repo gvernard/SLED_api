@@ -10,14 +10,14 @@
 
 <div class="jb-container">
   <h1 class="jb-heading-1">{{ group.name }}</h1>
-  <br></br>
+  <br>
 
   <!-- Div with some information about the group -->
   <div>
     <p> Description: {{ group.description }}</p>
     <p> Owner: {{ group.owner }}</p>
     <p> Number of members: {{ group.user_set.all|length }}</p>
-    <p> Access to private objects: </p>
+    <p> Access to private objects: (coming soon)</p>
   </div>
 
   <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
@@ -83,12 +83,12 @@
         <th>Last name</th>
         <th>Affiliation</th>
       </tr>
-      {% for user in group.getAllMembers %}
+      {% for member in group.getAllMembers %}
       <tr>
-        <td><a href="{{user.get_absolute_url}}">{{user.username}}</a></td>
-        <td>{{user.first_name}}</td>
-        <td>{{user.last_name}}</td>
-        <td>{{user.affiliation}}</td>
+        <td><a href="{{member.get_absolute_url}}">{{member.username}}</a></td>
+        <td>{{member.first_name}}</td>
+        <td>{{member.last_name}}</td>
+        <td>{{member.affiliation}}</td>
       </tr>
       {% endfor %}
     </table>
@@ -96,6 +96,7 @@
 
 
   <h1 class="jb-heading-2">List group access to various object types and collections</h1>
+  (coming soon)
   {% endif %}
   <br></br>
   <br></br>

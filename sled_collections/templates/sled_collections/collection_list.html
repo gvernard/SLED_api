@@ -24,7 +24,7 @@
 	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
 	<td>{{ collection.item_type }}</td>
 	<td>{{ collection.description }}</td>
-	<td> N. items {{ collection.myitems.all|length }}</td>
+	<td>{{ collection.myitems.all|length }}</td>
       </tr>
       {% endfor %}
     </tbody>

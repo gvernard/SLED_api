@@ -4,7 +4,7 @@
 {% block content %}
 <div class="jb-container">
   <div class="jb-float-child-1">
-    <h1 class="jb-heading-1">{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
+    <h1 class="jb-heading-1">{{ sled_user.first_name }} {{ sled_user.last_name }} ({{ sled_user.username }})</h1>
   </div>
   <div class="jb-float-child-2">
     <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
@@ -27,11 +27,11 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ user.first_name }}</td>
-            <td>{{ user.last_name }}</td>
-            <td>{{ user.affiliation }}</td>
-            <td>{{ user.email }}</td>
-            <td><a href="{{ user.homepage }}">{{ user.homepage }}</a></td>
+            <td>{{ sled_user.first_name }}</td>
+            <td>{{ sled_user.last_name }}</td>
+            <td>{{ sled_user.affiliation }}</td>
+            <td>{{ sled_user.email }}</td>
+            <td><a href="{{ sled_user.homepage }}">{{ sled_user.homepage }}</a></td>
           </tr>
         </tbody>
       </table>
@@ -43,7 +43,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>{{ user.info }}</td>
+            <td>{{ sled_user.info }}</td>
           </tr>
         </tbody>
       </table>

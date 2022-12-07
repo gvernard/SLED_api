@@ -9,7 +9,7 @@
 
 <div class="jb-container">
   <h1 class="jb-heading-1">{{ collection.name }}</h1>
-
+  <br>
 
   <!-- Div with some information about the collection and different actions for users or the owner -->
   <div>
@@ -33,7 +33,7 @@
       Delete
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
-      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      <img src="{% static 'icons/forward-fill.svg' %}" alt="trash">
       Cede ownership
     </button>
 
@@ -51,7 +51,7 @@
       Make public
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-view-access' collection.pk %}">
-      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
       View Access
     </button>
     {% endif %}
@@ -62,9 +62,9 @@
 
   {% if collection.access_level == 'PRI' %}
   {% if collection.owner == user %}
-  <div>
+  <div class="jb-table-no-lines">
     <h1 class="jb-heading-2">Access to the Collection</h1>
-    <table>
+    <table class="collection-access">
       <tbody>
         <tr>
           <td>Users:</td>
@@ -74,6 +74,8 @@
             {% if not forloop.last %}
             ,
             {% endif %}
+	    {% empty %}
+	    -
             {% endfor %}
           </td>
         </tr>
@@ -85,6 +87,8 @@
             {% if not forloop.last %}
             ,
             {% endif %}
+	    {% empty %}
+	    -
             {% endfor %}
           </td>
         </tr>
@@ -115,11 +119,7 @@
       <input type="hidden" name="collection_id" id="collection_id" value="{{ collection.id }}">
       <span class="errorlist">{{ error_message }}</span>
       {% if collection.item_type == 'Lenses' %}
-      {% if  collection.owner == user %}
-      {% include "lenses/lens_list_executive.html" with lenses=accessible_items  %}
-      {% else %}
-      {% include "lenses/lens_list_passive.html" with lenses=accessible_items  %}
-      {% endif %}
+      {% include "lenses/lens_collection_list.html" with lenses=accessible_items  %}
       {% else %}
       <p> Unknown item type </p>
       {% endif %}
@@ -129,14 +129,13 @@
   <!-- Actions for the collection owner -->
   {% if  collection.owner == user %}
   <div>
-    <form id="add-items-form" action="{% url 'lenses:lens-query' %}">
-      <button type="submit" form="add-items-form" class="jb-submit-button-1">
-        <img src="{% static 'icons/plus.svg' %}" alt="plus">
-        Add items
-      </button>
-    </form>
+    <form id="add-items-form" action="{% url 'lenses:lens-query' %}"></form>
+    <button type="submit" form="add-items-form" class="jb-submit-button-1">
+      <img src="{% static 'icons/plus.svg' %}" alt="plus">
+      Add items
+    </button>
     <button type="button" id="remove-items" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-remove-items' collection.pk %}">
-      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      <img src="{% static 'icons/dash.svg' %}" alt="person plus">
       Remove selected
     </button>
   </div>
@@ -149,6 +148,7 @@
 
 {% block extrastyles %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="{% static 'sled_collections/css/collection_detail.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 
@@ -157,49 +157,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-    $("#delete-collection").modalForm({
-      formURL: $("#delete-collection").data("form-url"),
-      modalID: "#id-modal",
-      isDeleteForm: true
-    });
-
-    $(".sled-modal").each(function() {
-      $(this).modalForm({
-        formURL: $(this).data("form-url"),
-        modalID: "#id-modal"
-      });
-    });
-
-    $("#remove-items").click(function() {
-
-      // Construct get query string
-      var values = [];
-      $('#exe_summary input[type="checkbox"]:checked').each(function() {
-        values.push('ids=' + $(this).val());
-      });
-
-      if (values.length == 0) {
-        alert('You need to select at least one item!');
-      } else {
-        var get_str = '?' + values.join('&') + '&';
-
-        // Fetch only the first part of the URL (without any GET arguments)
-        var url = $(this).data('form-url').split('?');
-        var url_core = url[0];
-
-        // Trigger modal
-        var new_form_url = url_core + get_str;
-        $(this).modalFormTrigger({
-          formURL: new_form_url,
-          modalID: "#id-modal"
-        });
-      }
-
-    });
-
-    $('#toggle_all').remove();
-  });
-</script>
+<script type="text/javascript" src="{% static 'sled_collections/js/collection_detail.js' %}"></script>
 {% endblock extrascripts %}

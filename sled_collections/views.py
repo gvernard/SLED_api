@@ -370,7 +370,8 @@ class CollectionViewAccessView(BSModalReadView):
         names_no_access = []
         for group in groups:
             acc = get_objects_for_group(group,perm,klass = all_priv)
-            no_acc = all_priv.order_by().difference(acc.order_by())
+            #no_acc = all_priv.order_by().difference(acc.order_by())
+            no_acc = list( set(all_priv) - set(acc) )
             N_no_access.append(len(no_acc))
             names = [obj.name for obj in no_acc]
             names_no_access.append( ','.join(names) )

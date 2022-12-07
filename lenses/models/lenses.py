@@ -375,7 +375,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
         
     def clean(self):
-
         if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
         #if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
@@ -409,9 +408,9 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             super(Lenses,self).save(*args,**kwargs)
 
             
-    #def __str__(self):
+    def __str__(self):
+        return self.name
     #    if self.name:
-    #        return self.name
     #    else:
     #        c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
     #        return 'J'+c.to_string('hmsdms')

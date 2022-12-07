@@ -209,7 +209,8 @@ class CollectionCedeOwnershipForm(BSModalModelForm):
         # Heir must have access to all the objects in the collection.
         all_items = self.instance.getSpecificModelInstances(self.instance.owner)
         accessible_by_heir = self.instance.getSpecificModelInstances(heir)
-        diff = list(all_items.order_by().difference(accessible_by_heir.order_by()))
+        #diff = list(all_items.order_by().difference(accessible_by_heir.order_by()))
+        diff = list( set(all_items) - set(accessible_by_heir) )
         if len(diff) > 0:
             names = [obj.name for obj in diff]
             self.add_error('__all__',"User does not have access to objects: " + ','.join(names))

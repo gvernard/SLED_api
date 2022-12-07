@@ -118,7 +118,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
         ids = list(self.myitems.all().values_list('gm2m_pk',flat=True))
         acc = obj_model.accessible_objects.in_ids(user,ids)
         all = obj_model.accessible_objects.in_ids(self.owner,ids)
-        no_acc = all.order_by().difference(acc.order_by())
+        #no_acc = all.order_by().difference(acc.order_by()) # Does not work in MySQL backend
+        no_acc = list( set(all) - set(acc) )
         return no_acc
 
     
@@ -154,7 +155,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
         in_collection_ids = self.myitems.all().values_list('gm2m_pk',flat=True)
         obj_model = apps.get_model(app_label='lenses',model_name=self.item_type)
         in_collection = obj_model.accessible_objects.in_ids(user,in_collection_ids).order_by()
-        not_in = objects.order_by().difference(in_collection)
+        #not_in = objects.order_by().difference(in_collection)
+        not_in = list( set(objects) - set(in_collection) )
         return not_in
 
     
