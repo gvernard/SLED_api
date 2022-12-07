@@ -27,8 +27,7 @@
       <tr>
         <th>Author(s)</th>
         <th>Title</th>
-        <th>Created at</th>
-        <th>Created by</th>
+        <th style="width:135px;">Number of Lenses</th>
       </tr>
     </thead>
     <tbody>
@@ -36,8 +35,7 @@
       <tr>
         <td><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
         <td><i>"{{ paper.title }}"</i></td>
-        <td>{{ paper.created_at }}</td>
-        <td><a href="{{ paper.owner.get_absolute_url }}">{{ paper.owner }}</a></td>
+        <td>{{ paper.lenses_in_paper.all|length }}</td>
       </tr>
       {% endfor %}
     </tbody>
