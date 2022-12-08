@@ -195,6 +195,8 @@
     </button>
   </div>
 </div>
+
+
 {% endblock content %}
 
 
@@ -207,17 +209,9 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+{{ form.media.js }}
 <script type="text/javascript">
   $(document).ready(function() {
-    $('.my-select2').each(function(index, element) {
-      $(element).attr('multiple', 'multiple');
-      $(element).find('option')[0].remove();
-    });
-    $('.my-select2').select2({
-      multiple: true,
-      placeholder: 'Select an option'
-    });
-
     $("#save-query").click(function() {
       // Check that the query form is not empty
       var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains

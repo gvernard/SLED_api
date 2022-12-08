@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
+from django_select2 import forms as s2forms
 
 from lenses.models import Lenses, Users, SledGroup, Collection
 
@@ -11,7 +12,10 @@ class BaseLensForm(forms.ModelForm):
         model = Lenses
         exclude = ['name']
         widgets = {
-            'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30})#,
+            'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
+            'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             #'lens_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
             #'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
             #'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
@@ -213,7 +217,7 @@ class BaseAddDataFormSet(forms.BaseFormSet):
 
 
         
-class LensQueryForm(forms.ModelForm):
+class LensQueryForm(forms.Form):
     # The following block is basically a copy of the corresponding lens model fields, each having a min and max field.
     ra_min = forms.DecimalField(required=False,
                                 max_digits=7,
@@ -297,18 +301,20 @@ class LensQueryForm(forms.ModelForm):
                                                 MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     
     score_min = forms.DecimalField(required=False,
-                         max_digits=7,
-                         decimal_places=4,
-                         help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
-                         validators=[MinValueValidator(0.0,"Score must be positive."),
-                                     MaxValueValidator(3.,"Score must be less than or equal to 3.")])
+                                   max_digits=7,
+                                   decimal_places=4,
+                                   help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
+                                   widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                   validators=[MinValueValidator(0.0,"Score must be positive."),
+                                               MaxValueValidator(3.,"Score must be less than or equal to 3.")])
 
     score_max = forms.DecimalField(required=False,
-                         max_digits=7,
-                         decimal_places=4,
-                         help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
-                         validators=[MinValueValidator(0.0,"Score must be positive."),
-                                     MaxValueValidator(3.,"Score must be less than or equal to 3.")])
+                                   max_digits=7,
+                                   decimal_places=4,
+                                   help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
+                                   widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                   validators=[MinValueValidator(0.0,"Score must be positive."),
+                                               MaxValueValidator(3.,"Score must be less than or equal to 3.")])
 
 
     flag_confirmed     = forms.NullBooleanField(required=False,
@@ -324,6 +330,10 @@ class LensQueryForm(forms.ModelForm):
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
                                             help_text="Select only unconfirmed contaminants (contaminant field set to False).", initial='1')
 
+    # Django-select2 widget for lens type, source type, and image_conf
+    ds2_widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False})
+
+    
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
         ('SPIRAL','Spiral galaxy'),
@@ -333,7 +343,9 @@ class LensQueryForm(forms.ModelForm):
         ('CLUSTER MEMBER','Galaxy cluster member'),
         ('QUASAR','Quasar')
     )
-    lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, widget=forms.SelectMultiple(), required=False)
+    #lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, widget=forms.SelectMultiple(), required=False)
+    #lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, widget=forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}), required=False)
+    lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, widget=ds2_widget, required=False)
 
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -353,7 +365,8 @@ class LensQueryForm(forms.ModelForm):
         ('GRB','Gamma Ray Burst'),
         ('SN','Supernova')
     )
-    source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, widget=forms.SelectMultiple(), required=False)
+    #source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, widget=forms.SelectMultiple(), required=False)
+    source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, widget=ds2_widget, required=False)
     
 
 
@@ -370,14 +383,12 @@ class LensQueryForm(forms.ModelForm):
         ('RING','Ring'),
         ('ARC','Arc')
     )
-    image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, widget=forms.SelectMultiple(), required=False)
-    
+    #image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, widget=forms.SelectMultiple(), required=False)
+    #image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, widget=forms.Select(attrs={'class':'my-select2 jb-myselect2'}), required=False)
+    image_conf = forms.MultipleChoiceField(choices=ImageConfChoices, widget=ds2_widget, required=False)
 
     page = forms.IntegerField(required=False,widget=forms.HiddenInput())
     
-    class Meta:
-        model = Lenses
-        fields = []
 
     def clean(self):
         #C.L.: I think we want this sometimes!
@@ -388,12 +399,14 @@ class LensQueryForm(forms.ModelForm):
         #if self.cleaned_data.get('ra_min') and self.cleaned_data.get('ra_max'):
         #    if float(self.cleaned_data.get('ra_min')) > float(self.cleaned_data.get('ra_max')):
         #        raise ValidationError('The maximum ra is lower than the minimum.')
+
+       
         for flag in ['flag_confirmed', 'flag_unconfirmed', 'flag_contaminant', 'flag_uncontaminant']:
             if not self.cleaned_data.get(flag):
-                print(flag)
+                #print(flag)
                 self.cleaned_data = self.cleaned_data.copy()
                 self.cleaned_data[flag] = None
-                print(self.data)
+                #print(self.data)
         if self.cleaned_data.get('dec_min') and self.cleaned_data.get('dec_max'):
             if float(self.cleaned_data.get('dec_min')) > float(self.cleaned_data.get('dec_max')):
                 raise ValidationError('The maximum dec is lower than the minimum.')
@@ -406,11 +419,12 @@ class LensQueryForm(forms.ModelForm):
             if float(self.cleaned_data.get('image_sep_min')) > float(self.cleaned_data.get('image_sep_max')):
                 raise ValidationError('The maximum image separation is lower than the minimum.')
 
-        #for list_option in ['image_conf', 'lens_type', 'source_type']:
+        #for list_option in ['image_conf']:
         #    self.cleaned_data = self.cleaned_data.copy()
         #    if self.cleaned_data[list_option]==[]:
         #        self.cleaned_data[list_option] = None
 
+        
         # Redshift checks
         z_lens_min   = self.cleaned_data.get('z_lens_min')
         z_lens_max   = self.cleaned_data.get('z_lens_max')
@@ -425,7 +439,6 @@ class LensQueryForm(forms.ModelForm):
         if z_lens_min and z_source_max:
             if float(z_lens_min) > float(z_source_max):
                 raise ValidationError('The maximum source redshift is lower than the minimum lens redshift.')
-        print('all ok')
         return
 
 

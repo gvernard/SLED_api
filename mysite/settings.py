@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'sled_users.apps.UsersConfig',
     'actstream',
     'multiselectfield',
+    'django_select2',
 ]
 
 SITE_ID = 1

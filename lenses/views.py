@@ -859,10 +859,7 @@ class LensQueryView(TemplateView):
     
     def post(self, request, *args, **kwargs):
         form = forms.LensQueryForm(request.POST, request.FILES)
-        #for debugging
-        for field in form:
-            print("Field Error:", field.name,  field.errors, field.value())
-
+        
         if form.is_valid():
             lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
             context = {'lenses':lenses_page,
