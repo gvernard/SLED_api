@@ -445,9 +445,11 @@
     word-spacing: 3px;
   }
 
-  .jb-add-lens table td {
-    padding-right: 25px;
-    width: 100%;
+  .jb-add-lens {
+      width: 100%;
+  }
+  .sled-copy-target > td {
+      padding: 0px;
   }
 
   .jb-modal {

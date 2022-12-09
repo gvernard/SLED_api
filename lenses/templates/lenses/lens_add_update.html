@@ -27,13 +27,13 @@
           <tr class="sled-copy-target">
             <td>
 
-              <div>
+              <div class="sled-row-content">
                 <table>
                   <tr>
                     <td>
                       <h3 class="sled-lens-counter">Lens {{ forloop.counter }}</h3>
                     </td>
-                    <td class="sled-delete-button"></td>
+                    <td class="sled-delete-button" style="float:right;"></td>
                   </tr>
                 </table>
 
@@ -117,30 +117,31 @@
                           </tr>
                           <tr>
                             <td>{{ form.info.errors }}</td>
-                            <td colspan="2">{{ form.info }}</td>
+                            <td colspan="2" style="text-align:center">{{ form.info }}</td>
                           </tr>
                         </table>
                       </div>
                     </td>
 
 
-                    <!-- Fourth column -->
+                    <!-- Third column -->
                     <td>
                       <div>
                         <table class="jb-paragraph-2">
-                          {% if form.instance.mugshot %}
+			  <tr>
+			    <td colspan="1" style="text-align:center">
+                              {% if form.instance.mugshot %}
+                              <img class="sled-mugshot-image" src="{{ form.instance.mugshot.url }}" alt="Mugshot">
+                              {% else %}
+                              <img class="sled-mugshot-image" src="">
+                              {% endif %}
+			    </td>
+			  </tr>
                           <tr>
-                            <td colspan="3"><img class="sled-mugshot-image" src="{{ form.instance.mugshot.url }}" alt="Mugshot"></td>
-                          </tr>
-                          {% else %}
-                          <tr>
-                            <td colspan="3"><img class="sled-mugshot-image" src=""></td>
-                          </tr>
-                          {% endif %}
-                          <tr>
-                            <td>{{ form.mugshot.errors }}</td>
-                            <td>{{ form.mugshot.label_tag }}</td>
-                            <td>{{ form.mugshot }}</td>
+                            <td style="text-align:center">
+			      {{ form.mugshot.errors }}
+                              {{ form.mugshot }}
+			    </td>
                           </tr>
                         </table>
                       </div>
@@ -161,24 +162,16 @@
 
 
       <div>
-        <table>
-          <tr>
-            {% if request.resolver_match.url_name == 'lens-add' %}
-            <td>
-              <div>
-                <button id="sled-add-another" type="button" class="jb-submit-button-1">
-                  Add another
-                </button>
-              </div>
-              <div class="sled-add-button-hidden"></div>
-            </td>
-            <td><button id="toggle-access-level" type="button" class="jb-submit-button-1">Toggle access_level all</button></td>
-            <td><button type="submit" class="jb-submit-button-1">Create Lenses</button></td>
-            {% else %}
-            <td><button type="submit" class="jb-submit-button-1">Update</button></td>
-            {% endif %}
-          </tr>
-        </table>
+        {% if request.resolver_match.url_name == 'lens-add' %}
+        <button id="sled-add-another" type="button" class="jb-submit-button-1">
+          Add another
+        </button>
+        <div class="sled-add-button-hidden" style="display:none;"></div>
+        <button id="toggle-access-level" type="button" class="jb-submit-button-1">Toggle access_level all</button>
+        <button type="submit" class="jb-submit-button-1">Create Lenses</button>
+        {% else %}
+        <button type="submit" class="jb-submit-button-1">Update</button>
+        {% endif %}
       </div>
     </form>
   </div>
@@ -189,11 +182,6 @@
 
 {% block extrastyles %}
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-<style>
-  .sled-add-button-hidden {
-    display: none
-  }
-</style>
 {% endblock extrastyles %}
 
 
@@ -204,6 +192,7 @@
 <script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
 {% endif %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+{{ form.media.js }}
 <script type="text/javascript">
   $(document).ready(function() {
     function readURL(input, $img) {
@@ -220,14 +209,7 @@
       readURL(this, $img);
     });
 
-    $('.my-select2').each(function(index, element) {
-      $(element).attr('multiple', 'multiple');
-      $(element).find('option')[0].remove();
-    });
-    $('.my-select2').select2({
-      multiple: true,
-      placeholder: 'Select an option'
-    });
+    $('.my-select2').select2();
 
     $("#sled-add-another").click(function(e) {
       $(".add-row").trigger("click");
