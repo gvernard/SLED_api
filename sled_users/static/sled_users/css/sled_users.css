@@ -11,7 +11,7 @@ div.c {
   position: relative;
   margin: 8px;
 }
-div.c input {
+div.c > input {
   position: absolute;
   left: 0;
   top: 0;
@@ -44,20 +44,14 @@ div.c label {
 }
 div.p {
   overflow: hidden;
-  /*transition: height 1s;*/
   background-color: white;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   padding: 0px 40px 0px; 20px;
   margin: 0px 4px;
 }
-div.c input:checked ~ h1 label::before {
+.accordion-checkbox:checked ~ h1 label::before {
   border-left: 10px solid transparent;
   border-top: 10px solid black;
   margin-top: 12px;
   margin-right: 10px;
 }
-/*
-div.c input:checked ~ h1 ~ div.p {
-  height: 100%;
-}
-*/
