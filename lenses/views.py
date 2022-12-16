@@ -276,7 +276,7 @@ class LensDetailView(DetailView):
             bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct()
             print(bands)
             #sort the bands
-            band_order = ['u', 'g', 'r', 'i', 'z', 'Y']
+            band_order = ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
             bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
 
             which_imaging = {}

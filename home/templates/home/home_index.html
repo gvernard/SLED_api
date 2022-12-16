@@ -1,23 +1,55 @@
 {% extends "master_header.html" %}
 {% load static %}
+{% load activity_tags %}
 
 {% block content %}
 
 <section>
   <div class="jb-container">
-    <div class="jb-homepage-left-text">
-      <h1 class="jb-heading-1">Welcome to the Strong Lensing Database</h1>
-      <div class="jb-activity">
-	{% include "activity_container.html" with stream=stream %}
-      </div>
-    </div>
-    <div class="jb-homepage-right-image">
-      <img src="{% static 'images/JB_Homepage_Grid.png' %}">
-    </div>
-    <img src="{% static 'images/JB_Homepage_EPFL.png' %}" loading="lazy" width="100" alt="">
-    <img src="{% static 'images/JB_Homepage_ERC.png' %}" loading="lazy" width="75" alt="">
-    <img src="{% static 'images/JB_Homepage_EU.png' %}" loading="lazy" height="65" alt="">
+
+    <table class="main-layout">
+      <tr>
+	<td>
+	  <div class="jb-homepage-left-text">
+	    <h1 class="jb-heading-1" style="text-align:center;padding-top:50px">Welcome to the <br> Strong Lensing Database</h1>
+	    
+	    <!-- Recent activity div -->
+	    <div class="jb-activity">
+	      {% include "activity_summary.html" with stream=stream max_entries=10 %}
+	      {% if stream|length > 10 %}
+	      <a href="{% url 'home:homepage-all-activity'%}">Display all activity</a>
+	      {% endif %}
+	    </div>
+	    
+	  </div>
+	</td>
+	
+	<td>
+	  <div class="jb-homepage-right-image">
+	    <img src="{% static 'images/JB_Homepage_Grid.png' %}">
+	  </div>
+	</td>
+
+      <tr>
+	<td colspan="2">
+	  <div style="text-align:center;margin-top:50px">
+	    <img src="{% static 'images/JB_Homepage_EPFL.png' %}" loading="lazy" width="100" alt="">
+	    <img src="{% static 'images/JB_Homepage_ERC.png' %}" loading="lazy" width="75" alt="">
+	    <img src="{% static 'images/JB_Homepage_EU.png' %}" loading="lazy" height="65" alt="">
+	  </div>
+	</td>
+      </tr>
+    </table>
+    
   </div>
 </section>
 
 {% endblock %}
+
+
+{% block extrastyles %}
+<style>
+  .main-layout td {border-top:none;}
+  .jb-activity {text-align:left;padding-left:120px;margin-top:20px;}
+</style>
+{% endblock extrastyles %}

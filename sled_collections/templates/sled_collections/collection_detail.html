@@ -8,21 +8,43 @@
 
 
 <div class="jb-container">
+
   <h1 class="jb-heading-1">{{ collection.name }}</h1>
-  <br>
+  <p style="margin-bottom:2px">
+    Created at: {{ collection.created_at }}
+  </p>
 
-  <!-- Div with some information about the collection and different actions for users or the owner -->
+  <!-- Recent activity div -->
+  <div class="jb-activity">
+    {% activity_stream 'target' collection %}
+    {% include "activity_summary.html" with stream=stream max_entries=5 %}
+    {% if stream|length > 5 %}
+    <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
+    {% include "activity_all_modal.html" with stream=stream %}
+    {% endif %}
+  </div>
+
+  <!-- Div with some information about the collection -->
   <div>
-    <p>Owner: {{ collection.owner }}</p>
-    <p>Item type: {{ collection.item_type }}</p>
-    <p>Description: {{ collection.description }}</p>
-    <p>Access level: {{ collection.access_level }}</p>
-
-    <div class="jb-activity">
-      {% activity_stream 'target' collection %}
-      {% include "activity_container.html" with stream=stream %}
-    </div>
-
+    <h1 class="jb-heading-2">Collection Information</h1>
+    <table>
+      <tr>
+        <th>Owner</th>
+        <th>Item type</th>
+        <th>Access level</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td><a href="{{ collection.owner.get_absolute_url }}">{{ collection.owner }}</a></td>
+        <td>{{collection.item_type}}</td>
+        <td>{{collection.access_level}}</td>
+        <td>{{collection.description}}</td>
+      </tr>
+    </table>
+  </div>
+  
+  <!-- different actions for users or the owner -->
+  <div>
     {% if collection.owner == user %}
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
       <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
@@ -55,7 +77,7 @@
       View Access
     </button>
     {% endif %}
-
+    
     {% endif %}
   </div>
 
@@ -149,6 +171,10 @@
 {% block extrastyles %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="{% static 'sled_collections/css/collection_detail.css' %}" rel="stylesheet" />
+<style>
+  .header-table td {border-top:none;}
+  .jb-activity table {text-align:left;}
+</style>
 {% endblock extrastyles %}
 
 

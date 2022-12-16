@@ -21,6 +21,9 @@ def register(response):
 
     return render(response, "registration/register.html", {"form":form}) 
 
+
+
+
 '''
 # Create your views here.
 def login(response):

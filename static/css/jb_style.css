@@ -259,12 +259,12 @@
   }
 
   .jb-float-child-1 {
-    width: 90%;
+    width: 80%;
     float: left;
   }
 
   .jb-float-child-2 {
-    width: 10%;
+    width: 20%;
     float: right;
   }
 
@@ -391,15 +391,27 @@
   .jb-activity {
     color: #ACACAC !important;
     font-size: 12px;
-    padding-top: 10px;
   }
-
+  .jb-activity table {
+      table-layout: auto;
+  }  
   .jb-activity td {
-    padding-top: 5px;
-    padding-bottom: 5px;
-    border-top: 0px solid #ACACAC;
+      padding-left:0px;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      border-top: 0px;
+      white-space: nowrap;
+  }
+  .jb-activity tr td:nth-child(1) { width: 1px; }
+
+  .activity-all > tbody > tr > td{
+      border-top:1px solid #ACACAC;
+  }
+  .activity-all > tbody > tr:nth-child(1) > td{
+      border-top:0px;
   }
 
+  
   .jb-notifications-button {
     font-family: basic-sans, sans-serif;
     background-color: #6F73DD;
@@ -434,15 +446,20 @@
   }
 
   .jb-pagination-table {
-    table-layout: auto;
     padding-top: 40px;
     padding-bottom: 20px;
     font-size: 20px;
     color: #ACACAC !important;
   }
 
+  .jb-pagination-table table td {
+      border-top: none;
+      padding: 5px;
+  }
+  
   .jb-pagination-numbers {
-    word-spacing: 3px;
+      word-spacing: 3px;
+      margin: 0px;
   }
 
   .jb-add-lens {

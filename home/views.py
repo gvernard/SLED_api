@@ -11,3 +11,11 @@ class HomePageView(TemplateView):
         stream = target_stream(Users.objects.get(username='admin'))
         context = {'stream': stream}
         return context
+
+class HomeAllActivityView(TemplateView):
+    template_name = 'home/home_all_activity.html'
+
+    def get_context_data(self, **kwargs):
+        stream = target_stream(Users.objects.get(username='admin'))
+        context = {'stream': stream}
+        return context

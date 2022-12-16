@@ -22,11 +22,9 @@ class RegisterForm(UserCreationForm):
 
 
 class UserLoginForm(AuthenticationForm):
-
     class Meta:
         model = Users
         fields = ["username", "password"]
-
 
     def __init__(self, *args, **kwargs):
         super(UserLoginForm, self).__init__(*args, **kwargs)

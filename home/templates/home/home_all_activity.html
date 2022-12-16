@@ -1,0 +1,9 @@
+{% extends 'master_header.html' %}
+{% load static %}
+{% load activity_tags %}
+
+{% block content %}
+<div class="jb-container">
+{% include "activity_all.html" with stream=stream %}
+</div>
+{% endblock content %}

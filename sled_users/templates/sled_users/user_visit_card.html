@@ -1,56 +1,65 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load activity_tags %}
 
 {% block content %}
 <div class="jb-container">
-  <div class="jb-float-child-1">
-    <h1 class="jb-heading-1">{{ sled_user.first_name }} {{ sled_user.last_name }} ({{ sled_user.username }})</h1>
-  </div>
-  <div class="jb-float-child-2">
-    <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2">
-  </div>
+  <table class="header-table">
+    <tr>
+      <td>
+	<h1 class="jb-heading-1">{{ sled_user.first_name }} {{ sled_user.last_name }} ({{ sled_user.username }})</h1>
+	<p>
+	  Joined on {{ sled_user.date_joined }}, last login {{ sled_user.last_login|timesince }} ago
+	</p>
+      </td>
+      <td valign="bottom" align="center">
+	<img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2" />
+      </td>
+    </tr>
+  </table>
 
+  
   <div>
-    <h1 class="jb-heading-2">
-      User Details
-    </h1>
-    <div>
-      <table>
-        <thead>
-          <tr>
-            <th>First name</th>
-            <th>Last name</th>
-            <th>Affiliation</th>
-            <th>Email</th>
-            <th>Homepage</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ sled_user.first_name }}</td>
-            <td>{{ sled_user.last_name }}</td>
-            <td>{{ sled_user.affiliation }}</td>
-            <td>{{ sled_user.email }}</td>
-            <td><a href="{{ sled_user.homepage }}">{{ sled_user.homepage }}</a></td>
-          </tr>
-        </tbody>
-      </table>
-      <table>
-        <thead>
-          <tr>
-            <th>Info</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ sled_user.info }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-
+    <h1 class="jb-heading-2">User Information</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>Affiliation</th>
+          <th>Email</th>
+          <th>Homepage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ sled_user.first_name }}</td>
+          <td>{{ sled_user.last_name }}</td>
+          <td>{{ sled_user.affiliation }}</td>
+          <td>{{ sled_user.email }}</td>
+          <td><a href="{{ sled_user.homepage }}">{{ sled_user.homepage }}</a></td>
+        </tr>
+      </tbody>
+    </table>
+    <table>
+      <thead>
+        <tr>
+          <th>Info</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ sled_user.info }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+  
 </div>
-
 {% endblock content %}
+
+{% block extrastyles %}
+<style>
+  .header-table td {border-top:none}
+</style>
+{% endblock extrastyles %}

@@ -4,6 +4,9 @@
 
 
 {% block content %}
+{% include "modal_container.html" %}
+
+
 <div class="jb-container">
 
   <section>
@@ -17,18 +20,22 @@
           Alternative names: {{lens.alt_name}}
         </p>
         {% endif %}
+        <p style="margin-bottom:2px">
+          Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
+        </p>
+	<!-- Recent activity div -->
+	<div class="jb-activity">
+	  {% activity_stream 'target' lens %}
+	  {% include "activity_summary.html" with stream=stream max_entries=5 %}
+	  {% if stream|length > 5 %}
+	  <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
+	  {% include "activity_all_modal.html" with stream=stream %}
+	  {% endif %}
+	</div>
         <p>
           Uploader information: {{lens.info}}
         </p>
-
-
-        <p>
-          Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
-        </p>
-        <div class="jb-activity">
-          {% activity_stream 'target' lens %}
-	  {% include "activity_container.html" with stream=stream %}
-        </div>
+	
       </div>
       <div class="jb-right-details">
         <img src="{{ lens.mugshot.url }}">
@@ -177,3 +184,7 @@
 </div>
 
 {% endblock content %}
+
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+{% endblock extrascripts %}
