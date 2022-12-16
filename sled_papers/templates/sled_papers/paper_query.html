@@ -33,7 +33,7 @@
     <tbody>
       {% for paper in papers_search %}
       <tr>
-        <td><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
+        <td style="white-space:nowrap;padding: 0px 5px;"><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
         <td><i>"{{ paper.title }}"</i></td>
         <td>{{ paper.lenses_in_paper.all|length }}</td>
       </tr>

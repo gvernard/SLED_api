@@ -104,7 +104,7 @@
       {% for paper,label in all_papers %}
       <tr>
 	<td>{{ label }}</td>
-	<td><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
+	<td style="white-space:nowrap;padding: 0px 5px;"><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
 	<td><i>"{{ paper.title }}"</i></td>
       </tr>
       {% empty %}
