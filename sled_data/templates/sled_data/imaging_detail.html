@@ -1,0 +1,16 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+{{ imaging.instrument }} - {{ imaging.band }}
+{% endblock title %}
+
+{% block content %}
+<table>
+  <tr><td>Date taken:</td><td>{{ imaging.date_taken }}</td></tr>
+  <tr><td>Exp. time:</td><td>{{ imaging.exposure_time }}</td></tr>
+  <tr><td>Pixel size:</td><td>{{ imaging.pixel_size }}</td></tr>
+  <tr><td>Info:</td><td>{{ imaging.info }}</td></tr>
+</table>
+
+<img src="{{ imaging.image.url }}" style="width:100%">
+{% endblock content %}

@@ -24,7 +24,10 @@ class Instrument(models.Model):
         verbose_name = "instrument"
         verbose_name_plural = "instruments"
 
+    def __str__(self):
+        return self.name
 
+    
 class Band(models.Model):
     name = models.CharField(blank=False,
                             unique=True,
@@ -40,6 +43,10 @@ class Band(models.Model):
         verbose_name = "band"
         verbose_name_plural = "bands"
 
+    def __str__(self):
+        return self.name
+
+        
     
 class DataBase(models.Model):
     lens = models.ForeignKey(Lenses,on_delete=models.CASCADE,related_name="%(class)s")

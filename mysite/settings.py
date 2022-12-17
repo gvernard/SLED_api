@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'sled_collections',
     'sled_admin_collections',
     'sled_notifications',
+    'sled_data',
     'sled_tasks',
     'sled_queries',
     'sled_instrument',

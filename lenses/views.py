@@ -267,16 +267,19 @@ class LensDetailView(DetailView):
         allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allcataloguedata = Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+
         
+        ## Imaging data
         #for each instrument associate only one image per band for now
         instruments = allimages.values_list('instrument__name', flat=True).distinct()
         #print(instruments)
         display_images = {}
+        band_order = ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
+        print("Band order: ",band_order)
         for instrument in instruments:
             bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct()
             print(bands)
             #sort the bands
-            band_order = ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
             bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
 
             which_imaging = {}
@@ -288,6 +291,8 @@ class LensDetailView(DetailView):
                 instrument = 'Pan-STARRS'
             display_images[instrument] = which_imaging
 
+            
+        ## Catalogue data
         instruments_catalogue = allcataloguedata.values_list('instrument__name', flat=True).distinct()
         catalogue_entries = {}
         for instrument in instruments_catalogue:
@@ -323,18 +328,11 @@ class LensDetailView(DetailView):
             labels.append(flags)
         paper_labels = [ ','.join(x) for x in labels ]
 
-        #decide whether the update button should be showed or not
-        #print(self.request.user, context['lens'].owner)
-        if self.request.user==context['lens'].owner:
-            updatable = True
-        else:
-            updatable = False
             
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
         context['display_catalogues'] = catalogue_entries
-        context['updatable'] = updatable
         return context
     
 

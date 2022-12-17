@@ -44,19 +44,6 @@
   </section>
 
 
-  {% if updatable %}
-    <div>
-      <form id="ids-form" method="POST">
-        {% csrf_token %}
-        <td><input name="ids" type="checkbox" value="{{ lens.id }}" checked hidden></td>
-      </form>
-      <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
-        <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-        Update lens
-      </button>
-    </div>
-  {% endif %}
-
   <div>
     <h1 class="jb-heading-2">System Information</h1>
     <table>
@@ -96,8 +83,21 @@
       </tr>
     </table>
 
+    {% if lens.owner == user %}
+    <div>
+      <form id="ids-form" method="POST">
+        {% csrf_token %}
+        <td><input name="ids" type="checkbox" value="{{ lens.id }}" checked hidden></td>
+      </form>
+      <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
+        <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+        Update lens
+      </button>
+    </div>
+    {% endif %}
   </div>
-
+  <br>
+  
   <div>
     <h1 class="jb-heading-2">Papers</h1>
     <table>
@@ -113,19 +113,39 @@
     </table>
   </div>
 
-  <div>
+  <!-- Div containing all the imaging data  -->
+  <div class="jb-table-no-lines">
     <h1 class="jb-heading-2">Imaging Data</h1>
-    {% for instrument, imaging in display_imagings.items %} 
-      {{ instrument }}
-      <br>
-      {% for band, image in imaging.items %}
-        {{ band }}
-        <img src="{{ image.image.url }}">
-      {% endfor %}
-      <br>
+    <table>
+      {% for instrument, imaging in display_imagings.items %}
+      <tr>
+	<td>
+	  {{ instrument }}
+	  <br>
+	  {% for band, image in imaging.items %}
+	  <div class="imaging-item">
+	    <div class="header">
+	      {{ band }}
+	    </div>
+	    <div class="container">
+	      <img src="{{ image.image.url }}">
+	      <div class="overlay">
+		<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-detail' image.id %}">
+		  View
+		  <img src="{% static 'icons/eye-fill.svg' %}" alt="view">
+		</button>
+	      </div>
+	    </div>
+	  </div>
+	  {% endfor %}
+	</td>
+      </tr>
     {% endfor %}
+    </table>
   </div>
 
+  
+  <!-- Div containing all the spectroscopic data  -->  
   <div>
     <h1 class="jb-heading-2">Spectroscopic Data</h1>
       {% for spec in display_spectra %}
@@ -134,6 +154,8 @@
       {% endfor %}
   </div>
 
+  
+  <!-- Div containing all the catalogue data  -->  
   <div>
     <h1 class="jb-heading-2">Catalogue Data</h1>
     {% for instrument, detections in display_catalogues.items %} 
@@ -185,6 +207,24 @@
 
 {% endblock content %}
 
+
+{% block extrastyles %}
+<link href="{% static 'lenses/css/lens_detail.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}
+
+
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+      // Modals
+      $(".sled-modal").each(function() {
+          $(this).modalForm({
+              formURL: $(this).data("form-url"),
+              modalID: "#id-modal"
+          });
+      });
+  });
+</script>
 {% endblock extrascripts %}
