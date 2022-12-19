@@ -369,6 +369,12 @@
      </h1>
      <div class="p">
        <br>
+       {% if user.is_superuser %}
+       <p>
+	 The adming owns all the automatically fetched data, which are too many to display here.
+	 Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
+       </p>
+       {% else %}
        <table>
 	 {% for imaging in imagings %}
 	 <tr>
@@ -401,6 +407,7 @@
 	 <tr>No Catalogue data owned</tr>
 	 {% endfor %}
        </table>
+       {% endif %}
        <br>
      </div>
    </div>

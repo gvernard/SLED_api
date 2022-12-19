@@ -33,7 +33,11 @@
           {% endif %}
           added
 
+	  
+          {% elif action.verb == "RemoveData" %}
+	  Data taken in {{ action.data.instrument }} - {{ action.data.band }} removed
 
+	  
           {% elif action.verb == "UpdateSelf" %}
           Field(s) were updated
 
@@ -185,6 +189,12 @@
     were
     {% endif %}
     added by
+    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+    at <em>{{ action.timestamp }}</em>
+
+
+    {% elif action.verb == "RemoveData" %}
+    Data taken in {{ action.data.instrument }} - {{ action.data.band }} removed by
     <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
     at <em>{{ action.timestamp }}</em>
 

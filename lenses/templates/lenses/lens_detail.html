@@ -9,42 +9,45 @@
 
 <div class="jb-container">
 
-  <section>
-    <div>
-      <div class="jb-left-details">
-        <div>
-          <h1 class="jb-heading-1">{{lens.name}}</h1>
-        </div>
-        {% if lens.alt_name %}
-        <p>
-          Alternative names: {{lens.alt_name}}
-        </p>
-        {% endif %}
-        <p style="margin-bottom:2px">
-          Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
-        </p>
-	<!-- Recent activity div -->
-	<div class="jb-activity">
-	  {% activity_stream 'target' lens %}
-	  {% include "activity_summary.html" with stream=stream max_entries=5 %}
-	  {% if stream|length > 5 %}
-	  <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
-	  {% include "activity_all_modal.html" with stream=stream %}
+  <div class="jb-section jb-table-no-lines">
+    <table>
+      <tr>
+	<td>
+	  <div>
+            <h1 class="jb-heading-1">{{lens.name}}</h1>
+	  </div>
+	  {% if lens.alt_name %}
+	  <p>
+            Alternative names: {{lens.alt_name}}
+	  </p>
 	  {% endif %}
-	</div>
-        <p>
-          Uploader information: {{lens.info}}
-        </p>
-	
-      </div>
-      <div class="jb-right-details">
-        <img src="{{ lens.mugshot.url }}">
-      </div>
-    </div>
-  </section>
+	  <p style="margin-bottom:2px">
+            Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
+	  </p>
+	  <!-- Recent activity div -->
+	  <div class="jb-activity">
+	    {% activity_stream 'target' lens %}
+	    {% include "activity_summary.html" with stream=stream max_entries=5 %}
+	    {% if stream|length > 5 %}
+	    <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
+	    {% include "activity_all_modal.html" with stream=stream %}
+	    {% endif %}
+	  </div>
+	  <p>
+            Uploader information: {{lens.info}}
+	  </p>
+	</td>
+	<td>
+	  <div class="jb-lens-mugshot">
+	    <img src="{{ lens.mugshot.url }}">
+	  </div>
+	</td>
+      </tr>
+    </table>
+  </div>
 
 
-  <div>
+  <div class="jb-section">
     <h1 class="jb-heading-2">System Information</h1>
     <table>
       <tr>
@@ -96,9 +99,9 @@
     </div>
     {% endif %}
   </div>
-  <br>
+
   
-  <div>
+  <div class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Papers</h1>
     <table>
       {% for paper,label in all_papers %}
@@ -114,7 +117,7 @@
   </div>
 
   <!-- Div containing all the imaging data  -->
-  <div class="jb-table-no-lines">
+  <div class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Imaging Data</h1>
     <table>
       {% for instrument, imaging in display_imagings.items %}
@@ -130,10 +133,16 @@
 	    <div class="container">
 	      <img src="{{ image.image.url }}">
 	      <div class="overlay">
-		<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-detail' image.id %}">
+		<button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:imaging-detail' image.id %}">
 		  View
 		  <img src="{% static 'icons/eye-fill.svg' %}" alt="view">
 		</button>
+		{% if image.owner == user %}
+		<button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:imaging-update' image.id %}">
+		  Update
+		  <img src="{% static 'icons/pencil.svg' %}" alt="update">
+		</button>	
+		{% endif %}
 	      </div>
 	    </div>
 	  </div>
@@ -146,7 +155,7 @@
 
   
   <!-- Div containing all the spectroscopic data  -->  
-  <div>
+  <div class="jb-section">
     <h1 class="jb-heading-2">Spectroscopic Data</h1>
       {% for spec in display_spectra %}
         Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
@@ -156,7 +165,7 @@
 
   
   <!-- Div containing all the catalogue data  -->  
-  <div>
+  <div class="jb-section">
     <h1 class="jb-heading-2">Catalogue Data</h1>
     {% for instrument, detections in display_catalogues.items %} 
       {{ instrument }}
@@ -172,7 +181,7 @@
     {% endfor %}
   </div>
 
-  <div>
+  <div class="jb-section">
     <h1 class="jb-heading-2">External Links</h1>
     <table>
       <tr>

@@ -5,4 +5,6 @@ from . import views
 app_name = 'sled_data'
 urlpatterns = [
     path('imaging-detail/<int:pk>', views.ImagingDetailView.as_view(),name='imaging-detail'),
+    path('imaging-delete/<int:pk>', views.ImagingDeleteView.as_view(),name='imaging-delete'),
+    path('imaging-update/<int:pk>', views.ImagingUpdateView.as_view(),name='imaging-update'),
 ]

@@ -18,6 +18,10 @@
     text-decoration: none;
   }
 
+  .jb-section {
+      margin: 20px auto;
+  }
+  
   .jb-homepage-container p {
     margin: auto;
     font-family: basic-sans, sans-serif;
@@ -373,6 +377,23 @@
     font-size: 14px;
   }
 
+  .jb-overlay-button-1 {
+    position: static;
+    display: block;
+    min-width: 100px;
+    margin: 10px auto;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-left:6px;
+    padding-right: 6px;
+    clear: none;
+    background-color: #6F73DD;
+    color: #FFFFFF;
+    font-size: 14px;
+    border-radius: 3px;
+  }
+
+
   .jb-homepage-left-text {
     display: table-cell;
     vertical-align: middle;
@@ -431,18 +452,14 @@
     height: 300px;
   }
 
-  .jb-right-details {
-    display: table-cell;
+  .jb-lens-mugshot {
     padding-top: 50px;
-    float: right;
-    width: 30%;
     height: 300px;
   }
 
-  .jb-right-details img {
+  .jb-lens-mugshot img {
     width: 250px;
     height: 250px;
-    float: right;
   }
 
   .jb-pagination-table {
