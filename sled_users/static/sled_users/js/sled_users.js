@@ -1,6 +1,6 @@
 $(document).ready(function() {
     $('.p').hide();
-    
+
     $(".sled-process-lenses").click(function() {
 	// Construct get query string
 	var values = [];
@@ -42,4 +42,11 @@ $(document).ready(function() {
 	    // Animation complete.
 	});
     });
+
+    // Scroll to open pagination div
+    var hash = window.location.hash 
+    if( hash ){
+	$(hash).trigger("click");
+	$('html,body').animate({scrollTop: $(hash).offset().top},'slow');
+    }
 });
