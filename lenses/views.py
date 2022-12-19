@@ -755,7 +755,6 @@ class LensQueryView(TemplateView):
         '''
         This function performs the filtering on the lenses table, by parsing the filter values from the request
         '''
-        print('test test test')
         keywords = list(form.keys())
         #print(keywords)
         values = [form[keyword] for keyword in keywords]
@@ -835,6 +834,8 @@ class LensQueryView(TemplateView):
         # Paginator for lenses
         paginator = Paginator(lenses,50)
         lenses_page = paginator.get_page(form['page'])
+        #lenses_page_number = self.request.GET.get('lenses-page',1)
+        #lenses_page = paginator.get_page(lenses_page_number)
         lenses_count = paginator.count
         lenses_range = paginator.page_range
 

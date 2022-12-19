@@ -124,6 +124,17 @@
     <table>
       <tr>
 	<td>
+	  {% if lenses.has_previous %}
+          <a class="sled_submit" href="{{ lenses.number|add:'-1' }}">Previous </a> |
+          {% endif %}
+          {% if lenses.has_next %}
+          <a class="sled_submit" href="{{ lenses.number|add:'1' }}"> Next</a> |
+          {% endif %}
+          Showing {{ lenses.start_index }} - {{ lenses.end_index }} of {{ lenses_count }}
+	</td>
+      </tr>
+      <tr>
+	<td>
           {% if lenses.has_other_pages %}
           <p class="jb-pagination-numbers">
 	    {% for n in lenses_range %}
@@ -137,19 +148,9 @@
           {% endif %}
 	</td>
       </tr>
-      <tr>
-	<td>
-	  {% if lenses.has_previous %}
-          <a class="sled_submit" href="{{ lenses.number|add:'-1' }}">Previous </a> |
-          {% endif %}
-          {% if lenses.has_next %}
-          <a class="sled_submit" href="{{ lenses.number|add:'1' }}"> Next</a> |
-          {% endif %}
-          Showing {{ lenses.start_index }} - {{ lenses.end_index }} of {{ lenses_count }}
-	</td>
-      </tr>
     </table>
   </div>
+  
 
   <div>
     <form id="ids-form" method="POST">
@@ -162,17 +163,6 @@
     <table>
       <tr>
 	<td>
-          {% if lenses.has_previous %}
-          <a class="sled_submit" href="{{ lenses.number|add:'-1' }}">Previous </a> |
-          {% endif %}
-          {% if lenses.has_next %}
-          <a class="sled_submit" href="{{ lenses.number|add:'1' }}"> Next</a> |
-          {% endif %}
-          Showing {{ lenses.start_index }} - {{ lenses.end_index }} of {{ lenses_count }}
-	</td>
-      </tr>
-      <tr>
-	<td>
           {% if lenses.has_other_pages %}
           <p class="jb-pagination-numbers">
 	    {% for n in lenses_range %}
@@ -184,6 +174,17 @@
             {% endfor %}
 	  </p>
           {% endif %}
+	</td>
+      </tr>
+      <tr>
+	<td>
+          {% if lenses.has_previous %}
+          <a class="sled_submit" href="{{ lenses.number|add:'-1' }}">Previous </a> |
+          {% endif %}
+          {% if lenses.has_next %}
+          <a class="sled_submit" href="{{ lenses.number|add:'1' }}"> Next</a> |
+          {% endif %}
+          Showing {{ lenses.start_index }} - {{ lenses.end_index }} of {{ lenses_count }}
 	</td>
       </tr>
     </table>

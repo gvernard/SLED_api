@@ -2,6 +2,17 @@
   <table>
     <tr>
       <td>
+        {% if qset.has_previous %}
+        <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ qset.number|add:'-1' }}#{{ target }}">Previous </a> |
+        {% endif %}
+        {% if qset.has_next %}
+        <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ qset.number|add:'1' }}#{{ target }}"> Next</a> |
+        {% endif %}
+        Showing {{ qset.start_index }} - {{ qset.end_index }} of {{ qset_total }}
+      </td>
+    </tr>
+    <tr>
+      <td>
         {% if qset.has_other_pages %}
         <p class="jb-pagination-numbers">
 	  {% for n in qset_range %}
@@ -13,17 +24,6 @@
           {% endfor %}
 	</p>
         {% endif %}
-      </td>
-    </tr>
-    <tr>
-      <td>
-        {% if qset.has_previous %}
-        <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ qset.number|add:'-1' }}#{{ target }}">Previous </a> |
-        {% endif %}
-        {% if qset.has_next %}
-        <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ qset.number|add:'1' }}#{{ target }}"> Next</a> |
-        {% endif %}
-        Showing {{ qset.start_index }} - {{ qset.end_index }} of {{ qset_total }}
       </td>
     </tr>
   </table>
