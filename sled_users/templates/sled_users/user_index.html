@@ -93,67 +93,41 @@
     </div>
   </div>
   
-  
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-1">
-     <h1 class="jb-heading-2">
-       <label for="faq-1">
-	 My Papers ({{N_papers}})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if N_papers %}
-       <table>
-         <tbody>
-           {% for paper in papers %}
-           <tr>
-             <td><a href="{% url 'sled_papers:paper-detail' pk=paper.pk %}">{{paper.cite_as}}</td>
-             <td>{{paper.title}}</td>
-           </tr>
-           {% endfor %}
-         </tbody>
-       </table>
-       {% else %}
-       <p class="jb-paragraph-2">No papers to display</p>
-       {% endif %}
-       <a href="{% url 'sled_papers:paper-list' %}">See all papers</a>
-       <br>
-       <br>
-     </div>
-   </div>
 
-   
    <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-2">
+     <input class="accordion-checkbox" type="checkbox" id="faq-4">
      <h1 class="jb-heading-2">
-       <label for="faq-2">
-	 My Groups ({{N_groups}})
+       <label for="faq-4">
+	 Pending Tasks ({{ N_tasks }})
        </label>
      </h1>
      <div class="p">
        <br>
-       {% if N_groups %}
+       {% if N_tasks > 0 %}
        <table>
          <thead>
            <tr>
-             <th>Name</th>
-             <th>Description</th>
+             <th>Type</th>
+             <th>Created at</th>
+             <th>From</th>
+             <th>Receivers</th>
            </tr>
          </thead>
          <tbody>
-           {% for group in groups %}
+           {% for recipients,task in pending_conf %}
            <tr>
-             <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
-             <td>{{group.description}}</td>
+             <td>{{ task.task_type }}</td>
+             <td>{{ task.created_at }}</td>
+             <td>{{ task.owner }}</td>
+             <td>{{ recipients }}</td>
            </tr>
            {% endfor %}
          </tbody>
        </table>
        {% else %}
-       <p class="jb-paragraph-2">No groups to display</p>
+       <p class="jb-paragraph-2">No pending confirmation tasks</p>
        {% endif %}
-       <a href="{% url 'sled_groups:group-list' %}">See all groups</a>
+       <a href="{% url 'sled_tasks:tasks-list' %}">See all tasks</a>
        <br>
        <br>
      </div>
@@ -190,46 +164,6 @@
        <p class="jb-paragraph-2">No queries to display</p>
        {% endif %}
        <a href="{% url 'sled_queries:queries-list' %}">See all queries</a>
-       <br>
-       <br>
-     </div>
-   </div>
-
-
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-4">
-     <h1 class="jb-heading-2">
-       <label for="faq-4">
-	 Pending Tasks ({{ N_tasks }})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if N_tasks > 0 %}
-       <table>
-         <thead>
-           <tr>
-             <th>Type</th>
-             <th>Created at</th>
-             <th>From</th>
-             <th>Receivers</th>
-           </tr>
-         </thead>
-         <tbody>
-           {% for recipients,task in pending_conf %}
-           <tr>
-             <td>{{ task.task_type }}</td>
-             <td>{{ task.created_at }}</td>
-             <td>{{ task.owner }}</td>
-             <td>{{ recipients }}</td>
-           </tr>
-           {% endfor %}
-         </tbody>
-       </table>
-       {% else %}
-       <p class="jb-paragraph-2">No pending confirmation tasks</p>
-       {% endif %}
-       <a href="{% url 'sled_tasks:tasks-list' %}">See all tasks</a>
        <br>
        <br>
      </div>
@@ -275,41 +209,87 @@
      </div>
    </div>
 
+  
+   
+   <div class="c">
+     <input class="accordion-checkbox" type="checkbox" id="faq-2">
+     <h1 class="jb-heading-2">
+       <label for="faq-2">
+	 My Groups ({{N_groups}})
+       </label>
+     </h1>
+     <div class="p">
+       <br>
+       {% if N_groups %}
+       <table>
+         <thead>
+           <tr>
+             <th>Name</th>
+             <th>Description</th>
+           </tr>
+         </thead>
+         <tbody>
+           {% for group in groups %}
+           <tr>
+             <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
+             <td>{{group.description}}</td>
+           </tr>
+           {% endfor %}
+         </tbody>
+       </table>
+       {% else %}
+       <p class="jb-paragraph-2">No groups to display</p>
+       {% endif %}
+       <a href="{% url 'sled_groups:group-list' %}">See all groups</a>
+       <br>
+       <br>
+     </div>
+   </div>
 
+
+
+   <div class="c">
+     <input class="accordion-checkbox" type="checkbox" id="faq-1">
+     <h1 class="jb-heading-2">
+       <label for="faq-1">
+	 My Papers ({{N_papers}})
+       </label>
+     </h1>
+     <div class="p">
+       <br>
+       {% if N_papers %}
+       <table>
+         <tbody>
+           {% for paper in papers %}
+           <tr>
+             <td><a href="{% url 'sled_papers:paper-detail' pk=paper.pk %}">{{paper.cite_as}}</td>
+             <td>{{paper.title}}</td>
+           </tr>
+           {% endfor %}
+         </tbody>
+       </table>
+       {% else %}
+       <p class="jb-paragraph-2">No papers to display</p>
+       {% endif %}
+       <a href="{% url 'sled_papers:paper-list' %}">See all papers</a>
+       <br>
+       <br>
+     </div>
+   </div>
+
+
+
+   
    <div id="lenses" class="c">
      <input class="accordion-checkbox" type="checkbox" id="faq-6">
      <h1 class="jb-heading-2">
        <label for="faq-6">
-	 My Lenses ({{ N_lenses }})
+	 My Lenses ({{ N_lenses_total }})
        </label>
      </h1>
-     <div class="p">  
-       <div class="jb-pagination-table">
-	 <table>
-           <tr>
-             {% if lenses.has_previous %}
-             <a href="{{ request.path }}?page={{ lenses.number|add:'-1' }}#lenses">Previous </a>
-             {% endif %}
+     <div class="p">
 
-             {% if lenses.has_other_pages %}
-             {% for n in lenses_range %}
-             {% if n == lenses.number %}
-             <a href="{{ request.path }}?page={{ n }}#lenses" style="color: #BABCEF">{{ n }} </a>
-             {% else %}
-             <a href="{{ request.path }}?page={{ n }}#lenses">{{ n }} </a>
-             {% endif %}
-             {% endfor %}
-             {% endif %}
-
-             {% if lenses.has_next %}
-             <a href="{{ request.path }}?page={{ lenses.number|add:'1' }}#lenses">Next</a>
-             {% endif %}
-           </tr>
-           <tr>
-             | Showing {{ lenses.start_index }} - {{ lenses.end_index }}
-           </tr>
-	 </table>
-       </div>
+       {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
 
        <div>
 	 <form id="ids-form" method="POST">
@@ -318,6 +298,7 @@
 	 </form>
        </div>
 
+       {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
 
        <div>
 	 <!-- The button class 'sled-process-lenses' is required for functionality  -->
@@ -364,7 +345,7 @@
      <input class="accordion-checkbox" type="checkbox" id="faq-7">
      <h1 class="jb-heading-2">
        <label for="faq-7">
-	 My Data ({{N_queries}})
+	 My Imaging data ({{ N_imagings_total }})
        </label>
      </h1>
      <div class="p">
@@ -375,38 +356,22 @@
 	 Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
        </p>
        {% else %}
+
+       {% include "pagination_top.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
        <table>
 	 {% for imaging in imagings %}
 	 <tr>
 	   <td>{{ imaging.instrument.name }}</td>
 	   <td>{{ imaging.band.name }}</td>
 	   <td>{{ imaging.lens.name }}</td>
+	   <td>{{ imaging.date_taken }}</td>
 	 </tr>
 	 {% empty %}
 	 <tr>No Imaging data owned</tr>
 	 {% endfor %}
        </table>
-       <table>
-	 {% for spectrum in spectra %}
-	 <tr>
-	   <td>{{ spectrum.instrument.name }}</td>
-	   <td>{{ spectrum.lens.name }}</td>
-	 </tr>
-	 {% empty %}
-	 <tr>No Spectrum data owned</tr>
-	 {% endfor %}
-       </table>
-       <table>
-	 {% for catalogue in catalogues %}
-	 <tr>
-	   <td>{{ catalogue.instrument.name }}</td>
-	   <td>{{ catalogue.band.name }}</td>
-	   <td>{{ catalogue.lens.name }}</td>
-	 </tr>
-	 {% empty %}
-	 <tr>No Catalogue data owned</tr>
-	 {% endfor %}
-       </table>
+       {% include "pagination_bottom.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
+
        {% endif %}
        <br>
      </div>

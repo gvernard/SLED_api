@@ -1,0 +1,30 @@
+<div class="jb-pagination-table">
+  <table>
+    <tr>
+      <td>
+        {% if qset.has_other_pages %}
+        <p class="jb-pagination-numbers">
+	  {% for n in qset_range %}
+          {% if n == qset.number %}
+          <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}" style="color: #BABCEF">{{ n }}</a>
+          {% else %}
+          <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}">{{ n }}</a>
+          {% endif %}
+          {% endfor %}
+	</p>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        {% if qset.has_previous %}
+        <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ qset.number|add:'-1' }}#{{ target }}">Previous </a> |
+        {% endif %}
+        {% if qset.has_next %}
+        <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ qset.number|add:'1' }}#{{ target }}"> Next</a> |
+        {% endif %}
+        Showing {{ qset.start_index }} - {{ qset.end_index }} of {{ qset_total }}
+      </td>
+    </tr>
+  </table>
+</div>

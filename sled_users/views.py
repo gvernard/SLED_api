@@ -90,10 +90,15 @@ class UserProfileView(TemplateView):
         owned_objects = user.getOwnedObjects()
 
         # Paginator for lenses
-        paginator = Paginator(owned_objects["Lenses"],50)
-        page_number = request.GET.get('page',1)
-        lenses_page = paginator.get_page(page_number)
-        
+        lenses_paginator = Paginator(owned_objects["Lenses"],50)
+        lenses_page_number = request.GET.get('lenses-page',1)
+        lenses_page = lenses_paginator.get_page(lenses_page_number)
+
+        # Paginator for Imaging data
+        imagings_paginator = Paginator(owned_objects["Imaging"],50)
+        imagings_page_number = request.GET.get('imagings-page',1)
+        imagings_page = imagings_paginator.get_page(imagings_page_number)
+
         
         # lenses_users_with_access = [None]*len(qset_lenses)
         # lenses_groups_with_access = [None]*len(qset_lenses)
@@ -139,10 +144,12 @@ class UserProfileView(TemplateView):
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
                  'N_note_unread': N_note_unread,
-                 'N_lenses': paginator.count,
-                 'lenses_range': paginator.page_range,
+                 'N_lenses_total': lenses_paginator.count,
+                 'lenses_range': lenses_paginator.page_range,
                  'lenses': lenses_page,
-                 'imagings': owned_objects["Imaging"],
+                 'N_imagings_total': imagings_paginator.count,
+                 'imagings_range': imagings_paginator.page_range,
+                 'imagings': imagings_page,
                  'spectra': owned_objects["Spectrum"],
                  'catalogues': owned_objects["Catalogue"],
                  'collections': qset_cols,
