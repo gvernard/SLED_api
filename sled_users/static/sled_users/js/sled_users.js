@@ -1,18 +1,21 @@
 $(document).ready(function() {
     $('.p').hide();
 
-    $(".sled-process-lenses").click(function() {
+    // Gather selected ids before submitting the ids-form
+    $(".sled-process-ids").click(function() {
 	// Construct get query string
 	var values = [];
-	$('#exe_summary input[type="checkbox"]:checked').each(function() {
+	$(this).parents('form').find('input[type="checkbox"]:checked').each(function() {
             values.push('ids=' + $(this).val());
 	});
 
-	if (values.length == 0) {
+	if( values.length == 0 ){
+	    // Double check that there is at least one item selected
             alert('You need to select at least one item!');
 	} else {
-            var get_str = '?' + values.join('&') + '&';
-
+	    var obj_type = $(this).parents('form').find('input[name="obj_type"]').val();
+            var get_str = '?' + values.join('&') + '&obj_type=' + obj_type + '&';
+	    
             // Fetch only the first part of the URL (without any GET arguments)
             var url = $(this).data('form-url').split('?');
             var url_core = url[0];
@@ -26,6 +29,32 @@ $(document).ready(function() {
 	}
     });
 
+    // Check that at least one item is selected in the ids-form
+    $(".ids-form").submit(function(e){
+	var checked_boxes = $(this).find('input[type="checkbox"]:checked');
+	if( checked_boxes.length == 0 ){
+	    alert('You must select at least one lens!');
+	    e.preventDefault();
+	}	
+    });
+
+    // Toggle select all in the ids-form
+    $('.sled-toggle-all').click(function(e){
+	var checkboxes = $(this).parents('form').find('input[type="checkbox"]');
+	var new_status = e.currentTarget.getAttribute('value');
+	if( new_status == "select" ){
+	    for(var i=0;i<checkboxes.length;i++){
+		checkboxes[i].checked = true;
+	    }
+	    e.currentTarget.setAttribute('value', 'unselect');
+	} else {
+	    for(var i=0;i<checkboxes.length;i++){
+		checkboxes[i].checked = false;
+	    }
+	    e.currentTarget.setAttribute('value', 'select');
+	}
+    });
+    
     // Modals
     $(".sled-modal").each(function() {
 	$(this).modalForm({
@@ -43,7 +72,7 @@ $(document).ready(function() {
 	});
     });
 
-    // Scroll to open pagination div
+    // Scroll to opened pagination div
     var hash = window.location.hash 
     if( hash ){
 	$(hash).trigger("click");

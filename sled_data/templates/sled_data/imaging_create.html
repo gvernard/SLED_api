@@ -1,0 +1,30 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+Add Imaging data?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container">
+
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      <tbody>
+	{% for field in form %}
+	<tr>
+	  <td>{{ field.error }}</td>
+	  <td>{{ field.name }}</td>
+	  <td>{{ field }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+    
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Create Imaging data</button>
+{% endblock action_button %}

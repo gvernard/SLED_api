@@ -1,0 +1,49 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+Cede ownership?
+{% endblock title %}
+
+
+{% block content %}
+<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+
+<div class="jb-modal-field">
+  {{ form.heir }}
+</div>
+
+<div class="jb-modal-field">
+  <ul>
+    {% for item in items %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="jb-modal-field">
+  {{ form.justification }}
+</div>
+
+{{ form.ids }}
+{{ form.obj_type }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Cede ownership</button>
+{% endblock action_button %}
+
+
+{% block extrascripts %}
+<script>
+  users_autocomplete('id_heir');
+
+  // The following is needed for select2 to work properly in a modal
+  $('#id_heir').select2({
+    width: '100%',
+    placeholder: 'Search for a user',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
+  });
+</script>
+{% endblock extrascripts %}

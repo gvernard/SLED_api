@@ -2,7 +2,7 @@
 
 <div>
   <input name="obj_type" type="hidden" value="Lenses" />
-  <table id="exe_summary">
+  <table>
     <thead>
       <tr>
         <th></th>
@@ -32,34 +32,5 @@
       {% endfor %}
     </tbody>
   </table>
-  <button type="button" class="btn btn-sm btn-light" id="toggle_all" value="select">Toggle select all</button>
+  <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
 </div>
-
-<script>
-  var toggle = function(e) {
-    checkboxes = document.getElementsByName('ids');
-    var new_status = e.currentTarget.getAttribute('value');
-    if (new_status == "select") {
-      for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].checked = true;
-      }
-      e.currentTarget.setAttribute('value', 'unselect');
-    } else {
-      for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].checked = false;
-      }
-      e.currentTarget.setAttribute('value', 'select');
-    }
-  }
-  document.getElementById("toggle_all").addEventListener("click", toggle, true);
-
-
-  var min_checked = function(e) {
-    var checked_boxes = document.querySelectorAll('#exe_summary input[type="checkbox"]:checked');
-    if (checked_boxes.length == 0) {
-      alert('You must select at least one lens!');
-      e.preventDefault();
-    }
-  };
-  document.getElementById("ids-form").addEventListener("submit", min_checked, true);
-</script>

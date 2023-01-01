@@ -1,0 +1,30 @@
+{% extends "modal_base.html" %}
+{% load project_tags %}
+
+{% block title %}
+Make {% singular_or_plural form.obj_type.value items|length %} public?
+{% endblock title %}
+
+{% block content %}
+<div class="{% if form.non_field_errors %}invalid{% endif %}">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
+<div>
+  <ul>
+    {% for item in items %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+{{ form.ids }}
+{{ form.obj_type }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Make public</button>
+{% endblock action_button %}

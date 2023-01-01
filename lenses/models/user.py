@@ -258,7 +258,7 @@ class Users(AbstractUser,GuardianUserMixin):
                     action.send(self,target=user,verb='RevokeAccess',level='error',action_object=ad_col)  # here the user is actually a group
 
                 qset = model_ref.objects.filter(id__in=[obj.id for obj in revoked_objects_per_user])
-                if object_type != 'Collection':
+                if object_type not in ['Collection','Imaging','Spectrum','Catalogue']:
                     # Check collections: every collection owner must have access to all the objects in the collection.
                     # So, if access from user was revoked, check if they own a collection that contains the object and remove it from there.
                     self.remove_from_third_collections(qset,user)
@@ -464,6 +464,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
 
     def get_collection_owners(self,objects):
+        print(objects)
         col_ids = objects.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
         cleaned = []
         for mystr in col_ids:

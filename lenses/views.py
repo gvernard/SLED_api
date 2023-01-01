@@ -71,23 +71,6 @@ class ModalIdsBaseMixin(BSModalFormView):
 
 
 @method_decorator(login_required,name='dispatch')
-class LensCedeOwnershipView(ModalIdsBaseMixin):
-    template_name = 'lenses/lens_cede_ownership.html'
-    form_class = forms.LensCedeOwnershipForm
-    success_url = reverse_lazy('sled_users:user-profile')
-
-    def my_form_valid(self,form):
-        ids = form.cleaned_data['ids'].split(',')
-        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        heir = form.cleaned_data['heir']
-        heir = Users.objects.filter(id=heir.id)
-        justification = form.cleaned_data['justification']
-        self.request.user.cedeOwnership(lenses,heir,justification)
-        message = "User <b>"+heir[0].username+"</b> has been notified about your request."
-        messages.add_message(self.request,messages.WARNING,message)
-
-
-@method_decorator(login_required,name='dispatch')
 class LensDeleteView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_delete.html'
     form_class = forms.LensDeleteForm
@@ -184,62 +167,6 @@ class LensMakePublicView(ModalIdsBaseMixin):
             receiver = Users.objects.filter(id=self.request.user.id) # receiver must be a queryset
             mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
             return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
-
-
-@method_decorator(login_required,name='dispatch')
-class LensGiveRevokeAccessView(ModalIdsBaseMixin):
-    template_name = 'lenses/lens_give_revoke_access.html'
-    form_class = forms.LensGiveRevokeAccessForm
-    success_url = reverse_lazy('sled_users:user-profile')
-
-    def my_form_valid(self,form):
-        ids = form.cleaned_data['ids'].split(',')
-        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        users = form.cleaned_data['users']
-        user_ids = [u.id for u in users]
-        users = Users.objects.filter(id__in=user_ids)
-        groups = form.cleaned_data['groups']
-        group_ids = [g.id for g in groups]
-        groups = SledGroup.objects.filter(id__in=group_ids)
-        target_users = list(users) + list(groups)
-
-        mode = self.kwargs['mode']
-        if mode == 'give':
-            self.request.user.giveAccess(lenses,target_users)
-            ug_message = []
-            if len(users) > 0:
-                ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
-            if len(groups) > 0:
-                ug_message.append('Groups: <em>%s</em>' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
-            message = "Access to <b>%d</b> lenses given to %s" % (len(lenses),' and '.join(ug_message))
-            messages.add_message(self.request,messages.SUCCESS,message)
-        elif mode == 'revoke':
-            self.request.user.revokeAccess(lenses,target_users)
-            ug_message = []
-            if len(users) > 0:
-                ug_message.append('Users: %s' % (','.join(["<b>"+user.username+"</b>" for user in users])))
-            if len(groups) > 0:
-                ug_message.append('Groups: <em>%s</em>' % (','.join(["<b>"+group.name+"</b>" for group in groups])))
-            message = "Access to <b>%d</b> lenses revoked from %s" % (len(lenses),' and '.join(ug_message))
-            messages.add_message(self.request,messages.SUCCESS,message)
-        else:
-            messages.add_message(self.request,messages.ERROR,"Unknown action! Can either be <b>give</b> or <b>revoke</b>.")
-
-
-@method_decorator(login_required,name='dispatch')
-class LensMakePrivateView(ModalIdsBaseMixin):
-    template_name = 'lenses/lens_make_private.html'
-    form_class = forms.LensMakePrivateForm
-    success_url = reverse_lazy('sled_users:user-profile')
-
-    def my_form_valid(self,form):
-        ids = form.cleaned_data['ids'].split(',')
-        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        justification = form.cleaned_data['justification']
-        self.request.user.makePrivate(lenses,justification)
-        message = "The admins have been notified of your request to change <b>%d</b> public lenses to private." % (len(lenses))
-        messages.add_message(self.request,messages.WARNING,message)
-
 
 #=============================================================================================================================
 ### END: Modal views

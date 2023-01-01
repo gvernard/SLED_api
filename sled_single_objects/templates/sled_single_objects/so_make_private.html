@@ -1,0 +1,28 @@
+{% extends "modal_base.html" %}
+{% load project_tags %}
+
+{% block title %}
+Make {% singular_or_plural form.obj_type.value items|length %} private?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-modal-field">
+  <ul>
+    {% for item in items %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="jb-modal-field">
+  {{ form.justification }}
+</div>
+
+{{ form.ids }}
+{{ form.obj_type }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Make private</button>
+{% endblock action_button %}

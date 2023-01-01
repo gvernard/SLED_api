@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'sled_instrument',
     'sled_band',
     'sled_papers',
+    'sled_single_objects',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
@@ -123,6 +124,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+#which_database="local-sqlite"
 which_database="remote-mysql"
 
 if which_database == "local-sqlite":

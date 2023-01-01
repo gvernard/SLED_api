@@ -389,7 +389,7 @@ class MakePrivate(ConfirmationTask):
                         timestamp=timezone.now(),
                         action_object=self)
 
-            if self.cargo['object_type'] != 'Collection':
+            if self.cargo['object_type'] not in ['Collection','Imaging','Spectrum','Catalogue']:
                 uqset = self.owner.get_collection_owners(objs)
                 users = list(set( uqset.exclude(username=self.owner.username) ))
                 for u in users:

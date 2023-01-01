@@ -13,3 +13,6 @@ class LensesConfig(AppConfig):
         registry.register(self.get_model('SledGroup'))
         registry.register(self.get_model('Collection'))
         registry.register(self.get_model('AdminCollection'))
+        registry.register(self.get_model('Imaging'))
+        registry.register(self.get_model('Spectrum'))
+        registry.register(self.get_model('Catalogue'))

@@ -149,8 +149,12 @@
 	  {% endfor %}
 	</td>
       </tr>
-    {% endfor %}
+      {% endfor %}
     </table>
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-create' lens=lens.id %}">
+      <img src="{% static 'icons/plus.svg' %}" alt="plus">
+      Add Imaging data
+    </button>
   </div>
 
   

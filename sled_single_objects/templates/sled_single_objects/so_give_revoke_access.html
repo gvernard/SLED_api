@@ -1,0 +1,80 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+{% if view.kwargs.mode == 'revoke' %}
+Revoke access from Users and Groups?
+{% else %}
+Give access to Users and Groups?
+{% endif %}
+{% endblock title %}
+
+
+{% block content %}
+<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+<input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
+
+<div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
+  {% for error in form.non_field_errors %}
+  {{ error }}
+  {% endfor %}
+</div>
+
+<div class=" jb-modal-field">
+  {{ form.users }}
+</div>
+
+<div class="jb-modal-field">
+  {{ form.groups }}
+</div>
+
+<div class="jb-modal-field jb-table-no-lines">
+  <table>
+    {% for item in items %}
+    <tr>
+      <td>
+        {{ item }}
+      </td>
+      <td>
+        {{ item.getUsersWithAccessNoOwner|join:"," }} - <em>{{ item.getGroupsWithAccessNoOwner|join:"," }}</em>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{{ form.ids }}
+{{ form.obj_type }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">
+  {% if view.kwargs.mode == 'revoke' %}
+  Revoke access
+  {% else %}
+  Give access
+  {% endif %}
+</button>
+{% endblock action_button %}
+
+
+{% block extrascripts %}
+<script>
+  users_autocomplete("id_users");
+  groups_autocomplete("id_groups");
+
+  // The following is needed for select2 to work properly in a modal
+  $('#id_users').select2({
+    width: '100%',
+    placeholder: 'Search for a user',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
+  });
+  $('#id_groups').select2({
+    width: '100%',
+    placeholder: 'Search for a group',
+    minimumInputLength: 1,
+    dropdownParent: $('#id-modal')
+  });
+</script>
+{% endblock extrascripts %}

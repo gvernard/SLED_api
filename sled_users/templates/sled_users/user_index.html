@@ -289,51 +289,48 @@
      </h1>
      <div class="p">
 
-       {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
+       <form id="lenses-form" class="ids-form" method="POST">
+         {% csrf_token %}
 
-       <div>
-	 <form id="ids-form" method="POST">
-           {% csrf_token %}
-           {% include "lenses/lens_list_executive.html" with lenses=lenses %}
-	 </form>
-       </div>
+	 <div>
+	   {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
+	   {% include "lenses/lens_list_executive.html" with lenses=lenses %}
+	   {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
+	 </div>
 
-       {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
-
-       <div>
-	 <!-- The button class 'sled-process-lenses' is required for functionality  -->
-
-	 <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
-	   <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-	   Update lenses
-	 </button>
-	 <button type="button" id="revoke-access" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-revoke-access' %}">
-	   <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-	   Revoke access
-	 </button>
-	 <button type="button" id="give-access" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-give-access' %}">
-	   <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-	   Give access
-	 </button>
-	 <button type="button" id="make-public" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
-	   <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-	   Make public
-	 </button>
-
-	 <!-- The buttons below should be hidden as extra actions -->
-	 <button type="button" id="make-private" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-private' %}">
-	   <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
-	   Make private
-	 </button>
-	 <button type="button" id="cede-ownership" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-cede-ownership' %}">
-	   <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
-	   Cede ownership
-	 </button>
-	 <button type="button" id="delete-lenses" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
-	   <img src="{% static 'icons/trash.svg' %}" alt="trash">
-	   Delete lenses
-	 </button>
-       </div>
+	 <div>
+	   <button type="submit" class="jb-submit-button-1" form="lenses-form" formaction="{% url 'lenses:lens-update' %}">
+	     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	     Update
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	     Revoke access
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	     Give access
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
+	     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	     Make public
+	   </button>
+	   
+	   <!-- The buttons below should be hidden as extra actions -->
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	     <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	     Make private
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	     Cede ownership
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
+	     <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	     Delete
+	   </button>
+	 </div>
+       </form>
        <br>
        <br>
      </div>
@@ -356,22 +353,86 @@
 	 Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
        </p>
        {% else %}
+       
+       {% if imagings|length == 0 %}
+       No Imaging data owned
+       {% else %}
+       <form id="imaging-form" class="ids-form" method="POST">
+         {% csrf_token %}
+	 
+	 <div>
+	   {% include "pagination_top.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
 
-       {% include "pagination_top.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
-       <table>
-	 {% for imaging in imagings %}
-	 <tr>
-	   <td>{{ imaging.instrument.name }}</td>
-	   <td>{{ imaging.band.name }}</td>
-	   <td>{{ imaging.lens.name }}</td>
-	   <td>{{ imaging.date_taken }}</td>
-	 </tr>
-	 {% empty %}
-	 <tr>No Imaging data owned</tr>
-	 {% endfor %}
-       </table>
-       {% include "pagination_bottom.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
+	   <input name="obj_type" type="hidden" value="Imaging" />
+	   <table>
+	     <thead>
+	       <tr>
+		 <th></th>
+		 <th></th>
+		 <th>Lens</th>
+		 <th>Instrument</th>
+		 <th>Band</th>
+		 <th>Date taken</th>
+		 <th>Access level</th>
+		 <th>Accessible by</th>
+	       </tr>
+	     </thead>
+	     <tbody>
+	       {% for imaging in imagings %}
+	       <tr>
+		 <td><input name="ids" type="checkbox" value="{{ imaging.id }}"></td>
+		 <td><img class="sled-mugshot-icon" src="{{ imaging.image.url }}"></td>
+		 <td><a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a></td>
+		 <td>{{ imaging.instrument.name }}</td>
+		 <td>{{ imaging.band.name }}</td>
+		 <td>{{ imaging.date_taken }}</td>
+		 <td>{{ imaging.access_level }}</td>
+		 <td>
+		   {{ imaging.getUsersWithAccessNoOwner|join:"," }} - <em>{{ imaging.getGroupsWithAccessNoOwner|join:"," }}</em>
+		 </td>
+	       </tr>
+	       {% endfor %}
+	   </table>
+	   <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+	 </div>	 
+	 {% include "pagination_bottom.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
 
+	 <div>
+	   <button type="submit" class="jb-submit-button-1" form="imaging-form" formaction="{% url 'sled_data:data-update-many' %}">
+	     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	     Update
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	     Revoke access
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	     Give access
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
+	     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	     Make public
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	     <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	     Make private
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	     Cede ownership
+	   </button>
+	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete' %}">
+	     <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	     Delete
+	   </button>
+	 </div>
+
+       </form>
+       {% endif %}
+       <br>
+       <br>
+       
        {% endif %}
        <br>
      </div>
