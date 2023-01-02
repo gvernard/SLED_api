@@ -7,7 +7,7 @@
 <div class="jb-container">
   <h1 class="jb-heading-1">Update {{ plural }}</h1>
 
-  <div class=" jb-table-no-lines">
+  <div class="jb-table-no-lines">
 
     <form id="formset" formset-prefix="{{ data_formset.prefix }}" method="POST" enctype="multipart/form-data">
       <div>
@@ -42,7 +42,7 @@
                 {{ form.non_field_errors }}
                 {{ form.id }}
 
-                <table class="jb-add-lens">
+                <table class="jb-update-data">
                   <tr>
                     <!-- First column -->
                     <td>
@@ -53,30 +53,19 @@
                             <td>{{ form.date_taken.label_tag }}</td>
                             <td>{{ form.date_taken }}</td>
                           </tr>
-                          <tr>
-                            <td>{{ form.exists.errors }}</td>
-                            <td>{{ form.exists.label_tag }}</td>
-                            <td>{{ form.exists }}</td>
-                          </tr>
+			  {% if form.future %}
                           <tr>
                             <td>{{ form.future.errors }}</td>
                             <td>{{ form.future.label_tag }}</td>
                             <td>{{ form.future }}</td>
                           </tr>
+			  {% endif %}
                           <tr>
                             <td>{{ form.info.errors }}</td>
                             <td>{{ form.info.label_tag }}</td>
                             <td>{{ form.info }}</td>
                           </tr>
-                        </table>
-                      </div>
-                    </td>
 
-
-                    <!-- Second column -->
-                    <td>
-                      <div>
-                        <table>
 			  {% if model == 'Imaging' %}
                           <tr>
                             <td>{{ form.exposure_time.errors }}</td>
@@ -145,7 +134,7 @@
                     </td>
 
 
-                    <!-- Third column -->
+                    <!-- Second column -->
                     <td>
 		      {% if model == 'Imaging' or model == 'Spectrum' %}
                       <div>

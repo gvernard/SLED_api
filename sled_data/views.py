@@ -97,8 +97,9 @@ class ImagingCreateView(BSModalCreateView):
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):
-            imaging = form.save()
-
+            imaging = form.save(commit=False)
+            imaging.exists = True
+            imaging.save()
         response = super().form_valid(form)
         return response
 

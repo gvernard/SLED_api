@@ -191,7 +191,7 @@ class LensDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         #context['imagings'] = context['lens'].imaging.all(self.request.user)
-        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True).filter(future=False)
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allcataloguedata = Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
 
@@ -228,7 +228,7 @@ class LensDetailView(DetailView):
 
             alldata = {}
             for k, detection in enumerate(detections):
-                print(k, detection, catdata)
+               # print(k, detection, catdata)
                 detdata = catdata.filter(radet=detection['radet'], decdet=detection['decdet'])
                 alldata[k] = detdata
 
