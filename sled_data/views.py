@@ -28,20 +28,146 @@ from lenses.models import Users, Lenses, Imaging, Spectrum, Catalogue, AdminColl
 from . import forms
 
 
-########################### Imaging data on lens detail page ###########################
-@method_decorator(login_required,name='dispatch')
-class ImagingDetailView(BSModalReadView):
-    model = Imaging
-    template_name = 'sled_data/imaging_detail.html'
-    context_object_name = 'imaging'
 
+@method_decorator(login_required,name='dispatch')
+class DataDetailView(BSModalReadView):
     def get_queryset(self):
-        return self.model.accessible_objects.all(self.request.user)
+        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+        return model.accessible_objects.all(self.request.user)
+
+    def get_template_names(self):
+        model_name = self.kwargs.get('model')
+        if model_name == 'Imaging':
+            return ['sled_data/imaging_detail.html']
+        elif model_name == 'Spectrum':
+            return ['sled_data/spectrum_detail.html']
+        elif model_name == 'Catalogue':
+            return ['sled_data/catalogue_detail.html']
+        else:
+            # Maybe return some default error template here
+            pass
+
+    def get_context_object_name(self,obj):
+        model_name = self.kwargs.get('model')
+        if model_name == 'Imaging':
+            return 'imaging'
+        elif model_name == 'Spectrum':
+            return 'spectrum'
+        elif model_name == 'Catalogue':
+            return 'catalogue'
+        else:
+            # Maybe return something default here
+            pass
+
+        
+
+@method_decorator(login_required,name='dispatch')
+class DataCreateView(BSModalCreateView):
+    def get_queryset(self):
+        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+        return model.accessible_objects.owned(self.request.user)
+
+    def get_template_names(self):
+        model_name = self.kwargs.get('model')
+        if model_name == 'Imaging':
+            return ['sled_data/imaging_create.html']
+        elif model_name == 'Spectrum':
+            return ['sled_data/spectrum_create.html']
+        elif model_name == 'Catalogue':
+            return ['sled_data/catalogue_create.html']
+        else:
+            # Maybe return some default error template here
+            pass
+
+    def get_form_class(self):
+        model_name = self.kwargs.get('model')
+        if model_name == 'Imaging':
+            return forms.ImagingCreateForm
+        elif model_name == 'Spectrum':
+            return forms.SpectrumCreateForm
+        elif model_name == 'Catalogue':
+            return forms.CatalogueCreateForm
+        else:
+            # Maybe return some default error template here
+            pass
+        
+    def get_initial(self):
+        owner = self.request.user
+        lens = Lenses.objects.get(id=self.kwargs.get('lens'))
+        return {'owner': owner,'lens': lens}
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            new_object = form.save(commit=False)
+            new_object.exists = True
+            new_object.save()
+        response = super().form_valid(form)
+        return response
+
+    def form_invalid(self,form):
+        response = super().form_invalid(form)
+        return response
+
+    def get_success_url(self):
+        return reverse('lenses:lens-detail',kwargs={'pk':self.kwargs.get('lens')})
+
+    def get_success_message(self,cleaned_data):
+        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+        success_message = 'Success: %s was successfully added.' % model._meta.verbose_name.title()
+
+
+        
+@method_decorator(login_required,name='dispatch')
+class DataUpdateView(BSModalUpdateView):
+    def get_queryset(self):
+        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+        return model.accessible_objects.owned(self.request.user)
+
+    def get_template_names(self):
+        model_name = self.kwargs.get('model')
+        if model_name == 'Imaging':
+            return ['sled_data/imaging_update.html']
+        elif model_name == 'Spectrum':
+            return ['sled_data/spectrum_update.html']
+        elif model_name == 'Catalogue':
+            return ['sled_data/catalogue_update.html']
+        else:
+            # Maybe return some default error template here
+            pass
+
+    def get_form_class(self):
+        model_name = self.kwargs.get('model')
+        if model_name == 'Imaging':
+            return forms.ImagingUpdateForm
+        elif model_name == 'Spectrum':
+            return forms.SpectrumUpdateForm
+        elif model_name == 'Catalogue':
+            return forms.CatalogueUpdateForm
+        else:
+            # Maybe return some default error template here
+            pass
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            # Report action and dirty fields?
+            dum = 1
+        response = super().form_valid(form)
+        return response
+    
+    def get_success_url(self):
+        return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
+
+    def get_success_message(self,cleaned_data):
+        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+        success_message = 'Success: %s was successfully updated.' % model._meta.verbose_name.title()
+
 
     
+        
+
+'''
 @method_decorator(login_required,name='dispatch')
 class ImagingDeleteView(BSModalDeleteView):
-    model = Imaging
     template_name = 'sled_data/imaging_delete.html'
     success_message = 'Success: Imaging data were removed.'
     context_object_name = 'imaging'
@@ -57,61 +183,7 @@ class ImagingDeleteView(BSModalDeleteView):
 
     def get_success_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
-
-    
-@method_decorator(login_required,name='dispatch')
-class ImagingUpdateView(BSModalUpdateView):
-    model = Imaging
-    template_name = 'sled_data/imaging_update.html'
-    form_class = forms.ImagingUpdateForm
-    success_message = 'Success: Imaging data were updated.'
-    
-    def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
-
-    def form_valid(self,form):
-        if not is_ajax(self.request.META):
-            # Report action and dirty fields?
-            dum = 1
-        response = super().form_valid(form)
-        return response
-    
-    def get_success_url(self):
-        return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
-
-
-@method_decorator(login_required,name='dispatch')
-class ImagingCreateView(BSModalCreateView):
-    model = Imaging
-    template_name = 'sled_data/imaging_create.html'
-    form_class = forms.ImagingCreateForm
-    success_message = 'Success: Imaging data were successfully added.'
-
-    def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
-
-    def get_initial(self):
-        owner = self.request.user
-        lens = Lenses.objects.get(id=self.kwargs["lens"])
-        return {'owner': owner,'lens': lens}
-
-    def form_valid(self,form):
-        if not is_ajax(self.request.META):
-            imaging = form.save(commit=False)
-            imaging.exists = True
-            imaging.save()
-        response = super().form_valid(form)
-        return response
-
-    def form_invalid(self,form):
-        response = super().form_invalid(form)
-        return response
-
-    def get_success_url(self):
-        return reverse('lenses:lens-detail',kwargs={'pk':self.kwargs['lens']})
-########################################################################################
-
-
+'''
 
 
 
@@ -152,9 +224,9 @@ class ModalIdsBaseMixin(BSModalFormView):
 
 
 @method_decorator(login_required,name='dispatch')
-class DataDeleteView(ModalIdsBaseMixin):
+class DataDeleteManyView(ModalIdsBaseMixin):
     template_name = 'sled_data/data_delete.html'
-    form_class = forms.DataDeleteForm
+    form_class = forms.DataDeleteManyForm
     success_url = reverse_lazy('sled_users:user-profile')
     
     def my_form_valid(self,form):

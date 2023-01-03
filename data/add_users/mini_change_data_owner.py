@@ -25,10 +25,17 @@ print('Changing the ownership of some data for testing purposes')
 user = Users.objects.filter(username='gvernard')
 admin = Users.objects.get(username='admin')
 
-imagings = Imaging.objects.order_by('?')[:113]
+imagings = Imaging.objects.filter(exists=True).order_by('?')[:113]
 print(len(imagings))
+spectra = Spectrum.objects.filter(exists=True).order_by('?')[:73]
+print(len(spectra))
+cats = Catalogue.objects.filter(exists=True).order_by('?')[:123]
+print(len(cats))
 
-admin.cedeOwnership(imagings,user,'comme ci')
+
+#admin.cedeOwnership(imagings,user,'comme imag')
+admin.cedeOwnership(spectra,user,'comme spec')
+admin.cedeOwnership(cats,user,'comme cata')
 
 
 

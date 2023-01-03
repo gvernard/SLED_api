@@ -9,6 +9,95 @@ from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from lenses.models import Imaging, Spectrum, Catalogue
 
 
+
+
+class CatalogueCreateForm(BSModalModelForm):
+    class Meta:
+        model = Catalogue
+        fields = "__all__"
+        widgets = {
+            'owner': forms.HiddenInput(),
+            'lens': forms.HiddenInput(),
+            'info': forms.Textarea({'rows':3,'cols':30}),
+            'date_taken': forms.SelectDateWidget(
+                empty_label=("Year", "Month", "Day"),
+                years=reversed(range(1950,timezone.now().year+10))
+            )
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(CatalogueCreateForm, self).__init__(*args, **kwargs)
+
+        # I need to re-initialize the field here because an invalid form reset the year list to an empty one.
+        self.fields['date_taken'] = forms.DateField(
+            widget=forms.SelectDateWidget(
+                empty_label=("Year", "Month", "Day"),
+                years=reversed(range(1950,timezone.now().year+10))
+            )
+        )
+
+    def clean(self):
+        now = timezone.now().date()
+        date_taken = self.cleaned_data.get('date_taken')
+        
+        if self.cleaned_data.get('future'):
+            if now > date_taken:
+                raise ValidationError('Date must be in the future!')
+            if self.cleaned_data.get('image'):
+                raise ValidationError('You must not include any image with future data!')
+        else:
+            if now < date_taken:
+                raise ValidationError('Date must be in the past!')
+            if not self.cleaned_data.get('image'):
+                raise ValidationError('You must include an image!')
+
+        return
+
+    
+class SpectrumCreateForm(BSModalModelForm):
+    class Meta:
+        model = Spectrum
+        fields = "__all__"
+        widgets = {
+            'owner': forms.HiddenInput(),
+            'lens': forms.HiddenInput(),
+            'info': forms.Textarea({'rows':3,'cols':30}),
+            'date_taken': forms.SelectDateWidget(
+                empty_label=("Year", "Month", "Day"),
+                years=reversed(range(1950,timezone.now().year+10))
+            )
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(SpectrumCreateForm, self).__init__(*args, **kwargs)
+
+        # I need to re-initialize the field here because an invalid form reset the year list to an empty one.
+        self.fields['date_taken'] = forms.DateField(
+            widget=forms.SelectDateWidget(
+                empty_label=("Year", "Month", "Day"),
+                years=reversed(range(1950,timezone.now().year+10))
+            )
+        )
+
+    def clean(self):
+        now = timezone.now().date()
+        date_taken = self.cleaned_data.get('date_taken')
+        
+        if self.cleaned_data.get('future'):
+            if now > date_taken:
+                raise ValidationError('Date must be in the future!')
+            if self.cleaned_data.get('image'):
+                raise ValidationError('You must not include any image with future data!')
+        else:
+            if now < date_taken:
+                raise ValidationError('Date must be in the past!')
+            if not self.cleaned_data.get('image'):
+                raise ValidationError('You must include an image!')
+
+        return
+
+
+
 class ImagingCreateForm(BSModalModelForm):
     class Meta:
         model = Imaging
@@ -51,15 +140,37 @@ class ImagingCreateForm(BSModalModelForm):
 
         return
 
+
+
+
     
-class ImagingUpdateForm(BSModalModelForm):
+class CatalogueUpdateForm(BSModalModelForm):
     class Meta:
-        model = Imaging
-        exclude = ['instrument','band','lens','owner','access_level']
+        model = Catalogue
+        exclude = ['instrument','band','lens','owner','access_level','exists']
         widgets = {
             'info': forms.Textarea({'rows':3,'cols':30}),
         }
 
+class SpectrumUpdateForm(BSModalModelForm):
+    class Meta:
+        model = Spectrum
+        exclude = ['instrument','band','lens','owner','access_level','exists']
+        widgets = {
+            'info': forms.Textarea({'rows':3,'cols':30}),
+        }
+    
+class ImagingUpdateForm(BSModalModelForm):
+    class Meta:
+        model = Imaging
+        exclude = ['instrument','band','lens','owner','access_level','exists']
+        widgets = {
+            'info': forms.Textarea({'rows':3,'cols':30}),
+        }
+
+
+
+        
 
 class ImagingUpdateManyForm(forms.ModelForm):
     class Meta:
@@ -84,8 +195,6 @@ class ImagingUpdateManyForm(forms.ModelForm):
             )
         )
         print(self.initial['date_taken'].date())
-
-
         
         if not self.initial['future']:
             self.fields.pop('future')
@@ -150,7 +259,7 @@ class ImagingUpdateManyFormSet(forms.BaseInlineFormSet):
 
 
 
-class DataDeleteForm(BSModalForm):
+class DataDeleteManyForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
 

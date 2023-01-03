@@ -161,28 +161,58 @@
   <!-- Div containing all the spectroscopic data  -->  
   <div class="jb-section">
     <h1 class="jb-heading-2">Spectroscopic Data</h1>
-      {% for spec in display_spectra %}
-        Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
-        <img src="{{ spec.image.url }}"> 
-      {% endfor %}
+
+    {% for spec in display_spectra %}
+    <div class="spectrum-item">
+      <div class="header">
+	Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
+      </div>
+      <div class="container">
+	<img src="{{ spec.image.url }}">
+	<div class="overlay">
+	  <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spec.id %}">
+	    View
+	    <img src="{% static 'icons/eye-fill.svg' %}" alt="view">
+	  </button>
+	  {% if spec.owner == user %}
+	  <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-update' spec.id %}">
+	    Update
+	    <img src="{% static 'icons/pencil.svg' %}" alt="update">
+	  </button>	
+	  {% endif %}
+	</div>
+      </div>
+    </div>
+    {% endfor %}
+    
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-create' lens=lens.id %}">
+      <img src="{% static 'icons/plus.svg' %}" alt="plus">
+      Add Spectrum
+    </button>
   </div>
 
   
   <!-- Div containing all the catalogue data  -->  
   <div class="jb-section">
     <h1 class="jb-heading-2">Catalogue Data</h1>
+    
     {% for instrument, detections in display_catalogues.items %} 
-      {{ instrument }}
-      <br>
-      {% for k, detection in detections.items %}
-      RA, Dec: {{ detection.0.radet }}, {{ detection.0.decdet }}
-        {% for phot in detection %}
-          {{ phot.band.name }}: {{ phot.mag }} +- {{ phot.Dmag }} 
-        {% endfor %}
-         <br>
-      {% endfor %}
-      <br>
+    {{ instrument }}
+    <br>
+    {% for k, detection in detections.items %}
+    RA, Dec: {{ detection.0.radet }}, {{ detection.0.decdet }}
+    {% for phot in detection %}
+    {{ phot.band.name }}: {{ phot.mag }} +- {{ phot.Dmag }} 
     {% endfor %}
+    <br>
+    {% endfor %}
+    <br>
+    
+    {% endfor %}
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-create' lens=lens.id %}">
+      <img src="{% static 'icons/plus.svg' %}" alt="plus">
+      Add Catalogue Entry
+    </button>
   </div>
 
   <div class="jb-section">

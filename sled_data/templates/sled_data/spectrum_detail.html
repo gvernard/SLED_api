@@ -1,0 +1,32 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+<a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens }}</a>
+<br>
+{{ spectrum.instrument }}
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container-modal jb-table-no-lines">
+  
+  <table>
+    <tr><td>Owner:</td><td>{{ spectrum.owner }}</td></tr>
+    <tr><td>Access level:</td><td>{{ spectrum.access_level }}</td></tr>
+    <tr><td>Date taken:</td><td>{{ spectrum.date_taken }}</td></tr>
+    <tr><td>lambda<sub>min</sub></td><td>{{ spectrum.lambda_min }}</td></tr>
+    <tr><td>lambda<sub>max</sub>:</td><td>{{ spectrum.lambda_max }}</td></tr>
+    <tr><td>Exp. time:</td><td>{{ spectrum.exposure_time }}</td></tr>
+    <tr><td>Resolution:</td><td>{{ spectrum.resolution }}</td></tr>
+    <tr><td>Info:</td><td>{{ spectrum.info }}</td></tr>
+  </table>
+  
+  {% if spectrum.future %}
+  Future
+  {% else %}
+  <img src="{{ spectrum.image.url }}" style="width:100%">
+  {% endif %}
+
+</div>
+{% endblock content %}

@@ -4,10 +4,16 @@ from . import views
 
 app_name = 'sled_data'
 urlpatterns = [
-    path('imaging-detail/<int:pk>',views.ImagingDetailView.as_view(),name='imaging-detail'),
-    path('imaging-delete/<int:pk>',views.ImagingDeleteView.as_view(),name='imaging-delete'),
-    path('imaging-update/<int:pk>',views.ImagingUpdateView.as_view(),name='imaging-update'),
-    path('imaging-create/<int:lens>',views.ImagingCreateView.as_view(),name='imaging-create'),
-    path('data-delete/',views.DataDeleteView.as_view(),name='data-delete'),
+#    path('imaging-delete/<int:pk>',views.ImagingDeleteView.as_view(),name='imaging-delete'),
+    path('data-delete-many/',views.DataDeleteManyView.as_view(),name='data-delete-many'),
     path('data-update-many/',views.DataUpdateManyView.as_view(),name='data-update-many'),
+    path('imaging-detail/<int:pk>',views.DataDetailView.as_view(),kwargs={'model':'Imaging'},name='imaging-detail'),
+    path('imaging-create/<int:lens>',views.DataCreateView.as_view(),kwargs={'model':'Imaging'},name='imaging-create'),
+    path('imaging-update/<int:pk>',views.DataUpdateView.as_view(),kwargs={'model':'Imaging'},name='imaging-update'),
+    path('spectrum-detail/<int:pk>',views.DataDetailView.as_view(),kwargs={'model':'Spectrum'},name='spectrum-detail'),
+    path('spectrum-create/<int:lens>',views.DataCreateView.as_view(),kwargs={'model':'Spectrum'},name='spectrum-create'),
+    path('spectrum-update/<int:pk>',views.DataUpdateView.as_view(),kwargs={'model':'Spectrum'},name='spectrum-update'),
+    path('catalogue-detail/<int:pk>',views.DataDetailView.as_view(),kwargs={'model':'Catalogue'},name='catalogue-detail'),
+    path('catalogue-create/<int:lens>',views.DataCreateView.as_view(),kwargs={'model':'Catalogue'},name='catalogue-create'),
+    path('catalogue-update/<int:pk>',views.DataUpdateView.as_view(),kwargs={'model':'Catalogue'},name='catalogue-update'),
 ]
