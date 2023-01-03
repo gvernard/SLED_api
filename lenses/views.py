@@ -198,13 +198,13 @@ class LensDetailView(DetailView):
         
         ## Imaging data
         #for each instrument associate only one image per band for now
-        instruments = allimages.values_list('instrument__name', flat=True).distinct()
+        instruments = allimages.values_list('instrument__name', flat=True).distinct().order_by()
         #print(instruments)
         display_images = {}
         band_order = ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
         print("Band order: ",band_order)
         for instrument in instruments:
-            bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct()
+            bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct().order_by()
             print(bands)
             #sort the bands
             bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
@@ -220,11 +220,11 @@ class LensDetailView(DetailView):
 
             
         ## Catalogue data
-        instruments_catalogue = allcataloguedata.values_list('instrument__name', flat=True).distinct()
+        instruments_catalogue = allcataloguedata.values_list('instrument__name', flat=True).distinct().order_by()
         catalogue_entries = {}
         for instrument in instruments_catalogue:
             catdata = allcataloguedata.filter(instrument__name=instrument)
-            detections = catdata.values('radet', 'decdet').annotate(Max('id'))
+            detections = catdata.values('radet', 'decdet').annotate(Max('id')).distinct().order_by()
 
             alldata = {}
             for k, detection in enumerate(detections):

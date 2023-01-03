@@ -1,5 +1,5 @@
 name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-KIDSJ0000-3502,0.238,-35.0485,PUB,,2019A&A...632A..56K,True,,,,,,,QUASAR,GALAXY,,,1.0,,True,1.25,,,,Low-separation double 
+KIDSJ0000-3502,0.2379,-35.0485,PUB,,2019A&A...632A..56K,True,,,,,,,QUASAR,GALAXY,,,1.0,,True,1.25,,,,Low-separation double 
 KIDSJ0139-3103,24.99583,-31.0597,PUB,,2019A&A...632A..56K,True,,,,,,,QUASAR,GALAXY,,,1.6,,True,1.5,,,,Low-separation double 
 KIDSJ0201-3208,30.3125,-32.1429,PUB,,2019A&A...632A..56K,True,,,,,,,QUASAR,GALAXY,,,1.6,,True,1.5,,,,Low-separation double 
 KIDSJ1334-0120,203.5458,-1.34783,PUB,,2019A&A...632A..56K,True,,,,,,,QUASAR,GALAXY,,,1.1,,True,1.25,,,,Low-separation double 

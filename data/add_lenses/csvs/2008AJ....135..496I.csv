@@ -23,7 +23,7 @@ SDSS J084856.08+011540.0,132.2336,1.26111,PUB,,2008AJ....135..496I,True,0.646,,,
 SDSS J085122.37+472249.0,132.8432,47.38027,PUB,,2008AJ....135..496I,True,0.894,,,,,,QUASAR,,,,1.47,False,False,,,True,QUASAR+STAR,Morphological candidate; No lensing object; C.L.:QSO+STAR based on Gaia proper motions
 SDSS J085643.71+413444.8,134.1821,41.57911,PUB,,2008AJ....135..496I,True,0.756,,,,,,QUASAR,,,,0.55,False,True,0.25,,False,,Morphological candidate; Single QSO
 SDSS J091301.03+525928.9,138.2542,52.99136,PUB,,2008AJ....135..496I,False,1.685,,,,,,QUASAR,,,,1.12,True,,,,False,,Morphological candidate; Known lens (SBS 0909)
-SDSS J092455.79+021924.9,141.2324,2.32358,PUB,,2008AJ....135..496I,False,1.685,,,,,,QUASAR,,,,1.34,True,,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
+SDSSJ0924+0219,141.2324,2.32358,PUB,,2008AJ....135..496I,False,1.685,,,,,,QUASAR,,4.0,,1.34,True,,,,False,,Morphological candidate; SDSS lens; has follow-up spectrum
 SDSS J092528.68+071442.7,141.3694,7.24519,PUB,,2008AJ....135..496I,True,1.63,,,,,,QUASAR,,,,0.55,False,True,0.25,,False,,Morphological candidate; Single QSO
 SDSS J093207.15+072251.3,143.0297,7.38092,PUB,,2008AJ....135..496I,True,1.993,,,,,,QUASAR,,,,1.42,False,False,,,True,QUASAR PAIR,"Morphological candidate; QSO pair (z = 1.994, 1.994); has follow-up spectrum. None of the deep optical and near-infrared images shows any lensing galaxy between the two components, and the flux ratio of the two quasars in the optical is significantly different from that in the near-infrared (0.12 in the I-band and 0.02 in the H-band). Thus, we regard this system as a binary quasar."
 SDSS J094945.68+632622.9,147.4403,63.43969,PUB,,2008AJ....135..496I,True,0.65,,,,,,QUASAR,,,,0.41,False,True,0.25,,False,,Morphological candidate; Single QSO
@@ -45,7 +45,7 @@ SDSS J113613.37+033840.9,174.0557,3.64469,PUB,,2008AJ....135..496I,False,1.188,,
 SDSS J115244.06+571202.1,178.1835,57.20058,PUB,,2008AJ....135..496I,True,1.603,,,,,,QUASAR,,,,0.41,False,True,0.25,,False,,Morphological candidate; Single QSO
 SDSS J121244.33+091208.1,183.1847,9.20225,PUB,,2008AJ....135..496I,True,1.686,,,,,,QUASAR,,,,2.04,False,False,,,True,PROJECTED QUASARS,"Morphological candidate; QSO pair (z = 1.686, 1.600); has follow-up spectrum"
 SDSS J122558.45-005226.2,186.4935,-0.87394,PUB,,2008AJ....135..496I,True,0.963,,,,,,QUASAR,,,,0.46,False,True,0.25,,False,,Morphological candidate; Single QSO
-SDSS J122608.02-000602.2,186.5334,-0.10061,PUB,,2008AJ....135..496I,False,1.685,,,,,,QUASAR,,,,1.21,True,False,,,False,,Morphological candidate; SDSS Lens; has follow-up spectrum
+SDSSJ1226-0006,186.5334,-0.10061,PUB,,2008AJ....135..496I,False,1.125,,,,,,QUASAR,,2.0,,1.21,True,False,,,False,,Morphological candidate; SDSS Lens; has follow-up spectrum
 SDSS J123020.41+452047.6,187.585,45.34655,PUB,,2008AJ....135..496I,True,2.112,,,,,,QUASAR,,,,0.55,False,True,0.25,,False,,Morphological candidate; Single QSO
 SDSS J123844.79+105622.2,189.6866,10.9395,PUB,,2008AJ....135..496I,True,1.305,,,,,,QUASAR,,,,0.97,False,False,,,True,QUASAR+GALAXY,Morphological candidate; QSO+galaxy
 SDSS J123846.69+644836.5,189.6945,64.81013,PUB,,2008AJ....135..496I,True,1.558,,,,,,QUASAR,,,,1.3,False,True,2.5,,False,,Morphological candidate; QSO+galaxy

@@ -8,6 +8,8 @@ url = "http://127.0.0.1:8000/api/upload-collection/"
 
 # Specify the json file with the papers' properties
 papers_json_file = 'collection.json'
+papers_json_file = 'H0LiCOW.json'
+papers_json_file = 'CLASS.json'
 
 
 # Opening the JSON file with the lens properties
