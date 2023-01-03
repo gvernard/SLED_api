@@ -6,7 +6,7 @@ A1428-0302,217.48956,-3.0414,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,Tru
 A0326-3122,51.52828,-31.3816,PUB,,2018MNRAS.475.2086A,False,,,,,,,QUASAR,,,,,,True,2.0,2,False,,NIQ; zs = 1.35
 A2338-2700,354.52705,-27.0151,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.5,True,GALAXIES,"Contaminant; z = 0.68 (Mg II), merging NLGs"
 A2213-2652,333.41012,-26.8742,PUB,,2018MNRAS.475.2086A,True,1.27,True,True,,,,QUASAR,,2.0,,,True,False,,2.24,False,,NIQ/lens; zs = 1.27
-A0008-3655,2.12243,-36.9231,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,2.5,2,False,,Unclear; z ≈ 1.715 qso
+A0008-3655,2.12243,-36.9231,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,1.75,2,False,,Unclear; z ≈ 1.715 qso
 A0015-1116,3.98259,-11.283,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2.21,True,QUASAR+STAR,Contaminant; Star + qso z ≈ 1.55
 A0054-3951,13.53024,-39.8643,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,True,1.0,1.5,False,,Uncertain; z = 0.475 or z = 1.16
 A0106-1030,16.70878,-10.5097,PUB,,2018MNRAS.475.2086A,True,,,,,,,QUASAR,,,,,,False,,2,True,QUASAR+STAR,Contaminant; Star + qso z = 1.995

@@ -2,7 +2,7 @@ name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,fl
 J0941+0518,145.34355,5.307,PUB,,2018MNRAS.477L..70W,True,1.54,True,True,0.343,True,True,QUASAR,,2.0,,,True,False,,,False,,"Lens; observed with  ESI, OSIRIS  ; selected by  PopMix, OutlierSel  ; comment:also independently selected by Lemon et al. 2018"
 J1640+1045,250.07599,10.7514,PUB,,2018MNRAS.477L..70W,True,1.7,True,True,,,,QUASAR,,2.0,,,True,False,,,False,,Lens; observed with DEIMOS ; selected by OutlierSel; comment:also independently selected by Lemon et al. 2018
 J2257+2349,344.35586,23.8251,PUB,,2018MNRAS.477L..70W,True,2.11,True,True,,,,QUASAR,,2.0,,,True,False,,,False,,"Lens; observed with  EFOSC2, NIRC2  ; selected by OutlierSel; comment:"
-J2211+1929,332.87638,19.487,PUB,,2018MNRAS.477L..70W,False,1.07,True,True,,,,QUASAR,,,,,,False,,,False,,"Lens; observed with  EFOSC2, ESI, NIRC2   ; selected by PopMix; comment:HS 2209+1914"
+HS2209+1914,332.87638,19.487,PUB,,2018MNRAS.477L..70W,False,1.07,True,True,,,,QUASAR,,,,,,False,,,False,,"Lens; observed with  EFOSC2, ESI, NIRC2   ; selected by PopMix; comment:HS 2209+1914"
 J0048+2505,12.14571,25.0897,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.5,,False,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources
 J0118+4718,19.7397,47.3148,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,True,0.5,,False,,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources
 J0130+4110,22.5127,41.1726,PUB,,2018MNRAS.477L..70W,True,,,,,,,QUASAR,,,,,,False,,,True,STARS,Inconclusive; observed with NIRC2 ; selected by OutlierSel; comment:two point sources; C.L.:Stars based on Gaia proper motions

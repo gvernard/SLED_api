@@ -1,9 +1,0 @@
-{
-    "name": "Lensed dual quasars",
-    "access": "PUB",
-    "description": "All the known lensed dual quasar sources with both sources multiply imaged",
-    "lenses": [{
-        "ra":260.454190,
-        "dec":88.706210
-    }]
-}

@@ -8,7 +8,7 @@ echo "Working on database: "$which_database
 
 
 # Give a command line argument to select the remote server, e.g. remote
-if [ $which_database == "local" ]
+if [ $which_database == "local-sqlite" ]
 then
     # For the Django managed sqlite database
     echo "Using local sqlite DB server..."

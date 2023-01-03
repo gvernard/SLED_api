@@ -32,8 +32,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
         myitems (): A generic many-to-many field
     """
     name = models.CharField(max_length=30,
-                            help_text="A name for your collection.")
-    description = models.CharField(max_length=200,
+                            help_text="A name for your collection.", unique=True)
+    description = models.CharField(max_length=250,
                                    null=True,
                                    blank=True,
                                    help_text="A description for your collection."
@@ -44,7 +44,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
         ('Scores','Scores'),
         ('Models','Models')
     )
-    item_type = models.CharField(max_length=100,
+    item_type = models.CharField(max_length=101,
                                  choices=ItemTypeChoices,
                                  help_text="The type of items that should be in the collection.")
 

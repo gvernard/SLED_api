@@ -500,13 +500,19 @@ class PaperUploadSerializer(serializers.Serializer):
 
 class CollectionUploadSerializer(serializers.Serializer):
 
-    name = serializers.CharField(max_length=19)
-    description = serializers.CharField(max_length=100)
+    name = serializers.CharField(max_length=50)
+    description = serializers.CharField(max_length=250)
     access = serializers.CharField(max_length=3)
     lenses = serializers.ListField()
 
     def create(self,validated_data):
         return Collection(**validated_data)
+
+    #make sure there are no collections with the same exact name
+    def validate_name(self, value):
+        if value and Collection.objects.filter(name__exact=value).exists():
+            raise serializers.ValidationError("Name already exists!")
+        return value
 
     def validate(self,data):
         print('validating')
