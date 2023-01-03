@@ -306,7 +306,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
         not_in_ads = []
         in_ads = []
         for code in bibcodes:
-            articles = list(ads.SearchQuery(bibcode=code,fl=['recid','title','year','first_author','author']))
+            articles = list(ads.SearchQuery(q='(alternate_bibcode:"'+code+'" OR bibcode:"'+code+'")',fl=['recid','title','year','first_author','author']))
             if len(articles) == 0:
                 not_in_ads.append(code)
             else:

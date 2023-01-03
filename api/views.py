@@ -133,6 +133,7 @@ class UploadPapers(APIView):
             response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
             return Response(response)
         else:
+            print(serializer.errors)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
 
