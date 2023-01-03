@@ -12,6 +12,10 @@ class GroupUpdateForm(BSModalModelForm):
             'access_level': forms.Select()
         }
 
+    def clean(self):
+        if not self.has_changed():
+            self.add_error('__all__',"No changes detected!")
+            
         
 class GroupCedeOwnershipForm(BSModalModelForm):
     heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
@@ -22,14 +26,12 @@ class GroupCedeOwnershipForm(BSModalModelForm):
         fields = ['id','justification','heir']
 
     def clean(self):
-        heir = self.cleaned_data.get('heir')
-
         # Heir must be in the group members, excluding the owner
+        heir = self.cleaned_data.get('heir')
         set_members = set(self.instance.getAllMembers().values_list('username',flat=True))
         allowed_members = list(set_members - set([self.instance.owner.username]))
         if heir.username not in allowed_members:
             self.add_error('__all__',"You can cede ownership only to other group members.")
-            return
 
 
 class GroupCreateForm(BSModalModelForm):

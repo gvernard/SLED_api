@@ -6,26 +6,44 @@ Cede ownership?
 
 
 {% block content %}
-<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+<div class="jb-container-modal">
 
-<div class="jb-modal-field">
-  {{ form.heir }}
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+
+  <div class="jb-modal-field">
+    {{ form.heir }}
+  </div>
+  
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      {% for item in items %}
+      <tr>
+	<td>
+          {{ item }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  
+  <div class="jb-modal-field">
+    {{ form.justification }}
+  </div>
+  
+  {{ form.ids }}
+  {{ form.obj_type }}
+
 </div>
-
-<div class="jb-modal-field">
-  <ul>
-    {% for item in items %}
-    <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
-</div>
-
-<div class="jb-modal-field">
-  {{ form.justification }}
-</div>
-
-{{ form.ids }}
-{{ form.obj_type }}
 {% endblock content %}
 
 

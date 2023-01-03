@@ -1,25 +1,38 @@
 {% extends "modal_base.html" %}
+{% load project_tags %}
 
 {% block title %}
-Make lenses public?
+Make {% singular_or_plural 'Lenses' lenses|length %} public?
 {% endblock title %}
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-container-modal">
 
-<div>
-  <ul>
-    {% for lens in lenses %}
-    <li>{{ lens }}</li>
-    {% endfor %}
-  </ul>
-</div>
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
-{{ form.ids }}
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      {% for lens in lenses %}
+      <tr>
+	<td>
+          {{ lens }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  {{ form.ids }}
+
+</div>
 {% endblock content %}
 
 

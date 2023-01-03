@@ -22,7 +22,17 @@
   <div class="form-div">
     {% csrf_token %}
     {{ lens_formset.management_form }}
-    {{ lens_formset.non_field_errors }}
+
+    {% if data_formset.non_form_errors|length > 0 %}
+    <div class="invalid jb-modal-field">
+      <ul>
+	{% for error in data_formset.non_form_errors %}
+	<li>{{ error }}</li>
+	{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+
     <input type="hidden" name="check" value="true">
     
     <table class="master">
@@ -39,7 +49,16 @@
 	      </tr>
 	    </table>
 
-	    {{ form.non_field_errors }}
+	    {% if form.non_field_errors|length > 0 %}
+	    <div class="invalid jb-modal-field">
+	      <ul>
+		{% for error in form.non_field_errors %}
+		<li>{{ error }}</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	    {% endif %}
+
 	    {{ form.id }}
 	    
 	    <table class="form-table">

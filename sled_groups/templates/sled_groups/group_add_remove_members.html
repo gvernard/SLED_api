@@ -11,16 +11,23 @@ Remove members from the group
 
 
 {% block content %}
-<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+<div class="jb-container-modal">
 
-<div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+  <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 
-<div class="jb-modal-field">
-  {{ form.users }}
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="jb-modal-field">
+    {{ form.users }}
+  </div>
 </div>
 {% endblock content %}
 

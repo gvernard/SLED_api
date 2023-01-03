@@ -19,11 +19,9 @@ class UserUpdateForm(BSModalModelForm):
         }
 
     def clean(self):
-        # At least one User must be selected
-        #users = self.cleaned_data.get('users')
-        #if not users:
-        #self.add_error('__all__',"WPA")
+        # Check that at least one field was changed
+        if not self.has_changed():
+            self.add_error('__all__',"No changes detected!")
 
-        # Check that cargo is not empty
         return
 

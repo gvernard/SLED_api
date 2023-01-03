@@ -1,6 +1,7 @@
 {% extends "modal_base.html" %}
 
 {% block title %}
+<span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
 <span style="font-weight:bold;color:red">
     Pending
@@ -15,70 +16,70 @@
 
 
 {% block content %}
-  
-<p class="title">Task type: <span class="highlight">{{task.task_type}}</span></p>
+<div class="jb-container-modal">
 
-{% if db_response.response %}
-<p style="font-weight:bold">
-  You have responded to this task at: {{ db_response.created_at }}
-</p>
-{% endif %}
-
-<div class="task_description">
+  {% if db_response.response %}
+  <p>
+    <strong>
+      You have responded to this task at: {{ db_response.created_at }}
+    </strong>
+  </p>
+  {% endif %}
   
-  {% if comment %}    
-  <p>User <span style="font-weight:bold">{{task.owner.username}}</span> is saying:</p>
-  <div class="sender_comment">
-    &ldquo;{{ comment }}&rdquo;
+  <div class="jb-modal-field jb-table-no-lines">
+    
+    <p>
+      User <strong>{{task.owner.username}}</strong> is saying:
+      <br>
+      <span style="text-align:center;font-style:italic;">
+	&ldquo;{{ comment }}&rdquo;
+      </span>
+      <br>
+      {% if task.task_type == "CedeOwnership" %}
+      and would like to cede the ownership of the following <strong>{{object_type}}</strong> to you:
+      {% elif task.task_type == "MakePrivate" %}
+      and would like to make the following <strong>{{object_type}}</strong> private:
+      {% endif %}
+    </p>
+
+    <div class="jb-modal-field jb-table-no-lines">
+      <table>
+	{% for obj in objects %}
+	<tr>
+	  <td>
+	    <a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a>
+	  </td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>
+
   </div>
-  {% endif %}
   
+  <p>
+    {% if task.task_type == "CedeOwnership" %}
+    Would you like to accept or refuse taking up the ownership?
+    {% elif task.task_type == "MakePrivate" %}
+    Do you authorize this action?
+    {% endif %}
+  </p>
   
-  {% if comment %}    
+  <input type="hidden" name="task_id" value="{{ task.id }}">
   
-  {% if task.task_type == "CedeOwnership" %}
-  <p>and would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:</p>
-  {% elif task.task_type == "MakePrivate" %}
-  <p>and would like to make the following <span style="font-weight:bold">{{object_type}}</span> private:</p>    
-  {% endif %}
-  
-  {% else %}
-  
-  {% if task.task_type == "CedeOwnership" %}
-  <p>User <span style="font-weight:bold">{{task.owner.username}}</span> would like to cede the ownership of the following <span style="font-weight:bold">{{object_type}}</span> to you:</p>
-  {% elif task.task_type == "MakePrivate" %}
-  <p>User <span style="font-weight:bold">{{task.owner.username}}</span> would like to make the following <span style="font-weight:bold">{{object_type}}</span> private:</p>
-  {% endif %}
-  
-  {% endif %}
-  
+  <div>
+    {{ form.response }}
+  </div>
+
+  <div class="jb-modal-field">
+    {{ form.response_comment }}
+  </div>
+
 </div>
-
-<table>
-  {% for obj in objects %}
-  <tr>
-    <td><a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a></td>
-  </tr>
-  {% endfor %}    
-</table>
-
-{% if task.task_type == "CedeOwnership" %}
-<p>Would you like to accept or refuse taking up the ownership?</p>
-{% elif task.task_type == "MakePrivate" %}
-<p>Do you authorize this action?</p>
-{% endif %}
-
-
-{% for field in form %}
-<input type="hidden" name="task_id" value="{{ task.id }}">
-<div>
-  {{ field }}
-</div>
-{% endfor %}
-
-{% if not form.response.value %}
-<input type="submit" value="Submit">
-{% endif %}
-
-
 {% endblock content %}
+
+
+{% block action_button %}
+{% if not form.response.value %}
+<button type="submit" class="jb-submit-button-1">Respond</button>
+{% endif %}
+{% endblock action_button %}

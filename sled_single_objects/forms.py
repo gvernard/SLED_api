@@ -17,17 +17,19 @@ class SingleObjectCedeOwnershipForm(BSModalForm):
     class Meta:
         fields = ['obj_type','ids','heir','justification']
 
+    def clean(self):
+        # New owner cannot be the same as the current one
+        if self.request.user == self.cleaned_data['heir']:
+            self.add_error('__all__',"The new owner must be a different user!")
 
+
+        
 class SingleObjectMakePrivateForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for making these items private.','rows':3,'cols':30}))
                 
     def clean(self):
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-
         # All items MUST be public
         obj_type = self.cleaned_data.get('obj_type')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
@@ -42,10 +44,6 @@ class SingleObjectMakePublicForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
                 
     def clean(self):
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-
         # All items MUST be private
         obj_type = self.cleaned_data.get('obj_type')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
@@ -63,17 +61,13 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
     #justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
                 
     def clean(self):
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-
-        # All lenses MUST be private
+        # All objects MUST be private
         obj_type = self.cleaned_data.get('obj_type')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
         ids = self.cleaned_data.get('ids').split(',')
         qset = model_ref.objects.filter(id__in=ids).filter(access_level='PUB')
         if qset.count() > 0:
-            self.add_error('__all__',"You are selecting public lenses! Access is only delegated for private objects.")
+            self.add_error('__all__',"You are selecting public objects! Access is only delegated for private objects.")
 
         # At least one User or Group must be selected
         users = self.cleaned_data.get('users')
@@ -81,4 +75,6 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
         if not users and not groups:
             self.add_error('__all__',"Select at least one User and/or Group.")
 
-            
+        # User must not be the owner
+        if self.request.user in users:
+            self.add_error('__all__',"You cannot revoke access from yourself!.")

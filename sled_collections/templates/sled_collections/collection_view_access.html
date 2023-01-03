@@ -7,55 +7,61 @@ Items without access per user and group
 
 
 {% block content %}
-<div class="jb-modal-field">
-  Per user
-  <table>
-    <thead>
-      <tr>
-        <th>User</th>
-        <th># of items</th>
-        <th>Item name</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for user,N,objs in u_no_access %}
-      <tr>
-        <td>{{ user.username }}</td>
-        {% if N == 0 %}
-        <td colspan="2">has access to all</td>
-        {% else %}
-        <td>{{ N }}</td>
-        <td>{{ objs }}</td>
-        {% endif %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
+<div class="jb-container-modal">
 
-<div class="jb-container">
-  Per group
-  <table>
-    <thead>
-      <tr>
-        <th>Group</th>
-        <th># of items</th>
-        <th>Item name</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for group,N,objs in g_no_access %}
-      <tr>
-        <td>{{ group.name }}</td>
-        {% if N == 0 %}
-        <td colspan="2">has access to all</td>
-        {% else %}
-        <td>{{ N }}</td>
-        <td>{{ objs }}</td>
-        {% endif %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="jb-table-no-lines">
+    Per user
+    <table>
+      <thead>
+	<tr>
+          <th>User</th>
+          <th># of items</th>
+          <th>Item name</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for user,N,objs in u_no_access %}
+	<tr>
+          <td>{{ user.username }}</td>
+          {% if N == 0 %}
+          <td colspan="2">has access to all</td>
+          {% else %}
+          <td>{{ N }}</td>
+          <td>{{ objs }}</td>
+          {% endif %}
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+  
+  <div class="jb-table-no-lines">
+    Per group
+    <table>
+      <thead>
+	<tr>
+          <th>Group</th>
+          <th># of items</th>
+          <th>Item name</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for group,N,objs in g_no_access %}
+	<tr>
+          <td>{{ group.name }}</td>
+          {% if N == 0 %}
+          <td colspan="2">has access to all</td>
+          {% else %}
+          <td>{{ N }}</td>
+          <td>{{ objs }}</td>
+          {% endif %}
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 </div>
 {% endblock content %}

@@ -1,25 +1,29 @@
 {% extends "modal_base.html" %}
 
+
 {% block title %}
 Remove items from collection {{ collection.name }}?
 {% endblock title %}
 
+
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-container-modal">
 
-<div>
-  <ul>
-    {% for item in items_to_remove %}
-    <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
-</div>
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      {% for item in items_to_remove %}
+      <tr>
+	<td>
+          {{ item }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  
+  {{ form.ids }}
 
-{{ form.ids }}
+</div>
 {% endblock content %}
 
 

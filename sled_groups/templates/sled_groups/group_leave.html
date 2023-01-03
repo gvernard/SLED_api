@@ -7,16 +7,10 @@ Leave group
 
 
 {% block content %}
-<div class="jb-modal-field">
-  <div class="{% if form.non_field_errors %}invalid{% endif %}">
-    {% for error in form.non_field_errors %}
-    {{ error }}
-    {% endfor %}
-  </div>
-
-  <div>
+<div class="jb-container-modal">
+  <p>
     Are you sure you want to leave the group named <strong>{{ sledgroup.name }}</strong>?
-  </div>
+  </p>
 </div>
 {% endblock content %}
 

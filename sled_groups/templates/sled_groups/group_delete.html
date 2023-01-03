@@ -1,19 +1,16 @@
 {% extends "modal_base.html" %}
 
-
 {% block title %}
 Delete group
 {% endblock title %}
 
-
 {% block content %}
-<div class="jb-container">
-  <div>
+<div class="jb-container-modal">
+  <p>
     Are you sure you want to delete the group named <strong>{{ group.name }}</strong>?
-  </div>
+  </p>
 </div>
 {% endblock content %}
-
 
 {% block action_button %}
 <button type="submit" class="jb-submit-button-1">Delete</button>

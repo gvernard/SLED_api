@@ -105,6 +105,11 @@ class Imaging(SingleObject,DataBase):
         verbose_name = "Imaging data entry"
         verbose_name_plural = "Imaging data entries"
 
+
+    def __str__(self):
+        return self.lens.name + " - " + self.instrument.name + " " + self.band.name
+
+        
 class Spectrum(SingleObject,DataBase):
     lambda_min = models.DecimalField(blank=True,
                                      null=True,

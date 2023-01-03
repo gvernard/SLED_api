@@ -13,7 +13,17 @@
       <div>
         {% csrf_token %}
         {{ data_formset.management_form }}
-        {{ data_formset.non_form_errors }}
+
+	{% if data_formset.non_form_errors|length > 0 %}
+	<div class="invalid jb-modal-field">
+	  <ul>
+	    {% for error in data_formset.non_form_errors %}
+	    <li>{{ error }}</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+	{% endif %}
+
 	<input type="hidden" name="obj_type" value="{{ model }}">
 	
         <table id="sled-data-table">
@@ -39,7 +49,16 @@
                   </tr>
                 </table>
 
-                {{ form.non_field_errors }}
+		{% if form.non_field_errors|length > 0 %}
+		<div class="invalid jb-modal-field">
+		  <ul>
+		    {% for error in form.non_field_errors %}
+		    <li>{{ error }}</li>
+		    {% endfor %}
+		  </ul>
+		</div>
+		{% endif %}
+
                 {{ form.id }}
 
                 <table class="jb-update-data">

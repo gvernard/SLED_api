@@ -10,15 +10,20 @@ Give access to Users and Groups?
 
 
 {% block content %}
-<div class="jb-modal-field">
+<div class="jb-container-modal">
+  
   <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
   <input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
 
-  <div class="{% if form.non_field_errors %}invalid{% endif %}">
-    {% for error in form.non_field_errors %}
-    {{ error }}
-    {% endfor %}
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
   </div>
+  {% endif %}
 
   <div class="jb-modal-field">
     {{ form.users }}
@@ -27,6 +32,7 @@ Give access to Users and Groups?
   <div class="jb-modal-field">
     {{ form.groups }}
   </div>
+  
 </div>
 {% endblock content %}
 

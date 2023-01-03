@@ -6,20 +6,38 @@ Make {% singular_or_plural form.obj_type.value items|length %} private?
 {% endblock title %}
 
 {% block content %}
-<div class="jb-modal-field">
-  <ul>
-    {% for item in items %}
-    <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
-</div>
+<div class="jb-container-modal">
+  
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
-<div class="jb-modal-field">
-  {{ form.justification }}
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      {% for item in items %}
+      <tr>
+	<td>
+          {{ item }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  
+  <div class="jb-modal-field">
+    {{ form.justification }}
+  </div>
+  
+  {{ form.ids }}
+  {{ form.obj_type }}
+  
 </div>
-
-{{ form.ids }}
-{{ form.obj_type }}
 {% endblock content %}
 
 

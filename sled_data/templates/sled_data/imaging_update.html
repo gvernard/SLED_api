@@ -8,26 +8,33 @@ Update Imaging data
 
 {% block content %}
 <div class="jb-container">
-  Update imaging data taken by <strong>{{ imaging.instrument.name }}</strong> in the <strong>{{ imaging.band.name }}</strong> band for this lens.
-</div>
+  <p>
+    Update imaging data taken by <strong>{{ imaging.instrument.name }}</strong> in the <strong>{{ imaging.band.name }}</strong> band for this lens.
+  </p>
 
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
-
-<div class="jb-modal-field jb-table-no-lines">
-  <table>
-    <tbody>
-      {% for field in form %}
-      <tr>
-	<td>{{ field.name }}</td>
-	<td>{{ field }}</td>
-      </tr>
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
       {% endfor %}
-    </tbody>
-  </table>
+    </ul>
+  </div>
+  {% endif %}
+  
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      <tbody>
+	{% for field in form %}
+	<tr>
+	  <td>{{ field.name }}</td>
+	  <td>{{ field }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 </div>
 {% endblock content %}
 
