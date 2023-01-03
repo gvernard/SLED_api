@@ -15,7 +15,7 @@ class CollectionCreateForm(BSModalModelForm):
             'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
             'description': forms.Textarea(attrs={'placeholder':'Please provide a description for your collection.','rows':3,}),
             'access_level': forms.Select(),
-            'item_type': forms.TextInput(attrs={'readonly':'readonly'})
+            'item_type': forms.HiddenInput()
         }
 
     def clean(self):
@@ -25,7 +25,7 @@ class CollectionCreateForm(BSModalModelForm):
         priv = obj_model.accessible_objects.in_ids(self.request.user,ids).filter(access_level='PRI').count()
         if priv > 0 and col_acc == 'PUB':
             self.add_error('__all__',"Public collection cannot contain private items.")
-            return
+        return
 
 
 class CollectionUpdateForm(BSModalModelForm):
@@ -36,7 +36,12 @@ class CollectionUpdateForm(BSModalModelForm):
             'description': forms.Textarea({'placeholder':'Provide a description for your collection.','rows':3,'cols':30})
         }
 
+    def clean(self):
+        if not self.has_changed():
+            self.add_error('__all__',"No changes detected!")
+        return
 
+        
 class CollectionAskAccessForm(BSModalModelForm):
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the lens owners, justifying why you require access to the private objects.','rows':3,'cols':30}))
 
@@ -137,8 +142,11 @@ class CollectionGiveRevokeAccessForm(BSModalModelForm):
 
 class CollectionAddItemsForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
-    target_collection = forms.ModelChoiceField(label='Collection',queryset=Collection.accessible_objects.none(),widget=forms.RadioSelect())
-    obj_type = 'dum' # necessary to define selg.obj_type
+    target_collection = forms.ModelChoiceField(label='Collection',
+                                               queryset=Collection.accessible_objects.none(),
+                                               widget=forms.RadioSelect(attrs={'class':'jb-select-radio'})
+                                               )
+    obj_type = 'dum' # necessary to define self.obj_type
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)

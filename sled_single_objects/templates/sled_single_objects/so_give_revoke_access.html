@@ -10,40 +10,48 @@ Give access to Users and Groups?
 
 
 {% block content %}
-<input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
-<input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
+<div class="jb-container-modal">
+  
+  <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+  <input type="hidden" id="Urlgroups" data-url="{% url 'api:groups-view' %}" />
 
-<div class="{% if form.non_field_errors %}invalid{% endif %} jb-modal-field">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class=" jb-modal-field">
+    {{ form.users }}
+  </div>
+
+  <div class="jb-modal-field">
+    {{ form.groups }}
+  </div>
+
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      {% for item in items %}
+      <tr>
+	<td>
+          {{ item }}
+	</td>
+	<td>
+          {{ item.getUsersWithAccessNoOwner|join:"," }} - <em>{{ item.getGroupsWithAccessNoOwner|join:"," }}</em>
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  {{ form.ids }}
+  {{ form.obj_type }}
+
 </div>
-
-<div class=" jb-modal-field">
-  {{ form.users }}
-</div>
-
-<div class="jb-modal-field">
-  {{ form.groups }}
-</div>
-
-<div class="jb-modal-field jb-table-no-lines">
-  <table>
-    {% for item in items %}
-    <tr>
-      <td>
-        {{ item }}
-      </td>
-      <td>
-        {{ item.getUsersWithAccessNoOwner|join:"," }} - <em>{{ item.getGroupsWithAccessNoOwner|join:"," }}</em>
-      </td>
-    </tr>
-    {% endfor %}
-  </table>
-</div>
-
-{{ form.ids }}
-{{ form.obj_type }}
 {% endblock content %}
 
 

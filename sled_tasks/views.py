@@ -91,9 +91,6 @@ class TaskDetailRecipientView(BSModalFormView):
             return AskToJoinGroupForm
         else:
             pass
-
-
-
         
     def get_form(self,form_class=None):
         form = super().get_form(form_class)
@@ -125,6 +122,12 @@ class TaskDetailRecipientView(BSModalFormView):
             object_type = getattr(lenses.models,self.task.cargo["object_type"])._meta.verbose_name.title()
         context['object_type'] = object_type
 
+        try:
+            db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=self.request.user.username)
+        except task.DoesNotExist:
+            db_response = None
+        context['db_response'] = db_response
+        
         return context
 
     def form_valid(self,form):

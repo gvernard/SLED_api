@@ -11,19 +11,25 @@ Update query
 
 
 {% block content %}
-<div class="jb-container">
-  <div class="{% if form.non_field_errors %}invalid{% endif %}">
-    {% for error in form.non_field_errors %}
-    {{ error }}
-    {% endfor %}
+<div class="jb-container-modal">
+  
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
   </div>
+  {% endif %}
 
   {% for field in form %}
-  <div>
+  <div class="jb-modal-field">
     {{ field }}
   </div>
+  {% endfor %}
+
 </div>
-{% endfor %}
 {% endblock content %}
 
 

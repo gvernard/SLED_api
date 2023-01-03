@@ -1,18 +1,28 @@
 {% extends "modal_base.html" %}
 
 {% block title %}
-{{ imaging.instrument }} - {{ imaging.band }}
+<a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens }}</a>
+<br>
+{{ imaging.instrument }} {{ imaging.band }} band
 {% endblock title %}
 
 {% block content %}
-<table>
-  <tr><td>Owner:</td><td>{{ imaging.owner }}</td></tr>
-  <tr><td>Access level:</td><td>{{ imaging.access_level }}</td></tr>
-  <tr><td>Date taken:</td><td>{{ imaging.date_taken }}</td></tr>
-  <tr><td>Exp. time:</td><td>{{ imaging.exposure_time }}</td></tr>
-  <tr><td>Pixel size:</td><td>{{ imaging.pixel_size }}</td></tr>
-  <tr><td>Info:</td><td>{{ imaging.info }}</td></tr>
-</table>
+<div class="jb-container jb-table-no-lines" style="padding-bottom:0">
+  
+  <table>
+    <tr><td>Owner:</td><td>{{ imaging.owner }}</td></tr>
+    <tr><td>Access level:</td><td>{{ imaging.access_level }}</td></tr>
+    <tr><td>Date taken:</td><td>{{ imaging.date_taken }}</td></tr>
+    <tr><td>Exp. time:</td><td>{{ imaging.exposure_time }}</td></tr>
+    <tr><td>Pixel size:</td><td>{{ imaging.pixel_size }}</td></tr>
+    <tr><td>Info:</td><td>{{ imaging.info }}</td></tr>
+  </table>
+  
+  {% if imaging.future %}
+  Future
+  {% else %}
+  <img src="{{ imaging.image.url }}" style="width:100%">
+  {% endif %}
 
-<img src="{{ imaging.image.url }}" style="width:100%">
+</div>
 {% endblock content %}

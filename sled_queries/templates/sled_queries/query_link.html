@@ -7,13 +7,17 @@ Share query
 
 
 {% block content %}
-<div class="jb-modal-field">
-  Copy and share the link below:
-</div>
+<div class="jb-container-modal">
 
-<div>
-  <a href="{{ request.scheme }}://{{ request.get_host }}{{ query.get_GET_url }}">
-    {{ request.get_host }}{{ query.get_GET_url }}
-  </a>
+  <p>
+    Copy and share the link below:
+  </p>
+  
+  <div class="jb-modal-field">
+    <a href="{{ request.scheme }}://{{ request.get_host }}{{ query.get_GET_url }}">
+      {{ request.get_host }}{{ query.get_GET_url }}
+    </a>
+  </div>
+
 </div>
 {% endblock content %}

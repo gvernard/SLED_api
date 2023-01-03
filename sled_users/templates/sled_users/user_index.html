@@ -375,13 +375,20 @@
 		 <th>Date taken</th>
 		 <th>Access level</th>
 		 <th>Accessible by</th>
+		 <th></th>
 	       </tr>
 	     </thead>
 	     <tbody>
 	       {% for imaging in imagings %}
 	       <tr>
 		 <td><input name="ids" type="checkbox" value="{{ imaging.id }}"></td>
-		 <td><img class="sled-mugshot-icon" src="{{ imaging.image.url }}"></td>
+		 <td style="text-align:center" valign="'middle">
+		   {% if imaging.future %}
+		   Future
+		   {% else %}
+		   <img class="sled-mugshot-icon" src="{{ imaging.image.url }}">
+		   {% endif %}
+		 </td>
 		 <td><a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a></td>
 		 <td>{{ imaging.instrument.name }}</td>
 		 <td>{{ imaging.band.name }}</td>
@@ -389,6 +396,12 @@
 		 <td>{{ imaging.access_level }}</td>
 		 <td>
 		   {{ imaging.getUsersWithAccessNoOwner|join:"," }} - <em>{{ imaging.getGroupsWithAccessNoOwner|join:"," }}</em>
+		 </td>
+		 <td>
+		   <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-detail' imaging.id %}">
+		     View
+		     <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+		   </button>
 		 </td>
 	       </tr>
 	       {% endfor %}

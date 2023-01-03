@@ -49,9 +49,13 @@ class Band(models.Model):
         
     
 class DataBase(models.Model):
-    lens = models.ForeignKey(Lenses,on_delete=models.CASCADE,related_name="%(class)s")
-    instrument = models.ForeignKey(Instrument,to_field='name',on_delete=models.CASCADE)
-    date_taken = models.DateTimeField(blank=True, null=True)
+    lens = models.ForeignKey(Lenses,
+                             on_delete=models.CASCADE,
+                             related_name="%(class)s")
+    instrument = models.ForeignKey(Instrument,
+                                   to_field='name',
+                                   on_delete=models.CASCADE)
+    date_taken = models.DateTimeField(blank=False)
     exists = models.BooleanField(default=True,
                                  blank=True, 
                                  verbose_name="Exists flag",
@@ -85,8 +89,11 @@ class Imaging(SingleObject,DataBase):
                                      help_text="The pixel size of the image.",
                                      validators=[MinValueValidator(0.0,"Pixel size must be positive."),])
     # Field-of-view probably needs to be stored as a rectangular in ra,dec space (Polygon? GeoDjango type?)
-    band = models.ForeignKey(Band,to_field='name',on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='data/imaging')
+    band = models.ForeignKey(Band,
+                             to_field='name',
+                             on_delete=models.CASCADE)
+    image = models.ImageField(blank=True,
+                              upload_to='data/imaging')
 
     class Meta():
         constraints = [
@@ -98,6 +105,11 @@ class Imaging(SingleObject,DataBase):
         verbose_name = "Imaging data entry"
         verbose_name_plural = "Imaging data entries"
 
+
+    def __str__(self):
+        return self.lens.name + " - " + self.instrument.name + " " + self.band.name
+
+        
 class Spectrum(SingleObject,DataBase):
     lambda_min = models.DecimalField(blank=True,
                                      null=True,

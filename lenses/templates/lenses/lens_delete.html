@@ -1,23 +1,32 @@
 {% extends "modal_base.html" %}
+{% load project_tags %}
 
 {% block title %}
-Delete lenses?
+Delete {% singular_or_plural 'Lenses' lenses|length %}?
 {% endblock title %}
 
 {% block content %}
-<div class="jb-modal-field">
-  <ul>
-    {% for lens in lenses %}
-    <li>{{ lens }}</li>
-    {% endfor %}
-  </ul>
-</div>
+<div class="jb-container-modal">
 
-<div class="jb-modal-field">
-  {{ form.justification }}
-</div>
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      {% for lens in lenses %}
+      <tr>
+	<td>
+          {{ lens }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
 
-{{ form.ids }}
+  <div class="jb-modal-field">
+    {{ form.justification }}
+  </div>
+  
+  {{ form.ids }}
+
+</div>
 {% endblock content %}
 
 

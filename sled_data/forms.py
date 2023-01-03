@@ -1,10 +1,12 @@
+import datetime
 from django import forms
 from django.core.exceptions import ValidationError
-from lenses.models import Imaging,Spectrum,Catalogue
 from django.apps import apps
-from django import forms
-from django.core.exceptions import ValidationError
+from django.utils import timezone
+
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
+
+from lenses.models import Imaging, Spectrum, Catalogue
 
 
 class ImagingCreateForm(BSModalModelForm):
@@ -13,10 +15,43 @@ class ImagingCreateForm(BSModalModelForm):
         fields = "__all__"
         widgets = {
             'owner': forms.HiddenInput(),
-            'lens': forms.HiddenInput()
+            'lens': forms.HiddenInput(),
+            'info': forms.Textarea({'rows':3,'cols':30}),
+            'date_taken': forms.SelectDateWidget(
+                empty_label=("Year", "Month", "Day"),
+                years=reversed(range(1950,timezone.now().year+10))
+            )
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ImagingCreateForm, self).__init__(*args, **kwargs)
+
+        # I need to re-initialize the field here because an invalid form reset the year list to an empty one.
+        self.fields['date_taken'] = forms.DateField(
+            widget=forms.SelectDateWidget(
+                empty_label=("Year", "Month", "Day"),
+                years=reversed(range(1950,timezone.now().year+10))
+            )
+        )
+
+    def clean(self):
+        now = timezone.now().date()
+        date_taken = self.cleaned_data.get('date_taken')
         
+        if self.cleaned_data.get('future'):
+            if now > date_taken:
+                raise ValidationError('Date must be in the future!')
+            if self.cleaned_data.get('image'):
+                raise ValidationError('You must not include any image with future data!')
+        else:
+            if now < date_taken:
+                raise ValidationError('Date must be in the past!')
+            if not self.cleaned_data.get('image'):
+                raise ValidationError('You must include an image!')
+
+        return
+
+    
 class ImagingUpdateForm(BSModalModelForm):
     class Meta:
         model = Imaging
@@ -29,11 +64,50 @@ class ImagingUpdateForm(BSModalModelForm):
 class ImagingUpdateManyForm(forms.ModelForm):
     class Meta:
         model = Imaging
-        exclude = ['instrument','band','lens','owner','access_level']
+        exclude = ['instrument','band','lens','owner','access_level','exists']
         widgets = {
             'info': forms.Textarea({'rows':3,'cols':30}),
+            'date_taken': forms.SelectDateWidget(
+                years=reversed(range(1950,timezone.now().year+10))
+            ),
+            'image': forms.FileInput()
         }
 
+    def __init__(self, *args, **kwargs):
+        super(ImagingUpdateManyForm, self).__init__(*args, **kwargs)
+
+        # I need to re-initialize the field here because an invalid form reset the year list to an empty one.
+        self.fields['date_taken'] = forms.DateField(
+            initial=self.initial['date_taken'].date(),
+            widget=forms.SelectDateWidget(
+                years=reversed(range(1950,timezone.now().year+10))
+            )
+        )
+        print(self.initial['date_taken'].date())
+
+
+        
+        if not self.initial['future']:
+            self.fields.pop('future')
+
+        
+    def clean(self):
+        now = timezone.now().date()
+        date_taken = self.cleaned_data.get('date_taken')
+        
+        if self.cleaned_data.get('future'):
+            if now > date_taken:
+                raise ValidationError('Date must be in the future!')
+            if self.cleaned_data.get('image'):
+                raise ValidationError('You must not include any image with future data!')
+        else:
+            if now < date_taken:
+                raise ValidationError('Date must be in the past!')
+            if not self.cleaned_data.get('image'):
+                raise ValidationError('You must include an image!')
+
+        return
+        
         
 class ImagingUpdateManyFormSet(forms.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):
