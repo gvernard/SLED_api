@@ -1,0 +1,44 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Update Catalogue entry
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container">
+  <p>
+    Update Catalogue Entry taken by <strong>{{ imaging.instrument.name }}</strong> in the <strong>{{ imaging.band.name }}</strong> band for this lens.
+  </p>
+
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      <tbody>
+	{% for field in form %}
+	<tr>
+	  <td>{{ field.name }}</td>
+	  <td>{{ field }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Update</button>
+{% endblock action_button %}

@@ -1,0 +1,31 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+<a href="{{ catalogue.lens.get_absolute_url }}">{{ catalogue.lens }}</a>
+<br>
+{{ catalogue.instrument }} {{ catalogue.band }} band
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container-modal jb-table-no-lines">
+  
+  <table>
+    <tr><td>Owner:</td><td>{{ catalogue.owner }}</td></tr>
+    <tr><td>Access level:</td><td>{{ catalogue.access_level }}</td></tr>
+    <tr><td>Date taken:</td><td>{{ catalogue.date_taken }}</td></tr>
+    <tr><td>RA:</td><td>{{ catalogue.radet }}</td></tr>
+    <tr><td>DEC:</td><td>{{ catalogue.decdet }}</td></tr>
+    <tr><td>mag:</td><td>{{ catalogue.mag }}</td></tr>
+    <tr><td>Dmag:</td><td>{{ catalogue.Dmag }}</td></tr>
+    <tr><td>Distance:</td><td>{{ catalogue.distance }}</td></tr>
+    <tr><td>Info:</td><td>{{ catalogue.info }}</td></tr>
+  </table>
+  
+  {% if catalogue.future %}
+  Future
+  {% else %}
+  &nbsp;
+  {% endif %}
+
+</div>
+{% endblock content %}
