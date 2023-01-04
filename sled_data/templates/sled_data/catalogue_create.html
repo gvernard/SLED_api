@@ -1,7 +1,7 @@
 {% extends "modal_base.html" %}
 
 {% block title %}
-Add Imaging data?
+Add Catalogue data?
 {% endblock title %}
 
 {% block content %}
@@ -77,11 +77,6 @@ Add Imaging data?
 	  <td>{{ form.info.label_tag }}</td>
 	  <td>{{ form.info }}</td>
 	</tr>
-	<tr>
-	  <td>{{ form.image.error }}</td>
-	  <td>{{ form.image.label_tag }}</td>
-	  <td>{{ form.image }}</td>
-	</tr>
       </tbody>
     </table>
   </div>
@@ -95,5 +90,5 @@ Add Imaging data?
 
 
 {% block action_button %}
-<button type="submit" class="jb-submit-button-1">Create Imaging data</button>
+<button type="submit" class="jb-submit-button-1">Create Catalogue data</button>
 {% endblock action_button %}

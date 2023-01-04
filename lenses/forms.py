@@ -37,10 +37,6 @@ class LensMakePublicForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
 
     def clean(self):
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-        
         # All lenses MUST be private
         ids = self.cleaned_data.get('ids').split(',')
         qset = Lenses.objects.filter(id__in=ids).filter(access_level='PUB')

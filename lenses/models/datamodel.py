@@ -145,7 +145,8 @@ class Spectrum(SingleObject,DataBase):
                                      verbose_name="Resolution",
                                      help_text="The resolution of the spectrum.",
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
-    image = models.ImageField(upload_to='data/imaging')
+    image = models.ImageField(blank=True,
+                              upload_to='data/imaging')
 
     class Meta():
         constraints = [
