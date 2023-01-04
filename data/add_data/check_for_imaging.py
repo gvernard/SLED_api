@@ -34,7 +34,8 @@ for kk in range(len(surveys)):
 
     uploads = []
     lenses = Lenses.objects.all()
-    for lens in lenses:
+    for i, lens in enumerate(lenses):
+        #print(i, len(lenses))
         #see whether spectra exist for this lens
         allimaging = Imaging.objects.all().filter(lens=lens).filter(instrument__name=instrument)
         if len(allimaging)==0:

@@ -31,6 +31,18 @@
       </div>
 
       <div class="jb-form">
+        <label for="{{ form.first_name.id_for_label }}">First name*:</label>
+        {{ form.first_name }}
+        {{ form.first_name.errors }}
+      </div>
+
+      <div class="jb-form">
+        <label for="{{ form.last_name.id_for_label }}">Last name*:</label>
+        {{ form.last_name }}
+        {{ form.last_name.errors }}
+      </div>
+
+      <div class="jb-form">
         <label for="{{ form.email.id_for_label }}">Email*:</label>
         {{ form.email }}
         {{ form.email.errors }}
