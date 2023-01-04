@@ -8,12 +8,14 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = Users
-        fields = ["username", "email", "password1", "password2", "affiliation"]
+        fields = ["username", "first_name", "last_name", "email", "password1", "password2", "affiliation"]
 
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
         # self.fields['username'].widgets.attrs.update({'class', 'field-label'})
         self.fields['username'].widget.attrs['class'] = 'field-label'
+        self.fields['first_name'].widget.attrs['class'] = 'field-label'
+        self.fields['last_name'].widget.attrs['class'] = 'field-label'
         self.fields['email'].widget.attrs['class'] = 'field-label'
         self.fields['password1'].widget.attrs['class'] = 'field-label'
         self.fields['password2'].widget.attrs['class'] = 'field-label'
