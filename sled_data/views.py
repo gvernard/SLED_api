@@ -82,11 +82,11 @@ class DataCreateView(BSModalCreateView):
     def get_form_class(self):
         model_name = self.kwargs.get('model')
         if model_name == 'Imaging':
-            return forms.ImagingCreateForm
+            return forms.ImagingCreateFormModal
         elif model_name == 'Spectrum':
-            return forms.SpectrumCreateForm
+            return forms.SpectrumCreateFormModal
         elif model_name == 'Catalogue':
-            return forms.CatalogueCreateForm
+            return forms.CatalogueCreateFormModal
         else:
             # Maybe return some default error template here
             pass
@@ -138,11 +138,11 @@ class DataUpdateView(BSModalUpdateView):
     def get_form_class(self):
         model_name = self.kwargs.get('model')
         if model_name == 'Imaging':
-            return forms.ImagingUpdateForm
+            return forms.ImagingUpdateFormModal
         elif model_name == 'Spectrum':
-            return forms.SpectrumUpdateForm
+            return forms.SpectrumUpdateFormModal
         elif model_name == 'Catalogue':
-            return forms.CatalogueUpdateForm
+            return forms.CatalogueUpdateFormModal
         else:
             # Maybe return some default error template here
             pass
@@ -313,11 +313,11 @@ class DataUpdateManyView(TemplateView):
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
 
         if obj_type == "Imaging":
-            DataFormSet = inlineformset_factory(Users,Imaging,formset=forms.ImagingUpdateManyFormSet,form=forms.ImagingUpdateManyForm,extra=0)
+            DataFormSet = inlineformset_factory(Users,Imaging,formset=forms.DataUpdateManyFormSet,form=forms.ImagingUpdateForm,extra=0)
         elif obj_type == "Spectrum":
-            pass
+            DataFormSet = inlineformset_factory(Users,Spectrum,formset=forms.DataUpdateManyFormSet,form=forms.SpectrumUpdateForm,extra=0)
         elif obj_type == "Catalogue":
-            pass
+            DataFormSet = inlineformset_factory(Users,Catalogue,formset=forms.DataUpdateManyFormSet,form=forms.CatalogueUpdateForm,extra=0)
         else:
             message = 'Unknown data type given!'
             return TemplateResponse(request,'simple_message.html',context={'message':message})

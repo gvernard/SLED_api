@@ -6,8 +6,105 @@
 
 <div class="jb-container">
 
+  {{ view.kwargs.admin }}
+
+  <div class="tasks_recipient">
+    <h1 class="jb-heading-1">Tasks Addressed to
+      {% if view.kwargs.admin %}
+      the Admins
+      {% else %}
+      Me
+      {% endif %}
+    </h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Task type</th>
+          <th>Created at</th>
+          <th>From</th>
+	  {% if view.kwargs.admin %}
+	  <th>
+	    Assigned to
+	  </th>
+	  {% endif %}
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in recipient %}
+        <tr>
+          <td>
+	    {% if task.status == "P" %}
+	    <span style="font-weight:bold;color:red">
+	      {{ task.status }}
+	    </span>
+	    {% else %}
+	    <span style="font-weight:bold;color:green">
+	      {{ task.status }}
+	    </span>
+	    {% endif %}
+	  </td>
+          <td>{{ task.task_type }}</td>
+          <td>{{ task.created_at }}</td>
+          <td>{{ task.owner }}</td>
+	  {% if view.kwargs.admin %}
+	  <td>
+	    {{ task.cargo.user_admin }}
+	  </td>
+	  {% endif %}
+          <td>
+	    {% if view.kwargs.admin %}
+
+	    {% if task.status == 'C' %}
+	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
+	      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+	      View
+	    </button>
+	    {% else %}
+	    {% if task.cargo.user_admin == request.user.username %}
+	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}" alt="people">
+	      Respond
+	    </button>
+	    {% endif %}
+	    {% endif %}
+    
+	    {% else %}
+
+	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
+	      {% if task.status == 'C' %}
+	      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+	      View
+	      {% else %}
+	      <img src="{% static 'icons/pencil.svg' %}" alt="people">
+	      Respond
+	      {% endif %}
+	    </button>
+
+	    {% endif %}
+	  </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5">No tasks</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+
+
+  
   <div class="tasks_owned">
-    <h1 class="jb-heading-1">Tasks Initiated by Me</h1>
+    <h1 class="jb-heading-1">Tasks Initiated by
+      {% if view.kwargs.admin %}
+      the Admins
+      {% else %}
+      Me
+      {% endif %}
+    </h1>
     <table>
       <thead>
         <tr>
@@ -36,7 +133,7 @@
           <td>{{ task.created_at }}</td>
           <td>{{ task.recipients.all|join:", " }}</td>
 	  <td>
-	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
+	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-owner' task.id %}">
 	      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
 	      View
 	    </button>
@@ -52,56 +149,7 @@
   </div>
 
 
-  <div class="tasks_recipient">
-    <h1 class="jb-heading-1">Tasks Addressed to Me</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Task type</th>
-          <th>Created at</th>
-          <th>From</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for task in recipient %}
-        <tr>
-          <td>
-	    {% if task.status == "P" %}
-	    <span style="font-weight:bold;color:red">
-	      {{ task.status }}
-	    </span>
-	    {% else %}
-	    <span style="font-weight:bold;color:green">
-	      {{ task.status }}
-	    </span>
-	    {% endif %}
-	  </td>
-          <td>{{ task.task_type }}</td>
-          <td>{{ task.created_at }}</td>
-          <td>{{ task.owner }}</td>
-          <td>
-	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
-	      {% if task.status == 'C' %}
-	      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
-	      View
-	      {% else %}
-	      <img src="{% static 'icons/pencil.svg' %}" alt="people">
-	      Respond
-	      {% endif %}
-	    </button>
-	  </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="5">No tasks</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
+  
 </div>
 {% endblock content %}
 

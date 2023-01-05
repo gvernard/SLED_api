@@ -89,6 +89,7 @@ class LensDeleteView(ModalIdsBaseMixin):
                      'comment': justification}
             for obj in pub:
                 cargo['object_ids'].append(obj.id)
+            cargo['user_admin_name']= Users.selectRandomAdmin()[0].username
             mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
             message = "The admins have been notified of your request to delete <b>%d</b> public lenses." % (len(pub))
             messages.add_message(self.request,messages.WARNING,message)

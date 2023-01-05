@@ -65,6 +65,8 @@ INSTALLED_APPS = [
     'sled_instrument',
     'sled_band',
     'sled_papers',
+    'sled_data',
+    'sled_single_objects',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
@@ -123,7 +125,9 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 #cannot write which _ database before this line since the reset_db.sh fetches the first instance
-which_database="local-sqlite"
+# Only the first 'which _ database' option, even if commented, is used by reset_db.sh
+which_database="remote-mysql"
+#which_database="local-sqlite"
 
 if which_database == "local-sqlite":
     DATABASES = {

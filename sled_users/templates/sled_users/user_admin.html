@@ -1,0 +1,163 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+
+{% block content %}
+{% include "modal_container.html" %}
+<div class="jb-container">
+
+
+  <div class="jb-table-no-lines">
+    <h1 class="jb-heading-1">Admin: {{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
+    <p style="margin-bottom:2px">
+      Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
+    </p>
+    <div>
+      {% if N_note_unread > 0 %}
+      <span style="color:red;">
+	You have <b>{{ N_note_unread }}</b> new notifications
+      </span>
+      {% endif %}
+      <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
+    </div>
+    <div>
+      Show pending admin tasks
+    </div>
+  </div>
+
+
+  
+  
+  <div style="margin-top:60px;">
+    
+    <h1 class="jb-heading-2">Admin panel</h1>
+    
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="admin-0">
+      <h1 class="jb-heading-2">
+	<label for="admin-0">
+	  Pending tasks ({{ N_tasks }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_tasks > 0 %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Type</th>
+	      <th>Created at</th>
+	      <th>From</th>
+	      <th>Receivers</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for recipients,task in pending_conf %}
+            <tr>
+	      <td>{{ task.task_type }}</td>
+	      <td>{{ task.created_at }}</td>
+	      <td>{{ task.owner }}</td>
+	      <td>{{ recipients }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No pending confirmation tasks</p>
+	{% endif %}
+	<a href="{% url 'sled_tasks:tasks-list-admin' %}">See all tasks</a>
+	<br>
+	<br>
+      </div>
+    </div>
+    
+    
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="admin-1">
+      <h1 class="jb-heading-2">
+	<label for="admin-1">
+	  Add band
+	</label>
+      </h1>
+      <div class="p">
+	Dyo
+      </div>
+    </div>
+
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="admin-2">
+      <h1 class="jb-heading-2">
+	<label for="admin-2">
+	  Add instrument
+	</label>
+      </h1>
+      <div class="p">
+	Dyo
+      </div>
+    </div>
+
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="admin-3">
+      <h1 class="jb-heading-2">
+	<label for="admin-3">
+	  Admin queries
+	</label>
+      </h1>
+      <div class="p">
+	Dyo
+      </div>
+    </div>
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="admin-4">
+      <h1 class="jb-heading-2">
+	<label for="admin-4">
+	  Admin collections
+	</label>
+      </h1>
+      <div class="p">
+	Dyo
+      </div>
+    </div>
+
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="admin-5">
+      <h1 class="jb-heading-2">
+	<label for="admin-5">
+	  Message banner
+	</label>
+      </h1>
+      <div class="p">
+	Dyo
+      </div>
+    </div>
+    
+  </div>
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+<link href="{% static 'sled_users/css/sled_users.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script>
+  $(document).ready(function() {
+      $('.p').hide();
+      
+      // Accordion
+      $('input[type=checkbox]').click(function(){
+	  $(this).siblings('div').animate({
+	      height: "toggle"
+	  }, 500, function() {
+	      // Animation complete.
+	  });
+      });
+  });
+</script>
+{% endblock extrascripts %}

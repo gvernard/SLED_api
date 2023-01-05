@@ -7,689 +7,689 @@
 
 
 <div class="jb-container">
-  
-  <table class="header-table">
-    <tr>
-      <td>
-	<h1 class="jb-heading-1">{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
-	<p style="margin-bottom:2px">
-	  Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
-	</p>
-	<div>
-	  {% if N_note_unread > 0 %}
-	  <span style="color:red;">
-	    You have <b>{{ N_note_unread }}</b> new notifications
-	  </span>
-	  {% endif %}
-	  <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
-	</div>
-	<div>
-	  Show pending tasks
-	</div>
-      </td>
-      <td valign="bottom" align="right">
-	<img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2" />
-      </td>
-    </tr>
-  </table>
-  
-  
 
-  
-
-
- <div style="margin-top:60px;">
-
-
-
-
-  <div class="c">
-    <input class="accordion-checkbox" type="checkbox" id="faq-0">
-    <h1 class="jb-heading-2">
-      <label for="faq-0">
-	User Information
-      </label>
-    </h1>
-    <div class="p">
-      <br>
-      <table>
-        <thead>
-          <tr>
-            <th>First name</th>
-            <th>Last name</th>
-            <th>Affiliation</th>
-            <th>Email</th>
-            <th>Homepage</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ user.first_name }}</td>
-            <td>{{ user.last_name }}</td>
-            <td>{{ user.affiliation }}</td>
-            <td>{{ user.email }}</td>
-            <td><a href="{{ user.homepage }}">{{ user.homepage }}</a></td>
-          </tr>
-        </tbody>
-      </table>
-      <table>
-        <thead>
-          <tr>
-            <th>Info</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{{ user.info }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_users:user-update' user.pk %}">
-	<img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-	Update
-      </button>
-      <br>
-      <br>
-    </div>
+  <div class="jb-table-no-lines">
+    <table>
+      <tr>
+	<td>
+	  <h1 class="jb-heading-1">{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
+	  <p style="margin-bottom:2px">
+	    Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
+	  </p>
+	  <div>
+	    {% if N_note_unread > 0 %}
+	    <span style="color:red;">
+	      You have <b>{{ N_note_unread }}</b> new notifications
+	    </span>
+	    {% endif %}
+	    <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
+	  </div>
+	  <div>
+	    Show pending tasks
+	  </div>
+	</td>
+	<td valign="bottom" align="right">
+	  <img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2" />
+	</td>
+      </tr>
+    </table>
   </div>
   
-
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-4">
-     <h1 class="jb-heading-2">
-       <label for="faq-4">
-	 Pending Tasks ({{ N_tasks }})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if N_tasks > 0 %}
-       <table>
-         <thead>
-           <tr>
-             <th>Type</th>
-             <th>Created at</th>
-             <th>From</th>
-             <th>Receivers</th>
-           </tr>
-         </thead>
-         <tbody>
-           {% for recipients,task in pending_conf %}
-           <tr>
-             <td>{{ task.task_type }}</td>
-             <td>{{ task.created_at }}</td>
-             <td>{{ task.owner }}</td>
-             <td>{{ recipients }}</td>
-           </tr>
-           {% endfor %}
-         </tbody>
-       </table>
-       {% else %}
-       <p class="jb-paragraph-2">No pending confirmation tasks</p>
-       {% endif %}
-       <a href="{% url 'sled_tasks:tasks-list' %}">See all tasks</a>
-       <br>
-       <br>
-     </div>
-   </div>
-
-
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-3">
-     <h1 class="jb-heading-2">
-       <label for="faq-3">
-	 My Queries ({{N_queries}})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if N_queries %}
-       <table>
-         <thead>
-           <tr>
-             <th>Name</th>
-             <th>Description</th>
-           </tr>
-         </thead>
-         <tbody>
-           {% for q in queries %}
-           <tr>
-             <td><a href="{{ q.get_absolute_url }}">{{q.name}}</td>
-             <td>{{q.description}}</td>
-           </tr>
-           {% endfor %}
-         </tbody>
-       </table>
-       {% else %}
-       <p class="jb-paragraph-2">No queries to display</p>
-       {% endif %}
-       <a href="{% url 'sled_queries:queries-list' %}">See all queries</a>
-       <br>
-       <br>
-     </div>
-   </div>
-
-
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-5">
-     <h1 class="jb-heading-2">
-       <label for="faq-5">
-	 My Collections ({{ collections|length }})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if collections %}
-       <table>
-         <thead>
-           <tr>
-             <th>Name</th>
-             <th>Type</th>
-             <th>Description</th>
-             <th>N. of items</th>
-           </tr>
-         </thead>
-         <tbody>
-           {% for collection in collections %}
-           <tr>
-             <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
-             <td>{{ collection.item_type }}</td>
-             <td>{{ collection.description }}</td>
-             <td>{{ collection.myitems.all|length }}</td>
-           </tr>
-           {% endfor %}
-         </tbody>
-       </table>
-       {% else %}
-       <p class="jb-paragraph-2">No collections to display</p>
-       {% endif %}
-       <a href="{% url 'sled_collections:collections-list' %}">See all collections</a>
-       <br>
-       <br>
-     </div>
-   </div>
-
   
-   
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-2">
-     <h1 class="jb-heading-2">
-       <label for="faq-2">
-	 My Groups ({{N_groups}})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if N_groups %}
-       <table>
-         <thead>
-           <tr>
-             <th>Name</th>
-             <th>Description</th>
-           </tr>
-         </thead>
-         <tbody>
-           {% for group in groups %}
-           <tr>
-             <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
-             <td>{{group.description}}</td>
-           </tr>
-           {% endfor %}
-         </tbody>
-       </table>
-       {% else %}
-       <p class="jb-paragraph-2">No groups to display</p>
-       {% endif %}
-       <a href="{% url 'sled_groups:group-list' %}">See all groups</a>
-       <br>
-       <br>
-     </div>
-   </div>
+  
+  
+  <div style="margin-top:60px;">
+    {% if user.is_staff %}
+    <h1 class="jb-heading-2">User panel</h1>
+    {% endif %}
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="faq-0">
+      <h1 class="jb-heading-2">
+	<label for="faq-0">
+	  User Information
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	<table>
+          <thead>
+            <tr>
+	      <th>First name</th>
+	      <th>Last name</th>
+	      <th>Affiliation</th>
+	      <th>Email</th>
+	      <th>Homepage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+	      <td>{{ user.first_name }}</td>
+	      <td>{{ user.last_name }}</td>
+	      <td>{{ user.affiliation }}</td>
+	      <td>{{ user.email }}</td>
+	      <td><a href="{{ user.homepage }}">{{ user.homepage }}</a></td>
+            </tr>
+          </tbody>
+	</table>
+	<table>
+          <thead>
+            <tr>
+	      <th>Info</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+	      <td>{{ user.info }}</td>
+            </tr>
+          </tbody>
+	</table>
+	<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_users:user-update' user.pk %}">
+	  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	  Update
+	</button>
+	<br>
+	<br>
+      </div>
+    </div>
+    
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="faq-4">
+      <h1 class="jb-heading-2">
+	<label for="faq-4">
+	  Pending Tasks ({{ N_tasks }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_tasks > 0 %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Type</th>
+	      <th>Created at</th>
+	      <th>From</th>
+	      <th>Receivers</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for recipients,task in pending_conf %}
+            <tr>
+	      <td>{{ task.task_type }}</td>
+	      <td>{{ task.created_at }}</td>
+	      <td>{{ task.owner }}</td>
+	      <td>{{ recipients }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No pending confirmation tasks</p>
+	{% endif %}
+	<a href="{% url 'sled_tasks:tasks-list' %}">See all tasks</a>
+	<br>
+	<br>
+      </div>
+    </div>
+
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="faq-3">
+      <h1 class="jb-heading-2">
+	<label for="faq-3">
+	  My Queries ({{N_queries}})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_queries %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Name</th>
+	      <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in queries %}
+            <tr>
+	      <td><a href="{{ q.get_absolute_url }}">{{q.name}}</td>
+	      <td>{{q.description}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No queries to display</p>
+	{% endif %}
+	<a href="{% url 'sled_queries:queries-list' %}">See all queries</a>
+	<br>
+	<br>
+      </div>
+    </div>
+
+
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="faq-5">
+      <h1 class="jb-heading-2">
+	<label for="faq-5">
+	  My Collections ({{ collections|length }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if collections %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Name</th>
+	      <th>Type</th>
+	      <th>Description</th>
+	      <th>N. of items</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for collection in collections %}
+            <tr>
+	      <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+	      <td>{{ collection.item_type }}</td>
+	      <td>{{ collection.description }}</td>
+	      <td>{{ collection.myitems.all|length }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No collections to display</p>
+	{% endif %}
+	<a href="{% url 'sled_collections:collections-list' %}">See all collections</a>
+	<br>
+	<br>
+      </div>
+    </div>
+
+    
+    
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="faq-2">
+      <h1 class="jb-heading-2">
+	<label for="faq-2">
+	  My Groups ({{N_groups}})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_groups %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Name</th>
+	      <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for group in groups %}
+            <tr>
+	      <td><a href="{{ group.get_absolute_url }}">{{group.name}}</td>
+	      <td>{{group.description}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No groups to display</p>
+	{% endif %}
+	<a href="{% url 'sled_groups:group-list' %}">See all groups</a>
+	<br>
+	<br>
+      </div>
+    </div>
 
 
 
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="faq-1">
-     <h1 class="jb-heading-2">
-       <label for="faq-1">
-	 My Papers ({{N_papers}})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if N_papers %}
-       <table>
-         <tbody>
-           {% for paper in papers %}
-           <tr>
-             <td><a href="{% url 'sled_papers:paper-detail' pk=paper.pk %}">{{paper.cite_as}}</td>
-             <td>{{paper.title}}</td>
-           </tr>
-           {% endfor %}
-         </tbody>
-       </table>
-       {% else %}
-       <p class="jb-paragraph-2">No papers to display</p>
-       {% endif %}
-       <a href="{% url 'sled_papers:paper-list' %}">See all papers</a>
-       <br>
-       <br>
-     </div>
-   </div>
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="faq-1">
+      <h1 class="jb-heading-2">
+	<label for="faq-1">
+	  My Papers ({{N_papers}})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_papers %}
+	<table>
+          <tbody>
+            {% for paper in papers %}
+            <tr>
+	      <td><a href="{% url 'sled_papers:paper-detail' pk=paper.pk %}">{{paper.cite_as}}</td>
+	      <td>{{paper.title}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No papers to display</p>
+	{% endif %}
+	<a href="{% url 'sled_papers:paper-list' %}">See all papers</a>
+	<br>
+	<br>
+      </div>
+    </div>
 
 
 
-   
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="lenses">
-     <h1 class="jb-heading-2">
-       <label for="lenses">
-	 My Lenses ({{ N_lenses_total }})
-       </label>
-     </h1>
-     <div class="p">
+    
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="lenses">
+      <h1 class="jb-heading-2">
+	<label for="lenses">
+	  My Lenses ({{ N_lenses_total }})
+	</label>
+      </h1>
+      <div class="p">
 
-       <form id="lenses-form" class="ids-form" method="POST">
-         {% csrf_token %}
+	<form id="lenses-form" class="ids-form" method="POST">
+          {% csrf_token %}
 
-	 <div>
-	   {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
-	   {% include "lenses/lens_list_executive.html" with lenses=lenses %}
-	   {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
-	 </div>
+	  <div>
+	    {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
+	    {% include "lenses/lens_list_executive.html" with lenses=lenses %}
+	    {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
+	  </div>
 
-	 <div>
-	   <button type="submit" class="jb-submit-button-1" form="lenses-form" formaction="{% url 'lenses:lens-update' %}">
-	     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-	     Update
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-	     Revoke access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-	     Give access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
-	     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-	     Make public
-	   </button>
-	   
-	   <!-- The buttons below should be hidden as extra actions -->
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	     <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
-	     Make private
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
-	     Cede ownership
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
-	     <img src="{% static 'icons/trash.svg' %}" alt="trash">
-	     Delete
-	   </button>
-	 </div>
-       </form>
-       <br>
-       <br>
-     </div>
-   </div>
-
-
-
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="imagings">
-     <h1 class="jb-heading-2">
-       <label for="imagings">
-	 My Imaging data ({{ N_imagings_total }})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if user.is_superuser %}
-       <p>
-	 The adming owns all the automatically fetched data, which are too many to display here.
-	 Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
-       </p>
-       {% else %}
-       
-       {% if imagings|length == 0 %}
-       No Imaging data owned
-       {% else %}
-       <form id="imaging-form" class="ids-form" method="POST">
-         {% csrf_token %}
-	 
-	 <div>
-	   {% include "pagination_top.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
-
-	   <input name="obj_type" type="hidden" value="Imaging" />
-	   <table>
-	     <thead>
-	       <tr>
-		 <th></th>
-		 <th></th>
-		 <th>Lens</th>
-		 <th>Instrument</th>
-		 <th>Band</th>
-		 <th>Date taken</th>
-		 <th>Access level</th>
-		 <th>Accessible by</th>
-		 <th></th>
-	       </tr>
-	     </thead>
-	     <tbody>
-	       {% for imaging in imagings %}
-	       <tr>
-		 <td><input name="ids" type="checkbox" value="{{ imaging.id }}"></td>
-		 <td style="text-align:center" valign="'middle">
-		   {% if imaging.future %}
-		   Future
-		   {% else %}
-		   <img class="sled-mugshot-icon" src="{{ imaging.image.url }}">
-		   {% endif %}
-		 </td>
-		 <td><a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a></td>
-		 <td>{{ imaging.instrument.name }}</td>
-		 <td>{{ imaging.band.name }}</td>
-		 <td>{{ imaging.date_taken }}</td>
-		 <td>{{ imaging.access_level }}</td>
-		 <td>
-		   {{ imaging.getUsersWithAccessNoOwner|join:"," }} - <em>{{ imaging.getGroupsWithAccessNoOwner|join:"," }}</em>
-		 </td>
-		 <td>
-		   <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-detail' imaging.id %}">
-		     View
-		     <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
-		   </button>
-		 </td>
-	       </tr>
-	       {% endfor %}
-	   </table>
-	   <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
-	 </div>	 
-	 {% include "pagination_bottom.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
-
-	 <div>
-	   <button type="submit" class="jb-submit-button-1" form="imaging-form" formaction="{% url 'sled_data:data-update-many' %}">
-	     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-	     Update
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-	     Revoke access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-	     Give access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
-	     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-	     Make public
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	     <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
-	     Make private
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
-	     Cede ownership
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
-	     <img src="{% static 'icons/trash.svg' %}" alt="trash">
-	     Delete
-	   </button>
-	 </div>
-
-       </form>
-       {% endif %}
-       <br>
-       <br>
-       
-       {% endif %}
-       <br>
-     </div>
-   </div>
+	  <div>
+	    <button type="submit" class="jb-submit-button-1" form="lenses-form" formaction="{% url 'lenses:lens-update' %}">
+	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      Update
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      Revoke access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      Give access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
+	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      Make public
+	    </button>
+	    
+	    <!-- The buttons below should be hidden as extra actions -->
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      Make private
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      Cede ownership
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
+	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      Delete
+	    </button>
+	  </div>
+	</form>
+	<br>
+	<br>
+      </div>
+    </div>
 
 
 
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="imagings">
+      <h1 class="jb-heading-2">
+	<label for="imagings">
+	  My Imaging data ({{ N_imagings_total }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if user.is_superuser %}
+	<p>
+	  The adming owns all the automatically fetched data, which are too many to display here.
+	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
+	</p>
+	{% else %}
+	
+	{% if imagings|length == 0 %}
+	No Imaging data owned
+	{% else %}
+	<form id="imaging-form" class="ids-form" method="POST">
+          {% csrf_token %}
+	  
+	  <div>
+	    {% include "pagination_top.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
 
+	    <input name="obj_type" type="hidden" value="Imaging" />
+	    <table>
+	      <thead>
+		<tr>
+		  <th></th>
+		  <th></th>
+		  <th>Lens</th>
+		  <th>Instrument</th>
+		  <th>Band</th>
+		  <th>Date taken</th>
+		  <th>Access level</th>
+		  <th>Accessible by</th>
+		  <th></th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for imaging in imagings %}
+		<tr>
+		  <td><input name="ids" type="checkbox" value="{{ imaging.id }}"></td>
+		  <td style="text-align:center" valign="'middle">
+		    {% if imaging.future %}
+		    Future
+		    {% else %}
+		    <img class="sled-mugshot-icon" src="{{ imaging.image.url }}">
+		    {% endif %}
+		  </td>
+		  <td><a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a></td>
+		  <td>{{ imaging.instrument.name }}</td>
+		  <td>{{ imaging.band.name }}</td>
+		  <td>{{ imaging.date_taken }}</td>
+		  <td>{{ imaging.access_level }}</td>
+		  <td>
+		    {{ imaging.getUsersWithAccessNoOwner|join:"," }} - <em>{{ imaging.getGroupsWithAccessNoOwner|join:"," }}</em>
+		  </td>
+		  <td>
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-detail' imaging.id %}">
+		      View
+		      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+		    </button>
+		  </td>
+		</tr>
+		{% endfor %}
+	    </table>
+	    <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+	  </div>	 
+	  {% include "pagination_bottom.html" with qset=imagings request=request qset_range=imagings_range qset_total=N_imagings_total target="imagings" %}
 
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="spectra">
-     <h1 class="jb-heading-2">
-       <label for="spectra">
-	 My Spectrum data ({{ N_spectra_total }})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if user.is_superuser %}
-       <p>
-	 The adming owns all the automatically fetched data, which are too many to display here.
-	 Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
-       </p>
-       {% else %}
-       
-       {% if spectra|length == 0 %}
-       No Spectrum data owned
-       {% else %}
-       <form id="spectrum-form" class="ids-form" method="POST">
-         {% csrf_token %}
-	 
-	 <div>
-	   {% include "pagination_top.html" with qset=spectra request=request qset_range=spectra_range qset_total=N_spectra_total target="spectra" %}
+	  <div>
+	    <button type="submit" class="jb-submit-button-1" form="imaging-form" formaction="{% url 'sled_data:data-update-many' %}">
+	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      Update
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      Revoke access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      Give access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
+	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      Make public
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      Make private
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      Cede ownership
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
+	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      Delete
+	    </button>
+	  </div>
 
-	   <input name="obj_type" type="hidden" value="Spectrum" />
-	   <table>
-	     <thead>
-	       <tr>
-		 <th></th>
-		 <th></th>
-		 <th>Lens</th>
-		 <th>Instrument</th>
-		 <th>Date taken</th>
-		 <th>Access level</th>
-		 <th>Accessible by</th>
-		 <th></th>
-	       </tr>
-	     </thead>
-	     <tbody>
-	       {% for spectrum in spectra %}
-	       <tr>
-		 <td><input name="ids" type="checkbox" value="{{ spectrum.id }}"></td>
-		 <td style="text-align:center" valign="'middle">
-		   {% if spectrum.future %}
-		   Future
-		   {% else %}
-		   <img class="sled-mugshot-icon" src="{{ spectrum.image.url }}">
-		   {% endif %}
-		 </td>
-		 <td><a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens.name }}</a></td>
-		 <td>{{ spectrum.instrument.name }}</td>
-		 <td>{{ spectrum.date_taken }}</td>
-		 <td>{{ spectrum.access_level }}</td>
-		 <td>
-		   {{ spectrum.getUsersWithAccessNoOwner|join:"," }} - <em>{{ spectrum.getGroupsWithAccessNoOwner|join:"," }}</em>
-		 </td>
-		 <td>
-		   <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spectrum.id %}">
-		     View
-		     <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
-		   </button>
-		 </td>
-	       </tr>
-	       {% endfor %}
-	   </table>
-	   <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
-	 </div>	 
-	 {% include "pagination_bottom.html" with qset=spectra request=request qset_range=spectra_range qset_total=N_spectra_total target="spectra" %}
-
-	 <div>
-	   <button type="submit" class="jb-submit-button-1" form="spectrum-form" formaction="{% url 'sled_data:data-update-many' %}">
-	     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-	     Update
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-	     Revoke access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-	     Give access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
-	     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-	     Make public
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	     <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
-	     Make private
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
-	     Cede ownership
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
-	     <img src="{% static 'icons/trash.svg' %}" alt="trash">
-	     Delete
-	   </button>
-	 </div>
-
-       </form>
-       {% endif %}
-       <br>
-       <br>
-       
-       {% endif %}
-       <br>
-     </div>
-   </div>
+	</form>
+	{% endif %}
+	<br>
+	<br>
+	
+	{% endif %}
+	<br>
+      </div>
+    </div>
 
 
 
 
 
-   <div class="c">
-     <input class="accordion-checkbox" type="checkbox" id="catalogues">
-     <h1 class="jb-heading-2">
-       <label for="catalogues">
-	 My Catalogue data ({{ N_catalogues_total }})
-       </label>
-     </h1>
-     <div class="p">
-       <br>
-       {% if user.is_superuser %}
-       <p>
-	 The adming owns all the automatically fetched data, which are too many to display here.
-	 Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
-       </p>
-       {% else %}
-       
-       {% if catalogues|length == 0 %}
-       No Catalogue data owned
-       {% else %}
-       <form id="catalogue-form" class="ids-form" method="POST">
-         {% csrf_token %}
-	 
-	 <div>
-	   {% include "pagination_top.html" with qset=catalogues request=request qset_range=catalogues_range qset_total=N_catalogues_total target="catalogues" %}
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="spectra">
+      <h1 class="jb-heading-2">
+	<label for="spectra">
+	  My Spectrum data ({{ N_spectra_total }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if user.is_superuser %}
+	<p>
+	  The adming owns all the automatically fetched data, which are too many to display here.
+	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
+	</p>
+	{% else %}
+	
+	{% if spectra|length == 0 %}
+	No Spectrum data owned
+	{% else %}
+	<form id="spectrum-form" class="ids-form" method="POST">
+          {% csrf_token %}
+	  
+	  <div>
+	    {% include "pagination_top.html" with qset=spectra request=request qset_range=spectra_range qset_total=N_spectra_total target="spectra" %}
 
-	   <input name="obj_type" type="hidden" value="Catalogue" />
-	   <table>
-	     <thead>
-	       <tr>
-		 <th></th>
-		 <th></th>
-		 <th>Lens</th>
-		 <th>Instrument</th>
-		 <th>Band</th>
-		 <th>Date taken</th>
-		 <th>Access level</th>
-		 <th>Accessible by</th>
-		 <th></th>
-	       </tr>
-	     </thead>
-	     <tbody>
-	       {% for catalogue in catalogues %}
-	       <tr>
-		 <td><input name="ids" type="checkbox" value="{{ spectrum.id }}"></td>
-		 <td style="text-align:center" valign="'middle">
-		   {% if catalogue.future %}
-		   Future
-		   {% else %}
-		   &nbsp;
-		   {% endif %}
-		 </td>
-		 <td><a href="{{ catalogue.lens.get_absolute_url }}">{{ catalogue.lens.name }}</a></td>
-		 <td>{{ catalogue.instrument.name }}</td>
-		 <td>{{ catalogue.band.name }}</td>
-		 <td>{{ catalogue.date_taken }}</td>
-		 <td>{{ catalogue.access_level }}</td>
-		 <td>
-		   {{ catalogue.getUsersWithAccessNoOwner|join:"," }} - <em>{{ catalogue.getGroupsWithAccessNoOwner|join:"," }}</em>
-		 </td>
-		 <td>
-		   <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-detail' catalogue.id %}">
-		     View
-		     <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
-		   </button>
-		 </td>
-	       </tr>
-	       {% endfor %}
-	   </table>
-	   <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
-	 </div>	 
-	 {% include "pagination_bottom.html" with qset=catalogues request=request qset_range=catalogues_range qset_total=N_catalogues_total target="catalogues" %}
+	    <input name="obj_type" type="hidden" value="Spectrum" />
+	    <table>
+	      <thead>
+		<tr>
+		  <th></th>
+		  <th></th>
+		  <th>Lens</th>
+		  <th>Instrument</th>
+		  <th>Date taken</th>
+		  <th>Access level</th>
+		  <th>Accessible by</th>
+		  <th></th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for spectrum in spectra %}
+		<tr>
+		  <td><input name="ids" type="checkbox" value="{{ spectrum.id }}"></td>
+		  <td style="text-align:center" valign="'middle">
+		    {% if spectrum.future %}
+		    Future
+		    {% else %}
+		    <img class="sled-mugshot-icon" src="{{ spectrum.image.url }}">
+		    {% endif %}
+		  </td>
+		  <td><a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens.name }}</a></td>
+		  <td>{{ spectrum.instrument.name }}</td>
+		  <td>{{ spectrum.date_taken }}</td>
+		  <td>{{ spectrum.access_level }}</td>
+		  <td>
+		    {{ spectrum.getUsersWithAccessNoOwner|join:"," }} - <em>{{ spectrum.getGroupsWithAccessNoOwner|join:"," }}</em>
+		  </td>
+		  <td>
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spectrum.id %}">
+		      View
+		      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+		    </button>
+		  </td>
+		</tr>
+		{% endfor %}
+	    </table>
+	    <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+	  </div>	 
+	  {% include "pagination_bottom.html" with qset=spectra request=request qset_range=spectra_range qset_total=N_spectra_total target="spectra" %}
 
-	 <div>
-	   <button type="submit" class="jb-submit-button-1" form="catalogue-form" formaction="{% url 'sled_data:data-update-many' %}">
-	     <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-	     Update
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	     <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
-	     Revoke access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	     <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
-	     Give access
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
-	     <img src="{% static 'icons/people-fill.svg' %}" alt="people">
-	     Make public
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	     <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
-	     Make private
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	     <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
-	     Cede ownership
-	   </button>
-	   <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
-	     <img src="{% static 'icons/trash.svg' %}" alt="trash">
-	     Delete
-	   </button>
-	 </div>
+	  <div>
+	    <button type="submit" class="jb-submit-button-1" form="spectrum-form" formaction="{% url 'sled_data:data-update-many' %}">
+	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      Update
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      Revoke access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      Give access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
+	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      Make public
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      Make private
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      Cede ownership
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
+	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      Delete
+	    </button>
+	  </div>
 
-       </form>
-       {% endif %}
-       <br>
-       <br>
-       
-       {% endif %}
-       <br>
-     </div>
-   </div>
+	</form>
+	{% endif %}
+	<br>
+	<br>
+	
+	{% endif %}
+	<br>
+      </div>
+    </div>
 
 
 
-   
 
 
-   
- </div>
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="catalogues">
+      <h1 class="jb-heading-2">
+	<label for="catalogues">
+	  My Catalogue data ({{ N_catalogues_total }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if user.is_superuser %}
+	<p>
+	  The adming owns all the automatically fetched data, which are too many to display here.
+	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
+	</p>
+	{% else %}
+	
+	{% if catalogues|length == 0 %}
+	No Catalogue data owned
+	{% else %}
+	<form id="catalogue-form" class="ids-form" method="POST">
+          {% csrf_token %}
+	  
+	  <div>
+	    {% include "pagination_top.html" with qset=catalogues request=request qset_range=catalogues_range qset_total=N_catalogues_total target="catalogues" %}
+
+	    <input name="obj_type" type="hidden" value="Catalogue" />
+	    <table>
+	      <thead>
+		<tr>
+		  <th></th>
+		  <th></th>
+		  <th>Lens</th>
+		  <th>Instrument</th>
+		  <th>Band</th>
+		  <th>Date taken</th>
+		  <th>Access level</th>
+		  <th>Accessible by</th>
+		  <th></th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for catalogue in catalogues %}
+		<tr>
+		  <td><input name="ids" type="checkbox" value="{{ catalogue.id }}"></td>
+		  <td style="text-align:center" valign="'middle">
+		    {% if catalogue.future %}
+		    Future
+		    {% else %}
+		    &nbsp;
+		    {% endif %}
+		  </td>
+		  <td><a href="{{ catalogue.lens.get_absolute_url }}">{{ catalogue.lens.name }}</a></td>
+		  <td>{{ catalogue.instrument.name }}</td>
+		  <td>{{ catalogue.band.name }}</td>
+		  <td>{{ catalogue.date_taken }}</td>
+		  <td>{{ catalogue.access_level }}</td>
+		  <td>
+		    {{ catalogue.getUsersWithAccessNoOwner|join:"," }} - <em>{{ catalogue.getGroupsWithAccessNoOwner|join:"," }}</em>
+		  </td>
+		  <td>
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-detail' catalogue.id %}">
+		      View
+		      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+		    </button>
+		  </td>
+		</tr>
+		{% endfor %}
+	    </table>
+	    <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+	  </div>	 
+	  {% include "pagination_bottom.html" with qset=catalogues request=request qset_range=catalogues_range qset_total=N_catalogues_total target="catalogues" %}
+
+	  <div>
+	    <button type="submit" class="jb-submit-button-1" form="catalogue-form" formaction="{% url 'sled_data:data-update-many' %}">
+	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      Update
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      Revoke access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      Give access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
+	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      Make public
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      Make private
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      Cede ownership
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
+	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      Delete
+	    </button>
+	  </div>
+
+	</form>
+	{% endif %}
+	<br>
+	<br>
+	
+	{% endif %}
+	<br>
+      </div>
+    </div>
+
+
+
+    
+
+
+    
+  </div>
   
 </div>
 {% endblock content %}

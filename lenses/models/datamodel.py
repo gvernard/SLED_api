@@ -46,7 +46,13 @@ class Band(models.Model):
     def __str__(self):
         return self.name
 
-        
+    def band_order(self):
+        # Query the band table and order the bands by central wavelegth
+        # Add central wavelegth to the band model
+        return ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
+
+
+    
     
 class DataBase(models.Model):
     lens = models.ForeignKey(Lenses,
@@ -55,7 +61,7 @@ class DataBase(models.Model):
     instrument = models.ForeignKey(Instrument,
                                    to_field='name',
                                    on_delete=models.CASCADE)
-    date_taken = models.DateTimeField(blank=False)
+    date_taken = models.DateField(blank=False)
     exists = models.BooleanField(default=True,
                                  blank=True, 
                                  verbose_name="Exists flag",
@@ -139,7 +145,8 @@ class Spectrum(SingleObject,DataBase):
                                      verbose_name="Resolution",
                                      help_text="The resolution of the spectrum.",
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
-    image = models.ImageField(upload_to='data/imaging')
+    image = models.ImageField(blank=True,
+                              upload_to='data/imaging')
 
     class Meta():
         constraints = [
