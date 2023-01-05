@@ -79,6 +79,9 @@
         <a href="{% url 'sled_papers:paper-query' %}">Papers</a>
         {% if user.is_authenticated %}
         <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>
+	{% if user.is_staff %}
+        <a href="{% url 'sled_users:user-admin' %}">Admin</a>
+	{% endif %}	
         <a href="{% url 'logout'%}" class="jb-navbar-login"><span class="text-span">Logout</span></a>
         {% else %}
         <a href="{% url 'login'%}" class="jb-navbar-login"><span class="text-span">Login</span></a>

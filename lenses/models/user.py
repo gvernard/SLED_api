@@ -422,6 +422,7 @@ class Users(AbstractUser,GuardianUserMixin):
         cargo["comment"] = justification
 
         # This line needs to be replaced with the DB admin
+        cargo['user_admin'] = Users.selectRandomAdmin()[0].username
         mytask = ConfirmationTask.create_task(self,Users.getAdmin(),'MakePrivate',cargo)
         return mytask 
       
@@ -518,8 +519,16 @@ class Users(AbstractUser,GuardianUserMixin):
     # Below this point lets put actions relevant only to the admin users
 
     def getAdmin():
-        return Users.objects.filter(is_staff=True)
+        return Users.objects.filter(is_superuser=True)
 
+    def selectRandomAdmin():
+        # returns a queryset
+        user_id = Users.objects.filter(Q(is_staff=True) & Q(is_superuser=False)).order_by('?').first().id
+        qset = Users.objects.filter(id=user_id)
+        return qset
+        
+
+    
     # def deactivateUser(self,user):
     #     # See django documentation for is_active for login and permissions
     #     if self.is_staff and user.is_active:

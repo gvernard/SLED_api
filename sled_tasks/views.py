@@ -31,11 +31,19 @@ class TaskListView(ListView):
     context_object_name = 'owner'
     
     def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
+        if self.kwargs.get('admin'):
+            admin = Users.getAdmin().first()
+            return self.model.accessible_objects.owned(admin)
+        else:
+            return self.model.accessible_objects.owned(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['recipient'] = self.model.custom_manager.all_as_recipient(self.request.user)
+        if self.kwargs.get('admin'):
+            admin = Users.getAdmin().first()
+            context['recipient'] = self.model.custom_manager.all_as_recipient(admin)
+        else:
+            context['recipient'] = self.model.custom_manager.all_as_recipient(self.request.user)
         return context
 
 
@@ -46,7 +54,11 @@ class TaskDetailOwnerView(BSModalReadView):
     context_object_name = 'task'
 
     def get_queryset(self):
-        return self.model.accessible_objects.owned(self.request.user)
+        if self.kwargs.get('admin'):
+            admin = Users.getAdmin().first()
+            return self.model.accessible_objects.owned(admin)
+        else:
+            return self.model.accessible_objects.owned(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -66,7 +78,10 @@ class TaskDetailRecipientView(BSModalFormView):
     def get_initial(self):
         # Check if a response is already in the database        
         try:
-            db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=self.request.user.username)
+            if self.kwargs.get('admin'):
+                db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=Users.getAdmin().first().username)
+            else:
+                db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=self.request.user.username)
         except task.DoesNotExist:
             db_response = None
         initial = {}
@@ -78,7 +93,10 @@ class TaskDetailRecipientView(BSModalFormView):
        
     def get_form_class(self):
         task_id = self.kwargs['pk']
-        self.task = ConfirmationTask.custom_manager.all_as_recipient(self.request.user).get(id=task_id)
+        if self.kwargs.get('admin'):
+            self.task = ConfirmationTask.custom_manager.all_as_recipient(Users.getAdmin().first()).get(id=task_id)
+        else:
+            self.task = ConfirmationTask.custom_manager.all_as_recipient(self.request.user).get(id=task_id)
         if self.task.task_type == "CedeOwnership":
             return CedeOwnershipForm
         elif self.task.task_type == "MakePrivate":
@@ -123,7 +141,10 @@ class TaskDetailRecipientView(BSModalFormView):
         context['object_type'] = object_type
 
         try:
-            db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=self.request.user.username)
+            if self.kwargs.get('admin'):
+                db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=Users.getAdmin().first().username)
+            else:
+                db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=self.request.user.username)
         except task.DoesNotExist:
             db_response = None
         context['db_response'] = db_response
@@ -134,8 +155,12 @@ class TaskDetailRecipientView(BSModalFormView):
         if not is_ajax(self.request.META):
             response = self.request.POST.get('response')
             response_comment = self.request.POST.get('response_comment')
-            self.task.registerAndCheck(self.request.user,response,response_comment)
             messages.add_message(self.request,messages.SUCCESS,self.success_message)
-            return HttpResponseRedirect(reverse('sled_tasks:tasks-list'))
+            if self.kwargs.get('admin'):
+                self.task.registerAndCheck(Users.getAdmin().first(),response,response_comment)
+                return HttpResponseRedirect(reverse('sled_tasks:tasks-list-admin'))
+            else:
+                self.task.registerAndCheck(self.request.user,response,response_comment)
+                return HttpResponseRedirect(reverse('sled_tasks:tasks-list'))
         else:
             return super(TaskDetailRecipientView,self).form_valid(form)
