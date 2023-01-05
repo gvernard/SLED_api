@@ -42,16 +42,27 @@ class QuerySaveView(BSModalCreateView):
 
     def get_initial(self):
         cargo = self.request.GET
+        #here we do a hacky copy of the initial cargo, which otherwise gets cleaned and any lists reduced to a single entry
+        #convert the querydict to a python dict, note .dict does not do this properly in django
+        self.initialcargo = dict(cargo)
+        print('Within get_initial function:', self.initialcargo)
         return {'cargo': cargo}
 
-    def form_valid(self,form):
+
+    def form_valid(self, form):
+        print(self.request)
         if not is_ajax(self.request.META):
             name = form.cleaned_data['name']
             description = form.cleaned_data['description']
             q = SledQuery(owner=self.request.user,name=name,description=description,access_level='PRI')
-            cargo = q.compress_to_cargo(form.cleaned_data['cargo'])
+
+            #use the hacky copy of the initial cargo; people can save non-valid queries but they will
+            #receive an error message when loading it in. This might be a dangerous way to do this since 
+            #people can store strings in the database, but they do have to be validated for this function to run...
+            cargo = q.compress_to_cargo(self.initialcargo)
             if 'page' in cargo.keys():
                 cargo.pop('page')
+
             q.cargo = cargo
             q.save()
             messages.add_message(self.request,messages.SUCCESS,"Query <b>"+name+"</b> was successfully saved!")
@@ -61,6 +72,12 @@ class QuerySaveView(BSModalCreateView):
             response = super().form_valid(form)
             return response
 
+
+    '''def post(self, request):
+        form = forms.LensQueryForm(request.POST, request.FILES)
+        if form.is_valid():
+            print(form)
+        return HttpResponseRedirect(reverse_lazy('sled_queries:queries-list')) '''
 
 @method_decorator(login_required,name='dispatch')
 class QueryUpdateView(BSModalUpdateView):

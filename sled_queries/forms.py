@@ -12,6 +12,12 @@ class QuerySaveForm(BSModalModelForm):
             'cargo': forms.HiddenInput()
         }
 
+
+    ##def __init__(self, request, *args, **kwargs):
+    #    self._my_request = request
+    #    super(QuerySaveForm, self).__init__(*args, **kwargs)
+
+
     def clean(self):
         # Check that cargo is not empty
         if not self.cleaned_data.get('cargo'):
