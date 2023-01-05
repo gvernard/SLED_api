@@ -15,3 +15,6 @@ python add_instruments_bands.py
 python upload_initial_imaging.py
 python upload_initial_spectra.py
 python upload_initial_catalogues.py
+
+cd ../add_queries
+python create_queries.py

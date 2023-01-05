@@ -7,7 +7,7 @@ app_name = 'lenses'
 urlpatterns = [
     path('',TemplateView.as_view(template_name='lenses/lens_index.html'), name='lens-index'),
     path('query/',views.LensQueryView.as_view(),name='lens-query'),
-    path('all-collections/',TemplateView.as_view(template_name='lenses/lens_all_collections.html'),name='lens-all-collections'),
+    path('all-collections/',views.StandardQueriesView.as_view(),name='lens-all-collections'),
     path('add/',views.LensAddView.as_view(),name='lens-add'),
     path('update/',views.LensUpdateView.as_view(),name='lens-update'),
     path('collage/',views.LensCollageView.as_view(),name='lens-collage'),
