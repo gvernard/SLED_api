@@ -1,26 +1,75 @@
 {% extends 'master_header.html' %}
+{% load static %}
 {% block content %}
+
+
+
 
 <div class="jb-container">
   <h1 class="jb-heading-1">Standardized queries</h1>
+  {% if queries %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+  <th>Created at</th>
+  <th></th>
+      </tr>
+    </thead>
 
-  <ul>
-    <li>Get only quasars</li>
-    <li>Get only contaminants</li>
-    <li>Get only confirmed lenses</li>
-    <li>Get the latest entries in the database</li>
-    <li>other...</li>
-  </ul>
+    <tbody>
+      {% for query in queries %}
+      <tr>
+        <td><a href="{{ group.get_absolute_url }}">{{query.name}}</td>
+        <td>{{ query.description }}</td>
+  <td> {{ query.created_at }} </td>
+  <td>
+    <button type="button" class="sled-view-query btn btn-sm btn-primary" onclick="location.href='{{ query.get_GET_url }}'">
+      <img src="{% static 'icons/eye-fill.svg' %}" alt="trash">
+      View
+    </button>
+  </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No queries to show
+  </p>
+  {% endif %}
 
-  <h1 class="jb-heading-3">Collections</h1>
 
-  <ul>
-    <li>CASTLES</li>
-    <li>SLACS</li>
-    <li>TDcosmo</li>
-    <li>HoliCow</li>
-    <li>other...</li>
-  </ul>
+<div class="jb-container">
+  <h1 class="jb-heading-1">Standard Collections</h1>
+  {% if collections %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+  <th>Name</th>
+  <th>Item type</th>
+  <th>Description</th>
+  <th>Number of items</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in collections %}
+      <tr>
+  <td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+  <td>{{ collection.item_type }}</td>
+  <td>{{ collection.description }}</td>
+  <td>{{ collection.myitems.all|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No collections to show
+  </p>
+  {% endif %}
 </div>
+
 
 {% endblock content %}

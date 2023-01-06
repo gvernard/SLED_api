@@ -127,9 +127,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 #cannot write which _ database before this line since the reset_db.sh fetches the first instance
-# Only the first 'which _ database' option, even if commented, is used by reset_db.sh
-which_database="remote-mysql"
-#which_database="local-sqlite"
+which_database="local-sqlite"
 
 if which_database == "local-sqlite":
     DATABASES = {

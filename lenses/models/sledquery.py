@@ -29,12 +29,14 @@ class SledQuery(SingleObject):
         return self.name
 
     def get_GET_url(self):
-        url = reverse('lenses:lens-query') + '?' + urllib.parse.urlencode(self.cargo)
+        #note the additional True parameter which turns lists into repeated fields
+        url = reverse('lenses:lens-query') + '?' + urllib.parse.urlencode(self.cargo, True)
         return url
     
     def compress_to_cargo(self,form_dict):
         cargo = {}
         for key,val in form_dict.items():
-            if val not in [None, False, '', []]:
+            #note that False==0 evaluates True but False is 0 evaluates False
+            if True not in [val is bad for bad in [None, False, '', []]]:
                 cargo[key] = val
         return cargo
