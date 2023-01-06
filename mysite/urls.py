@@ -53,6 +53,7 @@ urlpatterns = [
     path('sled_band/', include('sled_band.urls'), name='sled_band'),
     path('sled_papers/', include('sled_papers.urls'), name='sled_papers'),
     path('sled_single_objects/', include('sled_single_objects.urls'), name='sled_single_objects'),
+    path('sled_persistent_message/', include('sled_persistent_message.urls'), name='sled_persistent_message'),
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

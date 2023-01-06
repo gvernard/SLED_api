@@ -131,7 +131,51 @@
 	</label>
       </h1>
       <div class="p">
-	Dyo
+
+	<h2 class="jb-heading-2">Current/Future messages</h2>
+
+	{% if valid_messages %}
+	<div class=".jb-table-no-lines">
+	  <table class="jb-table">
+	    <thead>
+	      <tr>
+		<th>Tag</th>
+		<th>Created at<br>(Modified at)</th>
+		<th>Display period</th>
+		<th>Message</th>
+		<th></th>
+	      </tr>
+	    </thead>
+	    
+	    <tbody>
+	      {% for message in valid_messages %}
+	      <tr>
+		<td>{{ message.tag }}</td>
+		<td>{{ message.created_at }}<br>({{ message.modified_at }})</td>
+		<td>{{ message.from_date }}<br>{{ message.to_date }}</td>
+		<td>{{ message.message }}</td>
+		<td>
+		  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_persistent_message:message-update' message.pk %}">
+		    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+		    Update
+		  </button>
+		  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_persistent_message:message-delete' message.pk %}">
+		    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+		    Delete
+		  </button>
+		</td>
+	      </tr>
+	      {% endfor %}
+	    </tbody>
+	  </table>
+	</div>
+	{% else %}
+	<p>
+	  No current or future messages
+	</p>
+	{% endif %}
+	
+	<a href="{% url 'sled_persistent_message:message-list' %}">See all messages</a>
       </div>
     </div>
     

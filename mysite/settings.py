@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'sled_papers',
     'sled_data',
     'sled_single_objects',
+    'sled_persistent_message',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
@@ -108,6 +109,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sled_persistent_message.banner_context_processor.current_messages',
             ],
             'libraries': {
                 'project_tags': 'templatetags.sled_extras'

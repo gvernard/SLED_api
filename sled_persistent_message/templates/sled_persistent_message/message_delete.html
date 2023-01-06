@@ -1,0 +1,24 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Delete Message?
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container-modal">
+  
+  Are you sure you want to delete the following message:
+  <p>
+    {{ message.message }}
+  </p>
+
+  Valid from {{ message.from_date }} to {{ message.to_date }}
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Delete</button>
+{% endblock action_button %}
