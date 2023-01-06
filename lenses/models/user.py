@@ -382,7 +382,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 objects = []
                 for j in accessible_objects[i]:
                     objects.append(target_objs[j])
-                remove_perm(perm,group,model_ref.objects.filter(id__in=obj_ids)) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                remove_perm(perm,group,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                 action.send(self,target=gwa[i],verb='MadePublicGroup',level='info',action_object=ad_col)
 

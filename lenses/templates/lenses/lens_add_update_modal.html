@@ -1,0 +1,166 @@
+{% extends 'modal_base.html' %}
+{% load static %}
+
+{% block title %}
+Update Lens {{ lens.name }}
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container-modal">
+
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  
+  <div class="jb-table-no-lines">
+
+    <table class="jb-add-lens">
+      <tr>
+        <!-- First column -->
+        <td>
+          <div>
+            <table>
+              <tr>
+                <td>{{ form.ra.errors }}</td>
+                <td>{{ form.ra.label_tag }}</td>
+                <td>{{ form.ra }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.dec.errors }}</td>
+                <td>{{ form.dec.label_tag }}</td>
+                <td>{{ form.dec }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.image_sep.errors }}</td>
+                <td>{{ form.image_sep.label_tag }}</td>
+                <td>{{ form.image_sep }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.z_lens.errors }}</td>
+                <td>{{ form.z_lens.label_tag }}</td>
+                <td>{{ form.z_lens }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.z_source.errors }}</td>
+                <td>{{ form.z_source.label_tag }}</td>
+                <td>{{ form.z_source }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.flag_confirmed.errors }}</td>
+                <td>{{ form.flag_confirmed.label_tag }}</td>
+                <td>{{ form.flag_confirmed }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.flag_contaminant.errors }}</td>
+                <td>{{ form.flag_contaminant.label_tag }}</td>
+                <td>{{ form.flag_contaminant }}</td>
+              </tr>
+            </table>
+          </div>
+        </td>
+	
+	
+        <!-- Second column -->
+        <td>
+          <div>
+            <table>
+              <tr>
+                <td>{{ form.n_img.errors }}</td>
+                <td>{{ form.n_img.label_tag }}</td>
+                <td>{{ form.n_img }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.lens_type.errors }}</td>
+                <td>{{ form.lens_type.label_tag }}</td>
+                <td>{{ form.lens_type }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.source_type.errors }}</td>
+                <td>{{ form.source_type.label_tag }}</td>
+                <td>{{ form.source_type }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.image_conf.errors }}</td>
+                <td>{{ form.image_conf.label_tag }}</td>
+                <td>{{ form.image_conf }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.info.errors }}</td>
+                <td colspan="2" style="text-align:center">{{ form.info }}</td>
+              </tr>
+            </table>
+          </div>
+        </td>
+	
+	
+        <!-- Third column -->
+        <td>
+          <div>
+            <table class="jb-paragraph-2">
+	      <tr>
+		<td colspan="1" style="text-align:center">
+                  {% if form.instance.mugshot %}
+                  <img class="sled-mugshot-image" src="{{ form.instance.mugshot.url }}" alt="Mugshot">
+                  {% else %}
+                  <img class="sled-mugshot-image" src="">
+                  {% endif %}
+		</td>
+	      </tr>
+              <tr>
+                <td style="text-align:center">
+		  {{ form.mugshot.errors }}
+                  {{ form.mugshot }}
+		</td>
+              </tr>
+            </table>
+          </div>
+        </td>
+	
+	
+      </tr>
+    </table>
+  </div>
+  
+  
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Update</button>
+{% endblock action_button %}
+
+{% block extrastyles %}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+{% endblock extrastyles %}
+
+
+
+{% block extrascripts %}
+{{ form.media.js }}
+<script type="text/javascript">
+  function readURL(input, $img) {
+      if (input.files && input.files[0]) {
+          var reader = new FileReader();
+          reader.onload = function(e) {
+              $img.attr('src', e.target.result);
+          }
+          reader.readAsDataURL(input.files[0]);
+      }
+  }
+  $(document).on("change", "input[name*='mugshot']", function() {
+      var $img = $(this).parent().parent().parent().find('img');
+      readURL(this, $img);
+  });
+  
+  $('.my-select2').select2();
+</script>
+{% endblock extrascripts %}

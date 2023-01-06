@@ -18,7 +18,7 @@ import abc
 import json
 import os
 
-from . import SingleObject, Collection, SledGroup, AdminCollection
+from . import Lenses, SingleObject, Collection, SledGroup, AdminCollection
 
 
 
@@ -467,10 +467,10 @@ class ResolveDuplicates(ConfirmationTask):
                 #    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
                 #    action.send(self.owner,target=Users.getAdmin().first(),verb='some string goes here?',level='success',action_object=ad_col)
             else:
-                lenses = Lenses.objects.bulk_create(lenses)
                 # Here I need to upload and rename the images accordingly.
                 pri = []
                 for lens in lenses:
+                    lens.save()
                     if lens.access_level == 'PRI':
                         pri.append(lens)
                 if pri:

@@ -10,6 +10,7 @@ urlpatterns = [
     path('all-collections/',views.StandardQueriesView.as_view(),name='lens-all-collections'),
     path('add/',views.LensAddView.as_view(),name='lens-add'),
     path('update/',views.LensUpdateView.as_view(),name='lens-update'),
+    path('update-modal/<int:pk>',views.LensUpdateModalView.as_view(),name='lens-update-modal'),
     path('collage/',views.LensCollageView.as_view(),name='lens-collage'),
     path('delete/',views.LensDeleteView.as_view(),name='lens-delete'),
     path('make-public/',views.LensMakePublicView.as_view(),name='lens-make-public'),
