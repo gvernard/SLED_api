@@ -6,7 +6,14 @@
 
 
 <div class="jb-container">
-  <h1 class="jb-heading-1">My Queries</h1>
+  <h1 class="jb-heading-1">
+    {% if view.kwargs.admin %}
+    Admin
+    {% else %}
+    My
+    {% endif %}
+    Queries
+  </h1>
   {% if queries %}
   <table class="jb-table">
     <thead>
@@ -25,11 +32,23 @@
         <td>{{ query.description }}</td>
 	<td>{{ query.created_at }}</td>
 	<td>
-	  <button type="button" class="sled-delete-query btn btn-sm btn-danger" data-form-url="{% url 'sled_queries:query-delete' query.pk %}">
+	  <button type="button" class="sled-delete-query btn btn-sm btn-danger"
+		  {% if view.kwargs.admin %}
+		  data-form-url="{% url 'sled_queries:query-delete-admin' query.pk %}"
+		  {% else %}
+		  data-form-url="{% url 'sled_queries:query-delete' query.pk %}"
+		  {% endif %}
+		  >
 	    <img src="{% static 'icons/trash.svg' %}" alt="trash">
 	    Delete
 	  </button>
-	  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_queries:query-update' query.pk %}">
+	  <button type="button" class="sled-modal btn btn-sm btn-primary"
+		  {% if view.kwargs.admin %}
+		  data-form-url="{% url 'sled_queries:query-update-admin' query.pk %}"
+		  {% else %}
+		  data-form-url="{% url 'sled_queries:query-update' query.pk %}"
+		  {% endif %}
+		  >
 	    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
 	    Update
 	  </button>

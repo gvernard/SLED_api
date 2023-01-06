@@ -10,7 +10,7 @@ from . import SingleObject
 
 
 class SledQuery(SingleObject):
-    name = models.CharField(max_length=30,
+    name = models.CharField(max_length=100,
                             help_text="A name for your query")
     description = models.CharField(max_length=200,
                                    null=True,

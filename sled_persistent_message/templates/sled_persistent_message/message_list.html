@@ -58,19 +58,19 @@
     <table class="jb-table">
       <thead>
 	<tr>
-          <th>Created at (Modified at)</th>
-          <th>Display period</th>
 	  <th>Tag</th>
+          <th>Created at<br>(Modified at)</th>
+          <th>Display period</th>
 	  <th>Message</th>
 	</tr>
       </thead>
       
       <tbody>
-	{% for message in future_messages %}
+	{% for message in past_messages %}
 	<tr>
-          <td>{{ message.created_at }} ({{ message.modified_at }})</td>
-          <td>{{ message.date_from }} - {{ message.date_to }}</td>
 	  <td>{{ message.tag }}</td>
+          <td>{{ message.created_at }}<br>({{ message.modified_at }})</td>
+          <td>{{ message.from_date }}<br>{{ message.to_date }}</td>
 	  <td>{{ message.message }}</td>
 	</tr>
 	{% endfor %}

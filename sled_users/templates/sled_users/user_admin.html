@@ -93,7 +93,7 @@
 	</label>
       </h1>
       <div class="p">
-	Dyo
+	Nothing
       </div>
     </div>
 
@@ -102,14 +102,38 @@
       <input class="accordion-checkbox" type="checkbox" id="admin-3">
       <h1 class="jb-heading-2">
 	<label for="admin-3">
-	  Admin queries
+	  Admin queries ({{N_queries}})
 	</label>
       </h1>
       <div class="p">
-	Dyo
+	<br>
+	{% if N_queries %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Name</th>
+	      <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for q in queries %}
+            <tr>
+	      <td><a href="{{ q.get_absolute_url }}">{{q.name}}</td>
+	      <td>{{q.description}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No queries to display</p>
+	{% endif %}
+	<a href="{% url 'sled_queries:queries-list-admin' %}">See all queries</a>
+	<br>
+	<br>
       </div>
     </div>
 
+    
     <div class="c">
       <input class="accordion-checkbox" type="checkbox" id="admin-4">
       <h1 class="jb-heading-2">
@@ -131,9 +155,8 @@
 	</label>
       </h1>
       <div class="p">
-
+	<br>
 	<h2 class="jb-heading-2">Current/Future messages</h2>
-
 	{% if valid_messages %}
 	<div class=".jb-table-no-lines">
 	  <table class="jb-table">
@@ -174,8 +197,9 @@
 	  No current or future messages
 	</p>
 	{% endif %}
-	
 	<a href="{% url 'sled_persistent_message:message-list' %}">See all messages</a>
+	<br>
+	<br>
       </div>
     </div>
     

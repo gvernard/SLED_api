@@ -220,7 +220,7 @@ class UserAdminView(TemplateView):
         # All admin collections are public
         owned_objects = admin.getOwnedObjects()
         qset_cols = owned_objects["Collection"]
-
+        
         # Current and future persistent messages
         valid_messages = PersistentMessage.timeline.current() | PersistentMessage.timeline.future()
 
