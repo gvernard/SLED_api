@@ -627,9 +627,12 @@ class AcceptNewUser(ConfirmationTask):
             action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUser',level='success',action_object=task_owner)
         else:
             # Send email to user with the response
+            site = Site.objects.get_current()
+            subject = 'A %s task requires your response' % self.task_type
+            message = 'Dear %s %s, your registration to the Strong LEns Database (SLED) website and API was rejected. Here is the response from the administrators: %s' % (task_owner.first_name,task_owner.last_name,response.response_comment)
             user_email = task_owner.email
-            message = response.response_comment
-            
+            from_email = 'manager@%s' % site.domain
+            #send_mail(subject,message,from_email,user_email)            
             
 ### END: Confirmation task specific code
 ################################################################################################################################################
