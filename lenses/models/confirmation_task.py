@@ -55,6 +55,7 @@ class ConfirmationTask(SingleObject):
         ('AskPrivateAccess','Ask access to private objects'),
         ('AskToJoinGroup','Request to add to group'),
         ('AddData','Associate data to lens.'),
+        ('AcceptNewUser','Accept new user'),
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -605,6 +606,30 @@ class AddData(ConfirmationTask):
             if pri:
                 assign_perm('view_lenses',self.owner,pri)
 
+
+
+
+class AcceptNewUser(ConfirmationTask):
+    class Meta:
+        proxy = True
+
+    def allowed_responses(self):
+        return ['yes','no']
+
+    def finalizeTask(self):
+        # Here, only one recipient to get a response from
+        response = self.heard_from().get().response
+        from . import Users
+        task_owner = Users.objects.get(id=self.owner.id) # needs to be a query set
+        if response == 'yes':
+            task_owner.is_active = True
+            task_owner.save()
+            action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUser',level='success',action_object=task_owner)
+        else:
+            # Send email to user with the response
+            user_email = task_owner.email
+            message = response.response_comment
+            
             
 ### END: Confirmation task specific code
 ################################################################################################################################################

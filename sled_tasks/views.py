@@ -34,7 +34,7 @@ class TaskListView(ListView):
         if self.kwargs.get('admin'):
             return self.model.accessible_objects.owned(Users.getAdmin().first())
         else:
-            return self.model.accessible_objects.owned(self.request.user)
+            return self.model.accessible_objects.owned(self.request.user).exclude(task_type__exact='AcceptNewUser')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -104,6 +104,8 @@ class TaskDetailRecipientView(BSModalFormView):
             return AskPrivateAccessForm
         elif self.task.task_type == "AskToJoinGroup":
             return AskToJoinGroupForm
+        elif self.task.task_type == "AcceptNewUser":
+            return AcceptNewUserForm
         else:
             pass
         

@@ -28,6 +28,19 @@
   
   <div class="jb-modal-field jb-table-no-lines">
     
+    {% if task.task_type == 'AcceptNewUser' %}
+
+    <p>
+      A new user would like to register. Here are their details:
+    </p>
+    
+    {{ task.owner }}
+    {{ task.owner.email }}
+    
+
+    
+    {% else %}
+    
     <p>
       User <strong>{{task.owner.username}}</strong> is saying:
       <br>
@@ -41,7 +54,7 @@
       and would like to make the following <strong>{{object_type}}</strong> private:
       {% endif %}
     </p>
-
+    
     <div class="jb-modal-field jb-table-no-lines">
       <table>
 	{% for obj in objects %}
@@ -53,7 +66,8 @@
 	{% endfor %}
       </table>
     </div>
-
+    
+    {% endif %}
   </div>
   
   <p>

@@ -62,7 +62,7 @@ class UserProfileView(TemplateView):
         papers = papers[:5]
 
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user)[:5])
+        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__exact='AcceptNewUser')[:5])
         recipients = []
         for task in tasks:
             unames = task.get_all_recipients().values_list('username',flat=True)
