@@ -56,7 +56,7 @@
 	<td>{{ collection.item_type }}</td>
 	<td>{{ collection.description }}</td>
 	<td>{{ collection.owner }}</td>
-	<td> N. items {{ collection.myitems.all|length }}</td>
+	<td>{{ collection.myitems.all|length }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -67,5 +67,45 @@
   </p>
   {% endif %}
 </div>
+
+
+
+<div class="jb-container">
+  <h1 class="jb-heading-1">Search Collections</h1>
+  <form method="POST" class="jb-form">
+    {% csrf_token %}
+    {{ form.search_term }}
+    <input type="submit" value="Search">
+  </form>
+  {% if collection_search %}
+  <table class="jb-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Item type</th>
+        <th>Description</th>
+        <th>Owner</th>
+        <th>Number of items</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in collection_search %}
+      <tr>
+        <td><a href="{{ collection.get_absolute_url }}">{{collection.name}}</td>
+	<td>{{ collection.item_type }}</td>
+        <td>{{ collection.description }}</td>
+        <td>{{ collection.owner }}</td>
+	<td>{{ collection.myitems.all|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    No collections to show
+  </p>
+  {% endif %}
+</div>
+
 {% endblock content %}
 

@@ -223,3 +223,7 @@ class CollectionCedeOwnershipForm(BSModalModelForm):
             names = [obj.name for obj in diff]
             self.add_error('__all__',"User does not have access to objects: " + ','.join(names))
             return
+
+
+class CollectionSearchForm(forms.Form):
+    search_term = forms.CharField(required=False,max_length=100,widget=forms.TextInput({'placeholder':'Search term'}))
