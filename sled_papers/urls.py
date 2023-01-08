@@ -7,4 +7,5 @@ urlpatterns = [
     path('query/',views.PaperQueryView.as_view(),name='paper-query'),
     path('list/',views.PaperListView.as_view(),name='paper-list'),
     path('delete/<int:pk>',views.PaperDeleteView.as_view(),name='paper-delete'),
+    path('quick-query/',views.PaperQuickQueryView.as_view(),name='paper-quick-query'),
 ]

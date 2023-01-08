@@ -1,4 +1,6 @@
 from django import forms
+from bootstrap_modal_forms.forms import BSModalForm
+from lenses.models import Paper
 
 class PaperSearchForm(forms.Form):
     search_term = forms.CharField(required=False,
@@ -14,10 +16,6 @@ class PaperSearchForm(forms.Form):
                                   )    
 
     def clean(self):
-        if any(self.errors):
-            # Don't bother validating the formset unless each form is valid on its own
-            return
-
         year_min = self.cleaned_data.get('year_min')
         year_max = self.cleaned_data.get('year_max')
         search_term = self.cleaned_data.get('search_term')
@@ -31,3 +29,8 @@ class PaperSearchForm(forms.Form):
             if year_min > year_max:
                 print('min > max')
                 self.add_error('__all__',"Min. year should be less than Max. year!")
+
+
+
+class PaperQuickQueryForm(BSModalForm):
+    dum = forms.CharField(label='dum')

@@ -23,6 +23,15 @@ class GroupsSerializer(serializers.HyperlinkedModelSerializer):
 
 
         
+### Groups autocomplete
+################################################################################
+class PapersSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Paper
+        fields = ('id','cite_as','title')        
+
+
+
 ### Uploading data
 ################################################################################
 class BaseDataFileUploadListSerializer(serializers.ListSerializer):

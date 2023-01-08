@@ -1,0 +1,87 @@
+{% extends "modal_base.html" %}
+
+
+{% block title %}
+Quick search for paper
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container-modal">
+  <input type="hidden" id="Urlpapers" data-url="{% url 'api:papers-view' %}" />
+  
+  <div class="jb-modal-field">
+    <select id="id_paper"></select>
+  </div>
+
+  <div id="link" class="jb-modal-field">
+  </div> 
+
+  <p>
+    If the paper you are looking for does not exist in the database, you can follow the instructions on how to add it <a href="">here</a>.
+  </p>
+</div>
+{% endblock content %}
+
+
+{% block extrascripts %}
+<script>
+  function formatPaper(paper){
+      if (paper.loading) {
+	  return paper.cite_as;
+      }
+      var $container = $(
+	  '<p><strong>' + paper.cite_as + '</strong><br><i>' + paper.title + '</i></p>'
+      );    
+      return $container;
+  }
+  
+  function formatPaperSelection(paper){
+      return paper.cite_as;
+  }
+  
+  $('#id_paper').select2({
+      width: '100%',
+      ajax: {
+	  url: $("#Urlpapers").attr("data-url"),
+	  dataType: 'json',
+	  delay: 250,
+	  data: function (params) {
+	      return {
+		  q: params.term, // search term
+	      };
+	  },
+	  processResults: function (data, params) {
+	      var results = []
+	      $.each(data.papers,function(i,paper){
+		  results.push({
+		      id: paper.id,
+		      cite_as: String(paper.cite_as),
+		      title: String(paper.title)
+		  });
+	      });
+	      
+	      return {
+		  results: results,
+		  pagination: {
+		      more: false
+		  }
+	      };
+	  },
+	  cache: true
+      },
+      placeholder: 'Search for a lead author or title',
+      minimumInputLength: 1,
+      dropdownParent: $('#id-modal'),
+      templateResult: formatPaper,
+      templateSelection: formatPaperSelection
+  });
+
+  $('#id_paper').on('select2:select', function (e) {
+      $('#link').html(
+	  '<a target="_blank" href="/sled_papers/detail/' + e.params.data.id + '">' + e.params.data.title + '</a>'
+      );
+  });
+
+</script>
+{% endblock extrascripts %}

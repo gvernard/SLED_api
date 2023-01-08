@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
-from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
+from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper
 
 from guardian.shortcuts import assign_perm
@@ -341,8 +341,17 @@ class GroupsAutocomplete(APIView):
         serializer = GroupsSerializer(queryset,many=True)
         return Response({"groups":serializer.data})
 
+class PapersAutocomplete(APIView):
+    def get(self,request):
+        term = request.query_params.get('q')
+        queryset = Paper.objects.all()
+        if term is not None:
+            queryset = queryset.filter(Q(cite_as__icontains=term) | Q(title__icontains=term))
+        queryset.order_by('year')
+        serializer = PapersSerializer(queryset,many=True)
+        return Response({"papers":serializer.data})
 
-
+    
 class QueryLenses(APIView):
     """
     API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
