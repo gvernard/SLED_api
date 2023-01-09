@@ -18,7 +18,7 @@ for collection_json in collections:
 
 
     # Sending the request
-    r = requests.post(url,json=data,auth=HTTPBasicAuth('admin','123'))
+    r = requests.post(url,json=data,auth=HTTPBasicAuth('Cameron','123'))
 
 
     # Printing the response of the request
