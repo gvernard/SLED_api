@@ -1,46 +1,52 @@
 [
     {
     "name": "u",
-    "info": ""
+    "info": "Sloan SDSS",
+    "wavelength":3540
     },
     {
     "name": "G",
-    "info": "Gaia G-band"
+    "info": "Gaia G-band",
+    "wavelength": 6730
     },
     {
     "name": "BP",
-    "info": "Gaia BP-band"
+    "info": "Gaia BP-band",
+    "wavelength": 5320
     },
     {
     "name": "RP",
-    "info": "Gaia RP-band"
+    "info": "Gaia RP-band",
+    "wavelength": 7970
     },
     {
     "name": "g",
-    "info": ""
+    "info": "Sloan SDSS",
+    "wavelength": 4750
     },
     {
     "name": "r",
-    "info": ""
+    "info": "Sloan SDSS",
+    "wavelength": 6220
     },
     {
     "name": "i",
-    "info": ""
+    "info": "Sloan SDSS",
+    "wavelength": 7630
     },
     {
     "name": "z",
-    "info": ""
+    "info": "Sloan SDSS",
+    "wavelength": 9050
     },
     {
     "name": "Y",
-    "info": ""
+    "info": "Pan-STARRS",
+    "wavelength": 9620
     },
     {
-	"name": "WFC",
-	"info": ""
-    },
-    {
-	"name": "FW401",
-	"info": ""
+	"name": "F814Ww",
+	"info": "HST F814W",
+    "wavelength": 8039.1
     }
 ]

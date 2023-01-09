@@ -13,6 +13,7 @@
       <tr>
         <th>Name</th>
         <th>Extended Name</th>
+        <th>Wavelength</th>
         <th>Description</th>
       </tr>
     </thead>
@@ -21,7 +22,9 @@
       {% for band in bands %}
       <tr>
         <td>{{ band.name }}</td>
+        <td>{{ band.wavelength }}</td>
         <td>{{ band.info }}</td>
+        
         <td>
           <button type="button" class="sled-delete-band btn btn-sm btn-danger" data-form-url="{% url 'sled_band:band-delete' band.pk %}">
             <img src="{% static 'icons/trash.svg' %}" alt="trash">

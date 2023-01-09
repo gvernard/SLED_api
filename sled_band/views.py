@@ -25,7 +25,7 @@ class BandListView(ListView):
     paginate_by = 10  # if pagination is desired
 
     def get_queryset(self):
-        return Band.objects.all()
+        return Band.objects.all().order_by('wavelength')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -35,6 +35,7 @@ class BandListView(ListView):
 
 @method_decorator(login_required,name='dispatch')
 class BandCreateView(BSModalFormView):
+    model = Band
     template_name = 'sled_band/band_create.html'
     form_class = BandCreateForm
     success_url = reverse_lazy('sled_band:band-list')
@@ -43,7 +44,8 @@ class BandCreateView(BSModalFormView):
         if not is_ajax(self.request.META):
             name = form.cleaned_data['name']
             info = form.cleaned_data['info']
-            band = Band(name=name, info=info)
+            wavelength = form.cleaned_data['wavelength']
+            band = Band(name=name, info=info, wavelength=wavelength)
             band.save()
             messages.add_message(self.request,messages.SUCCESS,"Band <b>"+name+"</b> was successfully created!")
         response = super().form_valid(form)

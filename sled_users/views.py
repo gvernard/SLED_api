@@ -18,7 +18,7 @@ from bootstrap_modal_forms.generic import (
 )
 
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, Band, Instrument
 
 from .forms import UserUpdateForm
 
@@ -221,6 +221,9 @@ class UserAdminView(TemplateView):
         owned_objects = admin.getOwnedObjects()
         qset_cols = owned_objects["Collection"]
 
+        bands = Band.objects.all().order_by('wavelength')
+        bands = bands[:5]
+
 
         context={'user':user,
                  'queries': queries,
@@ -230,6 +233,7 @@ class UserAdminView(TemplateView):
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
                  'N_note_unread': N_note_unread,
-                 'collections': qset_cols
+                 'collections': qset_cols,
+                 'bands':bands
                  }
         return render(request, self.template_name, context=context)

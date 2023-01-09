@@ -80,7 +80,42 @@
 	</label>
       </h1>
       <div class="p">
-	Dyo
+
+        <div class="jb-container">
+          {% if bands %}
+          <table class="jb-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Wavelength</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for band in bands %}
+              <tr>
+                <td>{{ band.name }}</td>
+                <td>{{ band.wavelength }}</td>
+                <td>{{ band.info }}</td>
+              </tr>
+              {% endfor %}
+
+            </tbody>
+          </table>
+          {% else %}
+          <p>
+            No bands to show
+          </p>
+          {% endif %}
+          <a href="{% url 'sled_band:band-list' %}">Manage bands</a>
+        </div>
+
+
+
+
+
+
       </div>
     </div>
 

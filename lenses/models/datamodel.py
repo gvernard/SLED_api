@@ -37,6 +37,10 @@ class Band(models.Model):
                             default='',
                             help_text="Any important note about the band.")
 
+    wavelength = models.FloatField(blank=False,
+                                   default=0,
+                                   help_text="Central wavelength of the band in Angstroms")
+
     class Meta():
         ordering = ["name"]
         db_table = "bands"
@@ -49,7 +53,8 @@ class Band(models.Model):
     def band_order(self):
         # Query the band table and order the bands by central wavelegth
         # Add central wavelegth to the band model
-        return ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
+        return Band.objects.all().order_by('wavelength')
+        #return ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
 
 
     
