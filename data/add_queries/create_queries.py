@@ -66,7 +66,7 @@ descriptions.append(description)
 query_details.append(query_detail)
 
 
-#LENSED GALAXIES
+#LENSED SUPERNOVAE
 name = 'Lensed supernovae'
 description = 'All confirmed lenses with supernovae sources'
 query_detail = {'source_type':'SN', 'flag_confirmed':True}

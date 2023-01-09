@@ -18,7 +18,11 @@ from bootstrap_modal_forms.generic import (
 )
 
 
+<<<<<<< HEAD
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, Band, Instrument
+=======
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage
+>>>>>>> 6a51b31495cb478e4cb55bb9d60b518b27adb915
 
 from .forms import UserUpdateForm
 
@@ -62,7 +66,7 @@ class UserProfileView(TemplateView):
         papers = papers[:5]
 
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user)[:5])
+        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__exact='AcceptNewUser')[:5])
         recipients = []
         for task in tasks:
             unames = task.get_all_recipients().values_list('username',flat=True)
@@ -220,10 +224,16 @@ class UserAdminView(TemplateView):
         # All admin collections are public
         owned_objects = admin.getOwnedObjects()
         qset_cols = owned_objects["Collection"]
+<<<<<<< HEAD
 
         bands = Band.objects.all().order_by('wavelength')
         bands = bands[:5]
 
+=======
+        
+        # Current and future persistent messages
+        valid_messages = PersistentMessage.timeline.current() | PersistentMessage.timeline.future()
+>>>>>>> 6a51b31495cb478e4cb55bb9d60b518b27adb915
 
         context={'user':user,
                  'queries': queries,
@@ -234,6 +244,10 @@ class UserAdminView(TemplateView):
                  'unread_notifications':unread_notifications,
                  'N_note_unread': N_note_unread,
                  'collections': qset_cols,
+<<<<<<< HEAD
                  'bands':bands
+=======
+                 'valid_messages': valid_messages
+>>>>>>> 6a51b31495cb478e4cb55bb9d60b518b27adb915
                  }
         return render(request, self.template_name, context=context)

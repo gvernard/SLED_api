@@ -18,7 +18,7 @@ import abc
 import json
 import os
 
-from . import SingleObject, Collection, SledGroup, AdminCollection
+from . import Lenses, SingleObject, Collection, SledGroup, AdminCollection
 
 
 
@@ -55,6 +55,7 @@ class ConfirmationTask(SingleObject):
         ('AskPrivateAccess','Ask access to private objects'),
         ('AskToJoinGroup','Request to add to group'),
         ('AddData','Associate data to lens.'),
+        ('AcceptNewUser','Accept new user'),
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -467,10 +468,10 @@ class ResolveDuplicates(ConfirmationTask):
                 #    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
                 #    action.send(self.owner,target=Users.getAdmin().first(),verb='some string goes here?',level='success',action_object=ad_col)
             else:
-                lenses = Lenses.objects.bulk_create(lenses)
                 # Here I need to upload and rename the images accordingly.
                 pri = []
                 for lens in lenses:
+                    lens.save()
                     if lens.access_level == 'PRI':
                         pri.append(lens)
                 if pri:
@@ -605,6 +606,33 @@ class AddData(ConfirmationTask):
             if pri:
                 assign_perm('view_lenses',self.owner,pri)
 
+
+
+
+class AcceptNewUser(ConfirmationTask):
+    class Meta:
+        proxy = True
+
+    def allowed_responses(self):
+        return ['yes','no']
+
+    def finalizeTask(self):
+        # Here, only one recipient to get a response from
+        response = self.heard_from().get().response
+        from . import Users
+        task_owner = Users.objects.get(id=self.owner.id) # needs to be a query set
+        if response == 'yes':
+            task_owner.is_active = True
+            task_owner.save()
+            action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUser',level='success',action_object=task_owner)
+        else:
+            # Send email to user with the response
+            site = Site.objects.get_current()
+            subject = 'A %s task requires your response' % self.task_type
+            message = 'Dear %s %s, your registration to the Strong LEns Database (SLED) website and API was rejected. Here is the response from the administrators: %s' % (task_owner.first_name,task_owner.last_name,response.response_comment)
+            user_email = task_owner.email
+            from_email = 'manager@%s' % site.domain
+            #send_mail(subject,message,from_email,user_email)            
             
 ### END: Confirmation task specific code
 ################################################################################################################################################

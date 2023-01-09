@@ -25,7 +25,10 @@ class QueryListView(ListView):
     template_name = 'sled_queries/queries_list.html'
 
     def get_queryset(self):
-        return SledQuery.accessible_objects.owned(self.request.user)
+        if self.kwargs.get('admin'):
+            return SledQuery.accessible_objects.owned(Users.getAdmin().first())
+        else:
+            return SledQuery.accessible_objects.owned(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -73,11 +76,6 @@ class QuerySaveView(BSModalCreateView):
             return response
 
 
-    '''def post(self, request):
-        form = forms.LensQueryForm(request.POST, request.FILES)
-        if form.is_valid():
-            print(form)
-        return HttpResponseRedirect(reverse_lazy('sled_queries:queries-list')) '''
 
 @method_decorator(login_required,name='dispatch')
 class QueryUpdateView(BSModalUpdateView):
@@ -85,10 +83,20 @@ class QueryUpdateView(BSModalUpdateView):
     template_name = 'sled_queries/query_save.html'
     form_class = QuerySaveForm
     success_message = 'Success: Query was updated.'
-    success_url = reverse_lazy('sled_queries:queries-list')
 
     def get_queryset(self):
-        return SledQuery.accessible_objects.owned(self.request.user)
+        if self.kwargs.get('admin'):
+            return SledQuery.accessible_objects.owned(Users.getAdmin().first())
+        else:
+            return SledQuery.accessible_objects.owned(self.request.user)      
+
+    def get_success_url(self):
+        if self.kwargs.get('admin'):
+            return reverse_lazy('sled_queries:queries-list-admin')
+        else:
+            return reverse_lazy('sled_queries:queries-list')
+
+
 
 
 @method_decorator(login_required,name='dispatch')
@@ -96,13 +104,22 @@ class QueryDeleteView(BSModalDeleteView):
     model = SledQuery
     template_name = 'sled_queries/query_delete.html'
     success_message = 'Success: Query was deleted.'
-    success_url = reverse_lazy('sled_queries:queries-list')
     context_object_name = 'query'
 
     def get_queryset(self):
-        return SledQuery.accessible_objects.owned(self.request.user)
+        if self.kwargs.get('admin'):
+            return SledQuery.accessible_objects.owned(Users.getAdmin().first())
+        else:
+            return SledQuery.accessible_objects.owned(self.request.user)
+
+    def get_success_url(self):
+        if self.kwargs.get('admin'):
+            return reverse_lazy('sled_queries:queries-list-admin')
+        else:
+            return reverse_lazy('sled_queries:queries-list')
 
 
+    
 @method_decorator(login_required,name='dispatch')
 class QueryLinkView(BSModalReadView):
     model = SledQuery
@@ -110,4 +127,4 @@ class QueryLinkView(BSModalReadView):
     context_object_name = 'query'
 
     def get_queryset(self):
-        return SledQuery.accessible_objects.owned(self.request.user)
+        return SledQuery.objects.all()

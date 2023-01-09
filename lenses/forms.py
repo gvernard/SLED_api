@@ -27,6 +27,28 @@ class BaseLensForm(forms.ModelForm):
             if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
             
+
+class LensModalUpdateForm(BSModalModelForm):
+    class Meta:
+        model = Lenses
+        exclude = ['name','access_level','owner']
+        widgets = {
+            'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
+            'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name,field in zip(self.fields,self.fields.values()):
+            if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
+                field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
+
+    def clean(self):
+        if not self.has_changed():
+            self.add_error('__all__',"No changes detected!")      
+
             
 class LensDeleteForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())

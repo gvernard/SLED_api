@@ -34,13 +34,28 @@ class CollectionSplitListView(TemplateView):
     model = Collection
     allow_empty = True
     template_name = 'sled_collections/collection_split_list.html'
+    paginate_by = 10  # if pagination is desired
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         qset_owned = Collection.accessible_objects.owned(self.request.user)
         context['collections_owned'] = qset_owned
         context['collections_access'] = Collection.accessible_objects.all(self.request.user).filter(access_level='PRI').filter(~Q(owner=self.request.user))
+        context['form'] = CollectionSearchForm()
         return context
+
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        form = CollectionSearchForm(data=request.POST)
+        if form.is_valid():
+            search_term = form.cleaned_data['search_term']
+            if not search_term:
+                collections = Collection.objects.none()
+            else:
+                context['form'] = form
+                collections = Collection.objects.filter(access_level='PUB').exclude(owner=request.user).filter(name__icontains=search_term)
+            context['collection_search'] = collections
+        return self.render_to_response(context)
 
     
 @method_decorator(login_required,name='dispatch')

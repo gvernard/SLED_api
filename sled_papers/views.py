@@ -5,9 +5,10 @@ from django.views.generic import TemplateView, DetailView, ListView
 from lenses.models import Lenses, Paper
 from django.db.models import F, Q
 from django.urls import reverse_lazy
+from django.http import JsonResponse
 import datetime
 
-from bootstrap_modal_forms.generic import BSModalDeleteView
+from bootstrap_modal_forms.generic import BSModalDeleteView,BSModalFormView
 from .forms import *
 
 
@@ -128,3 +129,13 @@ class PaperDeleteView(BSModalDeleteView):
     
     def get_queryset(self):
         return Paper.accessible_objects.owned(self.request.user)
+
+
+@method_decorator(login_required,name='dispatch')
+class PaperQuickQueryView(BSModalFormView):
+    # This is a dummy view, just to launch the modal. No forms submitted. 
+    template_name = 'sled_papers/paper_quick_query.html'
+    form_class = PaperQuickQueryForm
+    success_url = reverse_lazy('sled_users:user-profile')
+    
+

@@ -32,3 +32,7 @@ class AskToJoinGroupForm(BSModalForm):
 class AddDataForm(BSModalForm):
     pass
 
+class AcceptNewUserForm(BSModalForm):
+    mychoices = [('yes','Yes'),('no','No')]
+    response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))

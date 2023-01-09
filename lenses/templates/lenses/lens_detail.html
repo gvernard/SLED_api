@@ -5,6 +5,7 @@
 
 {% block content %}
 {% include "modal_container.html" %}
+{% include "modal_container_wide.html" %}
 
 
 <div class="jb-container">
@@ -23,6 +24,11 @@
 	  {% endif %}
 	  <p style="margin-bottom:2px">
             Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
+	    {% if lens.owner != user %}
+	    <a href="mailto:{{lens.owner.email}}?subject=Re:SLED lens {{ lens.name }}&body=The message">
+	      <button class="jb-submit-button-1">Contact</button>
+	    </a>
+	    {% endif %}
 	  </p>
 	  <!-- Recent activity div -->
 	  <div class="jb-activity">
@@ -92,7 +98,7 @@
         {% csrf_token %}
         <td><input name="ids" type="checkbox" value="{{ lens.id }}" checked hidden></td>
       </form>
-      <button type="submit" id="update" class="jb-submit-button-1" form="ids-form" formaction="{% url 'lenses:lens-update' %}">
+      <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}">
         <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
         Update lens
       </button>
@@ -114,8 +120,14 @@
       No papers associated with this lens in the database
       {% endfor %}
     </table>
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-quick-query' %}">
+      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      Search paper
+    </button>    
   </div>
 
+
+  
   <!-- Div containing all the imaging data  -->
   <div class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Imaging Data</h1>
@@ -245,7 +257,7 @@
       </tr>
     </table>
   </div>
-
+  
 </div>
 
 {% endblock content %}
@@ -253,12 +265,15 @@
 
 {% block extrastyles %}
 <link href="{% static 'lenses/css/lens_detail.css' %}" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 {% endblock extrastyles %}
 
 
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function(){
       // Modals
@@ -266,6 +281,13 @@
           $(this).modalForm({
               formURL: $(this).data("form-url"),
               modalID: "#id-modal"
+          });
+      });
+
+      $(".sled-modal-wide").each(function() {
+          $(this).modalForm({
+              formURL: $(this).data("form-url"),
+              modalID: "#id-modal-wide"
           });
       });
   });

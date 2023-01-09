@@ -65,6 +65,9 @@ INSTALLED_APPS = [
     'sled_instrument',
     'sled_band',
     'sled_papers',
+    'sled_data',
+    'sled_single_objects',
+    'sled_persistent_message',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'home.apps.HomeConfig',
@@ -106,6 +109,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sled_persistent_message.banner_context_processor.current_messages',
             ],
             'libraries': {
                 'project_tags': 'templatetags.sled_extras'
@@ -123,7 +127,8 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 #cannot write which _ database before this line since the reset_db.sh fetches the first instance
-which_database="local-sqlite"
+which_database="remote-mysql"
+#which_database="local-sqlite"
 
 if which_database == "local-sqlite":
     DATABASES = {

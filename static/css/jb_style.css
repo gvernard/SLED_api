@@ -554,4 +554,10 @@ ul.jb-select-radio {
     padding: 0px;
 }
 
+@media (min-width: 768px) {
+  .modal-xl {
+    width: 90%;
+   max-width:1200px;
+  }
+}
 

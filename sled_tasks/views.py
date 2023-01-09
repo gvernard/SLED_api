@@ -32,16 +32,14 @@ class TaskListView(ListView):
     
     def get_queryset(self):
         if self.kwargs.get('admin'):
-            admin = Users.getAdmin().first()
-            return self.model.accessible_objects.owned(admin)
+            return self.model.accessible_objects.owned(Users.getAdmin().first())
         else:
-            return self.model.accessible_objects.owned(self.request.user)
+            return self.model.accessible_objects.owned(self.request.user).exclude(task_type__exact='AcceptNewUser')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('admin'):
-            admin = Users.getAdmin().first()
-            context['recipient'] = self.model.custom_manager.all_as_recipient(admin)
+            context['recipient'] = self.model.custom_manager.all_as_recipient(Users.getAdmin().first())
         else:
             context['recipient'] = self.model.custom_manager.all_as_recipient(self.request.user)
         return context
@@ -55,8 +53,7 @@ class TaskDetailOwnerView(BSModalReadView):
 
     def get_queryset(self):
         if self.kwargs.get('admin'):
-            admin = Users.getAdmin().first()
-            return self.model.accessible_objects.owned(admin)
+            return self.model.accessible_objects.owned(Users.getAdmin().first())
         else:
             return self.model.accessible_objects.owned(self.request.user)
 
@@ -107,6 +104,8 @@ class TaskDetailRecipientView(BSModalFormView):
             return AskPrivateAccessForm
         elif self.task.task_type == "AskToJoinGroup":
             return AskToJoinGroupForm
+        elif self.task.task_type == "AcceptNewUser":
+            return AcceptNewUserForm
         else:
             pass
         

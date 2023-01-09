@@ -35,45 +35,27 @@
 
 
 <body>
+  <div class="persistent_message_container">
+    {% if current_messages %}
+    {% for message in current_messages %}
+    <div style="border-radius:0;" class="alert alert-icon alert-{{ message.tag }} mb-0" role="alert">
+      {{ message.message|safe }}
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+
   {% include "message_container.html" with messages=messages %}
 
 
   <!-- Top navigation bar -->
-  <!-- <div>
-    <h1>
-      <table>
-        <tr>
-          {% with url_name=request.resolver_match.url_name %}
-          {% with url_base=request.get_full_path %}
-          <td class="{% if url_name in 'homepage,' %}selected{% endif %}"><a href="{% url 'home:homepage' %}">Home</a></td>
-          <td class="{% if '/lenses/' in url_base %}selected{% endif %}"><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
-          <td class="{% if '/sled_groups/' in url_base %}selected{% endif %}"><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
-          <td class="{% if '/users/' in url_base %}selected{% endif %}">
-            {% if user.is_authenticated %}
-            <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>
-            &nbsp;
-            (<a href="{% url 'logout'%}">LOGOUT</a>)
-            {% else %}
-            <a href="{% url 'login'%}">Login</a>
-            {% endif %}
-          </td>
-          {% endwith %}
-          {% endwith %}
-        </tr>
-      </table>
-    </h1>
-  </div> -->
-
-
   <div class="jb-navbar-container">
     <a href="{% url 'home:homepage' %}" class="jb-nav-brand"><img src="{% static 'images/JB_Master Header_Logo.png' %}" loading="lazy" width="248" alt=""></a>
     <div class="jb-navbar">
       <nav role="navigation">
-        {% with url_name=request.resolver_match.url_name %}
-        {% with url_base=request.get_full_path %}
         <a href="{% url 'home:homepage' %}">Home</a>
         <a href="{% url 'lenses:lens-index' %}">Lenses</a>
-        <!-- <a href="{% if '/sled_groups/' in url_base %}selected{% endif %}"></a> -->
         <a href="{% url 'sled_groups:group-list' %}">Groups</a>
         <a href="{% url 'sled_collections:collections-list' %}">Collections</a>
         <a href="{% url 'sled_papers:paper-query' %}">Papers</a>
@@ -86,8 +68,6 @@
         {% else %}
         <a href="{% url 'login'%}" class="jb-navbar-login"><span class="text-span">Login</span></a>
         {% endif %}
-        {% endwith %}
-        {% endwith %}
       </nav>
     </div>
   </div>

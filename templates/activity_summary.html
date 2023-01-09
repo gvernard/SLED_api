@@ -137,6 +137,9 @@
           from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
           to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
 
+	  {% elif action.verb == "NewUser" %}
+	  User <a href="{{ action.action_object.get_absolute_url }}">{{ action.action_object.first_name }} {{ action.action_object.last_name }}</a> joined SLED  
+	  
           {% endif %}
 
           {{ action.timestamp|timesince }} ago
@@ -390,7 +393,11 @@
     to
     <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
     at <em>{{ action.timestamp }}</em>
+
     
+    {% elif action.verb == "NewUser" %}
+    NONE
+
     
     {% endif %}
   </div>

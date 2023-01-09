@@ -26,14 +26,14 @@ from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
 
 from . import forms
 
-from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView
+from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView
 from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
 from actstream import action
 
 import numpy as np
-
+from pprint import pprint
 #=============================================================================================================================
 ### BEGIN: Modal views
 #=============================================================================================================================
@@ -169,6 +169,47 @@ class LensMakePublicView(ModalIdsBaseMixin):
             mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
             return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
 
+
+@method_decorator(login_required,name='dispatch')
+class LensUpdateModalView(BSModalUpdateView):
+    model = Lenses
+    template_name = 'lenses/lens_add_update_modal.html'
+    form_class = forms.LensModalUpdateForm
+    context_object_name = 'lens'
+    success_message = 'Success: Lens was successfully updated.'
+   
+    def get_queryset(self):
+        return Lenses.accessible_objects.owned(self.request.user)
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            # Check for duplicates and redirect here
+            instance = form.save(commit=False)
+            neis = Lenses.proximate.get_DB_neighbours(instance)
+
+            if neis:
+                # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
+                #path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
+                #if not os.path.exists(path):
+                #    os.makedirs(path)
+                #input_field_name = form.field['mugshot'].html_name
+                #f = request.FILES[input_field_name]
+                #with open(path + lens.mugshot.name,'wb+') as destination:
+                #    for chunk in f.chunks():
+                #        destination.write(chunk)
+                cargo = {'mode':'add','objects':serializers.serialize('json',[instance])}
+                receiver = Users.objects.filter(id=self.request.user.id) # receiver must be a queryset
+                mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
+                return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
+            else:
+                instance.save()
+
+        response = super().form_valid(form)
+        return response
+
+    def get_success_url(self):
+        return reverse('lenses:lens-detail',kwargs={'pk':self.object.id})
+    
 #=============================================================================================================================
 ### END: Modal views
 #=============================================================================================================================
@@ -361,6 +402,9 @@ class LensAddView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':message})
 
 
+
+
+      
 # View to update lenses
 @method_decorator(login_required,name='dispatch')
 class LensUpdateView(TemplateView):
