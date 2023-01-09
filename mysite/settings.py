@@ -128,9 +128,8 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 #cannot write which _ database before this line since the reset_db.sh fetches the first instance
 # Uncomment and move to the top one of the two options below:
-which_database="local-sqlite"
-
-#which_database="remote-mysql"
+which_database="remote-mysql"
+#which_database="local-sqlite"
 
 if which_database == "local-sqlite":
     DATABASES = {
