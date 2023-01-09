@@ -16,8 +16,9 @@ from bootstrap_modal_forms.utils import is_ajax
 from lenses.models import Users, Instrument
 from .forms import *
 
+from django.contrib.admin.views.decorators import staff_member_required
 
-@method_decorator(login_required,name='dispatch')
+@method_decorator(staff_member_required,name='dispatch')
 class InstrumentListView(ListView):
     model = Instrument
     allow_empty = True

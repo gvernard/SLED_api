@@ -17,8 +17,7 @@ from bootstrap_modal_forms.generic import (
     BSModalReadView,
 )
 
-
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument
 
 from .forms import UserUpdateForm
 
@@ -220,10 +219,15 @@ class UserAdminView(TemplateView):
         # All admin collections are public
         owned_objects = admin.getOwnedObjects()
         qset_cols = owned_objects["Collection"]
+
+        bands = Band.objects.all().order_by('wavelength')
+        bands = bands[:5]
+
+        instruments = Instrument.objects.all()
+        instruments = instruments[:5]
         
         # Current and future persistent messages
         valid_messages = PersistentMessage.timeline.current() | PersistentMessage.timeline.future()
-
         context={'user':user,
                  'queries': queries,
                  'N_queries': N_queries,
@@ -233,6 +237,8 @@ class UserAdminView(TemplateView):
                  'unread_notifications':unread_notifications,
                  'N_note_unread': N_note_unread,
                  'collections': qset_cols,
+                 'bands':bands,
+                 'instruments':instruments,
                  'valid_messages': valid_messages
                  }
         return render(request, self.template_name, context=context)

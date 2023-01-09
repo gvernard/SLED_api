@@ -31,7 +31,7 @@ f = open('bands.json')
 bands = json.load(f)
 f.close()
 for band in bands:
-    b = Band(name=band["name"],info=band["info"])
+    b = Band(name=band["name"],info=band["info"],wavelength=band['wavelength'])
     try:
         b.full_clean()
     except ValidationError as e:
