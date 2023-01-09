@@ -61,13 +61,8 @@ class UserProfileView(TemplateView):
         papers = papers[:5]
 
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__exact='AcceptNewUser')[:5])
-        recipients = []
-        for task in tasks:
-            unames = task.get_all_recipients().values_list('username',flat=True)
-            recipients.append(','.join(unames))
-        zipped = zip(recipients,tasks)
-        N_tasks = len(tasks)
+        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__exact='AcceptNewUser'))
+        N_tasks = len(pending_tasks)
         N_owned = ConfirmationTask.accessible_objects.owned(user).count()
         N_recipient = ConfirmationTask.custom_manager.all_as_recipient(user).count()
         N_tasks_all = N_owned + N_recipient
@@ -146,7 +141,7 @@ class UserProfileView(TemplateView):
                  'N_papers': N_papers,
                  'queries': queries,
                  'N_queries': N_queries,
-                 'pending_conf':zipped,
+                 'pending_tasks':pending_tasks,
                  'N_tasks': N_tasks,
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
@@ -193,13 +188,8 @@ class UserAdminView(TemplateView):
         admin = Users.getAdmin().first()
         
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.custom_manager.pending_for_user(admin)[:5])
-        recipients = []
-        for task in tasks:
-            unames = task.get_all_recipients().values_list('username',flat=True)
-            recipients.append(','.join(unames))
-        zipped = zip(recipients,tasks)
-        N_tasks = len(tasks)
+        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(admin))
+        N_tasks = len(pending_tasks)
         N_owned = ConfirmationTask.accessible_objects.owned(admin).count()
         N_recipient = ConfirmationTask.custom_manager.all_as_recipient(admin).count()
         N_tasks_all = N_owned + N_recipient
@@ -231,7 +221,7 @@ class UserAdminView(TemplateView):
         context={'user':user,
                  'queries': queries,
                  'N_queries': N_queries,
-                 'pending_conf':zipped,
+                 'pending_tasks':pending_tasks,
                  'N_tasks': N_tasks,
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,

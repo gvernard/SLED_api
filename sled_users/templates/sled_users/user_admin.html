@@ -13,15 +13,27 @@
       Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
     </p>
     <div>
-      {% if N_note_unread > 0 %}
-      <span style="color:red;">
-	You have <b>{{ N_note_unread }}</b> new notifications
+      {% if N_note_unread == 1 %}
+      <span class="jb-important-text">
+	You have <b>1</b> new notification!
+      </span>
+      {% else %}
+      <span class="jb-important-text">
+	You have <b>{{ N_note_unread }}</b> new notifications!
       </span>
       {% endif %}
       <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
     </div>
     <div>
-      Show pending admin tasks
+      {% if N_tasks == 1 %}
+      <span class="jb-important-text">
+	You have <b>1</b> new pending task!
+      </span>
+      {% else %}
+      <span class="jb-important-text">
+	You have <b>{{ N_tasks }}</b> new pending tasks!
+      </span>	    
+      {% endif %}	    
     </div>
   </div>
 
@@ -42,26 +54,7 @@
       <div class="p">
 	<br>
 	{% if N_tasks > 0 %}
-	<table>
-          <thead>
-            <tr>
-	      <th>Type</th>
-	      <th>Created at</th>
-	      <th>From</th>
-	      <th>Receivers</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for recipients,task in pending_conf %}
-            <tr>
-	      <td>{{ task.task_type }}</td>
-	      <td>{{ task.created_at }}</td>
-	      <td>{{ task.owner }}</td>
-	      <td>{{ recipients }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-	</table>
+	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks admin=view.kwargs.admin %}
 	{% else %}
 	<p class="jb-paragraph-2">No pending confirmation tasks</p>
 	{% endif %}
