@@ -50,6 +50,8 @@ class Users(AbstractUser,GuardianUserMixin):
     Attributes:
         affiliation (`CharField`): Affiliation is the only field in addition to the standard django `User` fields. User groups (see ~SledGroups) are taken care of by the existing django modules.
     """
+    email = models.EmailField(unique=True,
+                              blank=False)
     affiliation = models.CharField(
         blank=False,
         max_length=100,
