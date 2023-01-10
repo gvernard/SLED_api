@@ -5,22 +5,30 @@ Create new instrument?
 {% endblock title %}
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-container-modal">
 
-<div>
-  {{ form.name }}
-</div>
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
-<div>
-  {{ form.extended_name }}
-</div>
+  <div class="jb-modal-field">
+    {{ form.name }}
+  </div>
+  
+  <div class="jb-modal-field">
+    {{ form.extended_name }}
+  </div>
+  
+  <div class="jb-modal-field">
+    {{ form.info }}
+  </div>
 
-<div>
-  {{ form.info }}
 </div>
 {% endblock content %}
 

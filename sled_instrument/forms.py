@@ -26,10 +26,7 @@ class InstrumentUpdateForm(BSModalModelForm):
         }
 
     def clean(self):
-        # At least one User must be selected
-        #users = self.cleaned_data.get('users')
-        #if not users:
-        #self.add_error('__all__',"WPA")
-
-        # Check that cargo is not empty
+        if not self.has_changed():
+            self.add_error('__all__',"No changes detected!")
         return
+        

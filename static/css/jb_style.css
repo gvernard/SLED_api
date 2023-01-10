@@ -546,12 +546,16 @@ table td {
 .invalid ul {
     list-style-position: outside;
     padding-left: 20px;
-    color: red;
+    color: #FF5B43;
 }
 
 ul.jb-select-radio {
     list-style-type: none;
     padding: 0px;
+}
+
+.jb-important-text {
+    color: #FF5B43;
 }
 
 @media (min-width: 768px) {

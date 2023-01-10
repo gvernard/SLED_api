@@ -7,6 +7,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, DetailView, ListView
 from django.urls import reverse,reverse_lazy
 from django.contrib import messages
+from django.core.paginator import Paginator
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -29,19 +30,30 @@ class TaskListView(ListView):
     model = ConfirmationTask
     template_name = 'sled_tasks/task_list.html'
     context_object_name = 'owner'
-    
-    def get_queryset(self):
-        if self.kwargs.get('admin'):
-            return self.model.accessible_objects.owned(Users.getAdmin().first())
-        else:
-            return self.model.accessible_objects.owned(self.request.user).exclude(task_type__exact='AcceptNewUser')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('admin'):
-            context['recipient'] = self.model.custom_manager.all_as_recipient(Users.getAdmin().first())
+            admin = Users.getAdmin().first()
+            owner = self.model.accessible_objects.owned(admin)
+            recipient = self.model.custom_manager.all_as_recipient(admin)
         else:
-            context['recipient'] = self.model.custom_manager.all_as_recipient(self.request.user)
+            owner = self.model.accessible_objects.owned(self.request.user).exclude(task_type__exact='AcceptNewUser')
+            recipient = self.model.custom_manager.all_as_recipient(self.request.user)
+
+        o_paginator = Paginator(owner,50)
+        o_page_number = self.request.GET.get('tasks_owned-page',1)
+
+        r_paginator = Paginator(recipient,50)
+        r_page_number = self.request.GET.get('tasks_recipient-page',1)
+
+        context = {'N_owner': o_paginator.count,
+                   'owner_range': o_paginator.page_range,
+                   'owner': o_paginator.get_page(o_page_number),
+                   'N_recipient': r_paginator.count,
+                   'recipient_range': r_paginator.page_range,
+                   'recipient': r_paginator.get_page(r_page_number)
+                   }
         return context
 
 

@@ -7,22 +7,28 @@ Update instrument
 
 
 {% block content %}
-<div class="{% if form.non_field_errors %}invalid{% endif %}">
-  {% for error in form.non_field_errors %}
-  {{ error }}
-  {% endfor %}
-</div>
+<div class="jb-container-modal">
 
-{% for field in form %}
-<div>
-  {{ field }}
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% for field in form %}
+  <div class="jb-modal-field">
+    {{ field }}
+  </div>
+  {% endfor %}
+
 </div>
-{% endfor %}
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">
-  Update
-</button>
+<button type="submit" class="jb-submit-button-1">Update</button>
 {% endblock action_button %}

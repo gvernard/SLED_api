@@ -79,7 +79,7 @@
     {{ form.search_term }}
     <input type="submit" value="Search">
   </form>
-  {% if collection_search %}
+  {% if collections_search %}
   <table class="jb-table">
     <thead>
       <tr>
@@ -91,7 +91,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for collection in collection_search %}
+      {% for collection in collections_search %}
       <tr>
         <td><a href="{{ collection.get_absolute_url }}">{{collection.name}}</td>
 	<td>{{ collection.item_type }}</td>

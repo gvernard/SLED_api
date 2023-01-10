@@ -61,13 +61,8 @@ class UserProfileView(TemplateView):
         papers = papers[:5]
 
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__exact='AcceptNewUser')[:5])
-        recipients = []
-        for task in tasks:
-            unames = task.get_all_recipients().values_list('username',flat=True)
-            recipients.append(','.join(unames))
-        zipped = zip(recipients,tasks)
-        N_tasks = len(tasks)
+        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__exact='AcceptNewUser'))
+        N_tasks = len(pending_tasks)
         N_owned = ConfirmationTask.accessible_objects.owned(user).count()
         N_recipient = ConfirmationTask.custom_manager.all_as_recipient(user).count()
         N_tasks_all = N_owned + N_recipient
@@ -146,7 +141,7 @@ class UserProfileView(TemplateView):
                  'N_papers': N_papers,
                  'queries': queries,
                  'N_queries': N_queries,
-                 'pending_conf':zipped,
+                 'pending_tasks':pending_tasks,
                  'N_tasks': N_tasks,
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
@@ -193,45 +188,36 @@ class UserAdminView(TemplateView):
         admin = Users.getAdmin().first()
         
         # get pending confirmation tasks
-        tasks = list(ConfirmationTask.custom_manager.pending_for_user(admin)[:5])
-        recipients = []
-        for task in tasks:
-            unames = task.get_all_recipients().values_list('username',flat=True)
-            recipients.append(','.join(unames))
-        zipped = zip(recipients,tasks)
-        N_tasks = len(tasks)
+        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(admin))
+        N_tasks = len(pending_tasks)
         N_owned = ConfirmationTask.accessible_objects.owned(admin).count()
         N_recipient = ConfirmationTask.custom_manager.all_as_recipient(admin).count()
         N_tasks_all = N_owned + N_recipient
-
         
         # Get unread notifications
         unread_notifications = admin.notifications.unread()
         N_note_unread = unread_notifications.count()
 
-
         # Get queries
         queries = SledQuery.accessible_objects.owned(admin)
         N_queries = queries.count()
         queries = queries[:5]
-
         
         # All admin collections are public
         owned_objects = admin.getOwnedObjects()
         qset_cols = owned_objects["Collection"]
 
+        # Get bands and instruments (all of them, they are few anyway
         bands = Band.objects.all().order_by('wavelength')
-        bands = bands[:5]
-
         instruments = Instrument.objects.all()
-        instruments = instruments[:5]
-        
+
         # Current and future persistent messages
         valid_messages = PersistentMessage.timeline.current() | PersistentMessage.timeline.future()
-        context={'user':user,
+        context={'user': user,
+                 'hash': self.kwargs.get('hash'),        # Open accordion div
                  'queries': queries,
                  'N_queries': N_queries,
-                 'pending_conf':zipped,
+                 'pending_tasks':pending_tasks,
                  'N_tasks': N_tasks,
                  'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,

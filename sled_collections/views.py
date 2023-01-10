@@ -41,6 +41,7 @@ class CollectionSplitListView(TemplateView):
         qset_owned = Collection.accessible_objects.owned(self.request.user)
         context['collections_owned'] = qset_owned
         context['collections_access'] = Collection.accessible_objects.all(self.request.user).filter(access_level='PRI').filter(~Q(owner=self.request.user))
+        context['collections_search'] = Collection.accessible_objects.all(self.request.user).filter(access_level='PUB').filter(~Q(owner=self.request.user))[:10]
         context['form'] = CollectionSearchForm()
         return context
 
@@ -54,7 +55,7 @@ class CollectionSplitListView(TemplateView):
             else:
                 context['form'] = form
                 collections = Collection.objects.filter(access_level='PUB').exclude(owner=request.user).filter(name__icontains=search_term)
-            context['collection_search'] = collections
+            context['collections_search'] = collections
         return self.render_to_response(context)
 
     
