@@ -6,7 +6,7 @@
 
 <div class="jb-container">
 
-  <div class="tasks_recipient">
+  <div id="tasks_recipient">
     <h1 class="jb-heading-1">Tasks Addressed to
       {% if view.kwargs.admin %}
       the Admins
@@ -14,13 +14,16 @@
       Me
       {% endif %}
     </h1>
+
+    {% include "pagination_top.html" with qset=recipient request=request qset_range=recipient_range qset_total=N_recipient target="tasks_recipient" %}
     {% include 'sled_tasks/task_list_recipient.html' with recipient=recipient admin=view.kwargs.admin %}
+    {% include "pagination_bottom.html" with qset=recipient request=request qset_range=recipient_range qset_total=N_recipient target="tasks_recipient" %}
   </div>
 
 
 
   
-  <div class="tasks_owned">
+  <div id="tasks_owned">
     <h1 class="jb-heading-1">Tasks Initiated by
       {% if view.kwargs.admin %}
       the Admins
@@ -28,47 +31,55 @@
       Me
       {% endif %}
     </h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Task type</th>
-          <th>Created at</th>
-          <th>Recipients</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for task in owner %}
-        <tr>
-          <td>
-	    {% if task.status == "P" %}
-	    <span style="font-weight:bold;color:red">
-	      {{ task.status }}
-	    </span>
-	    {% else %}
-	    <span style="font-weight:bold;color:green">
-	      {{ task.status }}
-	    </span>
-	    {% endif %}
-	  </td>
-          <td>{{ task.task_type }}</td>
-          <td>{{ task.created_at }}</td>
-          <td>{{ task.recipients.all|join:", " }}</td>
-	  <td>
-	    <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
-	      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
-	      View
-	    </button>
-	  </td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="5">No tasks</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+
+    {% include "pagination_top.html" with qset=owner request=request qset_range=owner_range qset_total=N_owner target="tasks_owned" %}
+
+    <div>
+      <table>
+	<thead>
+          <tr>
+            <th>Status</th>
+            <th>Task type</th>
+            <th>Created at</th>
+            <th>Recipients</th>
+            <th></th>
+          </tr>
+	</thead>
+	<tbody>
+          {% for task in owner %}
+          <tr>
+            <td>
+	      {% if task.status == "P" %}
+	      <span style="font-weight:bold;color:red">
+		{{ task.status }}
+	      </span>
+	      {% else %}
+	      <span style="font-weight:bold;color:green">
+		{{ task.status }}
+	      </span>
+	      {% endif %}
+	    </td>
+            <td>{{ task.task_type }}</td>
+            <td>{{ task.created_at }}</td>
+            <td>{{ task.recipients.all|join:", " }}</td>
+	    <td>
+	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
+		<img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+		View
+	      </button>
+	    </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5">No tasks</td>
+          </tr>
+          {% endfor %}
+	</tbody>
+      </table>
+    </div>
+
+    {% include "pagination_bottom.html" with qset=owner request=request qset_range=owner_range qset_total=N_owner target="tasks_owned" %}
+
   </div>
 
 

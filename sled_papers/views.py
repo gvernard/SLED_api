@@ -2,14 +2,18 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, DetailView, ListView
-from lenses.models import Lenses, Paper
 from django.db.models import F, Q
 from django.urls import reverse_lazy
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 import datetime
+from urllib.parse import urlparse
 
 from bootstrap_modal_forms.generic import BSModalDeleteView,BSModalFormView
 from .forms import *
+
+from lenses.models import Lenses, Paper
+
 
 
 @method_decorator(login_required,name='dispatch')
@@ -17,44 +21,70 @@ class PaperQueryView(TemplateView):
     model = Paper
     template_name = 'sled_papers/paper_query.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['form'] = PaperSearchForm()
-        return context
+    def paper_query(self,cleaned_data):
+        search_term = cleaned_data['search_term']
+        year_min = cleaned_data['year_min']
+        year_max = cleaned_data['year_max']
+        
+        if year_min and year_max:
+            papers = Paper.objects.filter(year__range=[year_min,year_max])
+        elif year_min and not year_max:
+            papers = Paper.objects.filter(year=year_min)
+        elif year_max and not year_min:
+            papers = Paper.objects.filter(year=year_max)
+        else:
+            papers = Paper.objects.none()
+        if search_term:
+            papers = Paper.objects.filter(Q(first_author__contains=search_term) | Q(title__contains=search_term))
 
+        paginator = Paginator(papers,50)
+        papers_page = paginator.get_page(cleaned_data['page'])
+        papers_count = paginator.count
+        papers_range = paginator.page_range
+
+        return papers_page,papers_range,papers_count
+
+    
     def get(self, request, *args, **kwargs):
-        this_year = datetime.date.today().year
-        context = {}
-        context['form'] = PaperSearchForm(initial={'year_min':this_year})
-        context['papers_search'] = Paper.objects.filter(year=this_year)
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        if referer == request.path:
+            # Submitting to itself, get the form
+            form = PaperSearchForm(request.GET)
+        else:
+            form = PaperSearchForm(initial={'year_min':datetime.date.today().year})
+            
+        if form.is_valid():
+            papers_page,papers_range,papers_count = self.paper_query(form.cleaned_data)
+            context = {'N_papers_total': papers_count,
+                       'papers_range': papers_range,
+                       'papers': papers_page,
+                       'form': form}
+        else:
+            context = {'N_papers_total': 0,
+                       'papers_range': [],
+                       'papers': None,
+                       'form': form}
         return self.render_to_response(context)
 
     
     def post(self, request, *args, **kwargs):
-        #context = self.get_context_data()
-        context = {}
         form = PaperSearchForm(data=request.POST)
-        papers = Paper.objects.all()
+
         if form.is_valid():
-            search_term = form.cleaned_data['search_term']
-            year_min = form.cleaned_data['year_min']
-            year_max = form.cleaned_data['year_max']
+            papers_page,papers_range,papers_count = self.paper_query(form.cleaned_data)
+            context = {'N_papers_total': papers_count,
+                       'papers_range': papers_range,
+                       'papers': papers_page,
+                       'form': form}
+        else:
+            context = {'N_papers_total': 0,
+                       'papers_range': [],
+                       'papers': None,
+                       'form': form}
 
-            if year_min and year_max:
-                papers = papers.filter(year__range=[year_min,year_max])
-            elif year_min and not year_max:
-                papers = papers.filter(year=year_min)
-            elif year_max and not year_min:
-                papers = papers.filter(year=year_max)
-            else:
-                pass
-            if search_term:
-                papers = papers.filter(Q(first_author__contains=search_term) | Q(title__contains=search_term))
-            context['papers_search'] = papers
-
-        context['form'] = form
         return self.render_to_response(context)
 
+    
     
 @method_decorator(login_required,name='dispatch')
 class PaperDetailView(DetailView):

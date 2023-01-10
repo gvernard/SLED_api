@@ -10,39 +10,55 @@
 
   <form method="POST">
     {% csrf_token %}
-    <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
-      {% for error in form.non_field_errors %}
-      {{ error }}
-      {% endfor %}
+    
+    {% if form.non_field_errors|length > 0 %}
+    <div class="invalid jb-modal-field">
+      <ul>
+	{% for error in form.non_field_errors %}
+	<li>{{ error }}</li>
+	{% endfor %}
+      </ul>
     </div>
+    {% endif %}
+    
     <p>
       {{ form.search_term }}
       {{ form.year_min }}
       &leq; Pub. year &leq;
       {{ form.year_max }}
-      <input type="submit" value="Search">
+      <input id="mysubmit" type="submit" value="Search">
     </p>
+
+    {{ form.page }}
   </form>
 
-  {% if papers_search %}
-  <table class="jb-table jb-paper-table">
-    <thead>
-      <tr>
-        <th>Author(s)</th>
-        <th>Title</th>
-        <th style="width:135px;">Number of Lenses</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for paper in papers_search %}
-      <tr>
-        <td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
-        <td><i>"{{ paper.title }}"</i></td>
-        <td>{{ paper.lenses_in_paper.all|length }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  {% if papers %}
+
+  {% include "pagination_top.html" with qset=papers request=request qset_range=papers_range qset_total=N_papers_total %}
+
+  <div>
+    <table class="jb-table jb-paper-table">
+      <thead>
+	<tr>
+          <th>Author(s)</th>
+          <th>Title</th>
+          <th style="width:135px;">Number of Lenses</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for paper in papers %}
+	<tr>
+          <td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
+          <td><i>"{{ paper.title }}"</i></td>
+          <td>{{ paper.lenses_in_paper.all|length }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% include "pagination_bottom.html" with qset=papers request=request qset_range=papers_range qset_total=N_papers_total %}
+
   {% else %}
   <p>
     No papers to show
@@ -57,4 +73,15 @@
 
 
 {% block extrascripts %}
+<script type="text/javascript">
+  $(document).ready(function(){
+      $(".sled_submit").click(function(e) {
+	  e.preventDefault();
+	  var dum = $(this).attr('href').split('page=');
+	  var page = dum[1].replace('#','');
+	  $('#id_page').val(page);
+	  $('#mysubmit').trigger('click');
+      });
+  });
+</script>
 {% endblock extrascripts %}
