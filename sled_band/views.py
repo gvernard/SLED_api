@@ -18,28 +18,13 @@ from .forms import *
 
 from django.contrib.admin.views.decorators import staff_member_required
 
+
 @method_decorator(staff_member_required,name='dispatch')
-class BandListView(ListView):
-    model = Band
-    allow_empty = True
-    template_name = 'sled_band/band_list.html'
-    paginate_by = 10  # if pagination is desired
-
-    def get_queryset(self):
-        return Band.objects.all().order_by('wavelength')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['bands'] = self.object_list
-        return context
-
-
-@method_decorator(login_required,name='dispatch')
 class BandCreateView(BSModalFormView):
     model = Band
     template_name = 'sled_band/band_create.html'
     form_class = BandCreateForm
-    success_url = reverse_lazy('sled_band:band-list')
+    success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'bands'})
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):
@@ -53,23 +38,21 @@ class BandCreateView(BSModalFormView):
         return response
 
 
-@method_decorator(login_required,name='dispatch')
+@method_decorator(staff_member_required,name='dispatch')
 class BandUpdateView(BSModalUpdateView):
     model = Band
     template_name = 'sled_band/band_update.html'
     form_class = BandUpdateForm
     success_message = 'Success: band was updated.'
-    success_url = reverse_lazy('sled_band:band-list')
+    success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'bands'})
 
 
-
-
-@method_decorator(login_required,name='dispatch')
+@method_decorator(staff_member_required,name='dispatch')
 class BandDeleteView(BSModalDeleteView):
     model = Band
     template_name = 'sled_band/band_delete.html'
     success_message = 'Success: band was deleted.'
-    success_url = reverse_lazy('sled_band:band-list')
+    success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'bands'})
     context_object_name = 'band'
 
 

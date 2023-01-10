@@ -17,19 +17,19 @@ Create new band?
   </div>
   {% endif %}
   
-  <div>
+  <div class="jb-modal-field">
     {{ form.name }}
   </div>
   
-  <div>
+  <div class="jb-modal-field">
     {{ form.extended_name }}
   </div>
   
-  <div>
+  <div class="jb-modal-field">
     {{ form.wavelength }}
   </div>
   
-  <div>
+  <div class="jb-modal-field">
     {{ form.info }}
   </div>
 
@@ -37,5 +37,5 @@ Create new band?
 {% endblock content %}
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">Create</button>
+<button type="submit" class="jb-submit-button-1">Create</button>
 {% endblock action_button %}

@@ -2,7 +2,7 @@
 
 
 {% block title %}
-Update instrument
+Update band
 {% endblock title %}
 
 
@@ -20,7 +20,7 @@ Update instrument
   {% endif %}
 
   {% for field in form %}
-  <div>
+  <div class="jb-modal-field">
     {{ field }}
   </div>
   {% endfor %}
@@ -30,7 +30,5 @@ Update instrument
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-sm btn-primary">
-  Update
-</button>
+<button type="submit" class="jb-submit-button-1">Update</button>
 {% endblock action_button %}

@@ -19,26 +19,10 @@ from .forms import *
 from django.contrib.admin.views.decorators import staff_member_required
 
 @method_decorator(staff_member_required,name='dispatch')
-class InstrumentListView(ListView):
-    model = Instrument
-    allow_empty = True
-    template_name = 'sled_instrument/instrument_list.html'
-    paginate_by = 10  # if pagination is desired
-
-    def get_queryset(self):
-        return Instrument.objects.all()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['instruments'] = self.object_list
-        return context
-
-
-@method_decorator(login_required,name='dispatch')
 class InstrumentCreateView(BSModalFormView):
     template_name = 'sled_instrument/instrument_create.html'
     form_class = InstrumentCreateForm
-    success_url = reverse_lazy('sled_instrument:instrument-list')
+    success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'instruments'})
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):
@@ -51,24 +35,22 @@ class InstrumentCreateView(BSModalFormView):
         response = super().form_valid(form)
         return response
 
-
-@method_decorator(login_required,name='dispatch')
+    
+@method_decorator(staff_member_required,name='dispatch')
 class InstrumentUpdateView(BSModalUpdateView):
     model = Instrument
     template_name = 'sled_instrument/instrument_update.html'
     form_class = InstrumentUpdateForm
     success_message = 'Success: instrument was updated.'
-    success_url = reverse_lazy('sled_instrument:instrument-list')
+    success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'instruments'})
 
 
-
-
-@method_decorator(login_required,name='dispatch')
+@method_decorator(staff_member_required,name='dispatch')
 class InstrumentDeleteView(BSModalDeleteView):
     model = Instrument
     template_name = 'sled_instrument/instrument_delete.html'
     success_message = 'Success: instrument was deleted.'
-    success_url = reverse_lazy('sled_instrument:instrument-list')
+    success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'instruments'})
     context_object_name = 'instrument'
 
 

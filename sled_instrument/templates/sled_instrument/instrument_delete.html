@@ -7,12 +7,14 @@ Delete instrument
 
 
 {% block content %}
-<div>
-  Are you sure you want to delete the instrument named <strong>{{ instrument.name }}</strong>?
+<div class="jb-modal-field">
+  <p>
+    Are you sure you want to delete the instrument named <strong>{{ instrument.name }}</strong>?
+  </p>
 </div>
 {% endblock content %}
 
 
 {% block action_button %}
-<button type="submit" class="btn btn-danger">Delete</button>
+<button type="submit" class="jb-submit-button-1">Delete</button>
 {% endblock action_button %}

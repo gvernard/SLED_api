@@ -193,32 +193,28 @@ class UserAdminView(TemplateView):
         N_owned = ConfirmationTask.accessible_objects.owned(admin).count()
         N_recipient = ConfirmationTask.custom_manager.all_as_recipient(admin).count()
         N_tasks_all = N_owned + N_recipient
-
         
         # Get unread notifications
         unread_notifications = admin.notifications.unread()
         N_note_unread = unread_notifications.count()
 
-
         # Get queries
         queries = SledQuery.accessible_objects.owned(admin)
         N_queries = queries.count()
         queries = queries[:5]
-
         
         # All admin collections are public
         owned_objects = admin.getOwnedObjects()
         qset_cols = owned_objects["Collection"]
 
+        # Get bands and instruments (all of them, they are few anyway
         bands = Band.objects.all().order_by('wavelength')
-        bands = bands[:5]
-
         instruments = Instrument.objects.all()
-        instruments = instruments[:5]
-        
+
         # Current and future persistent messages
         valid_messages = PersistentMessage.timeline.current() | PersistentMessage.timeline.future()
-        context={'user':user,
+        context={'user': user,
+                 'hash': self.kwargs.get('hash'),        # Open accordion div
                  'queries': queries,
                  'N_queries': N_queries,
                  'pending_tasks':pending_tasks,
