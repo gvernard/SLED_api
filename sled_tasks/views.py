@@ -46,13 +46,18 @@ class TaskListView(ListView):
 
         r_paginator = Paginator(recipient,50)
         r_page_number = self.request.GET.get('tasks_recipient-page',1)
+        if 'admin' in self.kwargs.keys():
+            admin_page = True
+        else:
+            admin_page = False
 
         context = {'N_owner': o_paginator.count,
                    'owner_range': o_paginator.page_range,
                    'owner': o_paginator.get_page(o_page_number),
                    'N_recipient': r_paginator.count,
                    'recipient_range': r_paginator.page_range,
-                   'recipient': r_paginator.get_page(r_page_number)
+                   'recipient': r_paginator.get_page(r_page_number),
+                   'admin_page': admin_page
                    }
         return context
 
@@ -85,9 +90,11 @@ class TaskDetailRecipientView(BSModalFormView):
     task = None
     
     def get_initial(self):
-        # Check if a response is already in the database        
+        # Check if a response is already in the database  
+        print(self.kwargs)
         try:
             if self.kwargs.get('admin'):
+                print('admin in kwargs')
                 db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=Users.getAdmin().first().username)
             else:
                 db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=self.request.user.username)
@@ -130,6 +137,8 @@ class TaskDetailRecipientView(BSModalFormView):
         return form 
     
     def get_context_data(self, **kwargs):
+        print('get context data')
+        print(self.kwargs)
         context = super(TaskDetailRecipientView,self).get_context_data(**kwargs)
 
         context['task'] = self.task
@@ -150,7 +159,7 @@ class TaskDetailRecipientView(BSModalFormView):
         else:
             object_type = getattr(lenses.models,self.task.cargo["object_type"])._meta.verbose_name.title()
         context['object_type'] = object_type
-
+        #context['admin'] = self.kwargs.get('admin')
         try:
             if self.kwargs.get('admin'):
                 db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=Users.getAdmin().first().username)

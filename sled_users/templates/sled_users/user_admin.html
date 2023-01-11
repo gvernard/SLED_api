@@ -55,7 +55,7 @@
       <div class="p">
 	<br>
 	{% if N_tasks > 0 %}
-	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks admin=view.kwargs.admin %}
+	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks %}
 	{% else %}
 	<p class="jb-paragraph-2">No pending confirmation tasks</p>
 	{% endif %}

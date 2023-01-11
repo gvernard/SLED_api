@@ -1,5 +1,6 @@
 {% load static %}
 
+<castro>
 <table>
   <thead>
     <tr>
@@ -7,72 +8,87 @@
       <th>Task type</th>
       <th>Created at</th>
       <th>From</th>
-      {% if view.kwargs.admin %}
-      <th>
-	Assigned to
-      </th>
+
+      {% if admin_page  %}
+        <th> Assigned to </th>
       {% endif %}
+
       <th></th>
     </tr>
   </thead>
   <tbody>
     {% for task in recipient %}
-    <tr>
-      <td>
-	{% if task.status == "P" %}
-	<span style="font-weight:bold;color:red">
-	  {{ task.status }}
-	</span>
-	{% else %}
-	<span style="font-weight:bold;color:green">
-	  {{ task.status }}
-	</span>
-	{% endif %}
-      </td>
-      <td>{{ task.task_type }}</td>
-      <td>{{ task.created_at }}</td>
-      <td>{{ task.owner }}</td>
-      {% if view.kwargs.admin %}
-      <td>
-	{{ task.cargo.user_admin }}
-      </td>
-      {% endif %}
-      <td>
-	{% if view.kwargs.admin %}
+        <tr>
+          <td>
+        	{% if task.status == "P" %}
+            	<span style="font-weight:bold;color:red">
+            	  {{ task.status }}
+            	</span>
 
-	{% if task.status == 'C' %}
-	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
-	  <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
-	  View
-	</button>
-	{% else %}
-	{% if task.cargo.user_admin == request.user.username %}
-	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
-	  <img src="{% static 'icons/pencil.svg' %}" alt="people">
-	  Respond
-	</button>
-	{% endif %}
-	{% endif %}
-	
-	{% else %}
+        	{% else %}
+            	<span style="font-weight:bold;color:green">
+            	  {{ task.status }}
+            	</span>
+        	{% endif %}
+              </td>
 
-	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
-	  {% if task.status == 'C' %}
-	  <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
-	  View
-	  {% else %}
-	  <img src="{% static 'icons/pencil.svg' %}" alt="people">
-	  Respond
-	  {% endif %}
-	</button>
+              <td>{{ task.task_type }}</td>
+              <td>{{ task.created_at }}</td>
+              <td>{{ task.owner }}</td>
 
-	{% endif %}
-      </td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="5">No tasks</td>
-    </tr>
+              {% if admin_page %}
+                  <td>
+                	{{ task.cargo.user_admin }}
+                  </td>
+              {% endif %}
+
+
+               <td>
+            	{% if admin_page %}
+                	{% if task.status == 'C' %}
+                    	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
+                    	  <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+                    	  View
+                    	</button>
+
+                	{% else %}
+                    	{% if task.cargo.user_admin == request.user.username %}
+                        <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
+                        	  <img src="{% static 'icons/pencil.svg' %}" alt="people">
+                        	  Respond
+                        	</button>
+                	    {% endif %}
+            	    {% endif %}
+            	
+            	{% else %}
+                	
+                	  {% if task.status == 'C' %}
+                      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
+                	       <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+                	        View
+
+                	  {% else %}
+                        {% if task.owner == request.user %}
+                            <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
+                            <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+                           View
+                        {% else %}
+                        <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
+                           <img src="{% static 'icons/pencil.svg' %}" alt="people">
+                            Respond
+                        {% endif %}
+                	  {% endif %}
+                	</button>
+
+            	{% endif %}
+
+              </td>
+           
+            </tr>
+            {% empty %}
+            <tr>
+          <td colspan="5">No tasks</td>
+        </tr>
     {% endfor %}
   </tbody>
 </table>

@@ -87,6 +87,7 @@ def upload_imaging_to_db_direct(datalist, username):
 
         finaldata['instrument'] = Instrument.objects.get(name=data['instrument'])
         finaldata['band'] = Band.objects.get(name=data['band'])
+
         #indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many([data['ra']], [data['dec']])
         lens = match_to_lens(data['ra'], data['dec'])
 
@@ -139,6 +140,9 @@ def upload_spectrum_to_db_direct(datalist, username):
             spectrum.image.name = '/temporary/admin/' + savename
         if 'date_taken' in finaldata.keys():
             spectrum.date_taken = make_aware(datetime.datetime.fromisoformat(finaldata['date_taken']))
+        else:
+            #we apparently made the date taken a NOT_NULL field
+            spectrum.date_taken = make_aware(datetime.datetime.fromisoformat('1858-11-17 00:00:00.000'))
         spectrum.save()
     return 0
 
@@ -159,5 +163,8 @@ def upload_catalogue_to_db_direct(datalist, username):
         catalogue.owner_id = Users.objects.get(username=username).id
         if 'date_taken' in finaldata.keys():
             catalogue.date_taken = make_aware(datetime.datetime.fromisoformat(finaldata['date_taken']))
+        else:
+            #we apparently made the date taken a NOT_NULL field
+            catalogue.date_taken = make_aware(datetime.datetime.fromisoformat('1858-11-17 00:00:00.000'))
         catalogue.save()
     return 0

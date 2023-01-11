@@ -56,6 +56,8 @@ class UploadData(APIView):
             for j,key in enumerate(keys):
                 print(j, key, list_of_lists[j])
                 datum[key] = list_of_lists[j][i]
+            if 'date_taken' not in keys:
+                print('No date provided...')
             datum['owner'] = request.user.pk
             raw_data.append(datum)
         print(raw_data)
