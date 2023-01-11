@@ -297,7 +297,7 @@ class LensDetailView(DetailView):
             labels.append(flags)
         paper_labels = [ ','.join(x) for x in labels ]
 
-            
+        print(display_images)
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra

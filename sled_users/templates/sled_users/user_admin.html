@@ -6,8 +6,6 @@
 {% include "modal_container.html" %}
 <div class="jb-container">
 
-  {{ hash }}
-  
   <div class="jb-table-no-lines">
     <h1 class="jb-heading-1">Admin: {{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
     <p style="margin-bottom:2px">
@@ -55,7 +53,7 @@
       <div class="p">
 	<br>
 	{% if N_tasks > 0 %}
-	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks admin=view.kwargs.admin %}
+	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks %}
 	{% else %}
 	<p class="jb-paragraph-2">No pending confirmation tasks</p>
 	{% endif %}

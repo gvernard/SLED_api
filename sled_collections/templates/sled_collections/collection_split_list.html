@@ -15,6 +15,7 @@
 	<th>Item type</th>
 	<th>Description</th>
 	<th>Number of items</th>
+  <th>Access</th>
       </tr>
     </thead>
     <tbody>
@@ -23,7 +24,8 @@
 	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
 	<td>{{ collection.item_type }}</td>
 	<td>{{ collection.description }}</td>
-	<td>{{ collection.myitems.all|length }}</td>
+  <td>{{ collection.myitems.all|length }}</td>
+  <td>{{ collection.access_level }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -37,7 +39,7 @@
 
 
 <div class="jb-container">
-  <h1 class="jb-heading-1">Collections that I have access to</h1>
+  <h1 class="jb-heading-1">Private collections that I have access to</h1>
   {% if collections_access %}
   <table class="jb-table">
     <thead>
