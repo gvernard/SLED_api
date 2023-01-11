@@ -1,10 +1,11 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from django_select2 import forms as s2forms
 
-from lenses.models import Lenses, Users, SledGroup, Collection
+from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band
 
 
 class BaseLensForm(forms.ModelForm):
@@ -417,7 +418,33 @@ class LensQueryForm(forms.Form):
 
 
 
+class DataBaseQueryForm(forms.Form):
+    instrument = forms.ModelChoiceField(label='Instrument',queryset=Instrument.objects.all(),required=False)
+    date_taken_min = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(
+            empty_label=("Year", "Month", "Day"),
+            years=reversed(range(1950,timezone.now().year+10))
+        )
+    )
+    date_taken_max = forms.DateField(
+        required=False,
+        widget=forms.SelectDateWidget(
+            empty_label=("Year", "Month", "Day"),
+            years=reversed(range(1950,timezone.now().year+10))
+        )
+    )
+    future = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=[
+                ('', 'Unknown'),
+                (True, 'Yes'),
+                (False, 'No'),
+            ]
+        )
+    )
 
 
-        
-
+class ImagingQueryForm(DataBaseQueryForm):
+    band = forms.ModelChoiceField(label='Band',queryset=Band.objects.all(),required=False)

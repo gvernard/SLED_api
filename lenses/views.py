@@ -741,28 +741,62 @@ class StandardQueriesView(ListView):
 # View for lens queries
 @method_decorator(login_required,name='dispatch')
 class LensQueryView(TemplateView):
-    '''
-    Main lens query page, allowing currently for a simple filter on the lenses table parameters
-    Eventually we want to allow simultaneous queries across multiple tables
-    '''
     template_name = 'lenses/lens_query.html'
 
-    def query_search(self,form,user):
+
+
+    def combined_query(self,lens_form,imaging_form,user):
+
+        lenses = self.lens_search(lens_form,user)
+        print(len(lenses))
+
+        lenses = self.imaging_search(lenses,imaging_form,user)
+        print(len(lenses))
+        
+        
+        # Paginator for lenses
+        paginator = Paginator(lenses,50)
+        lenses_page = paginator.get_page(lens_form['page'])
+        #lenses_page_number = self.request.GET.get('lenses-page',1)
+        #lenses_page = paginator.get_page(lenses_page_number)
+        lenses_count = paginator.count
+        lenses_range = paginator.page_range
+
+        return lenses_page,lenses_range,lenses_count
+
+
+    def imaging_search(self,lenses,form,user):
         '''
-        This function performs the filtering on the lenses table, by parsing the filter values from the request
+        Returns a Lenses queryset
         '''
         keywords = list(form.keys())
-        #print(keywords)
         values = [form[keyword] for keyword in keywords]
-        print(values)
 
-        # if form['ids']:
-        #     id_list = form['ids'].split(',')
-        #     lenses = Lenses.accessible_objects.in_ids(user,id_list)
+        datatype = 'imaging'
+        args = {datatype+'__exists':True}
+        for k, value in enumerate(values):
+            if value!=None:
+                if '_min' in keywords[k]:
+                    args[datatype+'__'+keywords[k].split('_min')[0]+'__gte'] = value
+                elif '_max' in keywords[k]:
+                    args[datatype+'__'+keywords[k].split('_max')[0]+'__lte'] = value
+                else:
+                    args[datatype+'__'+keywords[k]] = value
+        print(args)
+        return lenses.filter(**args).distinct()
+    
+
+    def lens_search(self,form,user):
+        '''
+        This function performs the filtering on the lenses table, by parsing the filter values from the request
+        Returns a Lenses queryset
+        '''
+        keywords = list(form.keys())
+        values = [form[keyword] for keyword in keywords]
 
         #start with available lenses
         lenses = Lenses.accessible_objects.all(user)
-
+        
         #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
         over_meridian = False
         #print(form['ra_min'], form['ra_max'])
@@ -773,21 +807,16 @@ class LensQueryView(TemplateView):
         #now apply the filter for each non-null entry
         for k, value in enumerate(values):
             if value!=None:
-                print(value, keywords[k])
+                #print(value, keywords[k])
 
                 #print(k, value, keywords[k])
                 if 'ra_' in keywords[k] and over_meridian:
                     continue
                 if '_min' in keywords[k]:
-                    print(keywords[k], value)
                     args = {keywords[k].split('_min')[0]+'__gte':float(value)}
-
-                    print(args)
                     lenses = lenses.filter(**args).order_by('ra')
                 elif '_max' in keywords[k]:
-                    print(keywords[k], value)
                     args = {keywords[k].split('_max')[0]+'__lte':float(value)}
-                    print(args)
                     lenses = lenses.filter(**args).order_by('ra')
 
                 if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
@@ -827,45 +856,44 @@ class LensQueryView(TemplateView):
         if over_meridian:
             lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
 
-        # Paginator for lenses
-        paginator = Paginator(lenses,50)
-        lenses_page = paginator.get_page(form['page'])
-        #lenses_page_number = self.request.GET.get('lenses-page',1)
-        #lenses_page = paginator.get_page(lenses_page_number)
-        lenses_count = paginator.count
-        lenses_range = paginator.page_range
+        return lenses
 
-        return lenses_page,lenses_range,lenses_count
-
+    
     def get(self, request, *args, **kwargs):
-        form = forms.LensQueryForm(request.GET)
-        if form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
+        lens_form = forms.LensQueryForm(request.GET,prefix="lens")
+        imaging_form = forms.ImagingQueryForm(request.GET,prefix="imaging")
+        if lens_form.is_valid() and imaging_form.is_valid():
+            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,request.user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
-                       'form':form}
+                       'lens_form':lens_form,
+                       'imaging_form':imaging_form}
         else:
             context = {'lenses': None,
                        'lenses_range': [],
                        'lenses_count': 0,
-                       'form':form}
+                       'lens_form':lens_form,
+                       'imaging_form':imaging_form}
         return self.render_to_response(context)
+
     
     def post(self, request, *args, **kwargs):
-        form = forms.LensQueryForm(request.POST, request.FILES)
-        
-        if form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.query_search(form.cleaned_data,request.user)
+        lens_form = forms.LensQueryForm(request.POST,request.FILES,prefix="lens")
+        imaging_form = forms.ImagingQueryForm(request.POST,request.FILES,prefix="imaging")
+        if lens_form.is_valid() and imaging_form.is_valid():
+            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,request.user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
-                       'form':form}
+                       'lens_form':lens_form,
+                       'imaging_form':imaging_form}
         else:
             context = {'lenses': None,
                        'lenses_range': [],
                        'lenses_count': 0,
-                       'form':form}
+                       'lens_form':lens_form,
+                       'imaging_form':imaging_form}
         return self.render_to_response(context)
         
 
