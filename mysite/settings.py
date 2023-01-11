@@ -35,8 +35,13 @@ ALLOWED_HOSTS = ['django01.obs.unige.ch', '127.0.0.1']
 AUTH_USER_MODEL = 'lenses.Users'
 GUARDIAN_MONKEY_PATCH = False
 DJANGO_NOTIFICATIONS_CONFIG = { 'USE_JSONFIELD': True}
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 1025
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'sleddatabase@gmail.com'
+EMAIL_HOST_PASSWORD = 'ixzdsavcwdgohgrj' #cspwhr^U&k8QasR+'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Application definition
 
