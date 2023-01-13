@@ -19,6 +19,7 @@ from django.contrib import messages
 from django.core import serializers
 from django.conf import settings
 from django.db.models import Max, Subquery, Q
+from django.db.models.query import QuerySet
 import json
 from urllib.parse import urlparse
 
@@ -743,64 +744,84 @@ class StandardQueriesView(ListView):
 class LensQueryView(TemplateView):
     template_name = 'lenses/lens_query.html'
 
-
-
-    def combined_query(self,lens_form,imaging_form,user):
-
-        lenses = self.lens_search(lens_form,user)
+    def combined_query(self,lens_form,imaging_form,spectrum_form,catalogue_form,user):
+        #start with available lenses
+        lenses = Lenses.accessible_objects.all(user)
         print(len(lenses))
 
-        lenses = self.imaging_search(lenses,imaging_form,user)
-        print(len(lenses))
+        if lens_form:
+            print('Lenses form has values')
+            lenses = self.lens_search(lenses,lens_form,user)
+            print(len(lenses))
+
+        tmp = imaging_form.copy()
+        for key in imaging_form.keys():
+            if key in ['instrument_and_or','band_and_or']:
+                tmp.pop(key)
+        if tmp:
+            print('Imaging form has values')
+            lenses = self.imaging_search(lenses,imaging_form,user)
+            print(len(lenses))
         
         
         # Paginator for lenses
         paginator = Paginator(lenses,50)
-        lenses_page = paginator.get_page(lens_form['page'])
-        #lenses_page_number = self.request.GET.get('lenses-page',1)
-        #lenses_page = paginator.get_page(lenses_page_number)
+        lenses_page = paginator.get_page(lens_form.get('page',1))
         lenses_count = paginator.count
         lenses_range = paginator.page_range
 
         return lenses_page,lenses_range,lenses_count
 
 
-    def imaging_search(self,lenses,form,user):
+    
+    def imaging_search(self,lenses,cleaned_form,user):
         '''
         Returns a Lenses queryset
         '''
-        keywords = list(form.keys())
-        values = [form[keyword] for keyword in keywords]
+        instrument_and_or = cleaned_form.pop('instrument_and_or')
+        instrument = cleaned_form.pop('instrument',None)
 
-        datatype = 'imaging'
-        args = {datatype+'__exists':True}
-        for k, value in enumerate(values):
-            if value!=None:
-                if '_min' in keywords[k]:
-                    args[datatype+'__'+keywords[k].split('_min')[0]+'__gte'] = value
-                elif '_max' in keywords[k]:
-                    args[datatype+'__'+keywords[k].split('_max')[0]+'__lte'] = value
+        conditions = Q(imaging__exists=True)
+        for key,value in cleaned_form.items():
+            if value != None:
+                if '_min' in key:
+                    conditions.add(Q(**{'imaging__'+key.split('_min')[0]+'__gte':value}),Q.AND)
+                elif '_max' in key:
+                    conditions.add(Q(**{'imaging__'+key.split('_max')[0]+'__lte':value}),Q.AND)
                 else:
-                    args[datatype+'__'+keywords[k]] = value
-        print(args)
-        return lenses.filter(**args).distinct()
+                    conditions.add(Q(**{'imaging__'+key:value}),Q.AND)
+        print(conditions)
+        
+        if instrument:
+            if instrument_and_or == 'AND':
+                sets = []
+                for item in instrument:
+                    sets.append( set(lenses.filter(conditions & Q(imaging__instrument__name=item)).values_list('id',flat=True)) )
+                final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
+                lenses = Lenses.objects.filter(id__in=final)
+            else:
+                q = Q()
+                for item in instrument:
+                    q.add( Q(imaging__instrument__name=item), Q.OR )
+                lenses = lenses.filter(conditions & q).distinct()
+        else:
+            lenses = lenses.filter(conditions).distinct()
+        
+        return lenses
     
 
-    def lens_search(self,form,user):
+    def lens_search(self,lenses,form,user):
         '''
         This function performs the filtering on the lenses table, by parsing the filter values from the request
         Returns a Lenses queryset
         '''
         keywords = list(form.keys())
         values = [form[keyword] for keyword in keywords]
-
-        #start with available lenses
-        lenses = Lenses.accessible_objects.all(user)
         
         #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
         over_meridian = False
         #print(form['ra_min'], form['ra_max'])
-        if form['ra_min'] is not None and form['ra_max'] is not None:
+        if 'ra_min' in form and 'ra_max' in form:
             if float(form['ra_min']) > float(form['ra_max']):
                 over_meridian = True
 
@@ -831,7 +852,7 @@ class LensQueryView(TemplateView):
                             #args = {keywords[k]:value[i]}
                             #print(args)
                             #lenses_type = 
-                            print(search_params, i)
+                            #print(search_params, i)
                             if i==len(value)-1:
                                 #final_lenses = lenses_type
                                 #print(final_lenses)
@@ -860,39 +881,66 @@ class LensQueryView(TemplateView):
 
     
     def get(self, request, *args, **kwargs):
-        lens_form = forms.LensQueryForm(request.GET,prefix="lens")
-        imaging_form = forms.ImagingQueryForm(request.GET,prefix="imaging")
-        if lens_form.is_valid() and imaging_form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,request.user)
+        if request.GET:
+            lens_form = forms.LensQueryForm(request.GET,prefix="lens")
+            imaging_form = forms.ImagingQueryForm(request.GET,prefix="imaging")
+            spectrum_form = forms.SpectrumQueryForm(request.GET,prefix="spectrum")
+            catalogue_form = forms.CatalogueQueryForm(request.GET,prefix="catalogue")
+        else:
+            lens_form = forms.LensQueryForm(prefix="lens")
+            imaging_form = forms.ImagingQueryForm(prefix="imaging",initial={'instrument_and_or':'AND'})
+            spectrum_form = forms.SpectrumQueryForm(prefix="spectrum",initial={'instrument_and_or':'AND'})
+            catalogue_form = forms.CatalogueQueryForm(prefix="catalogue",initial={'instrument_and_or':'AND'})
+            
+        if lens_form.is_valid() and imaging_form.is_valid() and spectrum_form.is_valid() and catalogue_form.is_valid():
+            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,
+                                                                        imaging_form.cleaned_data,
+                                                                        spectrum_form.cleaned_data,
+                                                                        catalogue_form.cleaned_data,
+                                                                        request.user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
                        'lens_form':lens_form,
+                       'spectrum_form':spectrum_form,
+                       'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form}
         else:
             context = {'lenses': None,
                        'lenses_range': [],
                        'lenses_count': 0,
                        'lens_form':lens_form,
+                       'spectrum_form':spectrum_form,
+                       'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form}
         return self.render_to_response(context)
 
     
     def post(self, request, *args, **kwargs):
-        lens_form = forms.LensQueryForm(request.POST,request.FILES,prefix="lens")
-        imaging_form = forms.ImagingQueryForm(request.POST,request.FILES,prefix="imaging")
-        if lens_form.is_valid() and imaging_form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,request.user)
+        lens_form = forms.LensQueryForm(request.POST,prefix="lens")
+        imaging_form = forms.ImagingQueryForm(request.POST,prefix="imaging")
+        spectrum_form = forms.SpectrumQueryForm(request.POST,prefix="spectrum")
+        catalogue_form = forms.CatalogueQueryForm(request.POST,prefix="catalogue")
+        if lens_form.is_valid() and imaging_form.is_valid() and spectrum_form.is_valid() and catalogue_form.is_valid():
+            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,
+                                                                        imaging_form.cleaned_data,
+                                                                        spectrum_form.cleaned_data,
+                                                                        catalogue_form.cleaned_data,
+                                                                        request.user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
                        'lens_form':lens_form,
+                       'spectrum_form':spectrum_form,
+                       'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form}
         else:
             context = {'lenses': None,
                        'lenses_range': [],
                        'lenses_count': 0,
                        'lens_form':lens_form,
+                       'spectrum_form':spectrum_form,
+                       'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form}
         return self.render_to_response(context)
         

@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from django.db.models import QuerySet
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from django_select2 import forms as s2forms
 
@@ -296,13 +297,13 @@ class LensQueryForm(forms.Form):
                                             help_text="Select only confirmed lenses (confirmed field set to True).", initial=None)
     flag_unconfirmed   = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                            help_text="Select only un-confirmed lenses (confirmed field set to False).", initial='1')
+                                                help_text="Select only un-confirmed lenses (confirmed field set to False).", initial=None)
     flag_contaminant   = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
                                             help_text="Select only confirmed contaminants (contaminant field set to True).", initial=None)
     flag_uncontaminant = forms.NullBooleanField(required=False,
                                             widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                            help_text="Select only unconfirmed contaminants (contaminant field set to False).", initial='1')
+                                                help_text="Select only unconfirmed contaminants (contaminant field set to False).", initial=None)
 
     # Django-select2 widget for lens type, source type, and image_conf
     ds2_widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False})
@@ -368,19 +369,29 @@ class LensQueryForm(forms.Form):
         #C.L.: I think we want this sometimes!
         #if self.cleaned_data.get('flag_contaminant') and (self.cleaned_data.get('image_conf') or self.cleaned_data.get('lens_type') or self.cleaned_data.get('source_type')): # contaminant_check
         #    raise ValidationError('The query cannot be restricted to contaminants and have a lens or source type, or an image configuration.')
-
+        
         #C.L.: We want this sometimes!
         #if self.cleaned_data.get('ra_min') and self.cleaned_data.get('ra_max'):
         #    if float(self.cleaned_data.get('ra_min')) > float(self.cleaned_data.get('ra_max')):
         #        raise ValidationError('The maximum ra is lower than the minimum.')
 
-       
-        for flag in ['flag_confirmed', 'flag_unconfirmed', 'flag_contaminant', 'flag_uncontaminant']:
-            if not self.cleaned_data.get(flag):
-                #print(flag)
-                self.cleaned_data = self.cleaned_data.copy()
-                self.cleaned_data[flag] = None
-                #print(self.data)
+        keys = list(self.cleaned_data.keys())
+        for key in keys:
+            if isinstance(self.cleaned_data[key],QuerySet) or isinstance(self.cleaned_data[key],list):
+                if len(self.cleaned_data[key]) == 0:
+                    self.cleaned_data.pop(key)
+            else:
+                if self.cleaned_data[key] == None:
+                    self.cleaned_data.pop(key)
+
+        # GV: Not sure what the following serves
+        #for flag in ['flag_confirmed', 'flag_unconfirmed', 'flag_contaminant', 'flag_uncontaminant']:
+        #    if not self.cleaned_data.get(flag):
+        #        #print(flag)
+        #        self.cleaned_data = self.cleaned_data.copy()
+        #        self.cleaned_data[flag] = None
+        #        #print(self.data)
+
         if self.cleaned_data.get('dec_min') and self.cleaned_data.get('dec_max'):
             if float(self.cleaned_data.get('dec_min')) > float(self.cleaned_data.get('dec_max')):
                 raise ValidationError('The maximum dec is lower than the minimum.')
@@ -419,25 +430,41 @@ class LensQueryForm(forms.Form):
 
 
 class DataBaseQueryForm(forms.Form):
-    instrument = forms.ModelChoiceField(label='Instrument',queryset=Instrument.objects.all(),required=False)
+    instrument_and_or_choice = (
+        ('AND','AND'),
+        ('OR','OR')
+    )
+    instrument_and_or = forms.ChoiceField(required=False,
+                                          label='Instrument AND/OR',
+                                          choices=instrument_and_or_choice,
+                                          widget=forms.RadioSelect(attrs={'class':'jb-select-radio'})
+                                          )
+    instrument = forms.ModelMultipleChoiceField(
+        label = 'Instrument',
+        queryset = Instrument.objects.all(),
+        required = False,
+        widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
+                                                      'data-placeholder':'Select an instrument',
+                                                      'data-allow-clear':False})
+    )
     date_taken_min = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(
-            empty_label=("Year", "Month", "Day"),
-            years=reversed(range(1950,timezone.now().year+10))
+        required = False,
+        widget = forms.SelectDateWidget(
+            empty_label = ("Year", "Month", "Day"),
+            years = reversed(range(1950,timezone.now().year+10))
         )
     )
     date_taken_max = forms.DateField(
-        required=False,
-        widget=forms.SelectDateWidget(
-            empty_label=("Year", "Month", "Day"),
-            years=reversed(range(1950,timezone.now().year+10))
+        required = False,
+        widget = forms.SelectDateWidget(
+            empty_label = ("Year", "Month", "Day"),
+            years = reversed(range(1950,timezone.now().year+10))
         )
     )
     future = forms.NullBooleanField(
-        required=False,
-        widget=forms.Select(
-            choices=[
+        required = False,
+        widget = forms.Select(
+            choices = [
                 ('', 'Unknown'),
                 (True, 'Yes'),
                 (False, 'No'),
@@ -445,6 +472,176 @@ class DataBaseQueryForm(forms.Form):
         )
     )
 
+    def clean(self):
+        keys = list(self.cleaned_data.keys())
+        for key in keys:
+            if isinstance(self.cleaned_data[key],QuerySet) or isinstance(self.cleaned_data[key],list):
+                if len(self.cleaned_data[key]) == 0:
+                    self.cleaned_data.pop(key)
+            else:
+                if self.cleaned_data[key] == None:
+                    self.cleaned_data.pop(key)
+        
+        if self.cleaned_data.get('date_taken_min') and self.cleaned_data.get('date_taken_max'):
+            if self.cleaned_data.get('date_taken_min') > self.cleaned_data.get('date_taken_max'):
+                self.add_error('__all__','The maximum date is lower than the minimum.')
+        if self.cleaned_data.get('future') and self.cleaned_data.get('date_taken_max'):
+            now = timezone.now().date()
+            if now > self.cleaned_data.get('date_taken_max'):
+                self.add_error('__all__','The maximum date needs to be in the future.')
 
+
+                
 class ImagingQueryForm(DataBaseQueryForm):
-    band = forms.ModelChoiceField(label='Band',queryset=Band.objects.all(),required=False)
+    band = forms.ModelChoiceField(
+        label = 'Band',
+        queryset = Band.objects.all(),
+        required = False,
+        widget = s2forms.Select2Widget(attrs={'class':'my-select2 jb-myselect2',
+                                              'data-placeholder':'Select a band',
+                                              'data-allow-clear':False})
+    )
+    exposure_time_min = forms.DecimalField(required=False,
+                                           max_digits=8,
+                                           decimal_places=4,
+                                           help_text="Exposure time [s].",
+                                           widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                           validators=[MinValueValidator(0.0,"Exposure type must be positive.")]
+                                           )
+    exposure_time_max = forms.DecimalField(required=False,
+                                           max_digits=8,
+                                           decimal_places=4,
+                                           help_text="Exposure time [s].",
+                                           widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                           validators=[MinValueValidator(0.0,"Exposure type must be positive.")]
+                                           )
+    pixel_size_min = forms.DecimalField(required=False,
+                                        max_digits=7,
+                                        decimal_places=4,
+                                        help_text="Pixel size [arcsec].",
+                                        widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                        validators=[MinValueValidator(0.0,"Pixel size must be positive.")]
+                                        )
+    pixel_size_max = forms.DecimalField(required=False,
+                                        max_digits=7,
+                                        decimal_places=4,
+                                        help_text="Pixel size [arcsec].",
+                                        widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                        validators=[MinValueValidator(0.0,"Pixel size must be positive.")]
+                                        )
+
+    def clean(self):        
+        super(ImagingQueryForm,self).clean()
+        if self.cleaned_data.get('exposure_time_min') and self.cleaned_data.get('exposure_time_max'):
+            if float(self.cleaned_data.get('exposure_time_min')) > float(self.cleaned_data.get('exposure_time_max')):
+                self.add_error('__all__','The maximum exposure time is lower than the minimum.')
+        if self.cleaned_data.get('pixel_size_min') and self.cleaned_data.get('pixel_size_max'):
+            if float(self.cleaned_data.get('pixel_size_min')) > float(self.cleaned_data.get('pixel_size_max')):
+                self.add_error('__all__','The maximum pixel size is lower than the minimum.')
+
+
+
+class SpectrumQueryForm(DataBaseQueryForm):
+    exposure_time_min = forms.DecimalField(required=False,
+                                           max_digits=8,
+                                           decimal_places=4,
+                                           help_text="Exposure time [s].",
+                                           widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                           validators=[MinValueValidator(0.0,"Exposure type must be positive.")]
+                                           )
+    exposure_time_max = forms.DecimalField(required=False,
+                                           max_digits=8,
+                                           decimal_places=4,
+                                           help_text="Exposure time [s].",
+                                           widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                           validators=[MinValueValidator(0.0,"Exposure type must be positive.")]
+                                           )
+    min_lambda = forms.DecimalField(required=False,
+                                    max_digits=10,
+                                    decimal_places=4,
+                                    help_text="Wavelength [nm].",
+                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                    validators=[MinValueValidator(0.0,"Wavelength must be positive.")]
+                                    )
+    max_lambda = forms.DecimalField(required=False,
+                                    max_digits=10,
+                                    decimal_places=4,
+                                    help_text="Wavelength [nm].",
+                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                    validators=[MinValueValidator(0.0,"Wavelength must be positive.")]
+                                    )
+    resolution_min = forms.DecimalField(required=False,
+                                        max_digits=7,
+                                        decimal_places=4,
+                                        help_text="Resolution [nm].",
+                                        widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                        validators=[MinValueValidator(0.0,"Wavelength resolution must be positive.")]
+                                        )
+    resolution_max = forms.DecimalField(required=False,
+                                        max_digits=7,
+                                        decimal_places=4,
+                                        help_text="Resolution [nm].",
+                                        widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                        validators=[MinValueValidator(0.0,"Wavelength resolution must be positive.")]
+                                        )
+
+    def clean(self):
+        super(SpectrumQueryForm,self).clean()        
+        if self.cleaned_data.get('exposure_time_min') and self.cleaned_data.get('exposure_time_max'):
+            if float(self.cleaned_data.get('exposure_time_min')) > float(self.cleaned_data.get('exposure_time_max')):
+                self.add_error('__all__','The maximum exposure time is lower than the minimum.')
+        if self.cleaned_data.get('min_lambda') and self.cleaned_data.get('max_lambda'):
+            if float(self.cleaned_data.get('min_lambda')) > float(self.cleaned_data.get('max_lambda')):
+                self.add_error('__all__','The maximum wavelength is lower than the minimum.')
+        if self.cleaned_data.get('resolutiion_min') and self.cleaned_data.get('resolutiion_max'):
+            if float(self.cleaned_data.get('resolutiion_min')) > float(self.cleaned_data.get('resolutiion_max')):
+                self.add_error('__all__','The maximum resolution is lower than the minimum.')
+
+                
+
+class CatalogueQueryForm(DataBaseQueryForm):
+    band = forms.ModelMultipleChoiceField(
+        label = 'Band',
+        queryset = Band.objects.all(),
+        required = False,
+        widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
+                                                      'data-placeholder':'Select a band',
+                                                      'data-allow-clear':False})
+    )
+    distance_min = forms.DecimalField(required=False,
+                                      max_digits=7,
+                                      decimal_places=4,
+                                      help_text="Distance [arcsec].",
+                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                      validators=[MinValueValidator(0.0,"Distance must be positive.")]
+                                      )
+    distance_max = forms.DecimalField(required=False,
+                                      max_digits=7,
+                                      decimal_places=4,
+                                      help_text="Distance [arcsec].",
+                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                      validators=[MinValueValidator(0.0,"Distance must be positive.")]
+                                      )
+    mag_min = forms.DecimalField(required=False,
+                                 max_digits=7,
+                                 decimal_places=4,
+                                 help_text="Magnitude",
+                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                 validators=[MinValueValidator(0.0,"Magnitude must be positive.")]
+                                 )
+    mag_max = forms.DecimalField(required=False,
+                                 max_digits=7,
+                                 decimal_places=4,
+                                 help_text="Magnitude",
+                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                 validators=[MinValueValidator(0.0,"Magnitude must be positive.")]
+                                 )
+
+    def clean(self):
+        super(CatalogueQueryForm,self).clean()    
+        if self.cleaned_data.get('distance_min') and self.cleaned_data.get('distance_max'):
+            if float(self.cleaned_data.get('distance_min')) > float(self.cleaned_data.get('distance_max')):
+                self.add_error('__all__','The maximum distance is lower than the minimum.')                
+        if self.cleaned_data.get('mag_min') and self.cleaned_data.get('mag_max'):
+            if float(self.cleaned_data.get('mag_min')) > float(self.cleaned_data.get('mag_max')):
+                self.add_error('__all__','The maximum magnitude is lower than the minimum.')

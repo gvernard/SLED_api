@@ -12,119 +12,170 @@
     <form id="lens-query" method="POST">
       {% csrf_token %}
 
-      {% if lens_form.non_field_errors|length > 0 or data_form.non_field_errors|length > 0 %}
-      <div class="invalid jb-modal-field">
-	<ul>
-	  {% for error in lens_form.non_field_errors %}
-	  <li>{{ error }}</li>
-	  {% endfor %}
-	  {% for error in data_form.non_field_errors %}
-	  <li>{{ error }}</li>
-	  {% endfor %}
-	</ul>
+      <div>
+	<h1 class="jb-heading-2">Lens properties</h1>
+	
+	{% if lens_form.non_field_errors|length > 0 %}
+	<div class="invalid jb-modal-field">
+	  <ul>
+	    {% for error in lens_form.non_field_errors %}
+	    <li>{{ error }}</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+	{% endif %}
+
+
+	
+	{% with form=lens_form %}
+	<table>
+          <tr>
+
+            <td>
+              <table>
+		<tr>
+                  <td>{{ form.ra_min.errors }}</td>
+                  <td>{{ form.ra_min }}</td>
+                  <td> &lt; R.A. &lt; </td>
+                  <td>{{ form.ra_max }}</td>
+                  <td>{{ form.ra_max.errors }}</td>
+		</tr>
+		<tr>
+                  <td>{{ form.dec_min.errors }}</td>
+                  <td>{{ form.dec_min }}</td>
+                  <td> &lt; Dec. &lt; </td>
+                  <td>{{ form.dec_max }}</td>
+                  <td>{{ form.dec_max.errors }}</td>
+		</tr>
+		<tr>
+                  <td>{{ form.n_img_min.errors }}</td>
+                  <td>{{ form.n_img_min }}</td>
+                  <td> &lt; Number of images &lt; </td>
+                  <td>{{ form.n_img_max }}</td>
+                  <td>{{ form.n_img_max.errors }}</td>
+		</tr>
+		<tr>
+                  <td>{{ form.image_sep_min.errors }}</td>
+                  <td>{{ form.image_sep_min }}</td>
+                  <td> &lt; Image separation &lt; </td>
+                  <td>{{ form.image_sep_max }}</td>
+                  <td>{{ form.image_sep_max.errors }}</td>
+		</tr>
+		<tr>
+                  <td>{{ form.z_lens_min.errors }}</td>
+                  <td>{{ form.z_lens_min }}</td>
+                  <td> &lt; Lens Redshift &lt; </td>
+                  <td>{{ form.z_lens_max }}</td>
+                  <td>{{ form.z_lens_max.errors }}</td>
+		</tr>
+		<tr>
+                  <td>{{ form.z_source_min.errors }}</td>
+                  <td>{{ form.z_source_min }}</td>
+                  <td> &lt; Source redshift &lt; </td>
+                  <td>{{ form.z_source_max }}</td>
+                  <td>{{ form.z_source_max.errors }}</td>
+		</tr>
+		<tr>
+                  <td>{{ form.score_min.errors }}</td>
+                  <td>{{ form.score_min }}</td>
+                  <td> &lt; Score &lt; </td>
+                  <td>{{ form.score_max }}</td>
+                  <td>{{ form.score_max.errors }}</td>
+		</tr>
+              </table>
+            </td>
+
+            <td>
+              <table>
+		<tr>
+                  <td>Confirmed Lens?</td>
+                  <td>{{ form.flag_confirmed }}</td>
+		</tr>
+		<tr>
+                  <td>Not Confirmed Lens? </td>
+                  <td>{{ form.flag_unconfirmed }}</td>
+		</tr>
+		<tr>
+                  <td>Confirmed Contaminant?</td>
+                  <td>{{ form.flag_contaminant }}</td>
+		</tr>
+		<tr>
+                  <td>Not Confirmed Contaminant?</td>
+                  <td>{{ form.flag_uncontaminant }}</td>
+		</tr>
+		<tr>
+                  <td>Lens Type</td>
+                  <td>{{ form.lens_type }}</td>
+		</tr>
+		<tr>
+                  <td>Source Type</td>
+                  <td>{{ form.source_type }}</td>
+		</tr>
+		<tr>
+                  <td>Configuration</td>
+                  <td>{{ form.image_conf }}</td>
+		</tr>
+              </table>
+            </td>
+
+          </tr>
+	</table>
+	{{ form.page }}
+	{% endwith %}
       </div>
-      {% endif %}
 
+      
+      <div>
+	<h1 class="jb-heading-2">Imaging data</h1>
+	
+	{% if imaging_form.non_field_errors|length > 0 %}
+	<div class="invalid jb-modal-field">
+	  <ul>
+	    {% for error in imaging_form.non_field_errors %}
+	    <li>{{ error }}</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+	{% endif %}
 
-      {% with form=lens_form %}
-      <table>
-        <tr>
-
-          <td>
-            <table>
-              <tr>
-                <td>{{ form.ra_min.errors }}</td>
-                <td>{{ form.ra_min }}</td>
-                <td> &lt; R.A. &lt; </td>
-                <td>{{ form.ra_max }}</td>
-                <td>{{ form.ra_max.errors }}</td>
-              </tr>
-              <tr>
-                <td>{{ form.dec_min.errors }}</td>
-                <td>{{ form.dec_min }}</td>
-                <td> &lt; Dec. &lt; </td>
-                <td>{{ form.dec_max }}</td>
-                <td>{{ form.dec_max.errors }}</td>
-              </tr>
-              <tr>
-                <td>{{ form.n_img_min.errors }}</td>
-                <td>{{ form.n_img_min }}</td>
-                <td> &lt; Number of images &lt; </td>
-                <td>{{ form.n_img_max }}</td>
-                <td>{{ form.n_img_max.errors }}</td>
-              </tr>
-              <tr>
-                <td>{{ form.image_sep_min.errors }}</td>
-                <td>{{ form.image_sep_min }}</td>
-                <td> &lt; Image separation &lt; </td>
-                <td>{{ form.image_sep_max }}</td>
-                <td>{{ form.image_sep_max.errors }}</td>
-              </tr>
-              <tr>
-                <td>{{ form.z_lens_min.errors }}</td>
-                <td>{{ form.z_lens_min }}</td>
-                <td> &lt; Lens Redshift &lt; </td>
-                <td>{{ form.z_lens_max }}</td>
-                <td>{{ form.z_lens_max.errors }}</td>
-              </tr>
-              <tr>
-                <td>{{ form.z_source_min.errors }}</td>
-                <td>{{ form.z_source_min }}</td>
-                <td> &lt; Source redshift &lt; </td>
-                <td>{{ form.z_source_max }}</td>
-                <td>{{ form.z_source_max.errors }}</td>
-              </tr>
-              <tr>
-                <td>{{ form.score_min.errors }}</td>
-                <td>{{ form.score_min }}</td>
-                <td> &lt; Score &lt; </td>
-                <td>{{ form.score_max }}</td>
-                <td>{{ form.score_max.errors }}</td>
-              </tr>
-            </table>
-          </td>
-
-          <td>
-            <table>
-              <tr>
-                <td>Confirmed Lens?</td>
-                <td>{{ form.flag_confirmed }}</td>
-              </tr>
-              <tr>
-                <td>Not Confirmed Lens? </td>
-                <td>{{ form.flag_unconfirmed }}</td>
-              </tr>
-              <tr>
-                <td>Confirmed Contaminant?</td>
-                <td>{{ form.flag_contaminant }}</td>
-              </tr>
-              <tr>
-                <td>Not Confirmed Contaminant?</td>
-                <td>{{ form.flag_uncontaminant }}</td>
-              </tr>
-              <tr>
-                <td>Lens Type</td>
-                <td>{{ form.lens_type }}</td>
-              </tr>
-              <tr>
-                <td>Source Type</td>
-                <td>{{ form.source_type }}</td>
-              </tr>
-              <tr>
-                <td>Configuration</td>
-                <td>{{ form.image_conf }}</td>
-              </tr>
-            </table>
-          </td>
-
-        </tr>
-      </table>
-      {{ form.page }}
-      {% endwith %}
-
-      {% with form=imaging_form %}
-      {{ form.as_p }}
-      {% endwith %}
+	<table>
+	  <tr>
+	    <td>
+	      {% with form=imaging_form %}
+	      <table>
+		<tr>
+		  <td>{{ form.instrument }}</td>
+		  <td colspan="2">{{ form.instrument_and_or }}</td>
+		</tr>
+		<tr>
+		  <td colspan="3">{{ form.band }}</td>
+		</tr>
+		<tr>
+		  <td>Future</td>
+		  <td colspan="2">{{ form.future }} </td>
+		</tr>
+		<tr>
+		  <td>{{ form.date_taken_min }}</td>
+		  <td>&lt; Date taken &lt;</td>
+		  <td>{{ form.date_taken_max }}</td>
+		</tr>
+		<tr>
+		  <td>{{ form.exposure_time_min }}</td>
+		  <td>&lt; Exposure time [s] &lt;</td>
+		  <td>{{ form.exposure_time_max }}</td>
+		</tr>
+		<tr>
+		  <td>{{ form.pixel_size_min }}</td>
+		  <td>&lt; Pixel size [arcsec] &lt;</td>
+		  <td>{{ form.pixel_size_max }}</td>
+		</tr>
+	      </table>
+	      {% endwith %}
+	    </td>
+	  </tr>
+	</table>
+      </div>
+      
     </form>
     <button id="mysubmit" type="submit" class="jb-submit-button-1" form="lens-query">Submit</button>
     <button type="button" id="save-query" class="jb-submit-button-1" data-form-url="{% url 'sled_queries:query-save' %}">
