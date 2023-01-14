@@ -911,62 +911,13 @@ class LensQueryView(TemplateView):
 
         return lenses
 
-    
-    def get(self, request, *args, **kwargs):
-        if request.GET:
-            lens_form = forms.LensQueryForm(request.GET,prefix="lens")
-            imaging_form = forms.ImagingQueryForm(request.GET,prefix="imaging")
-            spectrum_form = forms.SpectrumQueryForm(request.GET,prefix="spectrum")
-            catalogue_form = forms.CatalogueQueryForm(request.GET,prefix="catalogue")
-        else:
-            lens_form = forms.LensQueryForm(prefix="lens")
-            imaging_form = forms.ImagingQueryForm(prefix="imaging",initial={'instrument_and':True})
-            spectrum_form = forms.SpectrumQueryForm(prefix="spectrum",initial={'instrument_and':True})
-            catalogue_form = forms.CatalogueQueryForm(prefix="catalogue",initial={'instrument_and':True})
-            
-        if lens_form.is_valid() and imaging_form.is_valid() and spectrum_form.is_valid() and catalogue_form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,
-                                                                        imaging_form.cleaned_data,
-                                                                        spectrum_form.cleaned_data,
-                                                                        catalogue_form.cleaned_data,
-                                                                        request.user)
-            forms_with_fields = []
-            for name,form in zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form]):
-                if form.cleaned_data:
-                    forms_with_fields.append(name)
 
-            context = {'lenses':lenses_page,
-                       'lenses_range':lenses_range,
-                       'lenses_count':lenses_count,
-                       'lens_form':lens_form,
-                       'spectrum_form':spectrum_form,
-                       'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form,
-                       'forms_with_fields': forms_with_fields,
-                       'forms_with_errors': []}
-        else:
-            forms_with_errors = []
-            for name,form in zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form]):
-                if form.errors:
-                    forms_with_errors.append(name)
-            
-            context = {'lenses': None,
-                       'lenses_range': [],
-                       'lenses_count': 0,
-                       'lens_form':lens_form,
-                       'spectrum_form':spectrum_form,
-                       'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form,
-                       'forms_with_fields': [],
-                       'forms_with_errors':forms_with_errors}
-        return self.render_to_response(context)
 
-    
-    def post(self, request, *args, **kwargs):
-        lens_form = forms.LensQueryForm(request.POST,prefix="lens")
-        imaging_form = forms.ImagingQueryForm(request.POST,prefix="imaging")
-        spectrum_form = forms.SpectrumQueryForm(request.POST,prefix="spectrum")
-        catalogue_form = forms.CatalogueQueryForm(request.POST,prefix="catalogue")
+    def my_response(self,request,user):
+        lens_form = forms.LensQueryForm(request,prefix="lens")
+        imaging_form = forms.ImagingQueryForm(request,prefix="imaging")
+        spectrum_form = forms.SpectrumQueryForm(request,prefix="spectrum")
+        catalogue_form = forms.CatalogueQueryForm(request,prefix="catalogue")
 
         forms_with_fields = []
         forms_with_errors = []
@@ -977,9 +928,9 @@ class LensQueryView(TemplateView):
                     forms_with_fields.append(name)
             else:
                 forms_with_errors.append(name)
-
-        if not forms_with_errors:
-            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,request.user)
+            
+        if len(forms_with_errors) == 0 and lens_form.is_valid():
+            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
@@ -999,6 +950,15 @@ class LensQueryView(TemplateView):
                        'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
                        'forms_with_errors':forms_with_errors}
+        return context
+
+    
+    def get(self, request, *args, **kwargs):
+        context = self.my_response(request.GET,request.user)
+        return self.render_to_response(context)
+    
+    def post(self, request, *args, **kwargs):
+        context = self.my_response(request.POST,request.user)
         return self.render_to_response(context)
         
 
