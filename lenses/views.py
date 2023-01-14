@@ -744,6 +744,7 @@ class StandardQueriesView(ListView):
 class LensQueryView(TemplateView):
     template_name = 'lenses/lens_query.html'
 
+    
     def combined_query(self,lens_form,imaging_form,spectrum_form,catalogue_form,user):
         #start with available lenses
         lenses = Lenses.accessible_objects.all(user)
@@ -754,51 +755,106 @@ class LensQueryView(TemplateView):
             lenses = self.lens_search(lenses,lens_form,user)
             print(len(lenses))
 
-        tmp = imaging_form.copy()
-        for key in imaging_form.keys():
-            if key in ['instrument_and_or','band_and_or']:
-                tmp.pop(key)
-        if tmp:
+        if imaging_form:
             print('Imaging form has values')
             lenses = self.imaging_search(lenses,imaging_form,user)
             print(len(lenses))
-        
-        
+
+        if spectrum_form:
+            print('Spectrum not empty')
+            lenses = self.spectrum_search(lenses,spectrum_form,user)
+            print(len(lenses))
+
+        if catalogue_form:
+            print('CATALOGUE not empty')
+            lenses = self.catalogue_search(lenses,catalogue_form,user)
+            print(len(lenses))
+
         # Paginator for lenses
         paginator = Paginator(lenses,50)
         lenses_page = paginator.get_page(lens_form.get('page',1))
         lenses_count = paginator.count
         lenses_range = paginator.page_range
-
         return lenses_page,lenses_range,lenses_count
 
 
+    def catalogue_search(self,lenses,cleaned_form,user):
+        conditions = Q(catalogue__exists=True)
+        for key,value in cleaned_form.items():
+            if key not in ['instrument','instrument_and'] and value != None:
+                if '_min' in key:
+                    conditions.add(Q(**{'catalogue__'+key.split('_min')[0]+'__gte':value}),Q.AND)
+                elif '_max' in key:
+                    conditions.add(Q(**{'catalogue__'+key.split('_max')[0]+'__lte':value}),Q.AND)
+                else:
+                    conditions.add(Q(**{'catalogue__'+key:value}),Q.AND)
+
+        instrument = cleaned_form.get('instrument',None)
+        if instrument:
+            if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
+                sets = []
+                for item in instrument:
+                    sets.append( set(lenses.filter(conditions & Q(catalogue__instrument__name=item)).values_list('id',flat=True)) )
+                final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
+                lenses = Lenses.accessible_objects.all(user).filter(id__in=final)
+            else:
+                q = Q()
+                for item in instrument:
+                    q.add( Q(catalogue__instrument__name=item), Q.OR )
+                lenses = lenses.filter(conditions & q).distinct()
+        else:
+            lenses = lenses.filter(conditions).distinct()
+        return lenses
+
+    
+    def spectrum_search(self,lenses,cleaned_form,user):
+        conditions = Q(spectrum__exists=True)
+        for key,value in cleaned_form.items():
+            if key not in ['instrument','instrument_and'] and value != None:
+                if '_min' in key:
+                    conditions.add(Q(**{'spectrum__'+key.split('_min')[0]+'__gte':value}),Q.AND)
+                elif '_max' in key:
+                    conditions.add(Q(**{'spectrum__'+key.split('_max')[0]+'__lte':value}),Q.AND)
+                else:
+                    conditions.add(Q(**{'spectrum__'+key:value}),Q.AND)
+
+        instrument = cleaned_form.get('instrument',None)
+        if instrument:
+            if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
+                sets = []
+                for item in instrument:
+                    sets.append( set(lenses.filter(conditions & Q(spectrum__instrument__name=item)).values_list('id',flat=True)) )
+                final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
+                lenses = Lenses.accessible_objects.all(user).filter(id__in=final)
+            else:
+                q = Q()
+                for item in instrument:
+                    q.add( Q(spectrum__instrument__name=item), Q.OR )
+                lenses = lenses.filter(conditions & q).distinct()
+        else:
+            lenses = lenses.filter(conditions).distinct()
+        return lenses
+
     
     def imaging_search(self,lenses,cleaned_form,user):
-        '''
-        Returns a Lenses queryset
-        '''
-        instrument_and_or = cleaned_form.pop('instrument_and_or')
-        instrument = cleaned_form.pop('instrument',None)
-
         conditions = Q(imaging__exists=True)
         for key,value in cleaned_form.items():
-            if value != None:
+            if key not in ['instrument','instrument_and'] and value != None:
                 if '_min' in key:
                     conditions.add(Q(**{'imaging__'+key.split('_min')[0]+'__gte':value}),Q.AND)
                 elif '_max' in key:
                     conditions.add(Q(**{'imaging__'+key.split('_max')[0]+'__lte':value}),Q.AND)
                 else:
                     conditions.add(Q(**{'imaging__'+key:value}),Q.AND)
-        print(conditions)
-        
+
+        instrument = cleaned_form.get('instrument',None)
         if instrument:
-            if instrument_and_or == 'AND':
+            if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
                 sets = []
                 for item in instrument:
                     sets.append( set(lenses.filter(conditions & Q(imaging__instrument__name=item)).values_list('id',flat=True)) )
                 final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
-                lenses = Lenses.objects.filter(id__in=final)
+                lenses = Lenses.accessible_objects.all(user).filter(id__in=final)
             else:
                 q = Q()
                 for item in instrument:
@@ -806,21 +862,15 @@ class LensQueryView(TemplateView):
                 lenses = lenses.filter(conditions & q).distinct()
         else:
             lenses = lenses.filter(conditions).distinct()
-        
         return lenses
     
 
     def lens_search(self,lenses,form,user):
-        '''
-        This function performs the filtering on the lenses table, by parsing the filter values from the request
-        Returns a Lenses queryset
-        '''
         keywords = list(form.keys())
         values = [form[keyword] for keyword in keywords]
         
         #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
         over_meridian = False
-        #print(form['ra_min'], form['ra_max'])
         if 'ra_min' in form and 'ra_max' in form:
             if float(form['ra_min']) > float(form['ra_max']):
                 over_meridian = True
@@ -828,9 +878,6 @@ class LensQueryView(TemplateView):
         #now apply the filter for each non-null entry
         for k, value in enumerate(values):
             if value!=None:
-                #print(value, keywords[k])
-
-                #print(k, value, keywords[k])
                 if 'ra_' in keywords[k] and over_meridian:
                     continue
                 if '_min' in keywords[k]:
@@ -843,25 +890,10 @@ class LensQueryView(TemplateView):
                 if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
                     if len(value) > 0:
                         search_params = Q()
-                        #should be able to pass a list
-                        #value = [value]
-                        #print(value, len(value))
                         for i in range(len(value)):
-                            #print(k, value[i], keywords[k])
                             search_params = search_params | Q((keywords[k]+'__contains', value[i]))
-                            #args = {keywords[k]:value[i]}
-                            #print(args)
-                            #lenses_type = 
-                            #print(search_params, i)
                             if i==len(value)-1:
-                                #final_lenses = lenses_type
-                                #print(final_lenses)
-                                #if len(value)==1:
-                                #print('final query:', search_params)
                                 lenses = lenses.filter(search_params)
-                            #else:
-                            #    final_lenses = final_lenses | lenses_type
-                            #    lenses = final_lenses.order_by('ra')
                                 
                 if 'flag_' in keywords[k]:
                     if 'flag_un' in keywords[k]:
@@ -888,9 +920,9 @@ class LensQueryView(TemplateView):
             catalogue_form = forms.CatalogueQueryForm(request.GET,prefix="catalogue")
         else:
             lens_form = forms.LensQueryForm(prefix="lens")
-            imaging_form = forms.ImagingQueryForm(prefix="imaging",initial={'instrument_and_or':'AND'})
-            spectrum_form = forms.SpectrumQueryForm(prefix="spectrum",initial={'instrument_and_or':'AND'})
-            catalogue_form = forms.CatalogueQueryForm(prefix="catalogue",initial={'instrument_and_or':'AND'})
+            imaging_form = forms.ImagingQueryForm(prefix="imaging",initial={'instrument_and':True})
+            spectrum_form = forms.SpectrumQueryForm(prefix="spectrum",initial={'instrument_and':True})
+            catalogue_form = forms.CatalogueQueryForm(prefix="catalogue",initial={'instrument_and':True})
             
         if lens_form.is_valid() and imaging_form.is_valid() and spectrum_form.is_valid() and catalogue_form.is_valid():
             lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,
@@ -898,21 +930,35 @@ class LensQueryView(TemplateView):
                                                                         spectrum_form.cleaned_data,
                                                                         catalogue_form.cleaned_data,
                                                                         request.user)
+            forms_with_fields = []
+            for name,form in zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form]):
+                if form.cleaned_data:
+                    forms_with_fields.append(name)
+
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
                        'lens_form':lens_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form}
+                       'imaging_form':imaging_form,
+                       'forms_with_fields': forms_with_fields,
+                       'forms_with_errors': []}
         else:
+            forms_with_errors = []
+            for name,form in zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form]):
+                if form.errors:
+                    forms_with_errors.append(name)
+            
             context = {'lenses': None,
                        'lenses_range': [],
                        'lenses_count': 0,
                        'lens_form':lens_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form}
+                       'imaging_form':imaging_form,
+                       'forms_with_fields': [],
+                       'forms_with_errors':forms_with_errors}
         return self.render_to_response(context)
 
     
@@ -927,21 +973,35 @@ class LensQueryView(TemplateView):
                                                                         spectrum_form.cleaned_data,
                                                                         catalogue_form.cleaned_data,
                                                                         request.user)
+            forms_with_fields = []
+            for name,form in zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form]):
+                if form.cleaned_data:
+                    forms_with_fields.append(name)
+            
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
                        'lens_form':lens_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form}
+                       'imaging_form':imaging_form,
+                       'forms_with_fields': forms_with_fields,
+                       'forms_with_errors': []}
         else:
+            forms_with_errors = []
+            for name,form in zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form]):
+                if form.errors:
+                    forms_with_errors.append(name)
+                    
             context = {'lenses': None,
                        'lenses_range': [],
                        'lenses_count': 0,
                        'lens_form':lens_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form}
+                       'imaging_form':imaging_form,
+                       'forms_with_fields': [],
+                       'forms_with_errors':forms_with_errors}
         return self.render_to_response(context)
         
 

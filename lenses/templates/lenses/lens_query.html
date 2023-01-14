@@ -1,5 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load lenses_extras %}
 
 {% block content %}
 {% include "modal_container.html" %}
@@ -7,7 +8,7 @@
 
 <div class="jb-container">
   <h1 class="jb-heading-1">Query Lenses</h1>
-
+  
   <div class="jb-table-no-lines">
     <form id="lens-query" method="POST">
       {% csrf_token %}
@@ -25,8 +26,6 @@
 	</div>
 	{% endif %}
 
-
-	
 	{% with form=lens_form %}
 	<table>
           <tr>
@@ -124,58 +123,270 @@
 	{% endwith %}
       </div>
 
-      
-      <div>
-	<h1 class="jb-heading-2">Imaging data</h1>
-	
-	{% if imaging_form.non_field_errors|length > 0 %}
-	<div class="invalid jb-modal-field">
-	  <ul>
-	    {% for error in imaging_form.non_field_errors %}
-	    <li>{{ error }}</li>
-	    {% endfor %}
-	  </ul>
+      {% with fwe=forms_with_errors %}
+      {% with fwf=forms_with_fields %}
+      <div id="mycarousel" class="carousel slide carousel-dark">
+	<div class="carousel-indicators">
+	  <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="0" data-target="#mycarousel" data-slide-to="0" class="{% get_carousel_active fwe fwf 'default' %}"></button>
+	  <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="1" data-target="#mycarousel" data-slide-to="1" class="{% get_carousel_active fwe fwf 'imaging' %}"></button>
+	  <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="2" data-target="#mycarousel" data-slide-to="2" class="{% get_carousel_active fwe fwf 'spectrum' %}"></button>
+	  <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="3" data-target="#mycarousel" data-slide-to="3" class="{% get_carousel_active fwe fwf 'catalogue' %}"></button>
+	  <button type="button" data-bs-target="#mycarousel" data-bs-slide-to="4" data-target="#mycarousel" data-slide-to="4" class="{% get_carousel_active fwe fwf 'lensmodel' %}"></button>
 	</div>
-	{% endif %}
+	<div class="carousel-inner">
 
-	<table>
-	  <tr>
-	    <td>
-	      {% with form=imaging_form %}
+	  <div class="carousel-item {% get_carousel_active fwe fwf 'default' %}">
+	    <div>
+	      <h1 class="jb-heading-2">Joined queries</h1>
+	      <p>
+		Instructions on how joined queries work
+	      </p>
+	    </div>
+	  </div>
+	  
+	  <div class="carousel-item {% get_carousel_active fwe fwf 'imaging' %}">
+	    {% with form=imaging_form %}
+	    <div class="data-form">
+	      <h1 class="jb-heading-2">Imaging data</h1>
+	      
+	      {% if form.non_field_errors|length > 0 %}
+	      <div class="invalid jb-modal-field">
+		<ul>
+		  {% for error in form.non_field_errors %}
+		  <li>{{ error }}</li>
+		  {% endfor %}
+		</ul>
+	      </div>
+	      {% endif %}
+	      
 	      <table>
 		<tr>
+		  <td>&nbsp;</td>
 		  <td>{{ form.instrument }}</td>
-		  <td colspan="2">{{ form.instrument_and_or }}</td>
+		  <td style="vertical-align:top">
+		    <div class="surro">OR</div>
+		    <div class="surro">
+		      <label class="switch">
+			{{ form.instrument_and }}
+			<span class="slider round"></span>
+		      </label>
+		    </div>
+		    <div class="surro">AND</div>
+		  </td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
 		</tr>
 		<tr>
-		  <td colspan="3">{{ form.band }}</td>
+		  <td>&nbsp;</td>
+		  <td>Band</td>
+		  <td>{{ form.band }}</td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
 		</tr>
 		<tr>
+		  <td>&nbsp;</td>
 		  <td>Future</td>
-		  <td colspan="2">{{ form.future }} </td>
+		  <td>{{ form.future }} </td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
 		</tr>
 		<tr>
+		  <td>{{ form.date_taken_min.errors }}</td>
 		  <td>{{ form.date_taken_min }}</td>
 		  <td>&lt; Date taken &lt;</td>
 		  <td>{{ form.date_taken_max }}</td>
+		  <td>{{ form.date_taken_max.errors }}</td>
 		</tr>
 		<tr>
+		  <td>{{ form.exposure_time_min.errors }}</td>
 		  <td>{{ form.exposure_time_min }}</td>
 		  <td>&lt; Exposure time [s] &lt;</td>
 		  <td>{{ form.exposure_time_max }}</td>
+		  <td>{{ form.exposure_time_max.errors }}</td>
 		</tr>
 		<tr>
+		  <td>{{ form.pixel_size_min.errors }}</td>
 		  <td>{{ form.pixel_size_min }}</td>
 		  <td>&lt; Pixel size [arcsec] &lt;</td>
 		  <td>{{ form.pixel_size_max }}</td>
+		  <td>{{ form.pixel_size_max.errors }}</td>
 		</tr>
 	      </table>
 	      {% endwith %}
-	    </td>
-	  </tr>
-	</table>
+	    </div>
+	  </div>
+	  
+	  <div class="carousel-item {% get_carousel_active fwe fwf 'spectrum' %}">
+	    <div class="data-form">
+	      {% with form=spectrum_form %}
+	      <h1 class="jb-heading-2">Spectra</h1>
+	      
+	      {% if form.non_field_errors|length > 0 %}
+	      <div class="invalid jb-modal-field">
+		<ul>
+		  {% for error in form.non_field_errors %}
+		  <li>{{ error }}</li>
+		  {% endfor %}
+		</ul>
+	      </div>
+	      {% endif %}
+	      
+	      <table>
+		<tr>
+		  <td>&nbsp;</td>
+		  <td>{{ form.instrument }}</td>
+		  <td style="vertical-align:top">
+		    <div class="surro">OR</div>
+		    <div class="surro">
+		      <label class="switch">
+			{{ form.instrument_and }}
+			<span class="slider round"></span>
+		      </label>
+		    </div>
+		    <div class="surro">AND</div>
+		  </td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
+		</tr>
+		<tr>
+		  <td>&nbsp;</td>
+		  <td>Future</td>
+		  <td>{{ form.future }} </td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
+		</tr>
+		<tr>
+		  <td>{{ form.date_taken_min.errors }}</td>
+		  <td>{{ form.date_taken_min }}</td>
+		  <td>&lt; Date taken &lt;</td>
+		  <td>{{ form.date_taken_max }}</td>
+		  <td>{{ form.date_taken_max.errors }}</td>		  
+		</tr>
+		<tr>
+		  <td>{{ form.exposure_time_min.errors }}</td>
+		  <td>{{ form.exposure_time_min }}</td>
+		  <td>&lt; Exposure time [s] &lt;</td>
+		  <td>{{ form.exposure_time_max }}</td>
+		  <td>{{ form.exposure_time_max.errors }}</td>
+		</tr>
+		<tr>
+		  <td>{{ form.wavelength_min.errors }}</td>
+		  <td>{{ form.wavelength_min }}</td>
+		  <td>&lt; Wavelength [nm] &lt;</td>
+		  <td>{{ form.wavelength_max }}</td>
+		  <td>{{ form.wavelength_max.errors }}</td>
+		</tr>
+		<tr>
+		  <td>{{ form.resolution_min.errors }}</td>
+		  <td>{{ form.resolution_min }}</td>
+		  <td>&lt; Resolution [nm] &lt;</td>
+		  <td>{{ form.resolution_max }}</td>
+		  <td>{{ form.resolution_max.errors }}</td>
+		</tr>
+	      </table>
+	      {% endwith %}
+	    </div>
+	  </div>
+
+
+	  <div class="carousel-item {% get_carousel_active fwe fwf 'catalogue' %}">
+	    <div class="data-form">
+	      {% with form=catalogue_form %}
+	      <h1 class="jb-heading-2">Catalogues</h1>
+	      
+	      {% if form.non_field_errors|length > 0 %}
+	      <div class="invalid jb-modal-field">
+		<ul>
+		  {% for error in form.non_field_errors %}
+		  <li>{{ error }}</li>
+		  {% endfor %}
+		</ul>
+	      </div>
+	      {% endif %}
+	      
+	      <table>
+		<tr>
+		  <td>&nbsp;</td>
+		  <td>{{ form.instrument }}</td>
+		  <td style="vertical-align:top">
+		    <div class="surro">OR</div>
+		    <div class="surro">
+		      <label class="switch">
+			{{ form.instrument_and }}
+			<span class="slider round"></span>
+		      </label>
+		    </div>
+		    <div class="surro">AND</div>
+		  </td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
+		</tr>
+		<tr>
+		  <td>&nbsp;</td>
+		  <td>Band</td>
+		  <td>{{ form.band }}</td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
+		</tr>
+		<tr>
+		  <td>&nbsp;</td>
+		  <td>Future</td>
+		  <td>{{ form.future }} </td>
+		  <td>&nbsp;</td>
+		  <td>&nbsp;</td>
+		</tr>
+		<tr>
+		  <td>{{ form.date_taken_min.errors }}</td>
+		  <td>{{ form.date_taken_min }}</td>
+		  <td>&lt; Date taken &lt;</td>
+		  <td>{{ form.date_taken_max }}</td>
+		  <td>{{ form.date_taken_max.errors }}</td>
+		</tr>
+		<tr>
+		  <td>{{ form.distance_min.errors }}</td>
+		  <td>{{ form.distance_min }}</td>
+		  <td>&lt; Distance [arcsec] &lt;</td>
+		  <td>{{ form.distance_max }}</td>
+		  <td>{{ form.distance_max.errors }}</td>
+		</tr>
+		<tr>
+		  <td>{{ form.mag_min.errors }}</td>
+		  <td>{{ form.mag_min }}</td>
+		  <td>&lt; Magnitude &lt;</td>
+		  <td>{{ form.mag_max }}</td>
+		  <td>{{ form.mag_max.errors }}</td>
+		</tr>
+	      </table>
+	      {% endwith %}
+	    </div>
+	  </div>
+
+	  
+	  <div class="carousel-item {% get_carousel_active fwe fwf 'lensmodel' %}">
+	    <div>
+	      <h1 class="jb-heading-2">Models</h1>
+	      <p>
+		Coming soon
+	      </p>
+	    </div>
+	  </div>
+	  
+	</div>
+	
+	<button class="carousel-control-prev" type="button" data-bs-target="#mycarousel" data-bs-slide="prev" data-target="#mycarousel" data-slide="prev">
+	  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+	  <span class="visually-hidden">Previous</span>
+	</button>
+	<button class="carousel-control-next" type="button" data-bs-target="#mycarousel" data-bs-slide="next" data-target="#mycarousel" data-slide="next">
+	  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+	  <span class="visually-hidden">Next</span>
+	</button>
       </div>
-      
+      {% endwith %}
+      {% endwith %}
+
+
+
     </form>
     <button id="mysubmit" type="submit" class="jb-submit-button-1" form="lens-query">Submit</button>
     <button type="button" id="save-query" class="jb-submit-button-1" data-form-url="{% url 'sled_queries:query-save' %}">
@@ -216,6 +427,8 @@
 
 {% block extrastyles %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="{% static 'lenses/css/lens_query.css' %}" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
 {% endblock extrastyles %}
 
 
@@ -226,6 +439,12 @@
 {{ lens_form.media.js }}
 <script type="text/javascript">
   $(document).ready(function() {
+      $('.carousel').carousel({
+	  interval: false,
+	  keyboard: false,
+	  ride: false
+      })
+
       $("#save-query").click(function() {
 	  // Check that the query form is not empty
 	  var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains
