@@ -17,21 +17,11 @@
 	<div  class="sled-action-row" data-index="{{ forloop.counter0 }}" style="display:inline-block;">
 	  
           {% if action.verb == "Add" %}
-          {% if N == 1 %}
-          1 new {{ action.action_object.item_type|get_name_singular }} was
-          {% else %}
-          {{ N }} new {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          added
+	  {{ N }} new {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added
 
 
           {% elif action.verb == "AddData" %}
-          {% if N == 1 %}
-          1 new {{ action.action_object.item_type|get_name_singular }} was
-          {% else %}
-          {{ N }} new {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          added
+	  {{ N }} new {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added
 
 	  
           {% elif action.verb == "RemoveData" %}
@@ -43,21 +33,11 @@
 
 
           {% elif action.verb == "Update" %}
-          {% if N == 1 %}
-          1 {{ action.action_object.item_type|get_name_singular }} was
-          {% else %}
-          {{ N }} {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          updated
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} updated
 
 
           {% elif action.verb == "DeleteObject" %}
-          {% if N == 1 %}
-          1 {{ action.action_object.item_type|get_name_singular }} was
-          {% else %}
-          {{ N }} {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          deleted
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} deleted
 
 
           {% elif action.verb == "LeftGroup" %}
@@ -65,57 +45,27 @@
 
 
           {% elif action.verb == "RemovedFromGroup" %}
-          {% if N == 1 %}
-          1 {{ action.action_object.item_type|get_name_singular }} was
-          {% else %}
-          {{ N }} {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          removed from the group
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} removed from the group
 
 
           {% elif action.verb == "AddedToGroup" %}
-          {% if N == 1 %}
-          1 {{ action.action_object.item_type|get_name_plural }} was
-          {% else %}
-          {{ N }} {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          added to the group
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added to the group
 
 
           {% elif action.verb == "AddedToCollection" %}
-          {% if N == 1 %}
-          1 {{ action.action_object.item_type|get_name_singular }} was
-          {% else %}
-          {{ N }} {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          added to the collection
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added to the collection
 
 
           {% elif action.verb == "RemovedFromCollection" %}
-          {% if N == 1 %}
-          1 {{ action.action_object.item_type|get_name_plural }} was
-          {% else %}
-          {{ N }} {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          removed from the collection
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} removed from the collection
 
 
           {% elif action.verb == "MadePublicGroup" %}
-          {% if N == 1 %}
-          1 private {{ action.action_object.item_type|get_name_singular }} that the group had access to was
-          {% else %}
-          {{ N }} private {{ action.action_object.item_type|get_name_plural }} that the group had access to were
-          {% endif %}
-          made public
+	  {{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to {{ N|pluralize:"was,were" }} made public
 
 
           {% elif action.verb == "MadePublic" %}
-          {% if N == 1 %}
-          1 {{ action.action_object.item_type|get_name_plural }} was
-          {% else %}
-          {{ N }} {{ action.action_object.item_type|get_name_plural }} were
-          {% endif %}
-          made public
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} made public
 
 
           {% elif action.verb == "GiveAccess" %}
@@ -132,8 +82,7 @@
 
 
           {% elif action.verb == "CedeOwnership" %}
-          {{ N }} private {% singular_or_plural action.action_object.item_type N %}
-          the group has access to changed owner
+          {{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to changed owner
           from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
           to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
 
@@ -163,43 +112,18 @@
 
 
     {% if action.verb == "Add" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 new {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    was
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} new {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    were
-    {% endif %}
-    added by
-    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} new {% singular_or_plural action.action_object.item_type N %}</a> {{ N|pluralize:"was,were" }}
+    added by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "AddData" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 new {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    was
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} new {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    were
-    {% endif %}
-    added by
-    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} new {% singular_or_plural action.action_object.item_type N %}</a> {{ N|pluralize:"was,were" }}
+    added by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "RemoveData" %}
     Data taken in {{ action.data.instrument }} - {{ action.data.band }} removed by
-    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "UpdateSelf" %}
@@ -211,20 +135,8 @@
 
 
     {% elif action.verb == "Update" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    was
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    were
-    {% endif %}
-    updated by
-    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a> {{ N|pluralize:"was,were" }}
+    updated by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "DeleteObject" %}
@@ -236,16 +148,9 @@
       </tr>
       {% endfor %}
     </table>
-    {% if N == 1 %}
-    was
-    {% else %}
-    were
-    {% endif %}
-    deleted by
-    <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    {{ N|pluralize:"was,were" }} deleted by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
-
+    
     {% elif action.verb == "RemovedFromGroup" %}
     The following {{ N }} {% singular_or_plural action.action_object.item_type N %}:
     <table>
@@ -255,12 +160,7 @@
       </tr>
       {% endfor %}
     </table>
-    {% if N == 1 %}
-    was
-    {% else %}
-    were
-    {% endif %}
-    removed from the group at <em>{{ action.timestamp }}</em>
+    {{ N|pluralize:"was,were" }} removed from the group at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "AddedToGroup" %}
@@ -272,12 +172,7 @@
       </tr>
       {% endfor %}
     </table>
-    {% if N == 1 %}
-    was
-    {% else %}
-    were
-    {% endif %}
-    added to the group at <em>{{ action.timestamp }}</em>
+    {{ N|pluralize:"was,were" }} added to the group at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "LeftGroup" %}
@@ -285,64 +180,22 @@
 
 
     {% elif action.verb == "RemovedFromCollection" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    was
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    were
-    {% endif %}
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a> {{ N|pluralize:"was,were" }}
     removed from the collection at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "AddedToCollection" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    was
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    were
-    {% endif %}
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a> {{ N|pluralize:"was,were" }}
     added to the collection at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "MadePublic" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 private {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    is
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} private {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    are
-    {% endif %}
-    now <em>public</em>.
-    Performed by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural action.action_object.item_type N %}</a> {{ N|pluralize:"was,were" }}
+    made public by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "MadePublicGroup" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 private {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    the group had access to was
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} private {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    the group had access to were
-    {% endif %}
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural action.action_object.item_type N %}</a> the group has access to {{ N|pluralize:"was,were" }}
     made public at <em>{{ action.timestamp }}</em>
 
 
@@ -355,23 +208,13 @@
       </tr>
       {% endfor %}
     </table>
-    by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "GiveAccess" %}
     The group was granted access to
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 private {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} private {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    {% endif %}
-    by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-    at <em>{{ action.timestamp }}</em>
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural action.action_object.item_type N %}</a>
+    by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
     {% elif action.verb == "CedeOwnershipSelf" %}
@@ -379,20 +222,8 @@
 
 
     {% elif action.verb == "CedeOwnership" %}
-    {% if N == 1 %}
-    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">
-      1 private {{ action.action_object.item_type|get_name_singular }}
-    </a>
-    {% else %}
-    <a href="{{ action.action_object.get_absolute_url }}" target="_blank">
-      {{ N }} private {{ action.action_object.item_type|get_name_plural }}
-    </a>
-    {% endif %}
-    the group has access to changed owner from
-    <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
-    to
-    <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
-    at <em>{{ action.timestamp }}</em>
+    <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural action.action_object.item_type N %}</a> the group has access to changed owner from
+    <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a> to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a> at <em>{{ action.timestamp }}</em>
 
     
     {% elif action.verb == "NewUser" %}

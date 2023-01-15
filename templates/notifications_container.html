@@ -31,18 +31,15 @@
 
 
         {% if note.verb == "DeleteObjectsAccepted" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>delete public</b> objects was accepted.
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>delete public</i> objects was accepted.
 
 
         {% elif note.verb == "DeleteObjectsRejected" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>delete public</b> objects was rejected.
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>delete public</i> objects was rejected.
 
 
         {% elif note.verb == "DeleteObjectsPrivate" %}
-        {% if N == 1 %}
-        Private {{ note.data.object_type|get_name_singular }} <b>{{ note.data.object.names.first }}</b> that you had access to was deleted.
-        {% else %}
-        <a class="sled-open-tooltip">{{ note.data.object_names|length }} private {{ note.data.object_type|get_name_plural }}</a> that you had access to were deleted.
+	<a class="sled-open-tooltip">{{ N }} private {% singular_or_plural note.data.object_type N %}</a> that you had access to {{ N|pluralize:"was,were" }} deleted.
         <div class="sled-notification-tooltip" style="display:none">
           <table>
             {% for name in note.data.object_names %}
@@ -52,62 +49,32 @@
             {% endfor %}
           </table>
         </div>
-        {% endif %}
-
-
 
 
         {% elif note.verb == "CedeOwnership" %}
-        {% if N == 1 %}
-        Private {{ note.action_object.item_type|get_name_singular }}
-        <a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">
-          {{ note.action_object.myitems.first }}
-        </a>
-        {% else %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">
-          {{ N }} private {{ note.action_object.item_type|get_name_plural }}
-        </a>
-        {% endif %}
-        that you have access to changed owner from
-        <a href="{{ note.data.previous_owner_url }}" target="_blank">{{ note.data.previous_owner }}</a>
-        to
-        <a href="{{ note.data.next_owner_url }}" target="_blank">{{ note.data.next_owner }}</a>.
+        {{ N }} private {% singular_or_plural note.data.object_type N %} you have access to changed owner
+        from <a href="{{ note.data.previous_owner_url }}" target="_blank">{{ note.data.previous_owner }}</a>
+        to <a href="{{ note.data.next_owner_url }}" target="_blank">{{ note.data.next_owner }}</a>
 
 
         {% elif note.verb == "CedeOwnershipAccepted" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>cede ownership</b> was accepted.
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>cede ownership</i> was accepted.
 
 
         {% elif note.verb == "CedeOwnershipRejected" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>cede ownership</b> was rejected.
-
-
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>cede ownership</i> was rejected.
 
 
         {% elif note.verb == "MakePrivateAccepted" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>make objects private</b> was accepted.
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>make objects private</i> was accepted.
 
 
         {% elif note.verb == "MakePrivateRejected" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>make objects private</b> was rejected.
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>make objects private</i> was rejected.
 
 
         {% elif note.verb == "MakePublic" %}
-        {% if N == 1 %}
-        Private {{ note.action_object.item_type|get_name_singular }}
-        <a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">
-          {{ note.action_object.myitems.first }}
-        </a>
-        that you had access to is
-        {% else %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">
-          {{ N }} private {{ note.action_object.item_type|get_name_plural }}
-        </a>
-        that you had access to are
-        {% endif %}
-        now public.
-
-
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural note.data.object_type N %}</a> that you have access to {{ N|pluralize:"is,are" }} now public.
 
 
         {% elif note.verb == "AddedToGroup" %}
@@ -115,7 +82,7 @@
 
 
         {% elif note.verb == "AskToJoinGroupRejected" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>join group</b> <a href="{{ note.data.group_url }}" target="_blank">{{ note.data.group_name }}</a> was rejected.
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to join group <a href="{{ note.data.group_url }}" target="_blank">{{ note.data.group_name }}</a> was rejected.
 
 
         {% elif note.verb == "RemovedFromGroup" %}
@@ -126,28 +93,12 @@
         Group <b>{{ note.data.group_name }}</b> was deleted by <a href="{{ note.data.owner_url }}" target="_blank">{{ note.data.owner_name }}</a>.
 
 
-
-
         {% elif note.verb == "GiveAccess" %}
-        You were given access to
-        {% if N == 1 %}
-        private {{ note.action_object.item_type|get_name_singular }}
-        <a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">
-          {{ note.action_object.myitems.first }}
-        </a>.
-        {% else %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">
-          {{ N }} private {{ note.action_object.item_type|get_name_plural }}
-        </a>.
-        {% endif %}
+	You were given access to <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a>.
 
 
         {% elif note.verb == "RevokeAccess" %}
-        Your access to
-        {% if N == 1 %}
-        private {{ note.action_object.item_type|get_name_singular }} {{ note.action_object.myitems.first }}
-        {% else %}
-        <a class="sled-open-tooltip" href="">{{ N }} private {{ note.action_object.item_type|get_name_plural }}</a>
+        Your access to <a class="sled-open-tooltip" href="">{{ N }} private {% singular_or_plural| note.action_object.item_type %}</a> was revoked.
         <div class="sled-notification-tooltip" style="display:none">
           <table>
             {% for col in note.action_object.myitems.all %}
@@ -156,22 +107,15 @@
             </tr>
             {% endfor %}
           </table>
-        </div> {% endif %}
-        was revoked.
-
+        </div>
 
 
         {% elif note.verb == "AskPrivateAccessRejected" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <b>access private objects</b> was accepted.
-
-
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>access private objects</i> was accepted.
 
 
         {% elif note.verb == "RemovedFromCollection" %}
-        {% if N == 1 %}
-        Private objects were removed from Collection <a href="{{ note.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ note.action_object.myitems.first.name }}</a> that you own.
-        {% else %}
-        Private objects were removed from <a class="sled-open-tooltip">{{ N }} Collections</a> that you own.
+        Private {{ note.action_object.object_type|get_name_plural }} were removed from <a class="sled-open-tooltip">{{ N }} Collections</a> that you own.
         <div class="sled-notification-tooltip" style="display:none">
           <table>
             {% for col in note.action_object.myitems.all %}
@@ -181,7 +125,6 @@
             {% endfor %}
           </table>
         </div>
-        {% endif %}
 
 
 

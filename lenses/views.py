@@ -810,7 +810,7 @@ class LensQueryView(TemplateView):
     def spectrum_search(self,lenses,cleaned_form,user):
         conditions = Q(spectrum__exists=True)
         for key,value in cleaned_form.items():
-            if key not in ['instrument','instrument_and'] and value != None:
+            if key not in ['instrument','instrument_and','wavelength_min','wavelength_max'] and value != None:
                 if '_min' in key:
                     conditions.add(Q(**{'spectrum__'+key.split('_min')[0]+'__gte':value}),Q.AND)
                 elif '_max' in key:
@@ -818,6 +818,15 @@ class LensQueryView(TemplateView):
                 else:
                     conditions.add(Q(**{'spectrum__'+key:value}),Q.AND)
 
+        wavelength_min = cleaned_form.get('wavelength_min',None)
+        wavelength_max = cleaned_form.get('wavelength_max',None)
+        if wavelength_min and wavelength_max:
+            conditions.add( Q(spectrum__lambda_min__range=(wavelength_min,wavelength_max)) | Q(spectrum__lambda_max__range=(wavelength_min,wavelength_max)) ,Q.AND)
+        elif wavelength_max:
+            conditions.add( Q(spectrum__lambda_min__lt=wavelength_max) ,Q.AND)
+        elif wavelength_min:
+            conditions.add( Q(spectrum__lambda_max__gt=wavelength_min) ,Q.AND)
+                    
         instrument = cleaned_form.get('instrument',None)
         if instrument:
             if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'

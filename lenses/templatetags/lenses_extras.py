@@ -17,7 +17,7 @@ def get_class_name(obj):
 
 
 @register.simple_tag
-def get_carousel_active(fwe,fwf,name):
+def get_tab_active(fwe,fwf,name):
     if len(fwe) != 0:
         if name == fwe[0]:
             return 'show active'

@@ -302,6 +302,11 @@ table td {
     padding-bottom: 12px;
     border-top: 0px solid #ACACAC;
 }
+.jb-table-no-lines2 td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-top: 0px solid #ACACAC;
+}
 
 .jb-number-input {
     width: 120px;
