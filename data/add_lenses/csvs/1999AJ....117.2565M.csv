@@ -1,3 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-B1152+199,178.82639,19.66146,PUB,,1999AJ....117.2565M,True,1.019,True,True,0.439,True,True,"QUASAR, RADIO-LOUD",GALAXY,2.0,,1.56,True,,,,,,
-B1359+154,210.3982,15.22361,PUB,,1999AJ....117.2565M,True,3.235,True,True,0.9,False,False,"QUASAR, RADIO-LOUD",GALAXY,4.0,,1.71,True,,,,,,

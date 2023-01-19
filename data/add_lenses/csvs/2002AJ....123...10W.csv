@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-PMNJ1632-0033,248.24033,-0.55586,PUB,,2002AJ....123...10W,True,3.424,True,True,,,,"QUASAR, RADIO-LOUD",GALAXY,3.0,CENTRAL IMAGE,1.47,True,,,,,,

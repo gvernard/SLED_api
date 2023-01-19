@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-B0631+519,98.80131,51.9505,PUB,,2005MNRAS.361..259Y,True,,,,0.6196,True,True,"RADIO-LOUD, QUASAR",GALAXY,2.0,,1.16,True,,,,,,"We find that the foreground galaxy at z= 0.0896 is a small irregular, and that the other, at z= 0.6196 is a massive elliptical, which appears to contribute the majority of the lensing effect."

@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-"FIRSTJ100424.9+122922, J1004+1229",151.10379,12.48966,PUB,,2002AJ....123.2925L,True,2.65,True,True,0.95,False,True,"QUASAR, BAL QUASAR, LOBAL QUASAR, FELOBAL QUASAR",GALAXY,2.0,,1.54,True,,,,,,

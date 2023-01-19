@@ -1,6 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-HSCJ113957.93-001010.8,174.9914,-0.1696,PUB,,2021MNRAS.502.1487J,True,,,,,,,QUASAR,GALAXY,4.0,,,,,,,True,STAR-FORMING GALAXY,"The spectrum of the two brightest components showed ionized knots with Hbeta, O iii and Halpha which indicate a bunch of star forming regions likely associated to a galaxy at z~0.05."
-HSCJ120755.44-010438.5,181.981,-1.0773,PUB,,2021MNRAS.502.1487J,True,,,,,,,QUASAR,GALAXY,2.0,,,,,,,True,STAR-FORMING GALAXY,The spectrum of second candidate likewise showed narrow Hbeta and Oiii at z = 0.37.
-HSCJ0918-0220,139.6806,-2.3354,PUB,,2021MNRAS.502.1487J,True,0.804,True,True,0.459,True,True,QUASAR,GALAXY,2.0,,2.26,True,,,,,,
-CXCOJ100201.50+020330.0,150.5063,2.0581,PUB,,2021MNRAS.502.1487J,True,2.016,True,True,0.439,True,True,QUASAR,GALAXY,2.0,,0.85,True,,,,,,
-SDSSJ135944.21+012809.8 ,209.9342,1.4694,PUB,,2021MNRAS.502.1487J,True,1.096,True,True,,,,QUASAR,GALAXY,2.0,,1.05,True,,,,,,

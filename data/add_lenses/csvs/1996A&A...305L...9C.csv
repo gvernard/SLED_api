@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-"Q1017-207, J03.13",154.3498,-20.7829,PUB,,1996A&A...305L...9C,True,2.545,True,True,,,,QUASAR,GALAXY,2.0,,0.849,True,,,,,,

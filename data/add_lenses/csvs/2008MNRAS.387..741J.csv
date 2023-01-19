@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-ULASJ2343-0050,355.79975,-0.84286,PUB,,2008MNRAS.387..741J,True,0.788,True,True,0.3,False,,QUASAR,,2.0,,1.32,True,False,,,False,,

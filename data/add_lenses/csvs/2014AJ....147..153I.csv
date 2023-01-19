@@ -1,5 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-SDSSJ0743+2457,115.9692,24.96212,PUB,,2014AJ....147..153I,False,2.165,True,True,0.381,True,True,QUASAR,GALAXY,2.0,,1.03,True,,,,,,
-SDSSJ1128+2402,172.07704,24.03817,PUB,,2014AJ....147..153I,True,1.608,True,True,,,,QUASAR,GALAXY,2.0,,0.78,True,,,,,,
-SDSSJ1405+0959,211.3142,9.99203,PUB,,2014AJ....147..153I,False,1.81,True,True,0.66,False,True,QUASAR,GALAXY,2.0,,1.97,True,,,,,,
-SDSSJ1515+1511,228.9106,15.19309,PUB,,2014AJ....147..153I,True,2.054,True,True,0.742,True,True,QUASAR,GALAXY,2.0,,2.01,True,,,,,,

@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-FSC10214+4724,156.14392,47.15272,PUB,,1995ApJ...449L..29G,True,2.286,True,True,0.7,False,True,"QUASAR, ULIRG",GALAXY,,ARC,1.59,True,,,,,,

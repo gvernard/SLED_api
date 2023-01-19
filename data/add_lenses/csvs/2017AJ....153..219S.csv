@@ -1,9 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-WISE 0145-1327,26.35541,-13.4569,PUB,,2017AJ....153..219S,True,1.97,True,True,,,,QUASAR,GALAXY,2.0,,1.68,,False,,1.17,True,PROJECTED QUASARS,"1.09/1.97, projected"
-WISE 0326-3122,51.52833,-31.3816,PUB,,2017AJ....153..219S,True,1.34,True,True,,,,QUASAR,GALAXY,2.0,,1.43,,True,2.5,1.8,,,"1.34, lensless twins"
-WISE 1051-1142,162.9245,-11.7108,PUB,,2017AJ....153..219S,True,0.88,True,True,,,,QUASAR,GALAXY,2.0,,1.47,,True,2.5,1.5,,,"0.88, lensless twins"
-WISE 1427-0715,216.7699,-7.26555,PUB,,2017AJ....153..219S,True,1.23,True,True,,,,QUASAR,GALAXY,2.0,,2.8,,False,,1.47,True,PROJECTED QUASARS,"1.23/0.72, projected"
-WISE 2215-3056,333.8566,-30.943,PUB,,2017AJ....153..219S,True,1.34,True,True,,,,QUASAR,GALAXY,2.0,,0.71,,,,0.87,True,PROJECTED QUASARS,"1.34, binary"
-WISE 2304-2214,346.1054,-22.2461,PUB,,2017AJ....153..219S,True,1.42,True,True,,,,QUASAR,GALAXY,2.0,,2.19,True,,,1.74,,,1.42
-WISE 2329-1258,352.4912,-12.983,PUB,,2017AJ....153..219S,True,1.314,True,True,,,,QUASAR,GALAXY,2.0,,1.27,True,,,2.88,,,1.314
-WISE 2344-3056,356.0708,-30.9405,PUB,,2017AJ....153..219S,True,1.298,True,True,,,,QUASAR,GALAXY,4.0,,2.18,True,,,1.32,,,1.298

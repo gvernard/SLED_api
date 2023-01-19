@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-SDSSJ1330+1810,202.57772,18.17581,PUB,,2008MNRAS.391.1973O,True,1.393,True,True,0.373,True,True,QUASAR,GALAXY,4.0,FOLD,1.76,True,,,,,,

@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-"CY2201-3201, CXOCY J220132.8-320144",330.38667,-32.02889,PUB,,2006ApJ...652..955C,True,3.9,True,True,0.32,True,True,QUASAR,SPIRAL,2.0,,0.83,True,,,,,,

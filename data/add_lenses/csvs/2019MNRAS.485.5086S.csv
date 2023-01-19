@@ -1,3 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-WG0214-2105 ,33.56813,-21.09307,PUB,,2019MNRAS.485.5086S,False,3.24,True,True,,,,QUASAR,GALAXY,,,,True,,,,,,
-WG2100-4452,315.06191,-44.86851,PUB,,2019MNRAS.485.5086S,False,0.92,True,True,0.203,True,True,QUASAR,GALAXY,,,,True,,,,,,

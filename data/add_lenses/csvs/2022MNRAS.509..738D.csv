@@ -1,3 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-DESJ2150-4652 ,327.6196,-46.8809,PUB,,2022MNRAS.509..738D,True,4.13,True,True,,,,QUASAR,GALAXY,2.0,,2.405,True,,,,False,,
-PSJ0429+1428,67.3048,14.4779,PUB,,2022MNRAS.509..738D,True,3.866,True,True,,,,QUASAR,GALAXY,4.0,CUSP,1.664,True,,,,False,,

@@ -135,4 +135,5 @@ data/add_papers/csvs/*.json
 
 static/css/vendors/*
 
-sensitive_db_scripts/*
+staticfiles/
+mysite/settings.py

@@ -1,3 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-2M1134-2103,173.6688,-21.05625,PUB,,2018MNRAS.476..927L,True,2.77,True,False,,,,QUASAR,GALAXY,4.0,,3.68,True,,,,,,
-2M1310-1714,197.5835,-17.24939,PUB,,2018MNRAS.476..927L,True,1.975,True,True,0.293,True,True,QUASAR,GALAXY PAIR,5.0,,5.74,True,,,,,,

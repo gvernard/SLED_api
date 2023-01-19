@@ -1,2 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-WISEJ0259-1635,44.92858,-16.5953,PUB,,2018RNAAS...2...21S,True,2.16,True,True,,,,QUASAR,GALAXY,4.0,,1.63,True,,,,,,An absorption line system is seen at zabs = 0.905.

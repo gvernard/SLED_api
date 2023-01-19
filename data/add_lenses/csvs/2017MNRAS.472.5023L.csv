@@ -1,9 +1,0 @@
-name,ra,dec,access,imagename,paper_id,flag_discovery,z_source,z_source_secure,flag_zsource,z_lens,z_lens_secure,flag_zlens,source_type,lens_type,n_img,image_conf,image_sep,flag_confirmed,flag_candidate,score,original_score,flag_contaminant,contaminant_type,info
-J1321+5418,200.36941,54.31544,PUB,,2017MNRAS.472.5023L,True,2.26,True,True,,,,QUASAR,GALAXY,2.0,,0.81,False,True,2.5,,,,
-J1059+0622,164.86015,6.3742,PUB,,2017MNRAS.472.5023L,True,2.19,True,True,,,,QUASAR,GALAXY,2.0,,0.59,False,True,2.5,,,,
-J2229+0029,337.42847,0.4984,PUB,,2017MNRAS.472.5023L,True,2.14,True,True,,,,QUASAR,GALAXY,2.0,,0.64,False,True,2.5,,,,
-J1108+4610,167.18778,46.17658,PUB,,2017MNRAS.472.5023L,True,1.84,True,True,,,,QUASAR,GALAXY,2.0,,0.53,False,True,2.5,,,,
-J0112+1512,18.12246,15.20406,PUB,,2017MNRAS.472.5023L,False,1.96,True,True,,,,QUASAR,GALAXY,2.0,,0.73,False,True,0.5,,,,
-J0906+0213,136.72724,2.22088,PUB,,2017MNRAS.472.5023L,True,2.01,True,True,,,,QUASAR,GALAXY,2.0,,0.82,False,True,0.5,,,,
-J1554+2000,238.5814,20.00245,PUB,,2017MNRAS.472.5023L,True,2.25,True,True,,,,QUASAR,GALAXY,2.0,,0.99,False,True,0.5,,,,
-J1625+4309,246.25829,43.15872,PUB,,2017MNRAS.472.5023L,True,1.65,True,True,,,,QUASAR,GALAXY,2.0,,0.97,False,True,0.5,,,,
