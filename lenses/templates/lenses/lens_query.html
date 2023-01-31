@@ -404,7 +404,7 @@
 
 
   
-  {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count %}
+  {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count target="lenses" %}
 
   <div>
     <form id="ids-form" method="POST">
@@ -413,7 +413,7 @@
     </form>
   </div>
 
-  {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count %}
+  {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count target="lenses" %}
 
   <div>
     <button type="submit" form="ids-form" class="sled-process-lenses jb-submit-button-1" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
@@ -443,63 +443,5 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 {{ lens_form.media.js }}
-<script type="text/javascript">
-  $(document).ready(function() {
-
-      $("#save-query").click(function() {
-	  // Check that the query form is not empty
-	  var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains
-	  var get_str = myjson.replace(/[^&]+=&/g, '').replace(/&[^&]+=$/g, '');
-	  
-	  if (get_str.length == 0) {
-              alert('Query does not have any parameters!');
-	  } else {
-              // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
-	      
-              // Trigger modal
-              var new_form_url = url_core + '?' + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-	  }
-      });
-      
-      $(".sled_submit").click(function(e) {
-	  e.preventDefault();
-	  var dum = $(this).attr('href').split('page=');
-	  var page = dum[1].replace('#','');
-	  $('#id_page').val(page);
-	  $('#mysubmit').trigger('click');
-      });
-      
-      $(".sled-process-lenses").click(function() {
-	  // Construct get query string
-	  var values = [];
-	  $('#exe_summary input[type="checkbox"]:checked').each(function() {
-              values.push('ids=' + $(this).val());
-	  });
-	  
-	  if (values.length == 0) {
-              alert('You need to select at least one item!');
-	  } else {
-              var get_str = '?' + values.join('&') + '&';
-	      
-              // Fetch only the first part of the URL (without any GET arguments)
-              var url = $(this).data('form-url').split('?');
-              var url_core = url[0];
-	      
-              // Trigger modal
-              var new_form_url = url_core + get_str;
-              $(this).modalFormTrigger({
-		  formURL: new_form_url,
-		  modalID: "#id-modal"
-              });
-	  }
-      });
-      
-  });
-</script>
+<script type="text/javascript" src="{% static 'lenses/js/lens_query.js' %}"></script>
 {% endblock extrascripts %}

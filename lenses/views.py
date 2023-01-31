@@ -721,7 +721,6 @@ class StandardQueriesView(ListView):
     allow_empty = True
     template_name = 'lenses/lens_all_collections.html'
 
-
     def get_queryset(self):
         admin = Users.objects.get(username='admin')
         admin_queries = SledQuery.accessible_objects.owned(admin)
@@ -745,7 +744,7 @@ class LensQueryView(TemplateView):
     template_name = 'lenses/lens_query.html'
 
     
-    def combined_query(self,lens_form,imaging_form,spectrum_form,catalogue_form,user):
+    def combined_query(self,page_number,lens_form,imaging_form,spectrum_form,catalogue_form,user):
         #start with available lenses
         lenses = Lenses.accessible_objects.all(user)
         print(len(lenses))
@@ -772,7 +771,7 @@ class LensQueryView(TemplateView):
 
         # Paginator for lenses
         paginator = Paginator(lenses,50)
-        lenses_page = paginator.get_page(lens_form.get('page',1))
+        lenses_page = paginator.get_page(page_number)
         lenses_count = paginator.count
         lenses_range = paginator.page_range
         return lenses_page,lenses_range,lenses_count
@@ -937,9 +936,10 @@ class LensQueryView(TemplateView):
                     forms_with_fields.append(name)
             else:
                 forms_with_errors.append(name)
-            
+
+        page_number = request.get('lenses-page',1)
         if len(forms_with_errors) == 0 and lens_form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            lenses_page,lenses_range,lenses_count = self.combined_query(page_number,lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
