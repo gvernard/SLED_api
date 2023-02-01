@@ -29,23 +29,84 @@
 	{% with form=lens_form %}
 	<table>
           <tr>
-
             <td>
-              <table>
-		<tr>
+
+
+
+<div class="container">
+  <br>
+  <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="tab" href="#home">Box search</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#menu1">Cone search</a>
+    </li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div id="home" class="container tab-pane active"><br>
+
+    <table>
+        <tr>
                   <td>{{ form.ra_min.errors }}</td>
                   <td>{{ form.ra_min }}</td>
                   <td> &lt; R.A. &lt; </td>
                   <td>{{ form.ra_max }}</td>
                   <td>{{ form.ra_max.errors }}</td>
-		</tr>
-		<tr>
+        </tr>
+        <tr>
                   <td>{{ form.dec_min.errors }}</td>
                   <td>{{ form.dec_min }}</td>
                   <td> &lt; Dec. &lt; </td>
                   <td>{{ form.dec_max }}</td>
                   <td>{{ form.dec_max.errors }}</td>
-		</tr>
+        </tr>
+    </table>
+
+    </div>
+    <div id="menu1" class="container tab-pane"><br>
+      
+        <table>
+        <tr>
+                  <td> R.A. </td>
+                  <td>{{ form.ra_centre }}</td>
+                  <td>{{ form.ra_centre.errors }}</td>
+
+                  <td> Dec. </td>
+                  <td>{{ form.dec_centre }}</td>
+                  <td>{{ form.dec_centre.errors }}</td>
+        </tr>
+        <tr>
+                  <td> Radius (in deg.) </td>
+                  <td>{{ form.radius }}</td>
+                  <td>{{ form.radius.errors }}</td>
+        </tr>
+    </table>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Tabs content -->
+
+
+
+
+              <table>
 		<tr>
                   <td>{{ form.n_img_min.errors }}</td>
                   <td>{{ form.n_img_min }}</td>

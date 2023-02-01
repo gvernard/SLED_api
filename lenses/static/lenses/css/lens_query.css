@@ -96,3 +96,9 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 } 
+
+
+.tab-content {
+  height: 130px;
+  width: 400px;
+}

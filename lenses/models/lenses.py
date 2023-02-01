@@ -84,7 +84,7 @@ class ProximateLensManager(models.Manager):
         else:
             return False
 
-    def get_DB_neighbours_anywhere_user_specific(self,ra,dec,user,radius=None):
+    def get_DB_neighbours_anywhere_user_specific(self,ra,dec,user=None,lenses=None,radius=None):
         """
         Same as get_DB_neighbours but this time untied to any lens object (from the database or not).
 
@@ -98,11 +98,19 @@ class ProximateLensManager(models.Manager):
         """
         if not radius:
             radius = self.check_radius
-        qset = Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
-        if qset.count() > 0:
-            return qset
+        if lenses:
+            qset = lenses.annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+            if qset.count() > 0:
+                return qset
+            else:
+                return []
+
         else:
-            return False
+            qset = Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+            if qset.count() > 0:
+                return qset
+            else:
+                return False
 
         
     def get_DB_neighbours_anywhere_many(self,ras,decs,radius=None):
