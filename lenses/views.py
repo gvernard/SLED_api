@@ -747,7 +747,6 @@ class LensQueryView(TemplateView):
     def combined_query(self,page_number,lens_form,imaging_form,spectrum_form,catalogue_form,user):
         #start with available lenses
         lenses = Lenses.accessible_objects.all(user)
-        print(len(lenses))
 
         if lens_form:
             print('Lenses form has values')
