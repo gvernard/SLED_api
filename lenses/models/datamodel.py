@@ -60,13 +60,6 @@ class Band(models.Model):
     def __str__(self):
         return self.name
 
-    def band_order(self):
-        # Query the band table and order the bands by central wavelegth
-        # Add central wavelegth to the band model
-        return Band.objects.all().order_by('wavelength')
-        #return ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
-
-
     
     
 class DataBase(models.Model):
