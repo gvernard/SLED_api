@@ -27,3 +27,21 @@
     opacity: 1.0;
 }
 
+.jb-catalogue-table td {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+.catalogue-floater {
+    float:left;
+    margin-right:40px;
+}
+
+.catalogue-floater th {
+    text-align:center;
+}
+
+.catalogue-floater td {
+    padding:2px 5px;
+}
+

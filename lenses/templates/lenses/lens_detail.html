@@ -1,6 +1,7 @@
 {% extends 'master_header.html' %}
 {% load static %}
 {% load activity_tags %}
+{% load lenses_extras %}
 
 
 {% block content %}
@@ -205,26 +206,78 @@
 
   
   <!-- Div containing all the catalogue data  -->  
-  <div class="jb-section">
+  <div class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Catalogue Data</h1>
-    
-    {% for instrument, detections in display_catalogues.items %} 
-    {{ instrument }}
-    <br>
-    {% for k, detection in detections.items %}
-    RA, Dec: {{ detection.0.radet }}, {{ detection.0.decdet }}
-    {% for phot in detection %}
-    {{ phot.band.name }}: {{ phot.mag }} +- {{ phot.Dmag }} 
-    {% endfor %}
-    <br>
-    {% endfor %}
-    <br>
-    
-    {% endfor %}
-    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-create' lens=lens.id %}">
-      <img src="{% static 'icons/plus.svg' %}" alt="plus">
-      Add Catalogue Entry
-    </button>
+
+    <div style="width:75%;margin:auto">
+      <table>
+	<tr>
+	  <td style="padding-right:60px">
+	    <div class="jb-table-no-lines">
+	      <table class="jb-catalogue-table">
+		{% for instrument_band in display_catalogues_plot %}
+		<tr>
+		  <td>{{ instrument_band }}</td>
+		  <td><input type="checkbox" class="sled-catalogue-checkbox" name="instrument-band" value="{{ forloop.counter0 }}" {% if forloop.counter0 == 0 %}checked{% endif %}/></td>
+		</tr>
+		{% endfor %}
+	      </table>
+	      <br>
+	      <button type="button" class="btn btn-sm btn-light" id="toggle_all" value="select">Toggle select all</button>
+	    </div>
+	  </td>
+	  <td>
+	    <div id="plot"></div>
+	  </td>
+      </table>
+    </div>
+
+    <div style="overflow:hidden">
+      {% for instrument_name,instrument in display_catalogues_table.items %}
+      <div class="catalogue-floater">
+	<h1 class="jb-heading-3">{{ instrument_name }}</h1>
+	<table>
+	  <thead>
+	    <th>Detections (RA,DEC)</th>
+	    {% for band in instrument.bands %}
+	    <th>
+	      {{ band }}
+	    </th>
+	    {% endfor %}
+	  </thead>
+	  <tbody>
+	    {% for detection,bands in instrument.table.items %}
+	    {% order_bands bands as zipped %}
+	    <tr>
+	      <td>
+		{{ forloop.counter }}. &nbsp; &nbsp; ({{ detection }})
+	      </td>
+	      {% for band,mag,Dmag in zipped %}
+	      {% if mag %}
+	      <td>
+		{{ mag }} &plusmn; {{ Dmag }}
+	      </td>
+	      {% else %}
+	      <td style="text-align:center">
+		X
+	      </td>
+	      {% endif %}
+	      {% endfor %}
+	    </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+	
+      </div>
+      {% endfor %}
+    </div>
+
+    <div>
+      <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-create' lens=lens.id %}">
+	<img src="{% static 'icons/plus.svg' %}" alt="plus">
+	Add Catalogue Entry
+      </button>
+    </div>
   </div>
 
   <div class="jb-section">
@@ -274,7 +327,82 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script src="https://cdn.plot.ly/plotly-2.18.0.min.js"></script>
 <script type="text/javascript">
+  // Create the array holding all the detections in ra,dec per instrument-band
+  var data = [];
+  {% for instrument_band,item in display_catalogues_plot.items %}
+  
+  var name = '{{ instrument_band }}';
+  var ras = [];
+  var decs = [];
+  var sizes = [];
+  {% for detections in item %}
+  ras.push( -({{ detections.radet }} - {{ lens.ra }})*3600*Math.cos(Math.PI*{{ lens.dec }}/180.0) );
+  decs.push( ({{ detections.decdet }} - {{ lens.dec }})*3600 );
+  var mag = parseFloat('{{ detections.mag }}');
+  if( isNaN(mag) ){
+      sizes.push(0);
+  } else {
+      sizes.push( 100*(25-mag)/(25-15) );
+  }
+  {% endfor %}
+
+  var myset = {
+      x: ras,
+      y: decs,
+      name: name,
+      mode: 'markers',
+      marker: {
+	  color: "{% cycle '#1f77b4' '#ff7f0e' '#2ca02c' '#d62728' '#9467bd' '#8c564b' '#e377c2' '#7f7f7f' '#bcbd22' '#17becf' %}",
+	  size: sizes
+      }
+  };
+  data.push(myset);
+  {% endfor %}
+  
+  var layout = {
+      xaxis: {
+	  range: [-7,7],
+	  title: 'RA<sub>Lens</sub> - RA',
+	  zerolinecolor: '#cdcdcd',
+	  linecolor: '#cdcdcd',
+	  mirror: true
+      },
+      yaxis: {
+	  range: [-7,7],
+	  title: 'DEC<sub>Lens</sub> - DEC',
+	  zerolinecolor: '#cdcdcd',
+	  linecolor: '#cdcdcd',
+	  mirror: true
+      },
+      showlegend: true,
+      legend: {
+	  x: 1,
+	  xanchor: 'right',
+	  y: 1
+      },
+      height: 551,
+      width: 600,
+      margin: {
+	  l: 50,
+	  r: 50,
+	  b: 50,
+	  t: 1,
+      },
+
+  };
+  
+
+  function create_plot(){
+      var data_to_plot = [];
+      $('.sled-catalogue-checkbox:checked').each(function(i){
+          data_to_plot.push( data[$(this).val()] );
+      });
+      Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
+  }
+
+  
   $(document).ready(function(){
       // Modals
       $(".sled-modal").each(function() {
@@ -283,13 +411,25 @@
               modalID: "#id-modal"
           });
       });
-
+      
       $(".sled-modal-wide").each(function() {
           $(this).modalForm({
               formURL: $(this).data("form-url"),
               modalID: "#id-modal-wide"
           });
       });
-  });
+      
+      create_plot();
+      $('.sled-catalogue-checkbox').click(function(){
+	  create_plot();
+      });
+
+      var select_all = true;
+      $('#toggle_all').click(function(){
+	  $('.sled-catalogue-checkbox').prop('checked',select_all);
+	  select_all = !select_all
+	  create_plot();
+      });
+  });  
 </script>
 {% endblock extrascripts %}

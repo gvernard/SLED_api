@@ -88,6 +88,15 @@
     padding-top: 20px;
 }
 
+.jb-heading-3 {
+    margin: auto;
+    font-family: basic-sans, sans-serif;
+    color: #000;
+    font-size: 20px;
+    font-weight: 500;
+    padding-top: 10px;
+}
+
 .jb-heading-paper-title {
     margin: auto;
     font-family: basic-sans, sans-serif;
@@ -102,15 +111,6 @@
     vertical-align: top;
     padding-left: 3px;
     padding-right: 3px;
-}
-
-.jb-heading-3 {
-    margin: auto;
-    font-family: basic-sans, sans-serif;
-    color: #000;
-    font-size: 40px;
-    font-weight: 700;
-    padding-top: 20px;
 }
 
 .jb-div-block-1 {

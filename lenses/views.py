@@ -1,4 +1,5 @@
 import os
+from collections import OrderedDict,defaultdict
 from django.shortcuts import render, redirect
 from django.urls import reverse,reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect
@@ -236,7 +237,7 @@ class LensDetailView(DetailView):
         #context['imagings'] = context['lens'].imaging.all(self.request.user)
         allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True).filter(future=False)
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
-        allcataloguedata = Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        allcataloguedata = list(Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True))
 
         
         ## Imaging data
@@ -245,11 +246,8 @@ class LensDetailView(DetailView):
         #print(instruments)
         display_images = {}
         band_order = ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
-        print("Band order: ",band_order)
         for instrument in instruments:
             bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct().order_by()
-            print(bands)
-            #sort the bands
             bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
 
             which_imaging = {}
@@ -262,22 +260,62 @@ class LensDetailView(DetailView):
             display_images[instrument] = which_imaging
 
             
-        ## Catalogue data
-        instruments_catalogue = allcataloguedata.values_list('instrument__name', flat=True).distinct().order_by()
-        catalogue_entries = {}
-        for instrument in instruments_catalogue:
-            catdata = allcataloguedata.filter(instrument__name=instrument)
-            detections = catdata.values('radet', 'decdet').annotate(Max('id')).distinct().order_by()
+        ## Catalogue data: preparing instrument and band order
+        instruments_bands = defaultdict(list)
+        for i,entry in enumerate(allcataloguedata):
+            key = entry.instrument.name
+            instruments_bands[key].append(entry.band)
+        for key,bands in instruments_bands.items():
+            bands.sort(key=lambda x: x.wavelength)
+            band_names = [band.name for band in bands]
+            instruments_bands[key] = list(dict.fromkeys(band_names))
+        instruments_bands = dict(instruments_bands)
+        #print(instruments_bands)
 
-            alldata = {}
-            for k, detection in enumerate(detections):
-               # print(k, detection, catdata)
-                detdata = catdata.filter(radet=detection['radet'], decdet=detection['decdet'])
-                alldata[k] = detdata
+        instruments_detections = defaultdict(list)
+        for i,entry in enumerate(allcataloguedata):
+            key = entry.instrument.name
+            instruments_detections[key].append(str(entry.radet) + ',' + str(entry.decdet))
+        for key,dets in instruments_detections.items():
+            instruments_detections[key] = sorted(list(set(dets)))
+        instruments_detections = dict(instruments_detections)
+        #print(instruments_detections)
 
-            catalogue_entries[instrument] = alldata
+        ## Catalogue data for plotting
+        catalogue_entries_plot = OrderedDict()
+        for instrument,bands in instruments_bands.items():
+            for band in bands:
+                key = instrument + '--' + band
+                catalogue_entries_plot[key] = []
+
+        for i,entry in enumerate(allcataloguedata):
+            key = entry.instrument.name + '--' + entry.band.name
+            catalogue_entries_plot[key].append(entry)
+            
+        # Fancy printing
+        #for key,entries in catalogue_entries_plot.items():
+        #    print(key,len(entries))
+        #    for entry in entries:
+        #        print("  ",entry.instrument.name,entry.band,entry.radet,entry.decdet,entry.mag)
+        
+
+        ## Catalogue data for table        
+        all_results = {}
+        for instrument,detections in instruments_detections.items():
+            all_results[instrument] = {}
+            all_results[instrument]['bands'] = instruments_bands[instrument]
+            all_results[instrument]['table'] = {}
+            for detection in detections:
+                all_results[instrument]['table'][detection] = {}
+                for band in instruments_bands[instrument]:
+                    all_results[instrument]['table'][detection][band] = {'mag': None,'Dmag': None}
+
+        for entry in allcataloguedata:
+            all_results[entry.instrument.name]['table'][str(entry.radet) + ',' + str(entry.decdet)][entry.band.name]['mag'] = entry.mag
+            all_results[entry.instrument.name]['table'][str(entry.radet) + ',' + str(entry.decdet)][entry.band.name]['Dmag'] = entry.Dmag
 
 
+        
         # All papers are public, no need for the accessible_objects manager
         allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
                                                     model=F('paperlensconnection__model'),
@@ -298,11 +336,11 @@ class LensDetailView(DetailView):
             labels.append(flags)
         paper_labels = [ ','.join(x) for x in labels ]
 
-        print(display_images)
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
-        context['display_catalogues'] = catalogue_entries
+        context['display_catalogues_plot'] = dict(catalogue_entries_plot)
+        context['display_catalogues_table'] = all_results
         return context
     
 

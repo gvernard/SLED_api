@@ -45,3 +45,16 @@ def get_badge(fwe,fwf,name):
     elif name in fwf:
         text = '<span class="badge badge-pill badge-success"><img src="{% static \'icons/check.svg\' %}"></span>'
     return mark_safe(text)
+
+
+
+@register.simple_tag
+def order_bands(band_dict):
+    new_bands = band_dict.keys()
+    mags = []
+    Dmags = []
+    for band in new_bands:
+        mags.append( band_dict[band]['mag'] )
+        Dmags.append( band_dict[band]['Dmag'] )   
+    zipped = zip(new_bands,mags,Dmags)
+    return zipped
