@@ -24,7 +24,7 @@ from django.db.models.query import QuerySet
 import json
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band
 
 from . import forms
 
@@ -245,7 +245,7 @@ class LensDetailView(DetailView):
         instruments = allimages.values_list('instrument__name', flat=True).distinct().order_by()
         #print(instruments)
         display_images = {}
-        band_order = ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
+        band_order = list(Band.objects.all().order_by('wavelength').values_list('name', flat=True))
         for instrument in instruments:
             bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct().order_by()
             bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
@@ -913,7 +913,7 @@ class LensQueryView(TemplateView):
     def lens_search(self,lenses,form,user):
         keywords = list(form.keys())
         values = [form[keyword] for keyword in keywords]
-        
+        print(form)
         #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
         over_meridian = False
         if 'ra_min' in form and 'ra_max' in form:
@@ -953,6 +953,9 @@ class LensQueryView(TemplateView):
         #come back to the special case where RA_min is less than 0hours
         if over_meridian:
             lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
+
+        if 'ra_centre' in form:
+            lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(form['ra_centre'], form['dec_centre'], lenses=lenses,radius=float(form['radius'])*3600.)
 
         return lenses
 

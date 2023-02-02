@@ -96,3 +96,9 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 } 
+
+
+.taba {
+  height: 130px;
+  width: 400px;
+}

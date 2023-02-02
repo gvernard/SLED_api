@@ -209,3 +209,4 @@ https://github.com/trco/django-bootstrap-modal-forms
 
     
 }(jQuery));
+

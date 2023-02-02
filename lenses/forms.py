@@ -222,6 +222,23 @@ class LensQueryForm(forms.Form):
                                  widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                  validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
                                              MaxValueValidator(90,"DEC must be below 90 degrees.")])
+
+
+    ra_centre = forms.DecimalField(required=False,
+                                 help_text="RA centre of cone search",
+                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                 validators=[MinValueValidator(0.0,"RA must be positive."),
+                                             MaxValueValidator(360,"RA must be less than 360 degrees.")])
+    dec_centre = forms.DecimalField(required=False,
+                                 help_text="DEC centre of cone search",
+                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                 validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
+                                             MaxValueValidator(90,"DEC must be below 90 degrees.")])
+    radius = forms.DecimalField(required=False,
+                                 help_text="Radius in degrees for cone search",
+                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                 validators=[MinValueValidator(0,"Radius must be greater than 0 be above -90 degrees.")])
+
     n_img_min = forms.IntegerField(required=False,
                                    help_text="Minimum number of source images.",
                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
@@ -393,6 +410,10 @@ class LensQueryForm(forms.Form):
             if float(self.cleaned_data.get('image_sep_min')) > float(self.cleaned_data.get('image_sep_max')):
                 raise ValidationError('The maximum image separation is lower than the minimum.')
 
+        conesearch_pars = [self.cleaned_data.get('ra_centre'), self.cleaned_data.get('dec_centre'), self.cleaned_data.get('radius')]
+        if any([par!=None for par in conesearch_pars]):
+            if None in [self.cleaned_data.get('ra_centre'), self.cleaned_data.get('dec_centre'), self.cleaned_data.get('radius')]:
+                raise ValidationError('You must provide a right ascension, declination and radius to use the cone search')
         
         # Redshift checks
         z_lens_min   = self.cleaned_data.get('z_lens_min')
