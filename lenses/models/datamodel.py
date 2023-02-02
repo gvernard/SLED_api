@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q, F, CheckConstraint
-import abc
+from multiselectfield import MultiSelectField
 
 from . import SingleObject, Lenses
 
@@ -17,6 +17,16 @@ class Instrument(models.Model):
     info = models.TextField(blank=True,
                             default='',
                             help_text="Any important note about the instrument.")
+
+    BaseTypeChoices = (
+        ('Spectrum','Spectrum'),
+        ('Imaging','Imaging'),
+        ('Catalogue','Catalogue'),
+    )
+    base_types = MultiSelectField(max_length=100,
+                                  blank=True,
+                                  null=True,
+                                  choices=BaseTypeChoices)
 
     class Meta():
         ordering = ["name"]
