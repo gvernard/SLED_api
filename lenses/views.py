@@ -1007,7 +1007,10 @@ class LensQueryView(TemplateView):
         return self.render_to_response(context)
     
     def post(self, request, *args, **kwargs):
-        context = self.my_response(request.POST,request.user)
+        page_number = request.GET.get('lenses-page',1)
+        merged_request = request.POST.copy()
+        merged_request['lenses-page'] = page_number
+        context = self.my_response(merged_request,request.user)
         return self.render_to_response(context)
         
 
