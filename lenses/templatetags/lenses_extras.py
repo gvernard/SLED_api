@@ -58,3 +58,14 @@ def order_bands(band_dict):
         Dmags.append( band_dict[band]['Dmag'] )   
     zipped = zip(new_bands,mags,Dmags)
     return zipped
+
+
+@register.simple_tag
+def make_range(start,end):
+    print(start,end)
+    return range(int(start),int(end)+1)
+
+@register.simple_tag
+def define(var):
+    return var
+
