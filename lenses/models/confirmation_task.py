@@ -290,6 +290,7 @@ class CedeOwnership(ConfirmationTask):
             objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
             objs.update(owner=heir)
             pri = []
+            pub = []
             for obj in objs:
                 action.send(self.owner,
                             target=obj,
@@ -299,10 +300,24 @@ class CedeOwnership(ConfirmationTask):
                             previous_owner_url=self.owner.get_absolute_url(),
                             next_owner=heir.username,
                             next_owner_url=heir.get_absolute_url())
-
                 if obj.access_level == 'PRI':
                     pri.append(obj)
+                else:
+                    pub.append(obj)
 
+            # Handle public objects
+            if pub and object_type != 'SledGroup':
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=pub)
+                action.send(self.owner,
+                            target=Users.getAdmin().first(),
+                            verb='CedeOwnershipPublic',
+                            level='success',
+                            action_object=ad_col,
+                            previous_owner=self.owner.username,
+                            previous_owner_url=self.owner.get_absolute_url(),
+                            next_owner=heir.username,
+                            next_owner_url=heir.get_absolute_url())
+                    
             # Handle private objects
             if pri:
                 perm = 'view_' + model_ref._meta.db_table
