@@ -118,7 +118,6 @@ class GroupDeleteView(BSModalDeleteView):
 
     def delete(self, *args, **kwargs):
         self.object = self.get_object()
-        # Notify group members
         return super().delete(*args, **kwargs)
 
     

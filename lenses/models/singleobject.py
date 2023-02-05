@@ -5,7 +5,9 @@ from django.utils.dateparse import parse_datetime
 from django.contrib.auth.models import Group
 
 from guardian.core import ObjectPermissionChecker
-from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms
+from guardian.shortcuts import get_objects_for_user, get_users_with_perms, get_groups_with_perms, remove_perm
+from notifications.signals import notify
+from actstream import action
 
 import abc
 import inspect
@@ -179,6 +181,29 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
             CheckConstraint(check=Q(modified_at__gt=F('created_at')),name='%(class)s_modified_after_created')
         ]
 
+
+    def delete(self):
+        if self.access_level == 'PRI' and self.__class__ != 'SledGroup':
+            uwa = self.getUsersWithAccessNoOwner()
+            gwa = self.getGroupsWithAccessNoOwner()
+
+            # Remove persmissions and notify users and groups with access to the object
+            perm = 'view_'+self._meta.db_table
+            for user in uwa:
+                remove_perm(perm,user,self)
+                notify.send(sender=self.owner,
+                            recipient=user,
+                            verb='DeletedSingleObject',
+                            level='info',
+                            timestamp=timezone.now(),
+                            object_type=self.__class__,
+                            object_name=self.__str__())
+            for group in gwa:
+                remove_perm(perm,group,self)
+                action.send(self.owner,target=group,verb='DeletedSingleObject',level='info',object_type=self.__class__,object_name=self.__str__())
+        super().delete()
+
+        
     def isOwner(self, user):
         """
         Checks if the provided `User` is the owner.

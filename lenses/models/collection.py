@@ -7,9 +7,10 @@ from django.urls import reverse
 from django.db.models import F
 
 from guardian.core import ObjectPermissionChecker
-from guardian.shortcuts import assign_perm
+from guardian.shortcuts import assign_perm,remove_perm
 from gm2m import GM2MField
 import simplejson as json
+from notifications.signals import notify
 from actstream import action
 from dirtyfields import DirtyFieldsMixin
 
@@ -66,7 +67,6 @@ class Collection(SingleObject,DirtyFieldsMixin):
                         level='success',
                         object_type='Collection',
                         fields=json.dumps(dirty))
-
         super().save(*args,**kwargs)
 
         

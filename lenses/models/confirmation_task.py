@@ -413,6 +413,9 @@ class MakePrivate(ConfirmationTask):
 
             # Finally update the objects' access_level to private
             objs.update(access_level='PRI')                    
+            for obj in objs:
+                action.send(self.owner,target=obj,verb='MadePrivateSelf',level='success')
+
         else:
             notify.send(sender=admin,
                         recipient=self.owner,
@@ -452,59 +455,40 @@ class ResolveDuplicates(ConfirmationTask):
             output = self.owner.makePublic(lenses)
         else:
             # Keep only lenses marked to save
-            lenses = []
+            pri = []
+            pub = []
             for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
                 if i not in reject_indices:
                     obj.object.owner = self.owner
                     #obj.object.create_name() #commented out because we need for old lenses this name
                     if not obj.object.pk:
                         obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
-                    lenses.append(obj.object)
+                    if obj.object.access_level == 'PRI':
+                        pri.append(obj.object)
+                    else:
+                        pub.append(obj.object)
                 else:
                     # Remove uploaded image
                     if not obj.object.pk:
                         os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + obj.object.mugshot.name)
 
-            # Save lenses in the database
+            # Insert in the database
             db_vendor = connection.vendor
             if db_vendor == 'sqlite':
-                pri = []
-                pub = []
-                for lens in lenses:
+                for lens in (pri+pub):
                     lens.save()
-                    if lens.access_level == 'PRI':
-                        pri.append(lens)
-                    else:
-                        pub.append(lens)
-                if pri:
-                    assign_perm('view_lenses',self.owner,pri)
-                #if len(pub) > 0:
-                #    from . import Users
-                #    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                #    action.send(self.owner,target=Users.getAdmin().first(),verb='some string goes here?',level='success',action_object=ad_col)
             else:
-                # Here I need to upload and rename the images accordingly.
-                pri = []
-                for lens in lenses:
-                    lens.save()
-                    if lens.access_level == 'PRI':
-                        pri.append(lens)
-                if pri:
-                    assign_perm('view_lenses',self.owner,pri)
+                new_lenses = Lenses.objects.bulk_create(pri+pub)
 
-                    
-        #  Create a collection
-        # Nlenses = len(lenses)
-        # mycollection = Collection(owner=self.owner,
-        #                           name="Added "+str(Nlenses)+" lenses",
-        #                           access_level='PRI',
-        #                           description=str(Nlenses) + " added on the " + str(timezone.now().date()),
-        #                           item_type="Lenses")
-        # mycollection.save()
-        # mycollection.myitems = lenses
-        # mycollection.save()
+            if pri:
+                assign_perm('view_lenses',request.user,pri)
+            if pub:
+                # Main activity stream for public lenses
+                ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
+            return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})          
 
-
+        
 class AskPrivateAccess(ConfirmationTask):
     class Meta:
         proxy = True
@@ -574,53 +558,41 @@ class AddData(ConfirmationTask):
         lens_ids = []
         for id in dum:
             lens_ids.append(int(id))
-
-        #lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,lens_ids)
-
         
-        new_data = []
+        pri = []
+        pub = []
         #loop through the uploaded data objects, which we then associate with an owner (uploader)
         # and associate the uploaded image (which was stored in the temporary dir)
         for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
             obj.object.owner = self.owner
             #THIS IS a bit HACKY BECAUSE THE FUNCTION IN_IDS REMOVES DUPLICATES BUT WE SOMETIMES WANT DUPLICATES, SO I GET THE LENS OBJECTS INDIVIDUALLY HERE
             lens_match = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,[lens_ids[i]])[0]
-
-        
+  
             if not obj.object.pk:
                 obj.object.lens = lens_match
                 if 'image' in obj.object._meta.fields:
                     obj.object.image.name = 'temporary/' + self.owner.username + '/' + obj.object.image.name
-                new_data.append(obj.object)
+                if obj.object.access_level == "PRI":
+                    pri.append(obj.object)
+                else:
+                    pub.append(obj.object)
 
         # Save data in the database
-        db_vendor = connection.vendor
-        if db_vendor == 'sqlite':
-            pri = []
-            pub = []
-            for datum in new_data:
-                datum.save()
-                if datum.access_level == 'PRI':
-                    pri.append(datum)
-                else:
-                    pub.append(datum)
+        # Here we don't use bulk_create. We could, but then we need to separate the uploaded data by class/model
+        for datum in (pri+pub):
+            datum.save()
 
-            if pri:
-                assign_perm('view_lenses',self.owner,pri)
-            if len(pub) > 0:
-                from . import Users
-                ad_col = AdminCollection.objects.create(item_type=pub[0]._meta.model.__name__,myitems=pub)
-                action.send(self.owner,target=Users.getAdmin().first(),verb='AddData',level='success',action_object=ad_col)
-        else:
-            lenses = Lenses.objects.bulk_create(lenses)
-            # Here I need to upload and rename the images accordingly.
-            pri = []
-            for lens in lenses:
-                if lens.access_level == 'PRI':
-                    pri.append(lens)
-            if pri:
-                assign_perm('view_lenses',self.owner,pri)
-
+        if pri:
+            # The name of 'perm' depends on the object type
+            for obj in pri:
+                model_ref = pri.__class__
+                perm = 'view_' + model_ref._meta.db_table
+                assign_perm(perm,self.owner,obj)
+        if pub:
+            from . import Users
+            ad_col = AdminCollection.objects.create(item_type=pub[0]._meta.model.__name__,myitems=pub)
+            action.send(self.owner,target=Users.getAdmin().first(),verb='AddData',level='success',action_object=ad_col)
+        return TemplateResponse(request,'simple_message.html',context={'message':'Data successfully added to the database!'})          
 
 
 
@@ -640,14 +612,18 @@ class AcceptNewUser(ConfirmationTask):
             task_owner.is_active = True
             task_owner.save()
             action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUser',level='success',action_object=task_owner)
+            subject = 'Welcome to SLED' % self.task_type
+            message = 'Dear %s %s, your registration to the Strong LEns Database (SLED) website and API was successful. We hope this resource will facilitate your research work.' % (task_owner.first_name,task_owner.last_name,self.heard_from().get().response_comment)
         else:
-            # Send email to user with the response
-            site = Site.objects.get_current()
-            subject = 'A %s task requires your response' % self.task_type
+            subject = 'Unsuccessful registration to SLED' % self.task_type
             message = 'Dear %s %s, your registration to the Strong LEns Database (SLED) website and API was rejected. Here is the response from the administrators: %s' % (task_owner.first_name,task_owner.last_name,self.heard_from().get().response_comment)
-            user_email = task_owner.email
-            from_email = 'manager@%s' % site.domain
-            #send_mail(subject,message,from_email,user_email)            
+
+        # Send email to user with the response
+        message += "Kind regards, the administration team."
+        site = Site.objects.get_current()
+        user_email = task_owner.email
+        from_email = 'manager@%s' % site.domain
+        #send_mail(subject,message,from_email,user_email)            
             
 ### END: Confirmation task specific code
 ################################################################################################################################################

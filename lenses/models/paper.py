@@ -17,7 +17,7 @@ import inspect
 from itertools import groupby
 from operator import itemgetter
 
-from . import SingleObject, Lenses
+from . import SingleObject, Lenses, Users
 
 
 class Paper(SingleObject):
@@ -75,6 +75,15 @@ class Paper(SingleObject):
     def __str__(self):
         return '%s' % (self.cite_as)
 
+    def save(self,*args,**kwargs):
+        action.send(self.owner,target=Users.getAdmin().first(),verb='AddPaper',level='success',action_object=self)
+        for lens in self.lenses_in_paper:
+            action.send(self.owner,target=lens,verb='LinkedToPaper',level='success',action_object=self)
+        super(Paper,self).save(*args,**kwargs)
+
+
+
+    
     def get_absolute_url(self):
         return reverse('sled_papers:paper-detail',kwargs={'pk':self.id})
 

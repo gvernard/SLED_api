@@ -27,8 +27,20 @@
 	<a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
+	{% elif action.verb == "DeletedSingleObject" %}
+	NONE
+
+	
 	{% elif action.verb == "UpdateSelf" %}
 	The following updates were performed on this {{ action.data.object_type }}:
+	<div class="sled-dirty-fields">
+	  {{ action.data.fields }}
+	</div>
+	at <em>{{ action.timestamp }}</em>
+
+	
+	{% elif action.verb == "UpdateData" %}
+	The following updates were performed on {{ action.action_object }}:
 	<div class="sled-dirty-fields">
 	  {{ action.data.fields }}
 	</div>
@@ -95,6 +107,14 @@
 	made <em>public</em> by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a> at <em>{{ action.timestamp }}</em>
 
 
+	{% elif action.verb == "MadePublicSelf" %}
+	NONE
+
+
+	{% elif action.verb == "MadePrivateSelf" %}
+	NONE
+
+	
 	{% elif action.verb == "MadePublicGroup" %}
 	<a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural action.action_object.item_type N %}</a> the group has access to {{ N|pluralize:"was,were" }}
 	made public at <em>{{ action.timestamp }}</em>
@@ -121,7 +141,9 @@
 	{% elif action.verb == "CedeOwnershipSelf" %}
 	NONE
 
-
+	{% elif action.verb == "CedeOwnershipPublic" %}
+	NONE
+	
 	{% elif action.verb == "CedeOwnership" %}
 	<a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural action.action_object.item_type N %}</a> the group has access to changed owner from
 	<a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a> to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a> at <em>{{ action.timestamp }}</em>

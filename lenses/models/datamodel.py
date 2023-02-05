@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q, F, CheckConstraint
 from multiselectfield import MultiSelectField
+from dirtyfields import DirtyFieldsMixin
 
 from . import SingleObject, Lenses
 
@@ -52,7 +53,7 @@ class Band(models.Model):
                                    help_text="Central wavelength of the band in Angstroms")
 
     class Meta():
-        ordering = ["name"]
+        ordering = ["wavelength"]
         db_table = "bands"
         verbose_name = "band"
         verbose_name_plural = "bands"
@@ -60,11 +61,9 @@ class Band(models.Model):
     def __str__(self):
         return self.name
 
-    def band_order(self):
+    def band_order(self): #  <- 05.02.2023 GV: not sure this is needed
         # Query the band table and order the bands by central wavelegth
-        # Add central wavelegth to the band model
         return Band.objects.all().order_by('wavelength')
-        #return ['u', 'g', 'G', 'r', 'i', 'z', 'Y']
 
 
     
@@ -93,8 +92,10 @@ class DataBase(models.Model):
     class Meta():
         abstract = True
 
+
         
-class Imaging(SingleObject,DataBase):
+        
+class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     exposure_time = models.DecimalField(blank=True,
                                         null=True,
                                         max_digits=10,
@@ -116,6 +117,7 @@ class Imaging(SingleObject,DataBase):
     image = models.ImageField(blank=True,
                               upload_to='data/imaging')
 
+    
     class Meta():
         constraints = [
             CheckConstraint(check=Q(exposure_time__gt=0),name='imaging_exp_time'),
@@ -130,8 +132,31 @@ class Imaging(SingleObject,DataBase):
     def __str__(self):
         return self.lens.name + " - " + self.instrument.name + " " + self.band.name
 
+
+    def save(self,*args,**kwargs):
+        dirty = self.get_dirty_fields(verbose=True)
+        if len(dirty) > 0 and self.access_level == "PUB":
+            action.send(self.owner,
+                        target=self.lens,
+                        verb='UpdateData',
+                        level='success',
+                        action_object=self,
+                        fields=json.dumps(dirty))
+
+	# Call save first, to create a primary key
+        super(Imaging,self).save(*args,**kwargs)
+
+        # Create new file and remove old one
+        fname = '/'+self.image.name
+        sled_fname = '/data/imaging/' + str( self.pk ) + '.png'
+        if fname != sled_fname:
+            os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+            self.image.name = sled_fname
+            super(Imaging,self).save(*args,**kwargs)
+
+            
         
-class Spectrum(SingleObject,DataBase):
+class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     lambda_min = models.DecimalField(blank=True,
                                      null=True,
                                      max_digits=10,
@@ -161,8 +186,9 @@ class Spectrum(SingleObject,DataBase):
                                      help_text="The resolution of the spectrum.",
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
     image = models.ImageField(blank=True,
-                              upload_to='data/imaging')
+                              upload_to='data/spectrum')
 
+    
     class Meta():
         constraints = [
             CheckConstraint(check=Q(exposure_time__gt=0),name='spectrum_exp_time'),
@@ -173,8 +199,36 @@ class Spectrum(SingleObject,DataBase):
         verbose_name = "spectrum"
         verbose_name_plural = "spectra"
 
+        
+    def __str__(self):
+        return self.lens.name + " - " + self.instrument.name
 
-class Catalogue(SingleObject,DataBase):
+    
+    def save(self,*args,**kwargs):
+        dirty = self.get_dirty_fields(verbose=True)
+        if len(dirty) > 0 and self.access_level == "PUB":
+            action.send(self.owner,
+                        target=self.lens,
+                        verb='UpdateData',
+                        level='success',
+                        action_object=self,
+                        fields=json.dumps(dirty))
+
+	# Call save first, to create a primary key
+        super(Spectrum,self).save(*args,**kwargs)
+
+        # Create new file and remove old one
+        fname = '/'+self.image.name
+        sled_fname = '/data/spectrum/' + str( self.pk ) + '.png'
+        if fname != sled_fname:
+            os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+            self.image.name = sled_fname
+            super(Spectrum,self).save(*args,**kwargs)
+
+
+
+    
+class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
     radet = models.DecimalField(blank=True,
                               null=True,
                               max_digits=10,
@@ -210,6 +264,7 @@ class Catalogue(SingleObject,DataBase):
                                    validators=[MinValueValidator(0.0,"Distance must be positive."),])
     band = models.ForeignKey(Band,to_field='name',on_delete=models.CASCADE)
 
+    
     class Meta():
         constraints = [
             CheckConstraint(check=Q(distance__gt=0),name='distance'),
@@ -220,3 +275,20 @@ class Catalogue(SingleObject,DataBase):
         db_table = "catalogue"
         verbose_name = "Catalogue data entry"
         verbose_name_plural = "Catalogue data entries"
+
+        
+    def __str__(self):
+        return self.lens.name + " - " + self.instrument.name + " - " + self.band.name
+
+    
+    def save(self,*args,**kwargs):
+        dirty = self.get_dirty_fields(verbose=True)
+        if len(dirty) > 0 and self.access_level == "PUB":
+            action.send(self.owner,
+                        target=self.lens,
+                        verb='UpdateData',
+                        level='success',
+                        action_object=self,
+                        fields=json.dumps(dirty))
+
+        super(Catalogue,self).save(*args,**kwargs)

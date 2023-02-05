@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 from django.urls import reverse
 
 import simplejson as json
+from guardian.shortcuts import get_objects_for_group,remove_perm
 
 from . import SingleObject, AdminCollection
 
@@ -49,6 +50,27 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         self.user_set.add(self.owner)
 
         
+    def delete(self):
+        members = self.getAllMembers()
+
+        # Notify group members
+        for user in members:
+            notify.send(sender=self.owner,
+                        recipient=user,
+                        verb='DeletedGroup',
+                        level='info',
+                        timestamp=timezone.now(),
+                        group_name=self.name)
+
+        # Remove permissions
+        for model_class in SingleObject.__subclasses__():
+            perm = 'view_'+model_class._meta.db_table
+            objs = get_objects_for_group(self,perm)
+            remove_perm(self,perm,*objs)
+        
+        super().delete()
+
+
     def __str__(self):
         return self.name
 
