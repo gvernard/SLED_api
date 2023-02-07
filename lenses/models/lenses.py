@@ -153,7 +153,7 @@ class ProximateLensManager(models.Manager):
         index_list = []
         neis_list = [] # A list of non-empty querysets
         for i in range(0,len(ras)):
-            neis = self.get_DB_neighbours_anywhere_user_specific(ras[i],decs[i],user,radius)
+            neis = self.get_DB_neighbours_anywhere_user_specific(ras[i],decs[i],user,lenses=None,radius=radius)
             if neis:
                 index_list.append(i)
                 neis_list.append(neis)
