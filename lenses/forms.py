@@ -468,14 +468,7 @@ class DataBaseQueryForm(forms.Form):
                                                                           'id': 'customSwitch1'
                                                                           })
                                         )
-    instrument = forms.ModelMultipleChoiceField(
-        label = 'Instrument',
-        queryset = Instrument.objects.all(),
-        required = False,
-        widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
-                                                      'data-placeholder':'Select an instrument',
-                                                      'data-allow-clear':False})
-    )
+
     date_taken_min = forms.DateField(
         required = False,
         widget = forms.SelectDateWidget(
@@ -534,6 +527,14 @@ class ImagingQueryForm(DataBaseQueryForm):
         queryset = Band.objects.all(),
         required = False,
     )
+    instrument = forms.ModelMultipleChoiceField(
+        label = 'Instrument',
+        queryset = Instrument.objects.filter(base_types__icontains='Imaging'),
+        required = False,
+        widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
+                                                      'data-placeholder':'Select an instrument',
+                                                      'data-allow-clear':False})
+    )
     exposure_time_min = forms.DecimalField(required=False,
                                            max_digits=8,
                                            decimal_places=4,
@@ -575,6 +576,14 @@ class ImagingQueryForm(DataBaseQueryForm):
 
 
 class SpectrumQueryForm(DataBaseQueryForm):
+    instrument = forms.ModelMultipleChoiceField(
+        label = 'Instrument',
+        queryset = Instrument.objects.filter(base_types__icontains='Spectrum'),
+        required = False,
+        widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
+                                                      'data-placeholder':'Select an instrument',
+                                                      'data-allow-clear':False})
+    )
     exposure_time_min = forms.DecimalField(required=False,
                                            max_digits=8,
                                            decimal_places=4,
@@ -633,6 +642,14 @@ class SpectrumQueryForm(DataBaseQueryForm):
                 
 
 class CatalogueQueryForm(DataBaseQueryForm):
+    instrument = forms.ModelMultipleChoiceField(
+        label = 'Instrument',
+        queryset = Instrument.objects.filter(base_types__icontains='Catalogue'),
+        required = False,
+        widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
+                                                      'data-placeholder':'Select an instrument',
+                                                      'data-allow-clear':False})
+    )    
     band = forms.ModelChoiceField(
         label = 'Band',
         queryset = Band.objects.all(),

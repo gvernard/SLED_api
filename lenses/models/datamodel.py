@@ -65,12 +65,6 @@ class Band(models.Model):
     def __str__(self):
         return self.name
 
-    def band_order(self): #  <- 05.02.2023 GV: not sure this is needed
-        # Query the band table and order the bands by central wavelegth
-        return Band.objects.all().order_by('wavelength')
-
-
-    
     
 class DataBase(models.Model):
     lens = models.ForeignKey(Lenses,

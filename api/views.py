@@ -201,6 +201,7 @@ class UploadLenses(APIView):
         #print(lenses)'''
         #print(lenses)
 
+        print(request.body)
         lenses = list(json.loads(request.body))
         #print(lenses[1])
         print(lenses)
