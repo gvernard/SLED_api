@@ -34,7 +34,7 @@
 	  <!-- Recent activity div -->
 	  <div class="jb-activity">
 	    {% activity_stream 'target' lens %}
-	    {% include "activity_summary.html" with stream=stream max_entries=5 %}
+	    {% include "activity_object.html" with stream=stream max_entries=5 %}
 	    {% if stream|length > 5 %}
 	    <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
 	    {% include "activity_all_modal.html" with stream=stream %}

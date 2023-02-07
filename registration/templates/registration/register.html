@@ -66,6 +66,12 @@
         {{ form.affiliation.errors }}
       </div>
 
+      <div class="jb-form">
+        <label for="{{ form.affiliation.id_for_label }}">Slack display name:</label>
+        {{ form.slack_display_name }}
+        {{ form.slack_display_name.errors }}
+      </div>
+      
       <div style="text-align:center">
 	<input type="submit" value="Register" data-wait="Please wait..." class="jb-submit-button-1 w-button">
       </div>

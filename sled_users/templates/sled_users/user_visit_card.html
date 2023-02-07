@@ -13,7 +13,7 @@
 	</p>
       </td>
       <td valign="bottom" align="right">
-	<img src="{% static 'images/JB_User_Icon.png' %}" loading="lazy" width="100" alt="" class="jb-image-2" />
+	<img src="{{ user.avatar }}" loading="lazy" width="100" alt="" class="jb-image-2" />
       </td>
     </tr>
   </table>
@@ -44,11 +44,13 @@
     <table>
       <thead>
         <tr>
+	  <th style="width:250px">SLACK display name</th>
           <th>Info</th>
         </tr>
       </thead>
       <tbody>
         <tr>
+	  <td>{{ user.slack_display_name }}</td>
           <td>{{ sled_user.info }}</td>
         </tr>
       </tbody>

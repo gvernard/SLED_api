@@ -18,9 +18,6 @@ class BaseLensForm(forms.ModelForm):
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
-            #'lens_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
-            #'source_type': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}),
-            #'image_conf': forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'})
         }
         
     def __init__(self, *args, **kwargs):
@@ -28,7 +25,26 @@ class BaseLensForm(forms.ModelForm):
         for field_name,field in zip(self.fields,self.fields.values()):
             if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
-            
+
+
+class BaseLensUpdateForm(BaseLensForm):
+    class Meta:
+        model = Lenses
+        exclude = ['name','access_level']
+        widgets = {
+            'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
+            'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name,field in zip(self.fields,self.fields.values()):
+            if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
+                field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
+
+
 
 class LensModalUpdateForm(BSModalModelForm):
     class Meta:

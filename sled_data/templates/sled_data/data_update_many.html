@@ -39,7 +39,7 @@
 			{{ forloop.counter }}: 
 			<a href="{{ form.instance.lens.get_absolute_url }}">{{ form.instance.lens }}</a> - 
 			{% if model == 'Imaging' or model == 'Catalogue' %}
-			{{ form.instance.instrument }} {{ form.instance.band }} band
+			{{ form.instance.instrument }} {{ form.instance.band }}
 			{% else %}
 			{{ form.instance.instrument }}
 			{% endif %}

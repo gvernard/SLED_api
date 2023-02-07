@@ -1,6 +1,7 @@
 from django import template
 from django.apps import apps
 
+from lenses.models import Users
 
 register = template.Library() 
 
@@ -21,3 +22,18 @@ def singular_or_plural(model_name,number):
         return model_ref._meta.verbose_name.title()
     else:
         return model_ref._meta.verbose_name_plural.title()
+
+
+@register.filter(name='get_user_link')
+def get_user_link(user_pk):
+    user = Users.objects.get(pk=user_pk)
+    html = '<a href="' + user.get_absolute_url() + '" target="_blank">' + user.username + '</a>'
+    return html
+
+@register.filter(name='get_ad_col_url')
+def get_ad_col_url(ad_col):
+    if ad_col.myitems.count() == 1:
+        url = ad_col.myitems.first().get_absolute_url()
+    else:
+        url = ad_col.get_absolute_url()
+    return url

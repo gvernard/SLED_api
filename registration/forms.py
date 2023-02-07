@@ -2,6 +2,10 @@ from django import forms
 from lenses.models.user import Users
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField
 from django.contrib.auth.models import User
+import os
+import time
+import slack_sdk
+from slack_sdk.errors import SlackApiError
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -10,8 +14,11 @@ class RegisterForm(UserCreationForm):
 
     class Meta:
         model = Users
-        fields = ["username", "first_name", "last_name", "email", "password1", "password2", "affiliation"]
-
+        fields = ["username", "first_name", "last_name", "email", "password1", "password2", "affiliation", "slack_display_name", "avatar"]
+        widgets = {
+            "avatar": forms.HiddenInput(),
+        }
+        
     def __init__(self, *args, **kwargs):
         super(UserCreationForm, self).__init__(*args, **kwargs)
         # self.fields['username'].widgets.attrs.update({'class', 'field-label'})
@@ -22,8 +29,48 @@ class RegisterForm(UserCreationForm):
         self.fields['password1'].widget.attrs['class'] = 'field-label'
         self.fields['password2'].widget.attrs['class'] = 'field-label'
         self.fields['affiliation'].widget.attrs['class'] = 'field-label'
+        self.fields['slack_display_name'].widget.attrs['class'] = 'field-label'
 
+    def clean(self):
+        # Check that at least one field was changed
+        if not self.has_changed():
+            self.add_error("__all__","No changes detected!")
 
+        if "slack_display_name" in self.changed_data:
+            SLACK_TOKEN = os.environ['DJANGO_SLACK_API_TOKEN']
+            slack_client = slack_sdk.WebClient(SLACK_TOKEN)
+
+            looper = True
+            counter = 1
+            while looper and counter < 10:
+                try:
+                    response = slack_client.users_list()
+                    found = False
+                    if response["ok"]:
+                        for i in range(0,len(response["members"])):
+                            name = response["members"][i]["profile"]["display_name"]
+                            if name == self.cleaned_data["slack_display_name"]:
+                                self.cleaned_data["avatar"] = response["members"][i]["profile"]["image_512"]
+                                found = True
+                    if not found:
+                        self.add_error("__all__","User '" + self.cleaned_data["slack_display_name"] + "' does not exist in the SLED Slack workspace!")
+                    looper = False
+                except SlackApiError as e:
+                    if e.response["error"] == "ratelimited":
+                        print("Retrying connection to Slack API...")
+                        time.sleep(3)
+                        counter = counter + 1
+                    else:
+                        # Other error
+                        self.add_error("__all__","Slack API error: " + e.response["error"])
+                        looper = False
+                        pass
+
+            if counter >= 10:
+                self.add_error("__all__","Too many requests to the Slack API. Please try again later!")
+            
+        return
+    
 
 class UserLoginForm(AuthenticationForm):
     class Meta:

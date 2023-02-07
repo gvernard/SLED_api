@@ -49,7 +49,10 @@ class Collection(SingleObject,DirtyFieldsMixin):
                                  choices=ItemTypeChoices,
                                  help_text="The type of items that should be in the collection.")
 
-        
+    # Fields to report updates on
+    FIELDS_TO_CHECK = ['name','description','owner','access_level']
+
+    
     class Meta(SingleObject.Meta):
         db_table = "collection"
         verbose_name = "collection"
@@ -59,16 +62,27 @@ class Collection(SingleObject,DirtyFieldsMixin):
 
         
     def save(self,*args,**kwargs):
-        dirty = self.get_dirty_fields(verbose=True)
-        if len(dirty) > 0:
-            action.send(self.owner,
-                        target=self,
-                        verb='UpdateSelf',
-                        level='success',
-                        object_type='Collection',
-                        fields=json.dumps(dirty))
+        if not self._state.adding:
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            
+            if "access_level" in dirty.keys():
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self,verb='MakePublicLog',level='warning')
+                else:
+                    action.send(self.owner,target=self,verb='MakePrivateLog',level='warning')
+                dirty.pop("access_level",None) # remove from any subsequent report
+
+            if "owner" in dirty.keys():
+                action.send(self.owner,target=self,verb='CedeOwnershipLog',level='info',previous_id=dirty["owner"]["saved"],next_id=dirty["owner"]["current"])
+                dirty.pop("owner",None) # remove from any subsequent report
+
+            if len(dirty) > 0:
+                action.send(self.owner,target=self,verb='UpdateLog',level='info',fields=json.dumps(dirty))
+
         super().save(*args,**kwargs)
 
+
+        
         
     def __str__(self):
         return self.name
@@ -262,7 +276,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
         N_removed = objects.count()
 
         ad_col = AdminCollection.objects.create(item_type=self.item_type,myitems=objects)
-        action.send(self.owner,target=self,verb='RemovedFromCollection',level='success',action_object=ad_col)
+        action.send(self.owner,target=self,verb='RemovedFromCollection',level='error',action_object=ad_col)
 
         response = {"status":"ok","N_removed":N_removed}
         return response

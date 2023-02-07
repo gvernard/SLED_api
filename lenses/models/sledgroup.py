@@ -26,7 +26,9 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
     """
     description = models.CharField(max_length=200,null=True, blank=True)
 
-    
+    # Fields to report updates on
+    FIELDS_TO_CHECK = ['name','description','owner','access_level']
+
     class Meta():
         db_table = "sledgroups"
         verbose_name = "group"
@@ -36,18 +38,26 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
 
         
     def save(self,*args,**kwargs):
-        dirty = self.get_dirty_fields(verbose=True)
-        if len(dirty) > 0:
-            action.send(self.owner,
-                        target=self,
-                        verb='UpdateSelf',
-                        level='success',
-                        object_type='SledGroup',
-                        fields=json.dumps(dirty))
+        if self._state.adding:
+            self.user_set.add(self.owner)
+        else:
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            
+            if "access_level" in dirty.keys():
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self,verb='MakePublicLog',level='warning')
+                else:
+                    action.send(self.owner,target=self,verb='MakePrivateLog',level='warning')
+                dirty.pop("access_level",None) # remove from any subsequent report
 
-        # Call save first, to create a primary key
+            if "owner" in dirty.keys():
+                action.send(self.owner,target=self,verb='CedeOwnershipLog',level='info',previous_id=dirty["owner"]["saved"],next_id=dirty["owner"]["current"])
+                dirty.pop("owner",None) # remove from any subsequent report
+
+            if len(dirty) > 0:
+                action.send(self.owner,target=self,verb='UpdateLog',level='info',fields=json.dumps(dirty))
+
         super().save(*args,**kwargs)
-        self.user_set.add(self.owner)
 
         
     def delete(self):
@@ -117,7 +127,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             #to_add = sled_user_qset.values_list('username',flat=True)
             #action.send(owner,target=self,verb='AddedToGroup',level='info',user_names=[u.username for u in to_add],user_urls=[u.get_absolute_url() for u in to_add])
             ad_col = AdminCollection.objects.create(item_type="Users",myitems=sled_user_qset)
-            action.send(owner,target=self,verb='AddedToGroup',level='info',action_object=ad_col)
+            action.send(owner,target=self,verb='AddedToGroupLog',level='success',action_object=ad_col)
 
             
     def removeMember(self,owner,sled_user_qset):
@@ -149,7 +159,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             #to_remove = sled_user_qset.values_list('username',flat=True)
             #action.send(owner,target=self,verb='RemovedFromGroup',level='info',user_names=[u.usernames for u in to_remove],user_urls=[u.get_absolute_url() for u in to_remove])
             ad_col = AdminCollection.objects.create(item_type="Users",myitems=sled_user_qset)
-            action.send(owner,target=self,verb='RemovedFromGroup',level='info',action_object=ad_col)
+            action.send(owner,target=self,verb='RemovedFromGroupLog',level='error',action_object=ad_col)
 
 
     def delete(self, *args, **kwargs):

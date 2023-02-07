@@ -331,11 +331,12 @@ class DataUpdateManyView(TemplateView):
                 instances = myformset.save()
                 pub = []
                 for i,item in enumerate(instances):
+                    item.save()
                     if item.access_level == 'PUB':
                         pub.append(item)
-                if len(pub) > 0:
+                if pub:
                     ad_col = AdminCollection.objects.create(item_type=obj_type,myitems=pub)
-                    action.send(request.user,target=Users.getAdmin().first(),verb='Update',level='success',action_object=ad_col)
+                    action.send(request.user,target=Users.getAdmin().first(),verb='UpdateHome',level='info',action_object=ad_col)
                 if len(instances) > 1:
                     message = model_ref._meta.verbose_name_plural.title() + ' successfully updated!'
                 else:

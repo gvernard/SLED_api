@@ -292,14 +292,6 @@ class CedeOwnership(ConfirmationTask):
             pri = []
             pub = []
             for obj in objs:
-                action.send(self.owner,
-                            target=obj,
-                            verb='CedeOwnershipSelf',
-                            level='success',
-                            previous_owner=self.owner.username,
-                            previous_owner_url=self.owner.get_absolute_url(),
-                            next_owner=heir.username,
-                            next_owner_url=heir.get_absolute_url())
                 if obj.access_level == 'PRI':
                     pri.append(obj)
                 else:
@@ -307,16 +299,9 @@ class CedeOwnership(ConfirmationTask):
 
             # Handle public objects
             if pub and object_type != 'SledGroup':
+                from . import Users
                 ad_col = AdminCollection.objects.create(item_type=object_type,myitems=pub)
-                action.send(self.owner,
-                            target=Users.getAdmin().first(),
-                            verb='CedeOwnershipPublic',
-                            level='success',
-                            action_object=ad_col,
-                            previous_owner=self.owner.username,
-                            previous_owner_url=self.owner.get_absolute_url(),
-                            next_owner=heir.username,
-                            next_owner_url=heir.get_absolute_url())
+                action.send(self.owner,target=Users.getAdmin().first(),verb='CedeOwnershipHome',level='info',action_object=ad_col,previous_id=self.owner.id,next_id=heir.id)
                     
             # Handle private objects
             if pri:
@@ -333,14 +318,12 @@ class CedeOwnership(ConfirmationTask):
                         ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                         notify.send(sender=self.owner,
                                     recipient=user,
-                                    verb='CedeOwnership',
+                                    verb='CedeOwnershipNote',
                                     level='info',
                                     timestamp=timezone.now(),
                                     action_object=ad_col,
-                                    previous_owner=self.owner.username,
-                                    previous_owner_url=self.owner.get_absolute_url(),
-                                    next_owner=heir.username,
-                                    next_owner_url=heir.get_absolute_url())
+                                    previous_owner=self.owner,
+                                    next_owner=heir)
                         
                     # Notify groups with access
                     groups_with_access,accessible_objects = heir.accessible_per_other(pri,'groups')
@@ -351,20 +334,12 @@ class CedeOwnership(ConfirmationTask):
                         for j in accessible_objects[i]:
                             objects.append(pri[j])
                         ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
-                        action.send(self.owner,
-                                    target=gwa[i],
-                                    verb='CedeOwnership',
-                                    level='info',
-                                    action_object=ad_col,
-                                    previous_owner=self.owner.username,
-                                    previous_owner_url=self.owner.get_absolute_url(),
-                                    next_owner=heir.username,
-                                    next_owner_url=heir.get_absolute_url())
+                        action.send(self.owner,target=gwa[i],verb='CedeOwnershipGroup',level='info',action_object=ad_col,previous_id=self.owner.id,next_id=heir.id)
                 
             # Confirm to the previous owner
             notify.send(sender=heir,
                         recipient=self.owner,
-                        verb='CedeOwnershipAccepted',
+                        verb='CedeOwnershipAcceptedNote',
                         level='success',
                         timestamp=timezone.now(),
                         action_object=self)
@@ -372,7 +347,7 @@ class CedeOwnership(ConfirmationTask):
         else:
             notify.send(sender=heir,
                         recipient=self.owner,
-                        verb='CedeOwnershipRejected',
+                        verb='CedeOwnershipRejectedNote',
                         level='error',
                         timestamp=timezone.now(),
                         action_object=self)
@@ -413,8 +388,6 @@ class MakePrivate(ConfirmationTask):
 
             # Finally update the objects' access_level to private
             objs.update(access_level='PRI')                    
-            for obj in objs:
-                action.send(self.owner,target=obj,verb='MadePrivateSelf',level='success')
 
         else:
             notify.send(sender=admin,
@@ -485,7 +458,7 @@ class ResolveDuplicates(ConfirmationTask):
             if pub:
                 # Main activity stream for public lenses
                 ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
+                action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
             return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})          
 
         
@@ -591,7 +564,7 @@ class AddData(ConfirmationTask):
         if pub:
             from . import Users
             ad_col = AdminCollection.objects.create(item_type=pub[0]._meta.model.__name__,myitems=pub)
-            action.send(self.owner,target=Users.getAdmin().first(),verb='AddData',level='success',action_object=ad_col)
+            action.send(self.owner,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
         return TemplateResponse(request,'simple_message.html',context={'message':'Data successfully added to the database!'})          
 
 
@@ -611,8 +584,8 @@ class AcceptNewUser(ConfirmationTask):
         if response == 'yes':
             task_owner.is_active = True
             task_owner.save()
-            action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUser',level='success',action_object=task_owner)
-            subject = 'Welcome to SLED' % self.task_type
+            action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUserHome',level='success',action_object=task_owner)
+            subject = 'Welcome to SLED'
             message = 'Dear %s %s, your registration to the Strong LEns Database (SLED) website and API was successful. We hope this resource will facilitate your research work.' % (task_owner.first_name,task_owner.last_name,self.heard_from().get().response_comment)
         else:
             subject = 'Unsuccessful registration to SLED' % self.task_type

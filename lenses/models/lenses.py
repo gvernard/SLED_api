@@ -348,8 +348,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
 
 
-
-    FIELDS_TO_CHECK = ['ra','dec','name','flag_confirmed','flag_contaminant','image_sep','z_lens','z_source','image_conf','info','n_img','lens_type','source_type','contaminant_type']
+    # Fields to report updates on
+    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','z_lens','z_source','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type']
 
     
     proximate = ProximateLensManager()
@@ -393,26 +393,37 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
             
     def save(self,*args,**kwargs):
-        dirty = self.get_dirty_fields(verbose=True)
-        #dirty.pop('name',None)
-        if len(dirty) > 0:
-            action.send(self.owner,
-                        target=self,
-                        verb='UpdateSelf',
-                        level='success',
-                        object_type='Lenses',
-                        fields=json.dumps(dirty))
+        if self._state.adding:
+            super(Lenses,self).save(*args,**kwargs)
+        else:
+            dirty = self.get_dirty_fields(verbose=True)
 
-	# Call save first, to create a primary key
-        super(Lenses,self).save(*args,**kwargs)
+            if "access_level" in dirty.keys():
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self,verb='MakePublicLog',level='warning')
+                else:
+                    action.send(self.owner,target=self,verb='MakePrivateLog',level='warning')
+                dirty.pop("access_level",None) # remove from any subsequent report
 
+            if "owner" in dirty.keys():
+                action.send(self.owner,target=self,verb='CedeOwnershipLog',level='info',previous_owner=dirty["owner"]["saved"],next_owner=dirty["owner"]["current"])
+                dirty.pop("owner",None) # remove from any subsequent report
+
+            if "mugshot" in dirty.keys():
+                action.send(self.owner,target=self,verb='ImageChangeLog',level='info')
+                dirty.pop("mugshot",None) # remove from any subsequent report
+                
+            if len(dirty) > 0:
+                action.send(self.owner,target=self,verb='UpdateLog',level='info',fields=json.dumps(dirty))
+        
         # Create new file and remove old one
         fname = '/'+self.mugshot.name
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.mugshot.name = sled_fname
-            super(Lenses,self).save(*args,**kwargs)
+
+        super(Lenses,self).save(*args,**kwargs)
 
             
     def __str__(self):

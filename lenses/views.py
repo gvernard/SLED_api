@@ -385,7 +385,7 @@ class LensAddView(TemplateView):
                     if pub:
                         # Main activity stream for public lenses
                         ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                        action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
+                        action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
                     return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                 else:
                     # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
@@ -425,7 +425,7 @@ class LensUpdateView(TemplateView):
 
     def post(self, request, *args, **kwargs):
         referer = urlparse(request.META['HTTP_REFERER']).path
-        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
+        LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensUpdateForm,extra=0)
 
         if referer == request.path:
             # Submitting to itself, perform all the checks
@@ -442,10 +442,14 @@ class LensUpdateView(TemplateView):
                         lens.save()
                         if lens.access_level == 'PUB':
                             pub.append(lens)
-                    if len(pub) > 0:
+                    if pub:
                         ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                        action.send(request.user,target=Users.getAdmin().first(),verb='Update',level='success',action_object=ad_col)
-                    return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully updated!'})
+                        action.send(request.user,target=Users.getAdmin().first(),verb='UpdateHome',level='info',action_object=ad_col)
+                    if len(instances) > 1:
+                        message = 'Lenses successfully updated!'
+                    else:
+                        message = 'Lens successfully updated!'
+                    return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:
                     # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
                     path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
@@ -465,7 +469,7 @@ class LensUpdateView(TemplateView):
                     return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
             else:
                 print('NOT VALID')
-
+                    
                 # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory and replace image source in the formset 
                 path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
                 if not os.path.exists(path):

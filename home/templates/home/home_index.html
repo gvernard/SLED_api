@@ -15,7 +15,7 @@
 	    
 	    <!-- Recent activity div -->
 	    <div class="jb-activity">
-	      {% include "activity_summary.html" with stream=stream max_entries=10 %}
+	      {% include "home/activity_home.html" with stream=stream max_entries=10 %}
 	      {% if stream|length > 10 %}
 	      <a href="{% url 'home:homepage-all-activity'%}">Display all activity</a>
 	      {% endif %}

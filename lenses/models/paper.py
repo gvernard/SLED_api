@@ -76,13 +76,11 @@ class Paper(SingleObject):
         return '%s' % (self.cite_as)
 
     def save(self,*args,**kwargs):
-        action.send(self.owner,target=Users.getAdmin().first(),verb='AddPaper',level='success',action_object=self)
+        ad_col = AdminCollection.objects.create(item_type="Paper",myitems=[self])
+        action.send(self.owner,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
         for lens in self.lenses_in_paper:
-            action.send(self.owner,target=lens,verb='LinkedToPaper',level='success',action_object=self)
+            action.send(self.owner,target=lens,verb='AddPaperTargetLog',level='success',action_object=self)
         super(Paper,self).save(*args,**kwargs)
-
-
-
     
     def get_absolute_url(self):
         return reverse('sled_papers:paper-detail',kwargs={'pk':self.id})

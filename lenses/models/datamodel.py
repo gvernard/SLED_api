@@ -1,8 +1,12 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q, F, CheckConstraint
+from django.conf import settings
 from multiselectfield import MultiSelectField
 from dirtyfields import DirtyFieldsMixin
+from actstream import action
+import os
+import simplejson as json
 
 from . import SingleObject, Lenses
 
@@ -134,25 +138,36 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
 
 
     def save(self,*args,**kwargs):
-        dirty = self.get_dirty_fields(verbose=True)
-        if len(dirty) > 0 and self.access_level == "PUB":
-            action.send(self.owner,
-                        target=self.lens,
-                        verb='UpdateData',
-                        level='success',
-                        action_object=self,
-                        fields=json.dumps(dirty))
+        if self._state.adding and self.access_level == "PUB":
+            # Creating object for the first time, calling save first to create a primary key
+            super(Imaging,self).save(*args,**kwargs)
+            action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+        else:
+            # Updating object
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            dirty.pop("owner",None) # Do not report ownership changes
 
-	# Call save first, to create a primary key
-        super(Imaging,self).save(*args,**kwargs)
+            if "access_level" in dirty.keys():
+                # Report only when making public
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='warning',action_object=self)
+                dirty.pop("access_level",None) # remove from any subsequent report
 
+            if "image" in dirty.keys():
+                action.send(self.owner,target=self.lens,verb='ImageChangeTargetLog',level='info',action_object=self)
+                dirty.pop("image",None) # remove from any subsequent report
+                
+            if len(dirty) > 0 and self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty))
+            
         # Create new file and remove old one
         fname = '/'+self.image.name
         sled_fname = '/data/imaging/' + str( self.pk ) + '.png'
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.image.name = sled_fname
-            super(Imaging,self).save(*args,**kwargs)
+
+        super(Imaging,self).save(*args,**kwargs)
 
             
         
@@ -205,17 +220,27 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def save(self,*args,**kwargs):
-        dirty = self.get_dirty_fields(verbose=True)
-        if len(dirty) > 0 and self.access_level == "PUB":
-            action.send(self.owner,
-                        target=self.lens,
-                        verb='UpdateData',
-                        level='success',
-                        action_object=self,
-                        fields=json.dumps(dirty))
+        if self._state.adding and self.access_level == "PUB":
+            # Creating object for the first time, calling save first to create a primary key
+            super(Spectrum,self).save(*args,**kwargs)
+            action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+        else:
+            # Updating object
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            dirty.pop("owner",None) # Do not report ownership changes
+            
+            if "access_level" in dirty.keys():
+                # Report only when making public
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='warning',action_object=self)
+                dirty.pop("access_level",None) # remove from any subsequent report
 
-	# Call save first, to create a primary key
-        super(Spectrum,self).save(*args,**kwargs)
+            if "image" in dirty.keys():
+                action.send(self.owner,target=self.lens,verb='ImageChangeTargetLog',level='info',action_object=self)
+                dirty.pop("image",None) # remove from any subsequent report
+                
+            if len(dirty) > 0 and self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty))
 
         # Create new file and remove old one
         fname = '/'+self.image.name
@@ -223,7 +248,8 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.image.name = sled_fname
-            super(Spectrum,self).save(*args,**kwargs)
+
+        super(Spectrum,self).save(*args,**kwargs)
 
 
 
@@ -282,13 +308,22 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def save(self,*args,**kwargs):
-        dirty = self.get_dirty_fields(verbose=True)
-        if len(dirty) > 0 and self.access_level == "PUB":
-            action.send(self.owner,
-                        target=self.lens,
-                        verb='UpdateData',
-                        level='success',
-                        action_object=self,
-                        fields=json.dumps(dirty))
-
+        if self._state.adding and self.access_level == "PUB":
+            # Creating object for the first time, calling save first to create a primary key
+            super(Catalogue,self).save(*args,**kwargs)
+            action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+        else:
+            # Updating object
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            dirty.pop("owner",None) # Do not report ownership changes
+            
+            if "access_level" in dirty.keys():
+                # Report only when making public
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='warning',action_object=self)
+                dirty.pop("access_level",None) # remove from any subsequent report
+                    
+            if len(dirty) > 0 and self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty))
+                
         super(Catalogue,self).save(*args,**kwargs)

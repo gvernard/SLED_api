@@ -1,0 +1,71 @@
+{% load static %}
+{% load project_tags %}
+
+{% if stream %}
+
+
+<table class="jb-activity">
+  <tbody>
+    
+    {% with  activityCount=max_entries|stringformat:"s" %}
+    {% with  activitySlice=":"|add:activityCount %}
+    
+    {% for action in stream|slice:activitySlice %}
+    {% with N=action.action_object.myitems.all|length %}
+    <tr>
+      <td>
+	<div data-index="{{ forloop.counter0 }}" style="display:inline-block;">
+	  {% if action.data.level == "success" %}
+	  <img src="{% static 'icons/check-circle-fill.svg' %}" alt="trash">
+	  {% elif action.data.level == "error" %}
+	  <img src="{% static 'icons/x-circle-fill.svg' %}" alt="trash">
+	  {% elif action.data.level == "info" %}
+	  <img src="{% static 'icons/info-circle-fill.svg' %}" alt="trash">
+	  {% elif action.data.level == "warning" %}
+	  <img src="{% static 'icons/exclamation-triangle-fill.svg' %}" alt="trash">
+	  {% else %}
+	  {{ action.data.level }}
+	  {% endif %}
+
+
+	  
+          {% if action.verb == "AddHome" %}
+	  <a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a>
+	  {{ N|pluralize:"was,were" }} added by {{ action.actor.id|get_user_link|safe }}
+
+
+	  {% elif action.verb == "CedeOwnershipHome" %}
+	  <a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a>
+	  changed owner from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link }}
+
+
+	  {% elif action.verb == "UpdateHome" %}
+	  <a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a>
+	  {{ N|pluralize:"was,were" }} updated by {{ action.actor.id|get_user_link|safe }}
+
+
+	  {% elif action.verb == "AcceptNewUserHome" %}
+	  User {{ action.action_object.id|get_user_link|safe }} ({{ action.action_object.first_name }} {{ action.action_object.last_name }}) joined SLED
+	  
+
+	  {% elif action.verb == "MadePublicHome" %}
+	  <a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}
+	  {{ N|pluralize:"was,were" }} made public by {{ action.actor.id|get_user_link|safe }}
+
+	  
+	  {% endif %}
+          {{ action.timestamp|timesince }} ago
+	</div>
+      </td>
+    </tr>
+    {% endwith %}
+    {% endfor %}
+    {% endwith %}
+    {% endwith %}
+  </tbody>
+</table>
+
+{% else %}
+<p class="jb-homepage-activity">No activity to display</p>
+{% endif %}
+

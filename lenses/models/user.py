@@ -64,10 +64,13 @@ class Users(AbstractUser,GuardianUserMixin):
         blank=True,
         default='',
         help_text="A short description of your work and interests.")
-    avatar = models.ImageField(
+    avatar = models.URLField(
         blank=True,
-        upload_to='users/')
-
+        max_length=300)
+    slack_display_name = models.CharField(
+        blank=True,
+        max_length=100,
+        help_text="Your 'Display Name' in the SLED Slack workspace.")
     
     class Meta():
         db_table = "users"
@@ -108,7 +111,7 @@ class Users(AbstractUser,GuardianUserMixin):
         if self != group.owner:
             if self in group.getAllMembers(): 
                 group.user_set.remove(self)
-                action.send(self,target=group,verb='LeftGroup',level='info',user_name=self.username,user_url=self.get_absolute_url())
+                action.send(self,target=group,verb='LeftGroup',level='error',user_name=self.username,user_url=self.get_absolute_url())
                 
     def getGroupsIsMember(self):
         """
@@ -207,7 +210,7 @@ class Users(AbstractUser,GuardianUserMixin):
                                 timestamp=timezone.now(),
                                 action_object=ad_col)
                 else:
-                    action.send(self,target=user,verb='GiveAccess',level='success',action_object=ad_col) # the user here is a group
+                    action.send(self,target=user,verb='GiveAccessGroup',level='success',action_object=ad_col) # the user here is a group
 
     def revokeAccess(self,objects,target_users):
         """
@@ -256,7 +259,7 @@ class Users(AbstractUser,GuardianUserMixin):
                                 timestamp=timezone.now(),
                                 action_object=ad_col)    
                 else:
-                    action.send(self,target=user,verb='RevokeAccess',level='error',action_object=ad_col)  # here the user is actually a group
+                    action.send(self,target=user,verb='RevokeAccessGroup',level='error',action_object=ad_col)  # here the user is actually a group
 
                 qset = model_ref.objects.filter(id__in=[obj.id for obj in revoked_objects_per_user])
                 if object_type not in ['Collection','Imaging','Spectrum','Catalogue']:
@@ -391,11 +394,10 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################
             for obj in target_objs:
                 obj.access_level = 'PUB'
-                action.send(self,target=obj,verb='MadePublicSelf',level='success')
             model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
 
             ad_col = AdminCollection.objects.create(item_type=object_type,myitems=target_objs)
-            action.send(self,target=Users.getAdmin().first(),verb='MadePublic',level='success',action_object=ad_col)
+            action.send(self,target=Users.getAdmin().first(),verb='MadePublicHome',level='info',action_object=ad_col)
             
             output = {'success':True,'message': '<b>%d</b> private %s are know public.' % (len(target_objs),object_type),'duplicates':[]}
             return output

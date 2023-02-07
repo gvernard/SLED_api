@@ -81,11 +81,13 @@
                             <td>{{ form.flag_contaminant.label_tag }}</td>
                             <td>{{ form.flag_contaminant }}</td>
                           </tr>
+			  {% if request.resolver_match.url_name == 'lens-add' %}
                           <tr>
                             <td>{{ form.access_level.errors }}</td>
                             <td>{{ form.access_level.label_tag }}</td>
                             <td>{{ form.access_level }}</td>
                           </tr>
+			  {% endif %}
                         </table>
                       </div>
                     </td>
