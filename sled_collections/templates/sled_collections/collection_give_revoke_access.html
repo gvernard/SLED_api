@@ -40,8 +40,10 @@ Give access to Users and Groups?
 {% block action_button %}
 <button type="submit" class="jb-submit-button-1">
   {% if view.kwargs.mode == 'revoke' %}
+  <img src="{% static 'icons/person-dash-fill.svg' %}" >
   Revoke access
   {% else %}
+  <img src="{% static 'icons/person-plus-fill.svg' %}" >
   Give access
   {% endif %}
 </button>

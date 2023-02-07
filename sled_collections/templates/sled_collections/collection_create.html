@@ -49,5 +49,8 @@ Make a collection of {{ form.item_type.value }}?
 
 
 {% block action_button %}
-<button type="submit" class="jb-submit-button-1">Make collection</button>
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/plus.svg' %}" >
+  Make collection
+</button>
 {% endblock action_button %}

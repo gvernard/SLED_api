@@ -47,33 +47,33 @@
   <div>
     {% if collection.owner == user %}
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
-      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      <img src="{% static 'icons/pencil.svg' %}">
       Update
     </button>
     <button type="button" id="delete-collection" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-delete' collection.pk %}">
-      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      <img src="{% static 'icons/trash.svg' %}">
       Delete
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
-      <img src="{% static 'icons/forward-fill.svg' %}" alt="trash">
+      <img src="{% static 'icons/forward-fill.svg' %}">
       Cede ownership
     </button>
 
     {% if collection.access_level == 'PRI' %}
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
-      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+      <img src="{% static 'icons/person-dash-fill.svg' %}">
       Revoke access
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}">
-      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      <img src="{% static 'icons/person-plus-fill.svg' %}">
       Give access
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-make-public' collection.pk %}">
-      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+      <img src="{% static 'icons/people-fill.svg' %}">
       Make public
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-view-access' collection.pk %}">
-      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+      <img src="{% static 'icons/eye-fill.svg' %}">
       View Access
     </button>
     {% endif %}
@@ -125,7 +125,7 @@
     </p>
     {% if accessible_items|length != collection.myitems.all|length %}
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-ask-access' collection.pk %}">
-      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      <img src="{% static 'icons/send-fill.svg' %}">
       Ask access
     </button>
     {% endif %}
@@ -153,11 +153,11 @@
   <div>
     <form id="add-items-form" action="{% url 'lenses:lens-query' %}"></form>
     <button type="submit" form="add-items-form" class="jb-submit-button-1">
-      <img src="{% static 'icons/plus.svg' %}" alt="plus">
+      <img src="{% static 'icons/plus.svg' %}">
       Add items
     </button>
     <button type="button" id="remove-items" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-remove-items' collection.pk %}">
-      <img src="{% static 'icons/dash.svg' %}" alt="person plus">
+      <img src="{% static 'icons/dash.svg' %}">
       Remove selected
     </button>
   </div>

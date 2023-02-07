@@ -42,5 +42,8 @@ Make {% singular_or_plural form.obj_type.value items|length %} private?
 
 
 {% block action_button %}
-<button type="submit" class="jb-submit-button-1">Make private</button>
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/lock-fill.svg' %}" >
+  Make private
+</button>
 {% endblock action_button %}

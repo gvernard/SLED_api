@@ -91,11 +91,11 @@
               <td>{{ band.info }}</td>
 	      <td>
 		<button type="button" class="sled-delete-band jb-submit-button-1" data-form-url="{% url 'sled_band:band-delete' band.pk %}">
-		  <img src="{% static 'icons/trash.svg' %}" alt="trash">
+		  <img src="{% static 'icons/trash.svg' %}">
 		  Delete
 		</button>
 		<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_band:band-update' band.pk %}">
-		  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+		  <img src="{% static 'icons/pencil.svg' %}">
 		  Update
 		</button>
 	      </td>
@@ -109,7 +109,7 @@
         </p>
         {% endif %}
 	<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_band:band-add' %}">
-	  <img src="{% static 'icons/folder-fill.svg' %}" alt="new-band">
+	  <img src="{% static 'icons/plus.svg' %}">
 	  Create new band
 	</button>
 	<br>
@@ -146,11 +146,11 @@
               <td>{{ instrument.info }}</td>
 	      <td>
 		<button type="button" class="sled-delete-instrument jb-submit-button-1" data-form-url="{% url 'sled_instrument:instrument-delete' instrument.pk %}">
-		  <img src="{% static 'icons/trash.svg' %}" alt="trash">
+		  <img src="{% static 'icons/trash.svg' %}">
 		  Delete
 		</button>
 		<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_instrument:instrument-update' instrument.pk %}">
-		  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+		  <img src="{% static 'icons/pencil.svg' %}">
 		  Update
 		</button>
               </td>
@@ -164,7 +164,7 @@
         </p>
         {% endif %}
 	<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_instrument:instrument-add' %}">
-	  <img src="{% static 'icons/folder-fill.svg' %}" alt="new-instrument">
+	  <img src="{% static 'icons/plus.svg' %}">
 	  Create new instrument
 	</button>
 	<br>
@@ -254,11 +254,11 @@
 		<td>{{ message.message }}</td>
 		<td>
 		  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_persistent_message:message-update' message.pk %}">
-		    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+		    <img src="{% static 'icons/pencil.svg' %}">
 		    Update
 		  </button>
 		  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_persistent_message:message-delete' message.pk %}">
-		    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+		    <img src="{% static 'icons/trash.svg' %}">
 		    Delete
 		  </button>
 		</td>

@@ -51,30 +51,30 @@
     {% if user == group.owner %}
 
     <button type="button" id="delete-group" class="jb-submit-button-1" data-form-url="{% url 'sled_groups:group-delete' group.pk %}">
-      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      <img src="{% static 'icons/trash.svg' %}">
       Delete
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-update' group.pk %}">
-      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      <img src="{% static 'icons/pencil.svg' %}">
       Update
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-cede-ownership' group.pk %}">
-      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      <img src="{% static 'icons/forward-fill.svg' %}">
       Cede ownership
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-add-members' group.pk %}">
-      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+      <img src="{% static 'icons/person-plus-fill.svg' %}">
       Add members
     </button>
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-remove-members' group.pk %}">
-      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+      <img src="{% static 'icons/person-dash-fill.svg' %}">
       Remove members
     </button>
 
     {% elif request.user|has_group:group.name %}
 
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-leave' group.pk %}">
-      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+      <img src="{% static 'icons/door-open-fill.svg' %}">
       Leave group
     </button>
 

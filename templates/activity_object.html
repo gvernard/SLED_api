@@ -15,14 +15,14 @@
     <tr>
       <td>
 	<div data-index="{{ forloop.counter0 }}" style="display:inline-block;">
-	  {% if action.data.level == "success" %}
-	  <img src="{% static 'icons/check-circle-fill.svg' %}" alt="trash">
+	  {% if action.data.level == "info" %}
+	  <img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2">
+	  {% elif action.data.level == "success" %}
+	  <img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2">
 	  {% elif action.data.level == "error" %}
-	  <img src="{% static 'icons/x-circle-fill.svg' %}" alt="trash">
-	  {% elif action.data.level == "info" %}
-	  <img src="{% static 'icons/info-circle-fill.svg' %}" alt="trash">
+	  <img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2">
 	  {% elif action.data.level == "warning" %}
-	  <img src="{% static 'icons/exclamation-triangle-fill.svg' %}" alt="trash">
+	  <img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2">
 	  {% else %}
 	  {{ action.data.level }}
 	  {% endif %}

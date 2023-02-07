@@ -41,7 +41,7 @@
 	  </div>
 	</td>
 	<td valign="bottom" align="right">
-	  <img src="{{ user.avatar }}" loading="lazy" width="100" alt="" class="jb-image-2" />
+	  <img src="{{ user.avatar }}" loading="lazy" width="100" class="jb-image-2" />
 	</td>
       </tr>
     </table>
@@ -99,7 +99,7 @@
           </tbody>
 	</table>
 	<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_users:user-update' user.pk %}">
-	  <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	  <img src="{% static 'icons/pencil.svg' %}">
 	  Update
 	</button>
 	<br>
@@ -295,33 +295,33 @@
 
 	  <div>
 	    <button type="submit" class="jb-submit-button-1" form="lenses-form" formaction="{% url 'lenses:lens-update' %}">
-	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}">
 	      Revoke access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}">
 	      Give access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
-	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      <img src="{% static 'icons/people-fill.svg' %}" >
 	      Make public
 	    </button>
 	    
 	    <!-- The buttons below should be hidden as extra actions -->
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-delete' %}">
-	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      <img src="{% static 'icons/trash.svg' %}" >
 	      Delete
 	    </button>
 	  </div>
@@ -394,8 +394,8 @@
 		  </td>
 		  <td>
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-detail' imaging.id %}">
+		      <img src="{% static 'icons/eye-fill.svg' %}" >
 		      View
-		      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
 		    </button>
 		  </td>
 		</tr>
@@ -407,31 +407,31 @@
 
 	  <div>
 	    <button type="submit" class="jb-submit-button-1" form="imaging-form" formaction="{% url 'sled_data:data-update-many' %}">
-	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      <img src="{% static 'icons/pencil.svg' %}" >
 	      Update
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
-	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      <img src="{% static 'icons/people-fill.svg' %}" >
 	      Make public
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
-	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      <img src="{% static 'icons/trash.svg' %}" >
 	      Delete
 	    </button>
 	  </div>
@@ -509,8 +509,8 @@
 		  </td>
 		  <td>
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spectrum.id %}">
+		      <img src="{% static 'icons/eye-fill.svg' %}" >
 		      View
-		      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
 		    </button>
 		  </td>
 		</tr>
@@ -522,31 +522,31 @@
 
 	  <div>
 	    <button type="submit" class="jb-submit-button-1" form="spectrum-form" formaction="{% url 'sled_data:data-update-many' %}">
-	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      <img src="{% static 'icons/pencil.svg' %}" >
 	      Update
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
-	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      <img src="{% static 'icons/people-fill.svg' %}" >
 	      Make public
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
-	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      <img src="{% static 'icons/trash.svg' %}" >
 	      Delete
 	    </button>
 	  </div>
@@ -626,8 +626,8 @@
 		  </td>
 		  <td>
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-detail' catalogue.id %}">
+		      <img src="{% static 'icons/eye-fill.svg' %}" >
 		      View
-		      <img src="{% static 'icons/eye-fill.svg' %}" alt="people">
 		    </button>
 		  </td>
 		</tr>
@@ -639,31 +639,31 @@
 
 	  <div>
 	    <button type="submit" class="jb-submit-button-1" form="catalogue-form" formaction="{% url 'sled_data:data-update-many' %}">
-	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      <img src="{% static 'icons/pencil.svg' %}" >
 	      Update
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	      <img src="{% static 'icons/person-dash-fill.svg' %}" alt="person minus">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	      <img src="{% static 'icons/person-plus-fill.svg' %}" alt="person plus">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
-	      <img src="{% static 'icons/people-fill.svg' %}" alt="people">
+	      <img src="{% static 'icons/people-fill.svg' %}" >
 	      Make public
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	      <img src="{% static 'icons/lock-fill.svg' %}" alt="lock">
+	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	      <img src="{% static 'icons/forward-fill.svg' %}" alt="arrow">
+	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
-	      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	      <img src="{% static 'icons/trash.svg' %}" >
 	      Delete
 	    </button>
 	  </div>

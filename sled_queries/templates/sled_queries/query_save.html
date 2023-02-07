@@ -36,8 +36,10 @@ Update query
 {% block action_button %}
 <button type="submit" class="jb-submit-button-1">
   {% if request.resolver_match.url_name == 'query-save' %}
+  <img src="{% static 'icons/folder-fill.svg' %}">
   Save
   {% else %}
+  <img src="{% static 'icons/pencil.svg' %}">
   Update
   {% endif %}
 </button>

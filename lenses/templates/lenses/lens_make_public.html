@@ -37,5 +37,8 @@ Make {% singular_or_plural 'Lenses' lenses|length %} public?
 
 
 {% block action_button %}
-<button type="submit" class="jb-submit-button-1">Make public</button>
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/people-fill.svg' %}" alt="update">
+  Make public
+</button>
 {% endblock action_button %}

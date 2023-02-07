@@ -35,8 +35,10 @@ Remove members from the group
 {% block action_button %}
 <button type="submit" class="jb-submit-button-1">
   {% if view.kwargs.mode == 'add' %}
+  <img src="{% static 'icons/person-plus-fill.svg' %}" >
   Add users
   {% else %}
+  <img src="{% static 'icons/person-dash-fill.svg' %}" >
   Remove users
   {% endif %}
 </button>

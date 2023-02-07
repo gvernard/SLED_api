@@ -27,5 +27,8 @@ Make collection {{ collection.name }} public?
 
 
 {% block action_button %}
-<button type="submit" class="jb-submit-button-1">Make public</button>
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/people-fill.svg' %}" >
+  Make public
+</button>
 {% endblock action_button %}

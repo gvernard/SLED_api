@@ -140,7 +140,12 @@
 	{% if request.resolver_match.url_name == 'lens-add' %}
 	<td><div class="add-button"></div></td>
 	<td><button id="toggle-access-level" type="button">Toggle access_level all</button></td>
-	<td><button type="submit">Create Lenses</button></td>
+	<td>
+	  <button type="submit">
+	    <img src="{% static 'icons/pencil.svg' %}" alt="update">
+	    Create Lenses
+	  </button>
+	</td>
 	{% else %}
 	<td><button type="submit">Update</button></td>
 	{% endif %}	

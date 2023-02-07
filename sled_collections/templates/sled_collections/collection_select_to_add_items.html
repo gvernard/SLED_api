@@ -25,9 +25,15 @@ Select one of your collections to add the items
   </div>
   
   {{ form.ids }}
+  {% endblock content %}
+
+  
+  {% block action_button %}
+  <button type="submit" class="jb-submit-button-1">
+    <img src="{% static 'icons/plus.svg' %}" >
+    Add to collection
+  </button>
+  {% endblock action_button %}
+  
+</div>
 {% endblock content %}
-
-
-{% block action_button %}
-<button type="submit" class="jb-submit-button-1">Add to collection</button>
-{% endblock action_button %}

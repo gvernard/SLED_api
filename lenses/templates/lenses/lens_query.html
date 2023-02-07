@@ -444,7 +444,7 @@
     </form>
     <button id="mysubmit" type="submit" class="jb-submit-button-1" form="lens-query">Submit</button>
     <button type="button" id="save-query" class="jb-submit-button-1" data-form-url="{% url 'sled_queries:query-save' %}">
-      <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+      <img src="{% static 'icons/folder-fill.svg' %}">
       Save query
     </button>
   </div>
@@ -463,13 +463,16 @@
   {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count target="lenses" %}
 
   <div>
-    <button type="submit" form="ids-form" class="sled-process-lenses jb-submit-button-1" formaction="{% url 'lenses:lens-collage' %}">See collage</button>
+    <button type="submit" form="ids-form" class="sled-process-lenses jb-submit-button-1" formaction="{% url 'lenses:lens-collage' %}">
+      <img src="{% static 'icons/columns-gap.svg' %}">
+      See collage
+    </button>
     <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
-      <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+      <img src="{% static 'icons/folder-fill.svg' %}">
       Make collection
     </button>
     <button type="button" id="add-to-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-add-items' 'Lenses' %}">
-      <img src="{% static 'icons/folder-fill.svg' %}" alt="collection">
+      <img src="{% static 'icons/folder-plus.svg' %}">
       Add to collection
     </button>
   </div>

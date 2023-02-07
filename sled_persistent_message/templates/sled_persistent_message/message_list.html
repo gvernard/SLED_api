@@ -31,11 +31,11 @@
 	  <td>{{ message.message }}</td>
           <td>
             <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_persistent_message:message-update' message.pk %}">
-              <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+              <img src="{% static 'icons/pencil.svg' %}">
               Update
             </button>
             <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_persistent_message:message-delete' message.pk %}">
-              <img src="{% static 'icons/trash.svg' %}" alt="trash">
+              <img src="{% static 'icons/trash.svg' %}">
               Delete
             </button>
           </td>
@@ -86,7 +86,7 @@
 
   
   <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_persistent_message:message-create' %}">
-    <img src="{% static 'icons/plus.svg' %}" alt="new-message">
+    <img src="{% static 'icons/plus.svg' %}">
     Create new message
   </button>
 

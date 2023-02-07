@@ -20,7 +20,7 @@
   <div>
     {% if user == paper.owner %}
     <button type="button" id="delete-paper" class="jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-delete' paper.pk %}">
-      <img src="{% static 'icons/trash.svg' %}" alt="trash">
+      <img src="{% static 'icons/trash.svg' %}">
       Delete
     </button>
     {% endif %}

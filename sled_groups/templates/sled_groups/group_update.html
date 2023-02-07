@@ -30,5 +30,8 @@ Update group {{ sledgroup.name }}
 
 
 {% block action_button %}
-<button type="submit" class="jb-submit-button-1">Update</button>
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/pencil.svg' %}" >
+  Update
+</button>
 {% endblock action_button %}

@@ -166,13 +166,19 @@
       <div>
         {% if request.resolver_match.url_name == 'lens-add' %}
         <button id="sled-add-another" type="button" class="jb-submit-button-1">
+	  <img src="{% static 'icons/plus.svg' %}" >
           Add another
         </button>
         <div class="sled-add-button-hidden" style="display:none;"></div>
-        <button id="toggle-access-level" type="button" class="jb-submit-button-1">Toggle access_level all</button>
-        <button type="submit" class="jb-submit-button-1">Create Lenses</button>
+        <button type="submit" class="jb-submit-button-1">
+	  <img src="{% static 'icons/plus.svg' %}" >
+	  Create Lenses
+	</button>
         {% else %}
-        <button type="submit" class="jb-submit-button-1">Update</button>
+        <button type="submit" class="jb-submit-button-1">
+	  <img src="{% static 'icons/pencil.svg' %}" >
+	  Update
+	</button>
         {% endif %}
       </div>
     </form>
