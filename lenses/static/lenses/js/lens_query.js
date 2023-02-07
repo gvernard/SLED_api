@@ -1,5 +1,14 @@
 $(document).ready(function() {
-
+    
+    $('.sled_submit').click(function(event){
+        event.preventDefault();
+	var dum = $(this).attr('href').split('?');
+	$('#lens-query').attr('action','?'+dum[1]);
+	console.log($('#lens-query').attr('action'));
+	$('#mysubmit').trigger('click');
+    });
+    
+    
     $("#save-query").click(function() {
 	// Check that the query form is not empty
 	var myjson = $("#lens-query :input[name!=csrfmiddlewaretoken]").serialize() + '&'; // Need to end in & otherwise the last element remains

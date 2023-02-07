@@ -161,7 +161,7 @@ class ProximateLensManager(models.Manager):
 
     
     
-class Lenses(SingleObject,DirtyFieldsMixin):    
+class Lenses(SingleObject,DirtyFieldsMixin):
     ra = models.DecimalField(max_digits=10,
                              decimal_places=6,
                              verbose_name="RA",
@@ -406,10 +406,9 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 	# Call save first, to create a primary key
         super(Lenses,self).save(*args,**kwargs)
 
+        # Create new file and remove old one
         fname = '/'+self.mugshot.name
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
-        
-        # Create new file and remove old one
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.mugshot.name = sled_fname

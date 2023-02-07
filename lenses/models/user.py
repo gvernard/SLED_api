@@ -105,7 +105,7 @@ class Users(AbstractUser,GuardianUserMixin):
         return objects
 
     def leaveGroup(self,group):
-        if self!=group.owner:
+        if self != group.owner:
             if self in group.getAllMembers(): 
                 group.user_set.remove(self)
                 action.send(self,target=group,verb='LeftGroup',level='info',user_name=self.username,user_url=self.get_absolute_url())
@@ -254,8 +254,7 @@ class Users(AbstractUser,GuardianUserMixin):
                                 verb='RevokeAccess',
                                 level='error',
                                 timestamp=timezone.now(),
-                                action_object=ad_col)
-                    
+                                action_object=ad_col)    
                 else:
                     action.send(self,target=user,verb='RevokeAccess',level='error',action_object=ad_col)  # here the user is actually a group
 
@@ -392,6 +391,7 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################
             for obj in target_objs:
                 obj.access_level = 'PUB'
+                action.send(self,target=obj,verb='MadePublicSelf',level='success')
             model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
 
             ad_col = AdminCollection.objects.create(item_type=object_type,myitems=target_objs)
@@ -516,10 +516,10 @@ class Users(AbstractUser,GuardianUserMixin):
                         timestamp=timezone.now(),
                         action_object=ad_col)
 
+
             
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
-
     def getAdmin():
         return Users.objects.filter(is_superuser=True)
 
@@ -529,8 +529,6 @@ class Users(AbstractUser,GuardianUserMixin):
         qset = Users.objects.filter(id=user_id)
         return qset
         
-
-    
     # def deactivateUser(self,user):
     #     # See django documentation for is_active for login and permissions
     #     if self.is_staff and user.is_active:

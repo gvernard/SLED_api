@@ -38,17 +38,8 @@
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>delete public</i> objects was rejected.
 
 
-        {% elif note.verb == "DeleteObjectsPrivate" %}
-	<a class="sled-open-tooltip">{{ N }} private {% singular_or_plural note.data.object_type N %}</a> that you had access to {{ N|pluralize:"was,were" }} deleted.
-        <div class="sled-notification-tooltip" style="display:none">
-          <table>
-            {% for name in note.data.object_names %}
-            <tr>
-              <td>name</td>
-            </tr>
-            {% endfor %}
-          </table>
-        </div>
+        {% elif note.verb == "DeletedSingleObject" %}
+	{{ action.object_name }} private {{ action.object_type }} you had access to was deleted.
 
 
         {% elif note.verb == "CedeOwnership" %}

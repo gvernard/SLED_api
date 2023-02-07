@@ -190,15 +190,6 @@ class LensUpdateModalView(BSModalUpdateView):
             neis = Lenses.proximate.get_DB_neighbours(instance)
 
             if neis:
-                # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                #path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                #if not os.path.exists(path):
-                #    os.makedirs(path)
-                #input_field_name = form.field['mugshot'].html_name
-                #f = request.FILES[input_field_name]
-                #with open(path + lens.mugshot.name,'wb+') as destination:
-                #    for chunk in f.chunks():
-                #        destination.write(chunk)
                 cargo = {'mode':'add','objects':serializers.serialize('json',[instance])}
                 receiver = Users.objects.filter(id=self.request.user.id) # receiver must be a queryset
                 mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
@@ -350,18 +341,6 @@ class LensAddView(TemplateView):
     model = Lenses
     template_name = 'lenses/lens_add_update.html'
 
-    def make_collection(self,lenses,user):
-        # Create a collection
-        Nlenses = len(lenses)
-        mycollection = Collection(owner=user,
-                                  name="Added "+str(Nlenses)+" lenses",
-                                  access_level='PRI',
-                                  description=str(Nlenses) + " added on the " + str(timezone.now().date()),
-                                  item_type="Lenses")
-        mycollection.save()
-        mycollection.myitems = lenses
-        mycollection.save()
-
     def get(self, request, *args, **kwargs):
         LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,exclude=('id',),extra=1)
         myformset = LensFormSet(queryset=Lenses.accessible_objects.none())
@@ -382,41 +361,32 @@ class LensAddView(TemplateView):
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
 
                 if len(indices) == 0:
-                    # Set owner and name
+                    # Set owner, name, and sort PRI and PUB
+                    pri = []
+                    pub = []
                     for i,lens in enumerate(instances):
                         instances[i].owner = request.user
                         instances[i].create_name()
+                        if lens.access_level == 'PRI':
+                            pri.append(lens)
+                        else:
+                            pub.append(lens)
 
                     # Insert in the database
                     db_vendor = connection.vendor
                     if db_vendor == 'sqlite':
-                        pri = []
-                        pub = []
                         for lens in instances:
                             lens.save()
-                            if lens.access_level == 'PRI':
-                                pri.append(lens)
-                            else:
-                                pub.append(lens)
-                        if pri:
-                            assign_perm('view_lenses',request.user,pri)
-                        #self.make_collection(instances,request.user)
-                        # Main activity stream for public lenses
-                        if len(pub) > 0:
-                            ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                            action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
-                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                     else:
                         new_lenses = Lenses.objects.bulk_create(instances)
-                        # Here I need to upload and rename the images accordingly.
-                        pri = []
-                        for lens in new_lenses:
-                            if lens.access_level == 'PRI':
-                                pri.append(lens)
-                        if pri:
-                            assign_perm('view_lenses',request.user,pri)
-                        #self.make_collection(instances,request.user)
-                        return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
+
+                    if pri:
+                        assign_perm('view_lenses',request.user,pri)
+                    if pub:
+                        # Main activity stream for public lenses
+                        ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                        action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
+                    return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                 else:
                     # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
                     path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
@@ -437,8 +407,7 @@ class LensAddView(TemplateView):
                 return self.render_to_response(context)
 
         else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
 
 
@@ -470,16 +439,13 @@ class LensUpdateView(TemplateView):
                 if len(indices) == 0:
                     pub = []
                     for i,lens in enumerate(instances):
-                        #if 'ra' in myformset.forms[i].changed_data or 'dec' in myformset.forms[i].changed_data:
-                        #    lens.create_name()
                         lens.save()
                         if lens.access_level == 'PUB':
                             pub.append(lens)
                     if len(pub) > 0:
                         ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
                         action.send(request.user,target=Users.getAdmin().first(),verb='Update',level='success',action_object=ad_col)
-                    message = 'Lenses successfully updated!'
-                    return TemplateResponse(request,'simple_message.html',context={'message':message})
+                    return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully updated!'})
                 else:
                     # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
                     path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
@@ -528,8 +494,7 @@ class LensUpdateView(TemplateView):
                 context = {'lens_formset': myformset}
                 return self.render_to_response(context)
             else:
-                message = 'No lenses to display. Select some from your user profile.'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
+                return TemplateResponse(request,'simple_message.html',context={'message':'No lenses to display. Select some from your user profile.'})
 
 
 # View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
@@ -564,8 +529,7 @@ class LensResolveDuplicatesView(TemplateView):
         try:
             task = ConfirmationTask.objects.get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
         if request.user == task.owner:
             objs,indices,existing = self.get_objs_and_existing(task,request.user)
@@ -584,8 +548,7 @@ class LensResolveDuplicatesView(TemplateView):
             context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
             return self.render_to_response(context)
         else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
     def post(self, request, *args, **kwargs):
         referer = urlparse(request.META['HTTP_REFERER']).path
@@ -593,12 +556,10 @@ class LensResolveDuplicatesView(TemplateView):
         try:
             task = ConfirmationTask.objects.get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
         if not task:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
         if referer == request.path and request.user == task.owner:
             FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0)
@@ -610,8 +571,7 @@ class LensResolveDuplicatesView(TemplateView):
                 task.registerResponse(request.user,my_response,'Some comment')
                 task.finalizeTask()
                 task.delete()
-                message = 'Duplicates resolved!'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
+                return TemplateResponse(request,'simple_message.html',context={'message':'Duplicates resolved!'})
             else:
                 objs,indices,existing = self.get_objs_and_existing(task,request.user)
 
@@ -622,12 +582,11 @@ class LensResolveDuplicatesView(TemplateView):
                 context = {'insert_formset': myformset,'new_form_existing': zip(objs,form_array,existing)}
                 return self.render_to_response(context)
         else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
 
 
-# View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
+
 @method_decorator(login_required,name='dispatch')
 class LensAddDataView(TemplateView):
     template_name = 'lenses/lens_add_data.html'
@@ -666,8 +625,7 @@ class LensAddDataView(TemplateView):
         try:
             task = ConfirmationTask.objects.get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
         if request.user == task.owner:
             objs,indices,existing,choice_list = self.get_objs_and_existing(task,request.user)
@@ -682,8 +640,7 @@ class LensAddDataView(TemplateView):
             context = {'myformset': myformset,'data_form_existing': zip(objs,form_array,existing)}
             return self.render_to_response(context)
         else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
     def post(self, request, *args, **kwargs):
         referer = urlparse(request.META['HTTP_REFERER']).path
@@ -691,12 +648,7 @@ class LensAddDataView(TemplateView):
         try:
             task = ConfirmationTask.objects.get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
-
-        if not task:
-            message = 'This task does not exist.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
         if referer == request.path and request.user == task.owner:
             objs,indices,existing,choice_list = self.get_objs_and_existing(task,request.user)
@@ -713,8 +665,7 @@ class LensAddDataView(TemplateView):
                 task.registerResponse(request.user,my_response,'Some comment')
                 task.finalizeTask()
                 task.delete()
-                message = 'Data uploaded successfully!'
-                return TemplateResponse(request,'simple_message.html',context={'message':message})
+                return TemplateResponse(request,'simple_message.html',context={'message':'Data uploaded successfully!'})
             else:
                 form_array = [None]*len(objs)
                 for i,index in enumerate(indices):
@@ -724,8 +675,7 @@ class LensAddDataView(TemplateView):
                 return self.render_to_response(context)
             
         else:
-            message = 'You are not authorized to view this page.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})
+            return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
 
 # View for lens Collage
@@ -745,12 +695,10 @@ class LensCollageView(ListView):
             lenses = self.get_queryset(ids)
             return render(request, self.template_name, {'lenses': lenses})
         else:
-            message = 'No selected lenses to display in collage.'
-            return TemplateResponse(request,'simple_message.html',context={'message':message})  
+            return TemplateResponse(request,'simple_message.html',context={'message':'No selected lenses to display in collage.'})
 
     def get(self, request, *args, **kwargs):
-        message = 'You are accessing this page in an unauthorized way.'
-        return TemplateResponse(request,'simple_message.html',context={'message':message})  
+        return TemplateResponse(request,'simple_message.html',context={'message':'You are accessing this page in an unauthorized way.'})
 
 # View for dynamic lens queries and collections
 @method_decorator(login_required,name='dispatch')
@@ -1007,7 +955,10 @@ class LensQueryView(TemplateView):
         return self.render_to_response(context)
     
     def post(self, request, *args, **kwargs):
-        context = self.my_response(request.POST,request.user)
+        page_number = request.GET.get('lenses-page',1)
+        merged_request = request.POST.copy()
+        merged_request['lenses-page'] = page_number
+        context = self.my_response(merged_request,request.user)
         return self.render_to_response(context)
         
 

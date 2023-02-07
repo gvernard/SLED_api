@@ -1,3 +1,5 @@
+{% load lenses_extras %}
+
 <div class="jb-pagination-table">
   <table>
     <tr>
@@ -15,13 +17,59 @@
       <td>
         {% if qset.has_other_pages %}
         <p class="jb-pagination-numbers">
-	  {% for n in qset_range %}
-          {% if n == qset.number %}
-          <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}" style="color: #BABCEF">{{ n }}</a>
-          {% else %}
-          <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}">{{ n }}</a>
-          {% endif %}
-          {% endfor %}
+{% if qset_range|last < 10 %}
+
+{% for n in qset_range %}
+<a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}" {% if n == qset.number %}style="color: #BABCEF"{% endif %}>{{ n }}</a>
+{% endfor %}
+				  
+{% else %}
+				  
+{% if qset.number|add:"-4" > 0 %}
+{% if qset.number > qset_range|last|add:"-5" %}
+{% define qset_range|last|add:"-8" as start %}
+{% else %}
+{% define qset.number|add:"-4" as start %}
+{% endif %}
+
+{% if qset.number|add:"4" < qset_range|last %}					 
+{% define qset.number|add:"4" as end %}
+{% else %}
+{% define qset_range|last as end %}
+{% endif %}
+
+{% else %}
+
+{% define qset_range|first as start %}
+{% if qset.number < 5 %}
+{% define 9 as end %}
+{% elif qset.number|add:"4" < qset_range|last %}
+{% define qset.number|add:"4" as end %}
+{% else %}
+{% define qset_range|last as end %}
+{% endif %}
+
+{% endif %}
+
+{% make_range start end as limited_range %}
+
+							
+{% if limited_range|first != 1 %}
+...
+{% endif %}
+{% for n in limited_range %}
+{% if n == qset.number %}
+<a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}" style="color: #BABCEF">{{ n }}</a>
+{% else %}
+<a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}">{{ n }}</a>
+{% endif %}
+{% endfor %}	      
+{% if qset.number|add:"4" < qset_range|last %}
+...
+{% endif %}
+
+								      
+{% endif %}
 	</p>
         {% endif %}
       </td>

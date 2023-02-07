@@ -150,8 +150,6 @@ class CollectionDeleteView(BSModalDeleteView):
 
     def delete(self, *args, **kwargs):
         self.object = self.get_object()
-        # If private, remove persmissions
-        # Notify users with access to collection
         return super().delete(*args, **kwargs)
 
     

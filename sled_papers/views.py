@@ -33,9 +33,9 @@ class PaperQueryView(TemplateView):
         elif year_max and not year_min:
             papers = Paper.objects.filter(year=year_max)
         else:
-            papers = Paper.objects.none()
+            papers = Paper.objects.all()
         if search_term:
-            papers = Paper.objects.filter(Q(first_author__contains=search_term) | Q(title__contains=search_term))
+            papers = papers.filter(Q(first_author__icontains=search_term) | Q(title__icontains=search_term))
 
         paginator = Paginator(papers,50)
         papers_page = paginator.get_page(cleaned_data['page'])

@@ -27,6 +27,10 @@
           {% elif action.verb == "RemoveData" %}
 	  Data taken in {{ action.data.instrument }} - {{ action.data.band }} removed
 
+
+	  {% elif action.verb == "DeletedSingleObject" %}
+	  {{ action.object_name }} private {{ action.object_type }} the group had access to was deleted by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
+
 	  
           {% elif action.verb == "UpdateSelf" %}
           Field(s) were updated
@@ -68,6 +72,14 @@
 	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} made public
 
 
+	  {% elif action.verb == "MadePublicSelf" %}
+	  Made public
+
+
+	  {% elif action.verb == "MadePrivateSelf" %}
+	  Made private
+
+
           {% elif action.verb == "GiveAccess" %}
           The group was granted access to {{ N }} private {% singular_or_plural action.action_object.item_type N %}
 
@@ -80,14 +92,22 @@
           The owner changed from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
           to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
 
+	  
+          {% elif action.verb == "CedeOwnershipPublic" %}
+          <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a> changed owner
+	  from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
+          to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
+
 
           {% elif action.verb == "CedeOwnership" %}
           {{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to changed owner
           from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
           to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
 
+	  
 	  {% elif action.verb == "NewUser" %}
 	  User <a href="{{ action.action_object.get_absolute_url }}">{{ action.action_object.first_name }} {{ action.action_object.last_name }}</a> joined SLED  
+
 	  
           {% endif %}
 
