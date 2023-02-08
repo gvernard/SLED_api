@@ -157,11 +157,22 @@ class ConfirmationTask(SingleObject):
             recipients (`QuerySet`): A queryset of User objects.
         """
         site = Site.objects.get_current()
-        subject = 'A %s task requires your response' % self.task_type
-        message = 'Dear %s user, there is a %s task that requires your response. Click here for details: %s/confirmation/single/%s' % (site.name,self.task_type,site.domain,self.id)
-        recipient_emails = list(users.values_list('email',flat=True))
-        from_email = 'manager@%s' % site.domain
-        #send_mail(subject,message,from_email,recipient_emails)
+        subject = 'SLED: Response to %s task required' % self.task_type
+        from_email = 'no-reply@%s' % site.domain
+        
+        for user in users:
+            html_message = get_template('emails/task_notification.html')
+            mycontext = Context({
+                'first_name': user.first_name,
+                'task_type': self.task_type,
+                'task_url': self.get_absolute_url()
+            })
+            message = html_message.render(mycontext)
+            recipient_email = user.email
+            send_mail(subject,message,from_email,recipient_emails)
+
+
+
         
     def get_all_recipients(self):
         """
@@ -594,7 +605,7 @@ class AcceptNewUser(ConfirmationTask):
             })
             message = html_message.render(mycontext)
         else:
-            subject = 'Unsuccessful registration to SLED' % self.task_type
+            subject = 'SLED: Unsuccessful registration'
             html_message = get_template('emails/unsuccessful_registration.html')
             mycontext = Context({
                 'first_name': task_owner.first_name,
@@ -607,8 +618,8 @@ class AcceptNewUser(ConfirmationTask):
         # Send email to user with the response
         site = Site.objects.get_current()
         user_email = task_owner.email
-        from_email = 'manager@%s' % site.domain
-        #send_mail(subject,message,from_email,user_email)            
+        from_email = 'no-reply@%s' % site.domain
+        send_mail(subject,message,from_email,user_email)            
             
 ### END: Confirmation task specific code
 ################################################################################################################################################

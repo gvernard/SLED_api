@@ -51,30 +51,25 @@ def password_reset_request(request):
             data = password_reset_form.cleaned_data['email']
             associated_users = Users.objects.filter(Q(email=data))
             if associated_users.exists():
+                site = Site.objects.get_current()
+
                 for user in associated_users:
-                    subject = "Password Reset Requested"
-                    email_template_name = "password/password_reset_email.txt"
-                    c = {
-                    "email":user.email,
-                    'domain':'127.0.0.1:8000',
-                    'site_name': 'Website',
-                    "uid": urlsafe_base64_encode(force_bytes(user.pk)),
-                    "user": user,
-                    'token': default_token_generator.make_token(user),
-                    'protocol': 'http',
-                    }
-                    email = render_to_string(email_template_name, c)
-                    try:
+                    subject = 'SLED: Password reset'
+                    html_message = get_template('emails/password_reset.html')
+                    mycontext = Context({
+                        'first_name': task_owner.first_name,
+                        'protocol': request.scheme,
+                        'domain': site.domain,
+                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                        'token': default_token_generator.make_token(user),
+                    })
+                    message = html_message.render(mycontext)
+            
+                    user_email = user.email
+                    from_email = 'no-reply@%s' % site.domain
+                    send_mail(subject,message,from_email,user_email)
 
-                        #server = smtplib.SMTP('myserver')
-                        #server.sendmail('test@test.com', user.email, email)
-                        #server.quit()
-
-
-                        send_mail(subject, email, 'SLED-admin@example.com' , [user.email], fail_silently=False)
-                    except BadHeaderError:
-                        return HttpResponse('Invalid header found.')
-                    return redirect ("/password_reset/done/")
+                return redirect ("/password_reset/done/")
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="password/password_reset.html", context={"password_reset_form":password_reset_form})
 
