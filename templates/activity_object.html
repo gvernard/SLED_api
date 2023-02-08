@@ -35,7 +35,7 @@
 
 	  
           {% elif action.verb == "CedeOwnershipLog" %}
-          Owner changed from {{ action.data.previous_id|get_user_link }} to {{ action.data.next_id|get_user_link }}
+          Owner changed from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
 	  
 
 	  {% elif action.verb == "MadePublicLog" %}
@@ -84,7 +84,7 @@
 	  
           {% elif action.verb == "CedeOwnershipGroup" %}
           {{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to changed owner
-	  from {{ action.data.previous_id|get_user_link }} to {{ action.data.next_id|get_user_link }}
+	  from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
 
 	  
           {% elif action.verb == "LeftGroup" %}

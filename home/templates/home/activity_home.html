@@ -36,7 +36,7 @@
 
 	  {% elif action.verb == "CedeOwnershipHome" %}
 	  <a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a>
-	  changed owner from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link }}
+	  changed owner from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
 
 
 	  {% elif action.verb == "UpdateHome" %}

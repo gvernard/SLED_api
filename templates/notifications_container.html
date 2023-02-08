@@ -2,93 +2,91 @@
 {% load project_tags %}
 
 
-<style>
-  .success_level {
-    color: yellow;
-  }
-</style>
-
-
 {% if notifications %}
 <table class="jb-activity">
   <tbody>
     {% for note in notifications %}
     {% with N=note.action_object.myitems.all|length %}
     {% if N > 0 or note.data.object_names|length > 0 %}
-
+    
     <tr class="sled-notification-row">
-      <td class="{{ note.level }}_level">{{ note.level }}</td>
+      <td>
+	{% if note.level == "info" %}
+	<img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2">
+	{% elif note.level == "success" %}
+	<img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2">
+	{% elif note.level == "error" %}
+	<img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2">
+	{% elif note.level == "warning" %}
+	<img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2">
+	{% else %}
+	{{ note.level }}
+	{% endif %}
+      </td>
       <td>{{ note.timestamp }}</td>
       <td>
         {% if note.actor != "admin" %}
-        by <a href="{{ note.actor.get_absolute_url }}" target="_blank">{{ note.actor }}</a>
+        by <a href="{{ note.actor.get_absolute_url }}" target="_blank">{{ note.actor.username }}</a>
         {% else %}
         by admin
         {% endif %}
       </td>
       <td>
-
-
-
-        {% if note.verb == "DeleteObjectsAccepted" %}
+	
+	
+	
+	{# ###################### Deletion notifications ###################### #}
+        {% if note.verb == "DeleteObjectsAcceptedNote" %}
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>delete public</i> objects was accepted.
 
 
-        {% elif note.verb == "DeleteObjectsRejected" %}
+        {% elif note.verb == "DeleteObjectsRejectedNote" %}
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>delete public</i> objects was rejected.
 
 
-        {% elif note.verb == "DeletedSingleObject" %}
+        {% elif note.verb == "DeletedSingleObjectNote" %}
 	{{ action.object_name }} private {{ action.object_type }} you had access to was deleted.
 
 
-        {% elif note.verb == "CedeOwnership" %}
+        {% elif note.verb == "DeletedGroupNote" %}
+        Group <b>{{ note.data.group_name }}</b> was deleted by <a href="{{ note.actor.get_absolute_url }}" target="_blank">{{ note.actor.username }}</a>.
+
+
+	
+
+	{# ###################### Ownership notifications ###################### #}
+        {% elif note.verb == "CedeOwnershipNote" %}
         {{ N }} private {% singular_or_plural note.data.object_type N %} you have access to changed owner
-        from <a href="{{ note.data.previous_owner_url }}" target="_blank">{{ note.data.previous_owner }}</a>
-        to <a href="{{ note.data.next_owner_url }}" target="_blank">{{ note.data.next_owner }}</a>
+	from {{ note.data.previous_id|get_user_link|safe }} to {{ note.data.next_id|get_user_link|safe }}
 
 
-        {% elif note.verb == "CedeOwnershipAccepted" %}
+        {% elif note.verb == "CedeOwnershipAcceptedNote" %}
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>cede ownership</i> was accepted.
 
 
-        {% elif note.verb == "CedeOwnershipRejected" %}
+        {% elif note.verb == "CedeOwnershipRejectedNote" %}
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>cede ownership</i> was rejected.
 
 
-        {% elif note.verb == "MakePrivateAccepted" %}
+
+	{# ###################### Access level notifications ###################### #}
+        {% elif note.verb == "MakePrivateAcceptedNote" %}
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>make objects private</i> was accepted.
 
 
-        {% elif note.verb == "MakePrivateRejected" %}
+        {% elif note.verb == "MakePrivateRejectedNote" %}
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>make objects private</i> was rejected.
 
 
-        {% elif note.verb == "MakePublic" %}
+        {% elif note.verb == "MakePublicNote" %}
 	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural note.data.object_type N %}</a> that you have access to {{ N|pluralize:"is,are" }} now public.
 
 
-        {% elif note.verb == "AddedToGroup" %}
-        Your were successfully added to the group <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ note.action_object.name }}</a>.
-
-
-        {% elif note.verb == "AskToJoinGroupRejected" %}
-        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to join group <a href="{{ note.data.group_url }}" target="_blank">{{ note.data.group_name }}</a> was rejected.
-
-
-        {% elif note.verb == "RemovedFromGroup" %}
-        You were removed from the group <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ note.action_object.name }}</a>.
-
-
-        {% elif note.verb == "DeletedGroup" %}
-        Group <b>{{ note.data.group_name }}</b> was deleted by <a href="{{ note.data.owner_url }}" target="_blank">{{ note.data.owner_name }}</a>.
-
-
-        {% elif note.verb == "GiveAccess" %}
+        {% elif note.verb == "GiveAccessNote" %}
 	You were given access to <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a>.
 
 
-        {% elif note.verb == "RevokeAccess" %}
+        {% elif note.verb == "RevokeAccessNote" %}
         Your access to <a class="sled-open-tooltip" href="">{{ N }} private {% singular_or_plural| note.action_object.item_type %}</a> was revoked.
         <div class="sled-notification-tooltip" style="display:none">
           <table>
@@ -100,12 +98,12 @@
           </table>
         </div>
 
-
-        {% elif note.verb == "AskPrivateAccessRejected" %}
+	
+        {% elif note.verb == "AskPrivateAccessRejectedNote" %}
         <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to <i>access private objects</i> was accepted.
 
 
-        {% elif note.verb == "RemovedFromCollection" %}
+	{% elif note.verb == "RemovedFromThirdCollectionNote" %}
         Private {{ note.action_object.object_type|get_name_plural }} were removed from <a class="sled-open-tooltip">{{ N }} Collections</a> that you own.
         <div class="sled-notification-tooltip" style="display:none">
           <table>
@@ -116,6 +114,21 @@
             {% endfor %}
           </table>
         </div>
+
+
+	
+	{# ###################### Group notifications ###################### #}
+        {% elif note.verb == "AddedToGroupNote" %}
+        Your were successfully added to the group <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ note.action_object.name }}</a>.
+
+
+        {% elif note.verb == "RemovedFromGroupNote" %}
+        You were removed from the group <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ note.action_object.name }}</a>.
+
+
+	{% elif note.verb == "AskToJoinGroupRejectedNote" %}
+        <a href="{{ note.action_object.get_absolute_url }}" target="_blank">Your request</a> to join group <a href="{{ note.data.group_url }}" target="_blank">{{ note.data.group_name }}</a> was rejected.
+
 
 
 

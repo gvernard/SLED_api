@@ -205,7 +205,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 if isinstance(user,Users):
                     notify.send(sender=self,
                                 recipient=user,
-                                verb='GiveAccess',
+                                verb='GiveAccessNote',
                                 level='success',
                                 timestamp=timezone.now(),
                                 action_object=ad_col)
@@ -254,7 +254,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 if isinstance(user,Users):
                     notify.send(sender=self,
                                 recipient=user,
-                                verb='RevokeAccess',
+                                verb='RevokeAccessNote',
                                 level='error',
                                 timestamp=timezone.now(),
                                 action_object=ad_col)    
@@ -372,7 +372,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                 notify.send(sender=self,
                             recipient=user,
-                            verb='MakePublic',
+                            verb='MakePublicNote',
                             level='info',
                             timestamp=timezone.now(),
                             action_object=ad_col)
@@ -513,7 +513,7 @@ class Users(AbstractUser,GuardianUserMixin):
             ad_col = AdminCollection.objects.create(item_type=final_cols[0]._meta.model.__name__,myitems=final_cols)    
             notify.send(sender=self,
                         recipient=user,
-                        verb='RemovedFromCollection',
+                        verb='RemovedFromThirdCollectionNote',
                         level='error',
                         timestamp=timezone.now(),
                         action_object=ad_col)

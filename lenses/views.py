@@ -113,8 +113,8 @@ class LensDeleteView(ModalIdsBaseMixin):
                 remove_perm(perm,user,objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self.request.user,
                             recipient=user,
-                            verb='DeleteObjectPrivate',
-                            level='warning',
+                            verb='DeleteObjectsPrivateNote',
+                            level='error',
                             timestamp=timezone.now(),
                             object_type=object_type,
                             object_names=names)

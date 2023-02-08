@@ -249,7 +249,7 @@ class DeleteObject(ConfirmationTask):
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb='DeleteObjectsAccepted',
+                        verb='DeleteObjectsAcceptedNote',
                         level='success',
                         timestamp=timezone.now(),
                         action_object=self)
@@ -265,7 +265,7 @@ class DeleteObject(ConfirmationTask):
         else:
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb='DeleteObjectsRejected',
+                        verb='DeleteObjectsRejectedNote',
                         level='error',
                         timestamp=timezone.now(),
                         action_object=self)
@@ -322,8 +322,8 @@ class CedeOwnership(ConfirmationTask):
                                     level='info',
                                     timestamp=timezone.now(),
                                     action_object=ad_col,
-                                    previous_owner=self.owner,
-                                    next_owner=heir)
+                                    previous_id=self.owner.id,
+                                    next_id=heir.id)
                         
                     # Notify groups with access
                     groups_with_access,accessible_objects = heir.accessible_per_other(pri,'groups')
@@ -375,7 +375,7 @@ class MakePrivate(ConfirmationTask):
             assign_perm(perm,self.owner,objs) # don't forget to assign view permission to the owner for the private lenses
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb='MakePrivateAccepted',
+                        verb='MakePrivateAcceptedNote',
                         level='success',
                         timestamp=timezone.now(),
                         action_object=self)
@@ -392,7 +392,7 @@ class MakePrivate(ConfirmationTask):
         else:
             notify.send(sender=admin,
                         recipient=self.owner,
-                        verb='MakePrivateRejected',
+                        verb='MakePrivateRejectedNote',
                         level='error',
                         timestamp=timezone.now(),
                         action_object=self)
@@ -480,7 +480,7 @@ class AskPrivateAccess(ConfirmationTask):
         else:
             notify.send(sender=objs_owner,
                         recipient=self.owner,
-                        verb='AskPrivateAccessRejected',
+                        verb='AskPrivateAccessRejectedNote',
                         level='error',
                         timestamp=timezone.now(),
                         action_object=self)
@@ -506,7 +506,7 @@ class AskToJoinGroup(ConfirmationTask):
         else:
             notify.send(sender=group_owner,
                         recipient=self.owner,
-                        verb='AskToJoinGroupRejected',
+                        verb='AskToJoinGroupRejectedNote',
                         level='error',
                         timestamp=timezone.now(),
                         action_object=self,

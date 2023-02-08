@@ -67,8 +67,8 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         for user in members:
             notify.send(sender=self.owner,
                         recipient=user,
-                        verb='DeletedGroup',
-                        level='info',
+                        verb='DeletedGroupNote',
+                        level='error',
                         timestamp=timezone.now(),
                         group_name=self.name)
 
@@ -119,7 +119,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             for new_member in sled_user_qset:
                 notify.send(sender=owner,
                             recipient=new_member,
-                            verb='AddedToGroup',
+                            verb='AddedToGroupNote',
                             level='success',
                             timestamp=timezone.now(),
                             action_object=self)
@@ -151,7 +151,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             for removed_member in sled_user_qset:
                 notify.send(sender=owner,
                             recipient=removed_member,
-                            verb='RemovedFromGroup',
+                            verb='RemovedFromGroupNote',
                             level='error',
                             timestamp=timezone.now(),
                             action_object=self)
@@ -168,8 +168,8 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         for member in members:
             notify.send(sender=self.owner,
                         recipient=member,
-                        verb='DeletedGroup',
-                        level='warning',
+                        verb='DeletedGroupNote',
+                        level='error',
                         timestamp=timezone.now(),
                         group_name=self.name,
                         owner_name=self.owner.username,

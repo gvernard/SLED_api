@@ -10,8 +10,6 @@ from bootstrap_modal_forms.utils import is_ajax
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Imaging, Spectrum, Catalogue
 
-from notifications.signals import notify
-from actstream import action
 from . import forms
 
 
