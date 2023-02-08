@@ -8,6 +8,8 @@ from django import forms
 from django.db.models import Q,F,Count,CharField
 from django.apps import apps
 from django.conf import settings
+from django.template.loader import get_template
+from django.template import Context
 
 from guardian.shortcuts import assign_perm
 
@@ -446,20 +448,17 @@ class ResolveDuplicates(ConfirmationTask):
                         os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + obj.object.mugshot.name)
 
             # Insert in the database
-            db_vendor = connection.vendor
-            if db_vendor == 'sqlite':
-                for lens in (pri+pub):
-                    lens.save()
-            else:
-                new_lenses = Lenses.objects.bulk_create(pri+pub)
+            for lens in (pri+pub):
+                lens.save()
 
             if pri:
                 assign_perm('view_lenses',request.user,pri)
             if pub:
                 # Main activity stream for public lenses
+                from . import Users
                 ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
-            return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})          
+                action.send(self.owner,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
+            return TemplateResponse(request,'simple_message.html',context={'message':'Duplicates resolved successfully!'})
 
         
 class AskPrivateAccess(ConfirmationTask):
@@ -586,13 +585,26 @@ class AcceptNewUser(ConfirmationTask):
             task_owner.save()
             action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUserHome',level='success',action_object=task_owner)
             subject = 'Welcome to SLED'
-            message = 'Dear %s %s, your registration to the Strong LEns Database (SLED) website and API was successful. We hope this resource will facilitate your research work.' % (task_owner.first_name,task_owner.last_name,self.heard_from().get().response_comment)
+            html_message = get_template('emails/successful_registration.html')
+            mycontext = Context({
+                'first_name': task_owner.first_name,
+                'last_name': task_owner.last_name,
+                'user_url': task_owner.get_absolute_url(),
+                'username': task_owner.username,
+            })
+            message = html_message.render(mycontext)
         else:
             subject = 'Unsuccessful registration to SLED' % self.task_type
-            message = 'Dear %s %s, your registration to the Strong LEns Database (SLED) website and API was rejected. Here is the response from the administrators: %s' % (task_owner.first_name,task_owner.last_name,self.heard_from().get().response_comment)
+            html_message = get_template('emails/unsuccessful_registration.html')
+            mycontext = Context({
+                'first_name': task_owner.first_name,
+                'last_name': task_owner.last_name,
+                'response':self. heard_from().get().response_comment
+            })
+            message = html_message.render(mycontext)
+            
 
         # Send email to user with the response
-        message += "Kind regards, the administration team."
         site = Site.objects.get_current()
         user_email = task_owner.email
         from_email = 'manager@%s' % site.domain

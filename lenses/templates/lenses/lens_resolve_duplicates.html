@@ -28,7 +28,7 @@
         </thead>
         <tbody>
           {% for new_lens,form,existing in new_form_existing %}
-          <tr class=" sled-main-row sled-duplicate-required">
+          <tr class="sled-main-row sled-duplicate-required">
             <td>
               {% include 'lenses/lens_visit_card.html' with lens=new_lens %}
             </td>
@@ -72,7 +72,7 @@
   $(document).ready(function() { 
       $('.sled-dupl-yes-no').on('click', function() {
 	  if ($(this).is(':checked')) {
-	      var target = $(this).parents('tr').siblings('.sled-main-row');
+	      var target = $(this).parents('tr').prev();
               target.removeClass("sled-duplicate-required");
               if ($(this).val() == 'yes') {
 		  target.removeClass("sled-duplicate-no").addClass("sled-duplicate-yes");
