@@ -566,6 +566,12 @@ ul.jb-select-radio {
     color: #FF5B43;
 }
 
+.jb-simple-message {
+    text-align:center;
+    margin-top:200px;
+}
+
+
 @media (min-width: 768px) {
   .modal-xl {
     width: 90%;

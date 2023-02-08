@@ -1,0 +1,11 @@
+Dear {{ first_name }} {{ last_name }},
+<br>
+your registration to the Strong LEns Database (SLED) website and API was successful.
+We hope this resource will facilitate your research work.
+<br>
+Kind regards,
+<br>
+the SLED administration team
+<br>
+
+
