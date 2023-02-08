@@ -236,9 +236,9 @@ class LensDetailView(DetailView):
         instruments = allimages.values_list('instrument__name', flat=True).distinct().order_by()
         #print(instruments)
         display_images = {}
-        band_order = list(Band.objects.all().order_by('wavelength').values_list('name', flat=True))
+        band_order = list(Band.objects.all().values_list('name', flat=True))
         for instrument in instruments:
-            bands = allimages.filter(instrument__name=instrument).values_list('band__name', flat=True).distinct().order_by()
+            bands = allimages.filter(instrument__name=instrument).values_list('band__name',flat=True).distinct().order_by()
             bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
 
             which_imaging = {}
