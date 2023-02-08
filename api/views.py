@@ -131,6 +131,9 @@ class UploadPapers(APIView):
                 for j in range(0,len(lenses_pp[i])):
                     paper_obj.lenses_in_paper.add(lenses_pp[i][j],through_defaults=flags_pp[i][j])
                 print(paper_obj.pk)
+
+            ad_col = AdminCollection.objects.create(item_type="Paper",myitems=papers)
+            action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
                 
             response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
             return Response(response)
@@ -238,19 +241,6 @@ class UploadLenses(APIView):
                 if type(lens[key])==str:
                     lens[key] = lens[key].strip()
 
-        #print(lens)
-        #print(lenses)
-        #replace the 64 bit encoding with 
-
-        #lenses[0]['mugshot'] = BufferedReader(base64.b64decode(lenses[0]['mugshot'].encode('utf-8')))
-        #asbytes = BytesIO(base64.b64decode(lenses[0]['mugshot'].encode('utf-8')))
-        #asbytes.name = 'test'
-        #lenses[0]['mugshot'] = BufferedReader(asbytes)
-        
-        #print(dir(lenses[0]['mugshot']))
-        #lenses[0]['mugshot'].name = 
-
-
         serializer = LensesUploadSerializer(data=lenses, many=True)
         if serializer.is_valid():
             lenses = serializer.create(serializer.validated_data)
@@ -262,33 +252,20 @@ class UploadLenses(APIView):
             indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
             if len(indices) == 0:
                 # Insert in the database
-                db_vendor = connection.vendor
-                if db_vendor == 'sqlite':
-                    pri = []
-                    pub = []
-                    for lens in lenses:
-                        lens.save()
-                        if lens.access_level == 'PRI':
-                            pri.append(lens)
-                        else:
-                            pub.append(lens)
-                    if pri:
-                        assign_perm('view_lenses',request.user,pri)
-                    if len(pub) > 0:
-                        ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                        action.send(request.user,target=Users.getAdmin().first(),verb='Add',level='success',action_object=ad_col)
-                    #self.make_collection(instances,request.user)
-                else:
-                    new_lenses = Lenses.objects.bulk_create(lenses)
-                    # Here I need to upload and rename the images accordingly.
-                    pri = []
-                    for lens in new_lenses:
-                        if lens.access_level == 'PRI':
-                            pri.append(lens)
-                    if pri:
-                        assign_perm('view_lenses',request.user,pri)
-                        
-                    #self.make_collection(instances,request.user)
+                pri = []
+                pub = []
+                for lens in lenses:
+                    lens.save()
+                    if lens.access_level == 'PRI':
+                        pri.append(lens)
+                    else:
+                        pub.append(lens)
+                if pri:
+                    assign_perm('view_lenses',request.user,pri)
+                if len(pub) > 0:
+                    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
+                    action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
+
                 response = "Success! Lenses uploaded to the database successfully!"
                 return Response(response)
             else:
