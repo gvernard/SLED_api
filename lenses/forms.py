@@ -8,7 +8,6 @@ from django_select2 import forms as s2forms
 
 from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band
 
-
 class BaseLensForm(forms.ModelForm):
     class Meta:
         model = Lenses
@@ -692,3 +691,24 @@ class CatalogueQueryForm(DataBaseQueryForm):
         if self.cleaned_data.get('mag_min') and self.cleaned_data.get('mag_max'):
             if float(self.cleaned_data.get('mag_min')) > float(self.cleaned_data.get('mag_max')):
                 self.add_error('__all__','The maximum magnitude is lower than the minimum.')
+
+
+
+class DownloadForm(BSModalModelForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+
+    class Meta:
+        model = Lenses
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
+        }
+
+    def clean(self):
+        col_acc = self.cleaned_data.get('access_level')
+        ids = self.cleaned_data['ids'].split(',')
+        obj_model = apps.get_model(app_label='lenses',model_name=self.cleaned_data['item_type'])
+        priv = obj_model.accessible_objects.in_ids(self.request.user,ids).filter(access_level='PRI').count()
+        if priv > 0 and col_acc == 'PUB':
+            self.add_error('__all__',"Public collection cannot contain private items.")
+        return

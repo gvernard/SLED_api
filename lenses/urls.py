@@ -12,6 +12,7 @@ urlpatterns = [
     path('update/',views.LensUpdateView.as_view(),name='lens-update'),
     path('update-modal/<int:pk>',views.LensUpdateModalView.as_view(),name='lens-update-modal'),
     path('collage/',views.LensCollageView.as_view(),name='lens-collage'),
+    path('export/',views.ExportToCsv.as_view(),name='export-csv'),
     path('delete/',views.LensDeleteView.as_view(),name='lens-delete'),
     path('make-public/',views.LensMakePublicView.as_view(),name='lens-make-public'),
     path('resolve-duplicates/<int:pk>',views.LensResolveDuplicatesView.as_view(),name='resolve-duplicates'),

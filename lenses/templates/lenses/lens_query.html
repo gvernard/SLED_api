@@ -467,6 +467,14 @@
       <img src="{% static 'icons/columns-gap.svg' %}">
       See collage
     </button>
+
+    <button type="submit" form="ids-form" class="sled-process-lenses jb-submit-button-1" formaction="{% url 'lenses:export-csv' %}">
+      <img src="{% static 'icons/columns-gap.svg' %}">
+      Export to csv
+    </button>
+
+
+
     <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
       <img src="{% static 'icons/folder-fill.svg' %}">
       Make collection

@@ -28,7 +28,8 @@ from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
 
 from . import forms
 
-from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView
+from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView,BSModalCreateView
+
 from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
@@ -703,6 +704,46 @@ class LensCollageView(ListView):
 
     def get(self, request, *args, **kwargs):
         return TemplateResponse(request,'simple_message.html',context={'message':'You are accessing this page in an unauthorized way.'})
+
+
+@method_decorator(login_required,name='dispatch')
+class ExportToCsv(BSModalCreateView):
+    template_name = 'lenses/csv_download.html'
+    form_class = forms.DownloadForm
+    success_url = reverse_lazy('lenses:lens-query')
+
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        item_type = self.kwargs['obj_type']
+        return {'ids': ids_str,'item_type':item_type}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = self.request.GET.getlist('ids')
+        ids_str = ','.join(ids)
+        obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
+        context['items'] = obj_model.accessible_objects.in_ids(self.request.user,ids)
+        return context
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            ids = form.cleaned_data['ids'].split(',')
+            '''obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
+            items = obj_model.accessible_objects.in_ids(self.request.user,ids)
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            access_level = form.cleaned_data['access_level']
+            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type=self.kwargs['obj_type'])
+            mycollection.save()
+            mycollection.myitems = items
+            mycollection.save()
+            messages.add_message(self.request,messages.SUCCESS,"Collection <b>"+name+"</b> was successfully created!")'''
+            return HttpResponseRedirect(reverse('lenses:lens-query')) 
+        else:
+            response = super().form_valid(form)
+            return response
+
 
 # View for dynamic lens queries and collections
 @method_decorator(login_required,name='dispatch')

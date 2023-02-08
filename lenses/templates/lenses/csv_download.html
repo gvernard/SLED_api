@@ -1,0 +1,45 @@
+{% extends "modal_base.html" %}
+
+{% block title %}
+Download the lens query as a CSV?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container-modal">
+
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      {% for item in items %}
+      <tr>
+	<td>
+          {{ item }}
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <div class="jb-modal-field">
+    {{ form.name }}
+  </div>
+
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/plus.svg' %}" >
+  Make collection
+</button>
+{% endblock action_button %}
