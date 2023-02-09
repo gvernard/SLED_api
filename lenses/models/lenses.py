@@ -349,7 +349,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
 
     # Fields to report updates on
-    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','z_lens','z_source','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type']
+    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','z_lens','z_source','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type','owner','access_level']
 
     
     proximate = ProximateLensManager()
@@ -397,7 +397,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         if self._state.adding:
             super(Lenses,self).save(*args,**kwargs)
         else:
-            dirty = self.get_dirty_fields(verbose=True)
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
 
             if "access_level" in dirty.keys():
                 if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
@@ -407,7 +407,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                 dirty.pop("access_level",None) # remove from any subsequent report
 
             if "owner" in dirty.keys():
-                action.send(self.owner,target=self,verb='CedeOwnershipLog',level='info',previous_owner=dirty["owner"]["saved"],next_owner=dirty["owner"]["current"])
+                action.send(self.owner,target=self,verb='CedeOwnershipLog',level='info',previous_id=dirty["owner"]["saved"],next_id=dirty["owner"]["current"])
                 dirty.pop("owner",None) # remove from any subsequent report
 
             if "mugshot" in dirty.keys():

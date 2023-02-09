@@ -28,10 +28,6 @@
       try {
 	  Typekit.load();
       } catch (e) {}
-      
-      $("#alert-message").fadeTo(2000, 500).slideUp(500, function() {
-	  $("#alert-message").slideUp(500);
-      });
     </script>
     {% block extrascripts %}
     {% endblock extrascripts %}
@@ -61,7 +57,7 @@
 	</button>
       </div>
       {% else %}
-      <div style="border-radius:0;">
+      <div style="border-radius:0;" id="alert-message">
 	{{ message }}
 	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 	  <span aria-hidden="true">&times;</span>
@@ -103,4 +99,11 @@
     
   </body>
 
+  <script type="text/javascript">
+    {# This needs to be at the end of the html, otherwise the animation does not work #}
+      $("#alert-message").fadeTo(2000,500).slideUp(500,function(){
+	  $("#alert-message").slideUp(500);
+      });
+  </script>
+    
 </html>

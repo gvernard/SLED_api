@@ -1,6 +1,8 @@
 Dear {{ first_name }},
 <br>
 there is a {{ task_type }} task in the SLED database that requires your response.
-Click <a href="{{ task_url }}">here</a> to respond directly.
+Click the link below to respond directly:
+<br>
+<a href="{{ protocol }}://{{ domain }}{{ task_url }}">{{ protocol }}://{{ domain }}{{ task_url }}</a>
 <br>
 {% include "emails/signature.html" %}

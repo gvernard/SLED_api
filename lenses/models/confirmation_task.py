@@ -1,5 +1,6 @@
 from django.db import models,connection
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core import serializers
@@ -165,11 +166,14 @@ class ConfirmationTask(SingleObject):
             mycontext = {
                 'first_name': user.first_name,
                 'task_type': self.task_type,
-                'task_url': self.get_absolute_url()
+                'protocol': 'http',
+                'domain': site.domain,
+                'task_url': reverse('sled_tasks:tasks-list')
             }
-            message = html_message.render(mycontext)
+            html_message = html_message.render(mycontext)
+            plain_message = strip_tags(html_message)
             recipient_email = user.email
-            send_mail(subject,message,from_email,[recipient_email])
+            send_mail(subject,plain_message,from_email,[recipient_email],html_message=html_message)
 
 
 
@@ -301,7 +305,9 @@ class CedeOwnership(ConfirmationTask):
             object_type = self.cargo['object_type']
             model_ref = apps.get_model(app_label="lenses",model_name=object_type)
             objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
-            objs.update(owner=heir)
+            for obj in objs:
+                obj.owner=heir
+                obj.save()
             pri = []
             pub = []
             for obj in objs:
@@ -400,7 +406,9 @@ class MakePrivate(ConfirmationTask):
                     self.owner.remove_from_third_collections(objs,u)
 
             # Finally update the objects' access_level to private
-            objs.update(access_level='PRI')                    
+            for obj in objs:
+                obj.access_level='PRI'
+                obj.save()
 
         else:
             notify.send(sender=admin,
@@ -600,10 +608,13 @@ class AcceptNewUser(ConfirmationTask):
             mycontext = Context({
                 'first_name': task_owner.first_name,
                 'last_name': task_owner.last_name,
+                'protocol': 'http',
+                'domain': site.domain,
                 'user_url': task_owner.get_absolute_url(),
                 'username': task_owner.username,
             })
-            message = html_message.render(mycontext)
+            html_message = html_message.render(mycontext)
+            plain_message = strip_tags(html_message)
         else:
             subject = 'SLED: Unsuccessful registration'
             html_message = get_template('emails/unsuccessful_registration.html')
@@ -612,14 +623,14 @@ class AcceptNewUser(ConfirmationTask):
                 'last_name': task_owner.last_name,
                 'response':self. heard_from().get().response_comment
             })
-            message = html_message.render(mycontext)
-            
+            html_message = html_message.render(mycontext)
+            plain_message = strip_tags(html_message)
 
         # Send email to user with the response
         site = Site.objects.get_current()
         user_email = task_owner.email
         from_email = 'no-reply@%s' % site.domain
-        send_mail(subject,message,from_email,user_email)            
+        send_mail(subject,plain_message,from_email,[user_email],html_message=html_message)
             
 ### END: Confirmation task specific code
 ################################################################################################################################################

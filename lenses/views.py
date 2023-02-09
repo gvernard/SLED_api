@@ -187,7 +187,6 @@ class LensUpdateModalView(BSModalUpdateView):
         return Lenses.accessible_objects.owned(self.request.user)
 
     def form_valid(self,form):
-        print('valid')
         if not is_ajax(self.request.META):
             # Check for duplicates and redirect here
             instance = form.save(commit=False)
@@ -198,8 +197,6 @@ class LensUpdateModalView(BSModalUpdateView):
                 receiver = Users.objects.filter(id=self.request.user.id) # receiver must be a queryset
                 mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
                 return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
-            else:
-                instance.save()
 
         response = super().form_valid(form)
         return response

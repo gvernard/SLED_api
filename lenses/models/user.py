@@ -390,11 +390,11 @@ class Users(AbstractUser,GuardianUserMixin):
                 ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                 action.send(self,target=gwa[i],verb='MadePublicGroup',level='info',action_object=ad_col)
 
-            # Finally, update only those objects that need to be updated in a single query
+            # Finally, update only those objects that need to be updated
             #####################################################
             for obj in target_objs:
                 obj.access_level = 'PUB'
-            model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
+                obj.save()
 
             ad_col = AdminCollection.objects.create(item_type=object_type,myitems=target_objs)
             action.send(self,target=Users.getAdmin().first(),verb='MadePublicHome',level='info',action_object=ad_col)

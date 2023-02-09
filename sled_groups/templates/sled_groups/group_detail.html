@@ -17,7 +17,7 @@
   <!-- Recent activity div -->
   <div class="jb-activity">
     {% activity_stream 'target' group %}
-    {% include "activity_summary.html" with stream=stream max_entries=5 %}
+    {% include "activity_object.html" with stream=stream max_entries=5 %}
     {% if stream|length > 5 %}
     <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
     {% include "activity_all_modal.html" with stream=stream %}
@@ -126,7 +126,6 @@
 {% block extrastyles %}
 <!-- THe line below is to style the drop down auto-complete text input -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-<link href="{% static 'css/jb_modal.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 

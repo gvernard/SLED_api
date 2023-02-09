@@ -3,17 +3,18 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
-from .forms import RegisterForm, UserLoginForm
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
 from django.db.models.query_utils import Q
 from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.utils.html import strip_tags
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponse
 from django.contrib.auth.forms import PasswordResetForm
+from .forms import RegisterForm, UserLoginForm
 
 from lenses.models import Users, ConfirmationTask
 import smtplib
@@ -63,11 +64,12 @@ def password_reset_request(request):
                         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                         'token': default_token_generator.make_token(user),
                     })
-                    message = html_message.render(mycontext)
-            
+                    html_message = html_message.render(mycontext)
+                    plain_message = strip_tags(html_message)
+
                     user_email = user.email
                     from_email = 'no-reply@%s' % site.domain
-                    send_mail(subject,message,from_email,user_email)
+                    send_mail(subject,plain_message,from_email,[user_email],html_message=html_message)
 
                 return redirect ("/password_reset/done/")
     password_reset_form = PasswordResetForm()

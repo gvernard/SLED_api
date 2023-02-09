@@ -64,13 +64,6 @@ class LensModalUpdateForm(BSModalModelForm):
             if field_name not in ['info','lens_type','source_type','image_conf','access_level','owner','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
 
-    # def clean_z_lens(self):
-    #     value = self.cleaned_data['z_lens']
-    #     if value < 0 or value > 20:
-    #         raise ValidationError("Bad redshift")
-    #     return data
-
-    
     def clean(self):
         cleaned_data = super(LensModalUpdateForm,self).clean()
 
