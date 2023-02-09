@@ -127,7 +127,7 @@ class ConfirmationTask(SingleObject):
         task.recipients.set(users)
         task.save()
         task.recipient_names = list(users.values_list('username',flat=True))
-        task.inviteRecipients(task.recipients)
+        task.inviteRecipients(task.recipients.all())
         return task
 
     def load_task(task_id):
@@ -162,14 +162,14 @@ class ConfirmationTask(SingleObject):
         
         for user in users:
             html_message = get_template('emails/task_notification.html')
-            mycontext = Context({
+            mycontext = {
                 'first_name': user.first_name,
                 'task_type': self.task_type,
                 'task_url': self.get_absolute_url()
-            })
+            }
             message = html_message.render(mycontext)
             recipient_email = user.email
-            send_mail(subject,message,from_email,recipient_emails)
+            send_mail(subject,message,from_email,[recipient_email])
 
 
 

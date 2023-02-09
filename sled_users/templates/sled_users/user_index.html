@@ -128,6 +128,37 @@
       </div>
     </div>
 
+    
+    <div class="c">
+      <input class="accordion-checkbox" type="checkbox" id="faq-6">
+      <h1 class="jb-heading-2">
+	<label for="faq-6">
+	  Following {{ followed_lenses|length }} lenses
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% for lens in followed_lenses %}
+	{{ lens }}<br>
+	{% endfor %}
+	<br><br><br>
+	{% for action in ordered_actions %}
+	{% if forloop.counter0 == N_last_login %}
+	<div class="jb-important-text">
+	  Last Login: {{ user.last_login }}
+	</div>
+	{% endif %}
+	<div>
+	  {{ action.target }} - {{ action.verb }}
+	</div>
+	{% empty %}
+	No actions to follow
+	{% endfor %}
+	<br>
+	<br>
+      </div>
+    </div>
+    
 
     <div class="c">
       <input class="accordion-checkbox" type="checkbox" id="faq-3">

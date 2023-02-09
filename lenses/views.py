@@ -2,7 +2,7 @@ import os
 from collections import OrderedDict,defaultdict
 from django.shortcuts import render, redirect
 from django.urls import reverse,reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 from django.db import connection
@@ -33,6 +33,7 @@ from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
 from actstream import action
+from actstream.actions import follow,unfollow,is_following
 
 import numpy as np
 from pprint import pprint
@@ -230,6 +231,7 @@ class LensDetailView(DetailView):
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allcataloguedata = list(Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True))
 
+        following = is_following(self.request.user,context['lens'])
         
         ## Imaging data
         #for each instrument associate only one image per band for now
@@ -327,6 +329,7 @@ class LensDetailView(DetailView):
             labels.append(flags)
         paper_labels = [ ','.join(x) for x in labels ]
 
+        context['following'] = following
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
@@ -970,3 +973,20 @@ class LensQueryView(TemplateView):
 #=============================================================================================================================
 ### END: Non-modal views
 #=============================================================================================================================
+
+def follow_unfollow(request):
+    if request.is_ajax and request.method == "GET":
+        
+        action = request.GET.get("action",None)
+        user = Users.objects.get(pk=request.GET.get("user_id",None))
+        lens = Lenses.objects.get(pk=request.GET.get("lens_id",None))
+        if action == 'follow':
+            follow(user,lens,actor_only=False,send_action=True)
+            return JsonResponse({"action":action,"message":"Now following "+lens.__str__()},status=200)
+        elif action == 'unfollow':
+            unfollow(user,lens,send_action=False)
+            return JsonResponse({"action":action,"message":"Stopped following "+lens.__str__()},status=200)
+        else:
+            return JsonResponse({"message":"Action can only be 'follow' or 'unfollow'. Something went wrong, please try again later or report this to the admins!"},status=200)
+    return JsonResponse({}, status = 400)
+

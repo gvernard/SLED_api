@@ -16,9 +16,11 @@ from bootstrap_modal_forms.generic import (
     BSModalDeleteView,
     BSModalReadView,
 )
+from actstream.models import following, target_stream, Action
+from operator import attrgetter
+from itertools import chain
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument
-
 from .forms import UserUpdateForm
 
 
@@ -72,7 +74,30 @@ class UserProfileView(TemplateView):
         unread_notifications = user.notifications.unread()
         N_note_unread = unread_notifications.count()
 
+        # Get following lenses
+        followed_lenses = following(user,Lenses)
+        followed_stream = []
+        if followed_lenses:
+            for lens in followed_lenses:
+                followed_stream.append(target_stream(lens))
+                #followed_stream.append( lens.target_actions.all().first())
+                #time = Action.objects.target(lens,verb="started following").first().timestamp
 
+                #latest_actions = Action.objects.target(lens,timestamp__gt=user.last_login)
+                #followed_stream.append(latest_actions)
+
+        ordered_actions = sorted(
+            chain(*followed_stream),
+            key=attrgetter('timestamp'),
+            reverse=True
+        )
+        N_last_login = 0
+        for i,action in enumerate(ordered_actions):
+            if action.timestamp < user.last_login:
+                N_last_login = i
+                break
+
+            
         # Get queries
         queries = SledQuery.accessible_objects.owned(user)
         N_queries = queries.count()
@@ -138,6 +163,9 @@ class UserProfileView(TemplateView):
 
 
         context={'user':user,
+                 'ordered_actions': ordered_actions,
+                 'N_last_login': N_last_login,
+                 'followed_lenses': followed_lenses,
                  'groups':groups,
                  'N_groups': N_groups,
                  'papers':papers,
