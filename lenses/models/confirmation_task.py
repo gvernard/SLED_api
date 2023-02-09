@@ -16,6 +16,8 @@ from guardian.shortcuts import assign_perm
 
 from notifications.signals import notify
 from actstream import action
+from actstream.actions import unfollow
+from actstream.models import followers,following
 
 import abc
 import json
@@ -305,17 +307,31 @@ class CedeOwnership(ConfirmationTask):
             object_type = self.cargo['object_type']
             model_ref = apps.get_model(app_label="lenses",model_name=object_type)
             objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
-            for obj in objs:
-                obj.owner=heir
-                obj.save()
             pri = []
             pub = []
             for obj in objs:
+                obj.owner=heir
+                obj.save()
                 if obj.access_level == 'PRI':
                     pri.append(obj)
                 else:
                     pub.append(obj)
 
+            # Heir to unfollow any of the inherited objects
+            if object_type == 'Lenses':
+                set_followed = set(following(heir,Lenses))
+                set_lenses = set(objs)
+                intersection = list(set_followed.intersection(set_lenses))
+                for lens in intersection:
+                    unfollow(heir,lens)
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=intersection)
+                notify.send(sender=heir,
+                            recipient=heir,
+                            verb='HeirUnfollowNote',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            action_object=ad_col)
+                    
             # Handle public objects
             if pub and object_type != 'SledGroup':
                 from . import Users
@@ -405,6 +421,26 @@ class MakePrivate(ConfirmationTask):
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 
+            # Unfollow lenses (nobody has access to these private lenses yet)
+            if self.cargo['object_type'] == 'Lenses':
+                users = {}
+                for lens in objs:
+                    uf = followers(lens)
+                    for u in uf:
+                        if u.username in users.keys():
+                            users[u.username]["lenses"].append(lens)
+                        else:
+                            users[u.username] = {"user":u,"lenses":[lens]}
+                        unfollow(u,lens)
+                for u,mydict in users.items():
+                    ad_col = AdminCollection.objects.create(item_type='Lenses',myitems=mydict["lenses"])
+                    notify.send(sender=self.owner,
+                                recipient=u,
+                                verb='MakePrivateUnfollowNote',
+                                level='warning',
+                                timestamp=timezone.now(),
+                                action_object=ad_col)
+                    
             # Finally update the objects' access_level to private
             for obj in objs:
                 obj.access_level='PRI'

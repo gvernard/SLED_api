@@ -51,9 +51,7 @@
   
   
   <div style="margin-top:60px;">
-    {% if user.is_staff %}
-    <h1 class="jb-heading-2">User panel</h1>
-    {% endif %}
+    <h1 class="jb-heading-2">Notifications, Tasks, and Updates</h1>
 
     <div class="c">
       <input class="accordion-checkbox" type="checkbox" id="faq-0">
@@ -142,6 +140,10 @@
 	{{ lens }}<br>
 	{% endfor %}
 	<br><br><br>
+	<div class="jb-activity">
+	  {% include "activity_object.html" with stream=ordered_actions show_item_type='Lenses' %}
+	</div>
+	
 	{% for action in ordered_actions %}
 	{% if forloop.counter0 == N_last_login %}
 	<div class="jb-important-text">
@@ -158,8 +160,15 @@
 	<br>
       </div>
     </div>
-    
 
+  </div>    
+
+
+
+  
+  <div style="margin-top:60px;">
+    <h1 class="jb-heading-2">Database Management</h1>
+    
     <div class="c">
       <input class="accordion-checkbox" type="checkbox" id="faq-3">
       <h1 class="jb-heading-2">

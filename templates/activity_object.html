@@ -28,6 +28,10 @@
 	  {% endif %}
 
 
+	  {% if show_item_type == "Lenses" %}
+	  <a href="{{ action.target.get_absolute_url }}">{{ action.target }}</a>: 
+	  {% endif %}
+
 	  
 	  {# ########################### The following is for Lenses,Collections,Groups ########################### #}
           {% if action.verb == "UpdateLog" %}

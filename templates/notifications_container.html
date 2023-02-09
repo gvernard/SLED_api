@@ -7,7 +7,6 @@
   <tbody>
     {% for note in notifications %}
     {% with N=note.action_object.myitems.all|length %}
-    {% if N > 0 or note.data.object_names|length > 0 %}
     
     <tr class="sled-notification-row">
       <td>
@@ -87,7 +86,7 @@
 
 
         {% elif note.verb == "RevokeAccessNote" %}
-        Your access to <a class="sled-open-tooltip" href="">{{ N }} private {% singular_or_plural| note.action_object.item_type %}</a> was revoked.
+        Your access to <a class="sled-open-tooltip" href="">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a> was revoked.
         <div class="sled-notification-tooltip" style="display:none">
           <table>
             {% for col in note.action_object.myitems.all %}
@@ -135,7 +134,6 @@
         {% endif %}
       </td>
     </tr>
-    {% endif %}
     {% endwith %}
     {% endfor %}
   </tbody>

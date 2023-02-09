@@ -11,6 +11,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 from notifications.signals import notify
 from actstream import action
+from actstream.actions import unfollow
 
 from operator import itemgetter
 from itertools import groupby
@@ -257,7 +258,9 @@ class Users(AbstractUser,GuardianUserMixin):
                                 verb='RevokeAccessNote',
                                 level='error',
                                 timestamp=timezone.now(),
-                                action_object=ad_col)    
+                                action_object=ad_col)
+                    for obj in revoked_objects_per_user:
+                        unfollow(user,obj)
                 else:
                     action.send(self,target=user,verb='RevokeAccessGroup',level='error',action_object=ad_col)  # here the user is actually a group
 

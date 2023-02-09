@@ -21,6 +21,7 @@ class NotificationListView(TemplateView):
         read = self.request.user.notifications.read().order_by('-timestamp')
         unread = self.request.user.notifications.unread().order_by('-timestamp')
         context = {'unread': list(unread), 'read': list(read)}
+        print(context)
         self.request.user.notifications.unread().mark_all_as_read()
         return context
 
