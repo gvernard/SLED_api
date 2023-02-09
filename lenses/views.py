@@ -28,7 +28,8 @@ from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
 
 from . import forms
 
-from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView
+from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView,BSModalCreateView
+
 from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
@@ -37,6 +38,7 @@ from actstream.actions import follow,unfollow,is_following
 
 import numpy as np
 from pprint import pprint
+import csv
 #=============================================================================================================================
 ### BEGIN: Modal views
 #=============================================================================================================================
@@ -707,6 +709,48 @@ class LensCollageView(ListView):
     def get(self, request, *args, **kwargs):
         return TemplateResponse(request,'simple_message.html',context={'message':'You are accessing this page in an unauthorized way.'})
 
+
+@method_decorator(login_required,name='dispatch')
+class ExportToCsv(BSModalCreateView):
+    template_name = 'lenses/csv_download.html'
+    form_class = forms.DownloadForm
+    success_url = reverse_lazy('lenses:lens-query')
+
+    def get_initial(self):
+        ids = self.kwargs['all_lens_ids'].split(',')
+        ids_str = ','.join(ids)
+        return {'ids': ids_str}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        ids = self.kwargs['all_lens_ids'].split(',')
+        print(ids)
+        items = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        context['items'] = items
+        return context
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            ids = self.kwargs['all_lens_ids'].split(',')
+            print(ids)
+            items = Lenses.accessible_objects.in_ids(self.request.user,ids)
+            print(items)
+            opts = items.model._meta
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment;filename=lenses.csv'
+
+            writer = csv.writer(response)
+            #field_names = [field.name for field in opts.fields]
+            field_names = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','score','image_sep','z_source','z_source_secure','z_lens','z_lens_secure','info','n_img','image_conf','lens_type','source_type','contaminant_type']
+            writer.writerow(field_names)
+            for obj in items:
+                writer.writerow([getattr(obj, field) for field in field_names])
+            return response
+        else:
+            response = super().form_valid(form)
+            return response
+
+
 # View for dynamic lens queries and collections
 @method_decorator(login_required,name='dispatch')
 class StandardQueriesView(ListView):
@@ -762,11 +806,13 @@ class LensQueryView(TemplateView):
             print(len(lenses))
 
         # Paginator for lenses
+        lens_ids = [str(lens.id) for lens in lenses]
+        all_lens_ids = ','.join(lens_ids)
         paginator = Paginator(lenses,50)
         lenses_page = paginator.get_page(page_number)
         lenses_count = paginator.count
         lenses_range = paginator.page_range
-        return lenses_page,lenses_range,lenses_count
+        return lenses_page,lenses_range,lenses_count,all_lens_ids
 
 
     def catalogue_search(self,lenses,cleaned_form,user):
@@ -934,7 +980,7 @@ class LensQueryView(TemplateView):
 
         page_number = request.get('lenses-page',1)
         if len(forms_with_errors) == 0 and lens_form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.combined_query(page_number,lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            lenses_page,lenses_range,lenses_count,all_lens_ids = self.combined_query(page_number,lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
@@ -943,7 +989,8 @@ class LensQueryView(TemplateView):
                        'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
-                       'forms_with_errors': forms_with_errors}
+                       'forms_with_errors': forms_with_errors,
+                       'all_lens_ids': all_lens_ids}
         else:
             context = {'lenses': None,
                        'lenses_range': [],
@@ -953,7 +1000,8 @@ class LensQueryView(TemplateView):
                        'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
-                       'forms_with_errors':forms_with_errors}
+                       'forms_with_errors':forms_with_errors,
+                       'all_lens_ids': ''}
         return context
 
     

@@ -8,7 +8,6 @@ from django_select2 import forms as s2forms
 
 from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band
 
-
 class BaseLensForm(forms.ModelForm):
     class Meta:
         model = Lenses
@@ -692,3 +691,16 @@ class CatalogueQueryForm(DataBaseQueryForm):
         if self.cleaned_data.get('mag_min') and self.cleaned_data.get('mag_max'):
             if float(self.cleaned_data.get('mag_min')) > float(self.cleaned_data.get('mag_max')):
                 self.add_error('__all__','The maximum magnitude is lower than the minimum.')
+
+
+
+class DownloadForm(BSModalModelForm):
+
+    class Meta:
+        model = Lenses
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
+            'item_type': forms.HiddenInput()
+        }
+
