@@ -15,16 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path, re_path
-from registration import views as vregistration
-from home import views as vhome
-import notifications.urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles import views
-from registration.forms import UserLoginForm
 from django.contrib.auth import views as auth_views
- 
+from django.views.generic import TemplateView
+
+from registration import views as vregistration
+from registration.forms import UserLoginForm
+import notifications.urls
+
+
 urlpatterns = [
+    path('simple-message-default',TemplateView.as_view(template_name='simple_message.html'),kwargs={'message':'tipota'},name='simple-message-default'),
     path('admin/', admin.site.urls),
     path('', include('home.urls'), name='home'),
     path('sled_data/', include('sled_data.urls'), name='sled_data'),
@@ -64,3 +67,5 @@ urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler404 = "mysite.views.page_not_found_view"
