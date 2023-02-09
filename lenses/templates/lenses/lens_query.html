@@ -468,17 +468,21 @@
       See collage
     </button>
 
-    <button type="submit" form="ids-form" class="sled-process-lenses jb-submit-button-1" formaction="{% url 'lenses:export-csv' %}">
+    <!--<button type="button" id="export-csv" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:export-csv' %}">
       <img src="{% static 'icons/columns-gap.svg' %}">
       Export to csv
+    </button>-->
+
+    <button type="button" id="export" class="sled-export-function jb-submit-button-1" data-form-url="{% url 'lenses:export-csv' all_lens_ids %}">
+      <img src="{% static 'icons/folder-fill.svg' %}">
+      Export all lenses
     </button>
-
-
 
     <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
-      <img src="{% static 'icons/folder-fill.svg' %}">
+      <img src="{% static 'icons/folder-fill.svg' %}"> 
       Make collection
     </button>
+
     <button type="button" id="add-to-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-add-items' 'Lenses' %}">
       <img src="{% static 'icons/folder-plus.svg' %}">
       Add to collection

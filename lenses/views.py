@@ -37,6 +37,7 @@ from actstream import action
 
 import numpy as np
 from pprint import pprint
+import csv
 #=============================================================================================================================
 ### BEGIN: Modal views
 #=============================================================================================================================
@@ -713,33 +714,35 @@ class ExportToCsv(BSModalCreateView):
     success_url = reverse_lazy('lenses:lens-query')
 
     def get_initial(self):
-        ids = self.request.GET.getlist('ids')
+        ids = self.kwargs['all_lens_ids'].split(',')
         ids_str = ','.join(ids)
-        item_type = self.kwargs['obj_type']
-        return {'ids': ids_str,'item_type':item_type}
+        return {'ids': ids_str}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        ids = self.request.GET.getlist('ids')
-        ids_str = ','.join(ids)
-        obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
-        context['items'] = obj_model.accessible_objects.in_ids(self.request.user,ids)
+        ids = self.kwargs['all_lens_ids'].split(',')
+        print(ids)
+        items = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        context['items'] = items
         return context
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):
-            ids = form.cleaned_data['ids'].split(',')
-            '''obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
-            items = obj_model.accessible_objects.in_ids(self.request.user,ids)
-            name = form.cleaned_data['name']
-            description = form.cleaned_data['description']
-            access_level = form.cleaned_data['access_level']
-            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type=self.kwargs['obj_type'])
-            mycollection.save()
-            mycollection.myitems = items
-            mycollection.save()
-            messages.add_message(self.request,messages.SUCCESS,"Collection <b>"+name+"</b> was successfully created!")'''
-            return HttpResponseRedirect(reverse('lenses:lens-query')) 
+            ids = self.kwargs['all_lens_ids'].split(',')
+            print(ids)
+            items = Lenses.accessible_objects.in_ids(self.request.user,ids)
+            print(items)
+            opts = items.model._meta
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment;filename=lenses.csv'
+
+            writer = csv.writer(response)
+            #field_names = [field.name for field in opts.fields]
+            field_names = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','score','image_sep','z_source','z_source_secure','z_lens','z_lens_secure','info','n_img','image_conf','lens_type','source_type','contaminant_type']
+            writer.writerow(field_names)
+            for obj in items:
+                writer.writerow([getattr(obj, field) for field in field_names])
+            return response
         else:
             response = super().form_valid(form)
             return response
@@ -800,11 +803,13 @@ class LensQueryView(TemplateView):
             print(len(lenses))
 
         # Paginator for lenses
+        lens_ids = [str(lens.id) for lens in lenses]
+        all_lens_ids = ','.join(lens_ids)
         paginator = Paginator(lenses,50)
         lenses_page = paginator.get_page(page_number)
         lenses_count = paginator.count
         lenses_range = paginator.page_range
-        return lenses_page,lenses_range,lenses_count
+        return lenses_page,lenses_range,lenses_count,all_lens_ids
 
 
     def catalogue_search(self,lenses,cleaned_form,user):
@@ -972,7 +977,7 @@ class LensQueryView(TemplateView):
 
         page_number = request.get('lenses-page',1)
         if len(forms_with_errors) == 0 and lens_form.is_valid():
-            lenses_page,lenses_range,lenses_count = self.combined_query(page_number,lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            lenses_page,lenses_range,lenses_count,all_lens_ids = self.combined_query(page_number,lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
@@ -981,7 +986,8 @@ class LensQueryView(TemplateView):
                        'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
-                       'forms_with_errors': forms_with_errors}
+                       'forms_with_errors': forms_with_errors,
+                       'all_lens_ids': all_lens_ids}
         else:
             context = {'lenses': None,
                        'lenses_range': [],
@@ -991,7 +997,8 @@ class LensQueryView(TemplateView):
                        'catalogue_form':catalogue_form,
                        'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
-                       'forms_with_errors':forms_with_errors}
+                       'forms_with_errors':forms_with_errors,
+                       'all_lens_ids': ''}
         return context
 
     

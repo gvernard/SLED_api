@@ -695,20 +695,12 @@ class CatalogueQueryForm(DataBaseQueryForm):
 
 
 class DownloadForm(BSModalModelForm):
-    ids = forms.CharField(widget=forms.HiddenInput())
 
     class Meta:
         model = Lenses
         fields = ['name']
         widgets = {
             'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
+            'item_type': forms.HiddenInput()
         }
 
-    def clean(self):
-        col_acc = self.cleaned_data.get('access_level')
-        ids = self.cleaned_data['ids'].split(',')
-        obj_model = apps.get_model(app_label='lenses',model_name=self.cleaned_data['item_type'])
-        priv = obj_model.accessible_objects.in_ids(self.request.user,ids).filter(access_level='PRI').count()
-        if priv > 0 and col_acc == 'PUB':
-            self.add_error('__all__',"Public collection cannot contain private items.")
-        return

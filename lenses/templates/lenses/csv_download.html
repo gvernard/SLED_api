@@ -1,7 +1,8 @@
 {% extends "modal_base.html" %}
+{% load static %}
 
 {% block title %}
-Download the lens query as a CSV?
+Download as csv?
 {% endblock title %}
 
 {% block content %}
@@ -16,22 +17,8 @@ Download the lens query as a CSV?
     </ul>
   </div>
   {% endif %}
-  
-  <div class="jb-modal-field jb-table-no-lines">
-    <table>
-      {% for item in items %}
-      <tr>
-	<td>
-          {{ item }}
-	</td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
 
-  <div class="jb-modal-field">
-    {{ form.name }}
-  </div>
+You will download details for {{ items.count }} systems
 
 </div>
 {% endblock content %}
@@ -40,6 +27,6 @@ Download the lens query as a CSV?
 {% block action_button %}
 <button type="submit" class="jb-submit-button-1">
   <img src="{% static 'icons/plus.svg' %}" >
-  Make collection
+  Download
 </button>
 {% endblock action_button %}
