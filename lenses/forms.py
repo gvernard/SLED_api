@@ -5,7 +5,7 @@ from django.utils import timezone
 from django.db.models import QuerySet
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from django_select2 import forms as s2forms
-
+from pprint import pprint
 from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band
 
 class BaseLensForm(forms.ModelForm):
@@ -48,24 +48,47 @@ class BaseLensUpdateForm(BaseLensForm):
 class LensModalUpdateForm(BSModalModelForm):
     class Meta:
         model = Lenses
-        exclude = ['name','access_level','owner']
+        exclude = ['name']
         widgets = {
             'info': forms.Textarea({'class':'jb-lens-info','placeholder':'Provide any additional useful information, e.g. special features, peculiarities, irregularities, etc','rows':3,'cols':30}),
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'owner': forms.HiddenInput(),
+            'access_level': forms.HiddenInput(),
         }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name,field in zip(self.fields,self.fields.values()):
-            if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
+            if field_name not in ['info','lens_type','source_type','image_conf','access_level','owner','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
 
-    def clean(self):
-        if not self.has_changed():
-            self.add_error('__all__',"No changes detected!")      
+    # def clean_z_lens(self):
+    #     value = self.cleaned_data['z_lens']
+    #     if value < 0 or value > 20:
+    #         raise ValidationError("Bad redshift")
+    #     return data
 
+    
+    def clean(self):
+        cleaned_data = super(LensModalUpdateForm,self).clean()
+
+        if not self.has_changed():
+            self.add_error('__all__',"No changes detected!")
+            return
+            
+        # Need to call model clean methods here to raise and catch any errors
+        instance = Lenses(**cleaned_data)
+        try:
+            instance.full_clean()
+        except ValidationError as e:
+            self.add_error('__all__',"Please fix the errors below!")
+            return
+
+        if self.errors:
+            self.add_error('__all__',"Please fix the errors below!")
+        
             
 class LensDeleteForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())

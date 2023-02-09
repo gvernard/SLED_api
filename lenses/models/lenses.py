@@ -232,7 +232,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
     z_lens = models.DecimalField(blank=True,
                                  null=True,
-                                 max_digits=5,
+                                 max_digits=6,
                                  decimal_places=4,
                                  verbose_name="Z lens",
                                  help_text="The redshift of the lens, if known.",
@@ -383,6 +383,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
         
     def clean(self):
+        super(Lenses,self).clean()
         if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
         #if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check

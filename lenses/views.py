@@ -182,11 +182,12 @@ class LensUpdateModalView(BSModalUpdateView):
     form_class = forms.LensModalUpdateForm
     context_object_name = 'lens'
     success_message = 'Success: Lens was successfully updated.'
-   
+
     def get_queryset(self):
         return Lenses.accessible_objects.owned(self.request.user)
 
     def form_valid(self,form):
+        print('valid')
         if not is_ajax(self.request.META):
             # Check for duplicates and redirect here
             instance = form.save(commit=False)
@@ -202,7 +203,7 @@ class LensUpdateModalView(BSModalUpdateView):
 
         response = super().form_valid(form)
         return response
-
+        
     def get_success_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.object.id})
     
