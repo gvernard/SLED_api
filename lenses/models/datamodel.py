@@ -115,6 +115,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     image = models.ImageField(blank=True,
                               upload_to='data/imaging')
 
+    FIELDS_TO_CHECK = ['exposure_time','pixel_size','image','date_taken','info','future']
     
     class Meta():
         constraints = [
@@ -197,7 +198,8 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     image = models.ImageField(blank=True,
                               upload_to='data/spectrum')
 
-    
+    FIELDS_TO_CHECK = ['exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future']
+
     class Meta():
         constraints = [
             CheckConstraint(check=Q(exposure_time__gt=0),name='spectrum_exp_time'),
@@ -284,7 +286,8 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                                    validators=[MinValueValidator(0.0,"Distance must be positive."),])
     band = models.ForeignKey(Band,to_field='name',on_delete=models.CASCADE)
 
-    
+    FIELDS_TO_CHECK = ['radet','decdet','mag','Dmag','distance','date_taken','info','future']
+        
     class Meta():
         constraints = [
             CheckConstraint(check=Q(distance__gt=0),name='distance'),

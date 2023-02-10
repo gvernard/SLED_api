@@ -1,6 +1,7 @@
 {% load static %}
 {% load project_tags %}
 
+
 {% if stream %}
 
 
@@ -9,7 +10,7 @@
     
     {% with  activityCount=max_entries|stringformat:"s" %}
     {% with  activitySlice=":"|add:activityCount %}
-    
+
     {% for action in stream|slice:activitySlice %}
     {% with N=action.action_object.myitems.all|length %}
     <tr>

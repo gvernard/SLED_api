@@ -54,7 +54,7 @@
 	    {% include "activity_object.html" with stream=stream max_entries=5 %}
 	    {% if stream|length > 5 %}
 	    <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
-	    {% include "activity_all_modal.html" with stream=stream %}
+	    {% include "activity_object_modal.html" with stream=stream %}
 	    {% endif %}
 	  </div>
 	  <p>

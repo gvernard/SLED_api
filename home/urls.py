@@ -5,5 +5,5 @@ from . import views
 app_name = 'home'
 urlpatterns = [
     path('', views.HomePageView.as_view(), name='homepage'),
-    path('all-activity', views.HomeAllActivityView.as_view(), name='homepage-all-activity'),
+    path('activity-home-detailed', views.ActivityHomeDetailedView.as_view(), name='activity-home-detailed'),
 ]

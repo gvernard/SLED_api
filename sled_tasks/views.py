@@ -91,10 +91,8 @@ class TaskDetailRecipientView(BSModalFormView):
     
     def get_initial(self):
         # Check if a response is already in the database  
-        print(self.kwargs)
         try:
             if self.kwargs.get('admin'):
-                print('admin in kwargs')
                 db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=Users.getAdmin().first().username)
             else:
                 db_response = self.task.recipients.through.objects.get(confirmation_task__exact=self.task.id,recipient__username=self.request.user.username)
@@ -137,8 +135,6 @@ class TaskDetailRecipientView(BSModalFormView):
         return form 
     
     def get_context_data(self, **kwargs):
-        print('get context data')
-        print(self.kwargs)
         context = super(TaskDetailRecipientView,self).get_context_data(**kwargs)
 
         context['task'] = self.task

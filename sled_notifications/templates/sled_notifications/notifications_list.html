@@ -2,6 +2,8 @@
 {% load static %}
 
 {% block content %}
+{% include "modal_container.html" %}
+
 <div class="jb-container">
   {% if unread|length > 0 %}
   <h1 class="jb-heading-1">New notifications</h1>
@@ -18,30 +20,10 @@
 
 
 {% block extrastyles %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
 {% endblock extrastyles %}
 
 
 {% block extrascripts %}
-<script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function(){      
-      $('.sled-open-tooltip').on("click",function(e){
-	  e.preventDefault();
-      });
-      
-      $('.sled-open-tooltip').each(function(){
-          var mycontent = $(this).parent().children('.sled-notification-tooltip').html().trim();
-	  $(this).tooltipster({
-      	      position: 'right',
-      	      theme: 'tooltipster-shadow',
-      	      interactive: true,
-      	      contentAsHTML: true,
-      	      content: mycontent,
-	      trigger: 'click'
-          });
-      });
-  });
-</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 {% endblock extrascripts %}
