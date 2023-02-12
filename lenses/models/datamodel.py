@@ -5,6 +5,7 @@ from django.conf import settings
 from multiselectfield import MultiSelectField
 from dirtyfields import DirtyFieldsMixin
 from actstream import action
+from notifications.signals import notify
 import os
 import simplejson as json
 
@@ -137,6 +138,12 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
             # Creating object for the first time, calling save first to create a primary key
             super(Imaging,self).save(*args,**kwargs)
             action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+            notify.send(sender=self.owner,
+                        recipient=self.lens.owner,
+                        verb='AddedDataOwnerNote',
+                        level='warning',
+                        timestamp=timezone.now(),
+                        action_object=self)
         else:
             # Updating object
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
