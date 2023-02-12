@@ -63,6 +63,8 @@ class DataDetailView(BSModalReadView):
 
 @method_decorator(login_required,name='dispatch')
 class DataCreateView(BSModalCreateView):
+    success_message = 'Success: %(obj_type)s was successfully added.'
+
     def get_queryset(self):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return model.accessible_objects.owned(self.request.user)
@@ -113,12 +115,15 @@ class DataCreateView(BSModalCreateView):
 
     def get_success_message(self,cleaned_data):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
-        success_message = 'Success: %s was successfully added.' % model._meta.verbose_name.title()
+        return self.success_message % dict(obj_type=model._meta.verbose_name.title())
+
 
 
         
 @method_decorator(login_required,name='dispatch')
 class DataUpdateView(BSModalUpdateView):
+    success_message = "Success: %(obj_type)s was updated successfully"
+
     def get_queryset(self):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return model.accessible_objects.owned(self.request.user)
@@ -149,8 +154,7 @@ class DataUpdateView(BSModalUpdateView):
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):
-            # Report action and dirty fields?
-            dum = 1
+            self.object.save()
         response = super().form_valid(form)
         return response
     
@@ -159,7 +163,7 @@ class DataUpdateView(BSModalUpdateView):
 
     def get_success_message(self,cleaned_data):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
-        success_message = 'Success: %s was successfully updated.' % model._meta.verbose_name.title()
+        return self.success_message % dict(obj_type=model._meta.verbose_name.title())
 
 
     

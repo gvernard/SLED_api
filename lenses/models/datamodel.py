@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db.models import Q, F, CheckConstraint
 from django.conf import settings
+from django.utils import timezone
 from multiselectfield import MultiSelectField
 from dirtyfields import DirtyFieldsMixin
 from actstream import action
@@ -116,7 +117,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     image = models.ImageField(blank=True,
                               upload_to='data/imaging')
 
-    FIELDS_TO_CHECK = ['exposure_time','pixel_size','image','date_taken','info','future']
+    FIELDS_TO_CHECK = ['instrument','band','exposure_time','pixel_size','image','date_taken','info','future']
     
     class Meta():
         constraints = [
@@ -160,7 +161,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                 dirty.pop("image",None) # remove from any subsequent report
                 
             if len(dirty) > 0 and self.access_level == "PUB":
-                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty))
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
             
         # Create new file and remove old one
         fname = '/'+self.image.name
@@ -205,7 +206,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     image = models.ImageField(blank=True,
                               upload_to='data/spectrum')
 
-    FIELDS_TO_CHECK = ['exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future']
+    FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future']
 
     class Meta():
         constraints = [
@@ -243,7 +244,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                 dirty.pop("image",None) # remove from any subsequent report
                 
             if len(dirty) > 0 and self.access_level == "PUB":
-                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty))
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
 
         # Create new file and remove old one
         fname = '/'+self.image.name
@@ -293,7 +294,7 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                                    validators=[MinValueValidator(0.0,"Distance must be positive."),])
     band = models.ForeignKey(Band,to_field='name',on_delete=models.CASCADE)
 
-    FIELDS_TO_CHECK = ['radet','decdet','mag','Dmag','distance','date_taken','info','future']
+    FIELDS_TO_CHECK = ['instrument','band','radet','decdet','mag','Dmag','distance','date_taken','info','future']
         
     class Meta():
         constraints = [
@@ -328,6 +329,6 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                 dirty.pop("access_level",None) # remove from any subsequent report
                     
             if len(dirty) > 0 and self.access_level == "PUB":
-                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty))
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
                 
         super(Catalogue,self).save(*args,**kwargs)

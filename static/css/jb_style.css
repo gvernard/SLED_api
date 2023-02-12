@@ -374,6 +374,9 @@ table td {
 .jb-submit-button-1 img {
     filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(129deg) brightness(106%) contrast(104%);
 }
+.jb-overlay-button-1 img {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(129deg) brightness(106%) contrast(104%);
+}
 
 .jb-submit-button-red {
     position: static;

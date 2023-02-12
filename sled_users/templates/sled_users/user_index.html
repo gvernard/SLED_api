@@ -433,6 +433,12 @@
 		    {{ imaging.getUsersWithAccessNoOwner|join:"," }} - <em>{{ imaging.getGroupsWithAccessNoOwner|join:"," }}</em>
 		  </td>
 		  <td>
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-update' imaging.id %}">
+		      <img src="{% static 'icons/pencil.svg' %}" >
+		      Update
+		    </button>
+		  </td>
+		  <td>
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-detail' imaging.id %}">
 		      <img src="{% static 'icons/eye-fill.svg' %}" >
 		      View
@@ -546,6 +552,12 @@
 		  <td>{{ spectrum.access_level }}</td>
 		  <td>
 		    {{ spectrum.getUsersWithAccessNoOwner|join:"," }} - <em>{{ spectrum.getGroupsWithAccessNoOwner|join:"," }}</em>
+		  </td>
+		  <td>
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-update' spectrum.id %}">
+		      <img src="{% static 'icons/pencil.svg' %}" >
+		      Update
+		    </button>
 		  </td>
 		  <td>
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spectrum.id %}">
@@ -663,6 +675,12 @@
 		  <td>{{ catalogue.access_level }}</td>
 		  <td>
 		    {{ catalogue.getUsersWithAccessNoOwner|join:"," }} - <em>{{ catalogue.getGroupsWithAccessNoOwner|join:"," }}</em>
+		  </td>
+		  <td>
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-update' catalogue.id %}">
+		      <img src="{% static 'icons/pencil.svg' %}" >
+		      Update
+		    </button>
 		  </td>
 		  <td>
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:catalogue-detail' catalogue.id %}">
