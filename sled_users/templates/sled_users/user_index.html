@@ -136,32 +136,37 @@
       </h1>
       <div class="p">
 	<br>
-	{% for lens in followed_lenses %}
-	{{ lens }}<br>
-	{% endfor %}
-	<br><br><br>
+	{% if followed_lenses|length == 0 %}
+	<p>
+	  You are not following any lenses!
+	</p>
+	{% else %}
+	<p>
+	  You are following <a href="{% url 'sled_users:user-following' %}">{{ followed_lenses|length }} lenses</a>
+	</p>	
+	<br>
+	{% if lenses_with_updates %}
+	<h1 class="jb-heading-3" style="background-color:white !important;">Lenses with activity since last login:</h1>
+	<div>
+	  {% for item in lenses_with_updates %}
+	  <div class="jb-active-lens">{{ item.lens }} <span class="badge badge-warning">{{ item.N }}</span></div>	    
+	  {% endfor %}
+	</div>
+	<br>
+	<br>
+	<br>
+	{% endif %}
+	<h1 class="jb-heading-3" style="background-color:white !important;">Follow stream:</h1>
 	<div class="jb-activity">
 	  {% include "activity_object.html" with stream=ordered_actions show_item_type='Lenses' %}
 	</div>
-	
-	{% for action in ordered_actions %}
-	{% if forloop.counter0 == N_last_login %}
-	<div class="jb-important-text">
-	  Last Login: {{ user.last_login }}
-	</div>
 	{% endif %}
-	<div>
-	  {{ action.target }} - {{ action.verb }}
-	</div>
-	{% empty %}
-	No actions to follow
-	{% endfor %}
 	<br>
 	<br>
       </div>
     </div>
 
-  </div>    
+  </div>
 
 
 
@@ -750,6 +755,7 @@
 
 {% block extrastyles %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css" integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous">
 <link href="{% static 'sled_users/css/sled_users.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
@@ -760,4 +766,10 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_users/js/sled_users.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+      // Add line of last login in followed lens activity stream 
+      $('.jb-activity table tbody tr').eq({{ N_last_login }}).before('<tr><td></td><td><span class="jb-important-text">Last login: {{ user.last_login }}</span></td></tr>');
+  });
+</script>
 {% endblock extrascripts %}

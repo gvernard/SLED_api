@@ -1,0 +1,97 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+
+{% block content %}
+{% include "modal_container.html" %}
+
+<div class="jb-container">
+
+  <div>
+    {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
+
+
+    <div>
+      <table>
+	<thead>
+	  <tr>
+            <th>Mugshot</th>
+            <th>Name</th>
+            <th>Right Ascension</th>
+            <th>Declination</th>
+            <th>Access level</th>
+            <th></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for lens in lenses %}
+	  <tr>
+            <td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
+            <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
+            <td>{{ lens.ra }}</td>
+            <td>{{ lens.dec }}</td>
+            <td>{{ lens.access_level }}</td>
+	    <td>
+	      <button class="jb-submit-button-1 follow-button" data-lens-id="{{ lens.id }}" data-user-id="{{ user.id }}">
+		<img src="{% static 'icons/person-x-fill.svg' %}" >
+		Unfollow
+	      </button>
+	    </td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
+    
+    
+    
+    {% include "pagination_bottom.html" with qset=lenses request=request qset_range=lenses_range qset_total=N_lenses_total target="lenses" %}
+  </div>
+  
+</div>
+{% endblock content %}
+
+
+
+{% block extrascripts %}
+<script type="text/javascript">
+  $(document).ready(function(){
+      $('.follow-button').click(function(){
+	  var this_button = $(this);
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'lenses:follow-unfollow' %}",
+              data: {
+		  "action": 'unfollow',
+		  "lens_id": this_button.data('lens-id'),
+		  "user_id": this_button.data('user-id'),
+	      },
+              success: function(response){
+		  jQuery('<div>', {
+		      id: 'alert-message',
+		      class: 'alert alert-icon alert-dismissible fade show mb-0 alert-success',
+		      text: response["message"],
+		      style: "border-radius:0;display:none;",
+		  }).appendTo('.alert-message-container');
+		  $('#alert-message').slideDown(500).delay(2000).slideUp(500).queue(function(){
+		      $(this).remove();
+		  });
+              },
+              error: function(response){
+		  jQuery('<div>', {
+		      id: 'alert-message',
+		      class: 'alert alert-icon alert-error alert-dismissible fade show mb-0',
+		      text: response["message"],
+		      style: "border-radius:0;display:none;",
+		  }).appendTo('.alert-message-container');
+		  $('#alert-message').slideDown(500).delay(2000).slideUp(500).queue(function(){
+		      $(this).remove();
+		  });
+	      }
+          });
+	  this_button.parent().html('Stopped following');
+      });
+      
+  });
+</script>
+{% endblock extrascripts %}

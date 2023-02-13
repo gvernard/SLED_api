@@ -11,13 +11,13 @@
     <tr class="sled-notification-row">
       <td>
 	{% if note.level == "info" %}
-	<img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2">
+	<img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2 jb-alert-icon">
 	{% elif note.level == "success" %}
-	<img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2">
+	<img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2 jb-alert-icon">
 	{% elif note.level == "error" %}
-	<img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2">
+	<img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2 jb-alert-icon">
 	{% elif note.level == "warning" %}
-	<img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2">
+	<img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2 jb-alert-icon">
 	{% else %}
 	{{ note.level }}
 	{% endif %}

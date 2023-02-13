@@ -429,10 +429,8 @@ table td {
 .jb-activity {
     color: #ACACAC !important;
     font-size: 12px;
-}
-.jb-activity table {
     table-layout: auto;
-}  
+}
 .jb-activity td {
     padding-left:0px;
     padding-top: 2px;
@@ -608,3 +606,13 @@ ul.jb-select-radio {
     filter: invert(82%) sepia(53%) saturate(2355%) hue-rotate(351deg) brightness(100%) contrast(104%);
 }
 
+.jb-alert-icon {margin-right:10px;}
+
+.jb-active-lens {
+    background:#efefef;
+    float:left;
+    margin:5px;
+    padding:4px;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+}

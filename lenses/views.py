@@ -1027,7 +1027,7 @@ def follow_unfollow(request):
         user = Users.objects.get(pk=request.GET.get("user_id",None))
         lens = Lenses.objects.get(pk=request.GET.get("lens_id",None))
         if action == 'follow':
-            follow(user,lens,actor_only=False,send_action=True)
+            follow(user,lens,actor_only=False,send_action=False)
             return JsonResponse({"action":action,"message":"Now following "+lens.__str__()},status=200)
         elif action == 'unfollow':
             unfollow(user,lens,send_action=False)
