@@ -94,7 +94,7 @@ class Paper(SingleObject):
                             verb='AddedPaperOwnerNote',
                             level='warning',
                             timestamp=timezone.now(),
-                            lenses=ad_col,
+                            action_object=ad_col,
                             paper=self)
                 
     def get_absolute_url(self):

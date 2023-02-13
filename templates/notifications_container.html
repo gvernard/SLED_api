@@ -48,7 +48,7 @@
 
 
         {% elif note.verb == "DeletedGroupNote" %}
-        Group <b>{{ note.data.group_name }}</b> was deleted by <a href="{{ note.actor.get_absolute_url }}" target="_blank">{{ note.actor.username }}</a>.
+        Group "{{ note.data.group_name }}" was deleted by <a href="{{ note.actor.get_absolute_url }}" target="_blank">{{ note.actor.username }}</a>.
 
 
 	
@@ -67,7 +67,20 @@
         <a class="sled-modal-anchor" data-form-url="{{ note.action_object.get_absolute_url }}">Your request</a> to cede ownership was rejected.
 
 
+        {% elif note.verb == "AddedDataOwnerNote" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ note.action_object }}</a> was added
+	for your lens <a href="{{ note.action_object.lens.get_absolute_url }}" target="_blank">{{ note.action_object.lens }}</a>
+	
 
+        {% elif note.verb == "AddedPaperOwnerNote" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a> that you own
+	were linked to paper <a href="{{ note.data.paper.get_absolute_url }}" target="_blank">{{ note.data.paper }}</a>
+
+
+	
+
+
+	
 	{# ###################### Access level notifications ###################### #}
         {% elif note.verb == "MakePrivateAcceptedNote" %}
         <a class="sled-modal-anchor" data-form-url="{{ note.action_object.get_absolute_url }}">Your request</a> to make objects private was accepted.
@@ -99,7 +112,7 @@
 
 	
         {% elif note.verb == "AskPrivateAccessRejectedNote" %}
-        <a class="sled-modal-anchor" data-form-url="{{ note.action_object.get_absolute_url }}">Your request</a> to <i>access private objects</i> was accepted.
+        <a class="sled-modal-anchor" data-form-url="{{ note.action_object.get_absolute_url }}">Your request</a> to access private objects was accepted.
 
 
 	{% elif note.verb == "RemovedFromThirdCollectionNote" %}
@@ -115,6 +128,17 @@
         </div>
 
 
+	{% elif note.verb == "HeirUnfollowNote" %}
+	You cannot follow <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a> anymore because you now own them.
+
+
+	{% elif note.verb == "MakePrivateUnfollowNote" %}
+	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a> that you followed {{ N|pluralize:"is,are" }} not public anymore.
+
+
+	
+
+	
 	
 	{# ###################### Group notifications ###################### #}
         {% elif note.verb == "AddedToGroupNote" %}
