@@ -407,7 +407,7 @@ table td {
     background-color: #6F73DD;
     color: #FFFFFF;
     font-size: 14px;
-    border-radius: 3px;
+    border-radius: 12px;
 }
 
 
@@ -616,3 +616,11 @@ ul.jb-select-radio {
     border: 1px solid #dddddd;
     border-radius: 8px;
 }
+
+.sled-help-tooltip label:hover {
+    cursor: help;
+}
+.sled-help-tooltip-content {
+    display: none;
+}
+

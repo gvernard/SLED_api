@@ -276,6 +276,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     image_conf = MultiSelectField(max_length=100,
                                   blank=True,
                                   null=True,
+                                  help_text="The configuration of the lensing system, if known.",
                                   choices=ImageConfChoices)
     
     LensTypeChoices = (
@@ -290,6 +291,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     lens_type = MultiSelectField(max_length=100,
                                  blank=True,
                                  null=True,
+                                 help_text="The type of the lensing galaxy, if known.",
                                  choices=LensTypeChoices)
     
     SourceTypeChoices = (
@@ -313,6 +315,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     source_type = MultiSelectField(max_length=100,
                                    blank=True,
                                    null=True,
+                                   help_text="The type of the source, if known.",
                                    choices=SourceTypeChoices)
 
     ContaminantTypeChoices = (
@@ -340,7 +343,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ('RING GALAXY', 'Ring Galaxy'),
         ('PLANETARY NEBULA', 'Ring Galaxy')
     )
-
     contaminant_type = models.CharField(max_length=100,
                                    blank=True,
                                    null=True,
