@@ -1,4 +1,5 @@
 {% extends "modal_base.html" %}
+{% load project_tags %}
 
 {% block title %}
 <a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens }}</a>
@@ -10,12 +11,12 @@
 <div class="jb-container jb-table-no-lines">
   
   <table>
-    <tr><td>Owner:</td><td>{{ imaging.owner }}</td></tr>
+    <tr><td>Owner:</td><td>{{ imaging.owner.id|get_user_link|safe }}</td></tr>
     <tr><td>Access level:</td><td>{{ imaging.access_level }}</td></tr>
     <tr><td>Date taken:</td><td>{{ imaging.date_taken }}</td></tr>
-    <tr><td>Exp. time:</td><td>{{ imaging.exposure_time }}</td></tr>
-    <tr><td>Pixel size:</td><td>{{ imaging.pixel_size }}</td></tr>
-    <tr><td>Info:</td><td>{{ imaging.info }}</td></tr>
+    <tr><td>Exposure time [s]:</td><td>{{ imaging.exposure_time|default:"-" }}</td></tr>
+    <tr><td>Pixel size [arcsec]:</td><td>{{ imaging.pixel_size|default:"-" }}</td></tr>
+    <tr><td>Info:</td><td>{{ imaging.info|default:"-" }}</td></tr>
   </table>
   
   {% if imaging.future %}

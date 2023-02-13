@@ -226,8 +226,6 @@
 
 {% block extrastyles %}
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
 {% endblock extrastyles %}
 
 
@@ -236,9 +234,9 @@
 {% if request.resolver_match.url_name == 'lens-add' %}
 <script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 {% endif %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 {{ form.media.js }}
 <script type="text/javascript">
   $(document).ready(function() {
@@ -258,21 +256,6 @@
       
       $('.my-select2').select2();
 
-      function set_help(){
-	  $(".sled-help-tooltip").each(function(){
-	      if( !$(this).hasClass('tooltipstered') ){
-		  var content = $(this).parent().children('div').eq(1).html();
-		  $(this).tooltipster({
-		      position: 'left',
-		      theme: 'tooltipster-shadow',
-		      interactive: true,
-		      contentAsHTML: true,
-		      content: content,
-		      trigger: 'hover'
-		  });
-	      }
-	  });
-      }
       set_help();
       
       $("#sled-add-another").click(function(e) {

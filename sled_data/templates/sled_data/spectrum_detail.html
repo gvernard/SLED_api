@@ -1,4 +1,5 @@
 {% extends "modal_base.html" %}
+{% load project_tags %}
 
 
 {% block title %}
@@ -12,14 +13,14 @@
 <div class="jb-container-modal jb-table-no-lines">
   
   <table>
-    <tr><td>Owner:</td><td>{{ spectrum.owner }}</td></tr>
+    <tr><td>Owner:</td><td>{{ spectrum.owner.id|get_user_link|safe }}</td></tr>
     <tr><td>Access level:</td><td>{{ spectrum.access_level }}</td></tr>
     <tr><td>Date taken:</td><td>{{ spectrum.date_taken }}</td></tr>
-    <tr><td>lambda<sub>min</sub></td><td>{{ spectrum.lambda_min }}</td></tr>
-    <tr><td>lambda<sub>max</sub>:</td><td>{{ spectrum.lambda_max }}</td></tr>
-    <tr><td>Exp. time:</td><td>{{ spectrum.exposure_time }}</td></tr>
-    <tr><td>Resolution:</td><td>{{ spectrum.resolution }}</td></tr>
-    <tr><td>Info:</td><td>{{ spectrum.info }}</td></tr>
+    <tr><td>&lambda;<sub>min</sub> [nm]:</td><td>{{ spectrum.lambda_min|default:"-" }}</td></tr>
+    <tr><td>&lambda;<sub>max</sub> [nm]:</td><td>{{ spectrum.lambda_max|default:"-" }}</td></tr>
+    <tr><td>Exposure time [s]:</td><td>{{ spectrum.exposure_time|default:"-" }}</td></tr>
+    <tr><td>Resolution [nm]:</td><td>{{ spectrum.resolution|default:"-" }}</td></tr>
+    <tr><td>Info:</td><td>{{ spectrum.info|default:"-" }}</td></tr>
   </table>
   
   {% if spectrum.future %}

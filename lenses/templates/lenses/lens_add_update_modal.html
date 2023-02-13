@@ -33,37 +33,58 @@ Update Lens {{ lens.name }}
             <table>
               <tr>
                 <td>{{ form.ra.errors }}</td>
-                <td>{{ form.ra.label_tag }}</td>
+                <td>
+		  <div class="sled-help-tooltip">{{ form.ra.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.ra.help_text|safe }}</div>
+		</td>
                 <td>{{ form.ra }}</td>
               </tr>
               <tr>
                 <td>{{ form.dec.errors }}</td>
-                <td>{{ form.dec.label_tag }}</td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.dec.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.dec.help_text|safe }}</div>
+		</td>
                 <td>{{ form.dec }}</td>
               </tr>
               <tr>
                 <td>{{ form.image_sep.errors }}</td>
-                <td>{{ form.image_sep.label_tag }}</td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.image_sep.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.image_sep.help_text|safe }}</div>
+		</td>
                 <td>{{ form.image_sep }}</td>
               </tr>
               <tr>
                 <td>{{ form.z_lens.errors }}</td>
-                <td>{{ form.z_lens.label_tag }}</td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.z_lens.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.z_lens.help_text|safe }}</div>
+		</td>
                 <td>{{ form.z_lens }}</td>
               </tr>
               <tr>
                 <td>{{ form.z_source.errors }}</td>
-                <td>{{ form.z_source.label_tag }}</td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.z_source.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.z_source.help_text|safe }}</div>
+		</td>
                 <td>{{ form.z_source }}</td>
               </tr>
               <tr>
                 <td>{{ form.flag_confirmed.errors }}</td>
-                <td>{{ form.flag_confirmed.label_tag }}</td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.flag_confirmed.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.flag_confirmed.help_text|safe }}</div>
+		</td>
                 <td>{{ form.flag_confirmed }}</td>
               </tr>
               <tr>
                 <td>{{ form.flag_contaminant.errors }}</td>
-                <td>{{ form.flag_contaminant.label_tag }}</td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.flag_contaminant.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.flag_contaminant.help_text|safe }}</div>
+		</td>
                 <td>{{ form.flag_contaminant }}</td>
               </tr>
             </table>
@@ -77,22 +98,34 @@ Update Lens {{ lens.name }}
             <table>
               <tr>
                 <td>{{ form.n_img.errors }}</td>
-                <td>{{ form.n_img.label_tag }}</td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.n_img.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.n_img.help_text|safe }}</div>
+		</td>
                 <td>{{ form.n_img }}</td>
               </tr>
               <tr>
                 <td>{{ form.lens_type.errors }}</td>
-                <td>{{ form.lens_type.label_tag }}</td>
+                <td>
+		  <div class="sled-help-tooltip">{{ form.lens_type.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.lens_type.help_text|safe }}</div>
+		</td>
                 <td>{{ form.lens_type }}</td>
               </tr>
               <tr>
                 <td>{{ form.source_type.errors }}</td>
-                <td>{{ form.source_type.label_tag }}</td>
+                <td>
+		  <div class="sled-help-tooltip">{{ form.source_type.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.source_type.help_text|safe }}</div>
+		</td>
                 <td>{{ form.source_type }}</td>
               </tr>
               <tr>
                 <td>{{ form.image_conf.errors }}</td>
-                <td>{{ form.image_conf.label_tag }}</td>
+                <td>
+		  <div class="sled-help-tooltip">{{ form.image_conf.label_tag }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.image_conf.help_text|safe }}</div>
+		</td>
                 <td>{{ form.image_conf }}</td>
               </tr>
               <tr>
@@ -148,6 +181,7 @@ Update Lens {{ lens.name }}
 
 
 {% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 {{ form.media.js }}
 <script type="text/javascript">
   function readURL(input, $img) {
@@ -163,6 +197,8 @@ Update Lens {{ lens.name }}
       var $img = $(this).parent().parent().parent().find('img');
       readURL(this, $img);
   });
+
+  set_help();
   
   $('.my-select2').select2();
 </script>

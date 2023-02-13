@@ -28,7 +28,11 @@ Update Spectrum
       <tbody>
 	{% for field in form %}
 	<tr>
-	  <td>{{ field.name }}</td>
+	  <td>{{ field.error }}</td>
+          <td>
+	    <div class="sled-help-tooltip">{{ field.label_tag }}</div>
+	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
+	  </td>
 	  <td>{{ field }}</td>
 	</tr>
 	{% endfor %}
@@ -38,6 +42,14 @@ Update Spectrum
 
 </div>
 {% endblock content %}
+
+
+{% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
+<script type="text/javascript">
+  set_help();
+</script>
+{% endblock extrascripts %}
 
 
 {% block action_button %}

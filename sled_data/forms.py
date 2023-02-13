@@ -22,14 +22,13 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
             self.fields['owner'].widget = forms.HiddenInput()
         if 'lens' in self.fields:
             self.fields['lens'].widget = forms.HiddenInput()
-        self.fields['date_taken'] = forms.DateField(
-            widget=forms.SelectDateWidget(
-                empty_label=("Year", "Month", "Day"),
-                years=reversed(range(1950,timezone.now().year+10))
-            )
+        self.fields['date_taken'].widget=forms.SelectDateWidget(
+            empty_label=("Year", "Month", "Day"),
+            years=reversed(range(1950,timezone.now().year+10))
         )
         self.fields['info'].widget.attrs['rows'] = 3
         self.fields['info'].widget.attrs['cols'] = 30
+        self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
 
     def clean(self):
         if not self.has_changed():
@@ -107,17 +106,17 @@ class CatalogueBaseForm(BaseCreateUpdateDataForm):
 class ImagingCreateFormModal(ImagingBaseForm,BSModalModelForm):
     class Meta(ImagingBaseForm):
         model = Imaging
-        exclude = ()
+        exclude = ['exists']
 
 class SpectrumCreateFormModal(SpectrumBaseForm,BSModalModelForm):
     class Meta(SpectrumBaseForm):
         model = Spectrum
-        exclude = ()
+        exclude = ['exists']
 
 class CatalogueCreateFormModal(CatalogueBaseForm,BSModalModelForm):
     class Meta(CatalogueBaseForm):
         model = Catalogue
-        exclude = ()
+        exclude = ['exists']
 ##############################################################################
 
 

@@ -317,11 +317,11 @@ class DataUpdateManyView(TemplateView):
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
 
         if obj_type == "Imaging":
-            DataFormSet = inlineformset_factory(Users,Imaging,formset=forms.DataUpdateManyFormSet,form=forms.ImagingUpdateForm,extra=0)
+            DataFormSet = inlineformset_factory(Users,Imaging,formset=forms.DataUpdateManyFormSet,form=forms.ImagingUpdateForm,extra=0,can_delete=False)
         elif obj_type == "Spectrum":
-            DataFormSet = inlineformset_factory(Users,Spectrum,formset=forms.DataUpdateManyFormSet,form=forms.SpectrumUpdateForm,extra=0)
+            DataFormSet = inlineformset_factory(Users,Spectrum,formset=forms.DataUpdateManyFormSet,form=forms.SpectrumUpdateForm,extra=0,can_delete=False)
         elif obj_type == "Catalogue":
-            DataFormSet = inlineformset_factory(Users,Catalogue,formset=forms.DataUpdateManyFormSet,form=forms.CatalogueUpdateForm,extra=0)
+            DataFormSet = inlineformset_factory(Users,Catalogue,formset=forms.DataUpdateManyFormSet,form=forms.CatalogueUpdateForm,extra=0,can_delete=False)
         else:
             message = 'Unknown data type given!'
             return TemplateResponse(request,'simple_message.html',context={'message':message})
