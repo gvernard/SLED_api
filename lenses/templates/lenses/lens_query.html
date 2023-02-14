@@ -14,6 +14,7 @@
       Instructions for queries and joined queries.
     </p>
   </div>
+
   
   <div class="jb-table-no-lines2">
     <form id="lens-query" method="POST">
@@ -23,11 +24,11 @@
       {% with fwf=forms_with_fields %}
       <ul class="nav nav-tabs" id="myTab">
 	<li class="nav-item">
-	  <button class="nav-link {% get_tab_active fwe fwf 'default' %}" id="default-tab" data-toggle="tab" data-target="#default" type="button">
+	  <button class="nav-link {% get_tab_active fwe fwf 'lenses' %}" id="lenses-tab" data-toggle="tab" data-target="#lenses" type="button">
 	    Lens properties
-	    {% if 'imaging' in fwe %}
+	    {% if 'lenses' in fwe %}
 	    <span class="badge badge-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
-	    {% elif 'imaging' in fwf %}
+	    {% elif 'lenses' in fwf %}
 	    <span class="badge badge-pill badge-success"><img src="{% static 'icons/check.svg' %}"></span>
 	    {% endif %}
 	  </button>
@@ -70,7 +71,7 @@
       </ul>
       <div class="tab-content" id="myTabContent">
 
-	<div class="data-form tab-pane fade show {% get_tab_active fwe fwf 'default' %}" id="default">
+	<div class="data-form tab-pane fade show {% get_tab_active fwe fwf 'lenses' %}" id="lenses">
 	  {% with form=lens_form %}
 
 	  {% if form.non_field_errors|length > 0 %}
@@ -581,7 +582,7 @@
       Export to csv
     </button>-->
 
-    <button type="button" id="export" class="sled-export-function jb-submit-button-1" data-form-url="{% url 'lenses:export-csv' all_lens_ids %}">
+    <button type="button" id="export" class="sled-export-function jb-submit-button-1" data-form-url="{% url 'lenses:export-csv' all_lens_ids|default:'none' %}">
       <img src="{% static 'icons/folder-fill.svg' %}">
       Export all lenses
     </button>
@@ -615,4 +616,34 @@
 {{ lens_form.media.js }}
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_query.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+      $('.data-form').find('input').change(function(){
+	  var id = $(this).parents('.data-form').attr('id');
+	  
+	  var exist = 0;
+	  $('#'+id).find('input').each(function(){
+	      if( !$(this).attr('name').match('instrument_and') ){
+		  if( $(this).attr('type') == "checkbox" ){
+		      if( $(this).is(":checked") ) {
+			  exist++;
+		      }
+		  } else if( $(this).val().length != 0 ){
+		      exist++;
+		  }
+	      }
+	  });
+	  
+	  var target = $('#myTab button[data-target="#'+id+'"]');
+	  console.log(exist,target.html());
+	  if( exist == 0 ){
+	      target.children('.badge').remove();
+	  } else {
+	      if( target.children('.badge').length == 0 ){
+		  target.append("<span class=\"badge badge-pill badge-success\"><img src=\"{% static 'icons/check.svg' %}\"></span>");
+	      }
+	  }
+      });  
+  });
+</script>
 {% endblock extrascripts %}

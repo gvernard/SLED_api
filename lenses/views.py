@@ -968,16 +968,16 @@ class LensQueryView(TemplateView):
 
         forms_with_fields = []
         forms_with_errors = []
-        zipped = zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form])
+        zipped = zip(['lenses','imaging','spectrum','catalogue'],[lens_form,imaging_form,spectrum_form,catalogue_form])
         for name,form in zipped:
             if form.is_valid():
                 if form.cleaned_data:
                     forms_with_fields.append(name)
             else:
                 forms_with_errors.append(name)
-
+                
         page_number = request.get('lenses-page',1)
-        if len(forms_with_errors) == 0 and lens_form.is_valid():
+        if len(forms_with_errors) == 0:
             lenses_page,lenses_range,lenses_count,all_lens_ids = self.combined_query(page_number,lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,

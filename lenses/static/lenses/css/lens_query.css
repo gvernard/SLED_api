@@ -98,8 +98,7 @@ input:checked + .slider:before {
 
 .sled-lens-table {
     table-layout: fixed;
-    width:800px;
-    margin: 0px auto;
+    width: 100%;
 }
 
 .sled-lens-table > tbody > tr > td:nth-child(1) {
