@@ -223,6 +223,7 @@ class LensQueryForm(forms.Form):
     ra_min = forms.DecimalField(required=False,
                                 max_digits=7,
                                 decimal_places=4,
+                                label="RA<sub>min</sub>",
                                 help_text="The minimum RA [degrees].",
                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                 validators=[MinValueValidator(0.0,"RA must be positive."),
@@ -230,6 +231,7 @@ class LensQueryForm(forms.Form):
     ra_max = forms.DecimalField(required=False,
                                 max_digits=7,
                                 decimal_places=4,
+                                label="RA<sub>max</sub>",
                                 help_text="The maximum RA [degrees].",
                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                 validators=[MinValueValidator(0.0,"RA must be positive."),
@@ -237,6 +239,7 @@ class LensQueryForm(forms.Form):
     dec_min = forms.DecimalField(required=False,
                                  max_digits=6,
                                  decimal_places=4,
+                                 label="DEC<sub>min</sub>",
                                  help_text="The minimum DEC [degrees].",
                                  widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                  validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
@@ -244,38 +247,43 @@ class LensQueryForm(forms.Form):
     dec_max = forms.DecimalField(required=False,
                                  max_digits=6,
                                  decimal_places=4,
+                                 label="DEC<sub>max</sub>",
                                  help_text="The maximum DEC [degrees].",
                                  widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                  validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
                                              MaxValueValidator(90,"DEC must be below 90 degrees.")])
-
-
     ra_centre = forms.DecimalField(required=False,
-                                 help_text="RA centre of cone search",
-                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
-                                 validators=[MinValueValidator(0.0,"RA must be positive."),
-                                             MaxValueValidator(360,"RA must be less than 360 degrees.")])
+                                   label="RA<sub>0</sub>",
+                                   help_text="RA centre of cone search [degrees].",
+                                   widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                   validators=[MinValueValidator(0.0,"RA must be positive."),
+                                               MaxValueValidator(360,"RA must be less than 360 degrees.")])
     dec_centre = forms.DecimalField(required=False,
-                                 help_text="DEC centre of cone search",
-                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
-                                 validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
-                                             MaxValueValidator(90,"DEC must be below 90 degrees.")])
+                                    label="DEC<sub>0</sub>",
+                                    help_text="DEC centre of cone search [degrees].",
+                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                    validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
+                                                MaxValueValidator(90,"DEC must be below 90 degrees.")])
     radius = forms.DecimalField(required=False,
-                                 help_text="Radius in degrees for cone search",
-                                 widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
-                                 validators=[MinValueValidator(0,"Radius must be greater than 0 be above -90 degrees.")])
+                                label="Radius",
+                                help_text="Radius for cone search [degrees].",
+                                widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                validators=[MinValueValidator(0,"Radius must be greater than 0 be above -90 degrees.")])
 
     n_img_min = forms.IntegerField(required=False,
+                                   label="N<sub>images,min</sub>",
                                    help_text="Minimum number of source images.",
                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                    validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                                MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     n_img_max = forms.IntegerField(required=False,
+                                   label="N<sub>images,max</sub>",
                                    help_text="Maximum number of source images.",
                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                    validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                                MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     image_sep_min = forms.DecimalField(required=False,
+                                       label="Separation<sub>min</sub>",
                                        max_digits=4,
                                        decimal_places=2,
                                        widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
@@ -283,6 +291,7 @@ class LensQueryForm(forms.Form):
                                        validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                    MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
     image_sep_max = forms.DecimalField(required=False,
+                                       label="Separation<sub>max</sub>",
                                        max_digits=4,
                                        decimal_places=2,
                                        help_text="Maximum image separation or arc radius [arcsec].",
@@ -290,6 +299,7 @@ class LensQueryForm(forms.Form):
                                        validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                    MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
     z_source_min = forms.DecimalField(required=False,
+                                      label="Z<sub>source,min</sub>",
                                       max_digits=4,
                                       decimal_places=3,
                                       help_text="The minimum redshift of the source.",
@@ -297,6 +307,7 @@ class LensQueryForm(forms.Form):
                                       validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                   MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
     z_source_max = forms.DecimalField(required=False,
+                                      label="Z<sub>source,max</sub>",
                                       max_digits=4,
                                       decimal_places=3,
                                       help_text="The maximum redshift of the source.",
@@ -304,6 +315,7 @@ class LensQueryForm(forms.Form):
                                       validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                   MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
     z_lens_min = forms.DecimalField(required=False,
+                                    label="Z<sub>lens,min</sub>",
                                     max_digits=4,
                                     decimal_places=3,
                                     help_text="The minimum redshift of the lens.",
@@ -311,6 +323,7 @@ class LensQueryForm(forms.Form):
                                     validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                 MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     z_lens_max = forms.DecimalField(required=False,
+                                    label="Z<sub>lens,max</sub>",
                                     max_digits=4,
                                     decimal_places=3,
                                     help_text="The maximum redshift of the lens.",
@@ -319,32 +332,38 @@ class LensQueryForm(forms.Form):
                                                 MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     
     score_min = forms.DecimalField(required=False,
+                                   label="Score<sub>min</sub>",
                                    max_digits=7,
                                    decimal_places=4,
-                                   help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
+                                   help_text="The minimum score of the candidate based on the classification guidelines (between 0 and 3).",
                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                    validators=[MinValueValidator(0.0,"Score must be positive."),
                                                MaxValueValidator(3.,"Score must be less than or equal to 3.")])
 
     score_max = forms.DecimalField(required=False,
+                                   label="Score<sub>max</sub>",
                                    max_digits=7,
                                    decimal_places=4,
-                                   help_text="The score of the candidate based on the classification guidelines (between 0 and 3).",
+                                   help_text="The maximum score of the candidate based on the classification guidelines (between 0 and 3).",
                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                    validators=[MinValueValidator(0.0,"Score must be positive."),
                                                MaxValueValidator(3.,"Score must be less than or equal to 3.")])
 
 
     flag_confirmed     = forms.NullBooleanField(required=False,
+                                                label="Confirmed",
                                                 widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
                                                 help_text="Select only confirmed lenses (confirmed field set to True).", initial=None)
     flag_unconfirmed   = forms.NullBooleanField(required=False,
+                                                label="Unconfirmed",
                                                 widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
                                                 help_text="Select only un-confirmed lenses (confirmed field set to False).", initial=None)
     flag_contaminant   = forms.NullBooleanField(required=False,
+                                                label="Contaminant",
                                                 widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
                                                 help_text="Select only confirmed contaminants (contaminant field set to True).", initial=None)
     flag_uncontaminant = forms.NullBooleanField(required=False,
+                                                label="Non-contaminant",
                                                 widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
                                                 help_text="Select only unconfirmed contaminants (contaminant field set to False).", initial=None)
     
@@ -366,7 +385,8 @@ class LensQueryForm(forms.Form):
     lens_type = forms.MultipleChoiceField(choices=LensTypeChoices,
                                           widget=ds2_widget,
                                           required=False,
-                                          help_text="The type of the lensing galaxy.")
+                                          label="Lens type",
+                                          help_text="Select the type of the lensing galaxy.")
     
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -390,7 +410,8 @@ class LensQueryForm(forms.Form):
     source_type = forms.MultipleChoiceField(choices=SourceTypeChoices,
                                             widget=ds2_widget,
                                             required=False,
-                                            help_text="The type of the source.")
+                                            label="Source type",
+                                            help_text="Select the type of the source.")
     
 
 
@@ -412,7 +433,8 @@ class LensQueryForm(forms.Form):
     image_conf = forms.MultipleChoiceField(choices=ImageConfChoices,
                                            widget=ds2_widget,
                                            required=False,
-                                           help_text="The image configuration.")
+                                           label="Image configuration",
+                                           help_text="Select the image configuration.")
 
 
     page = forms.IntegerField(required=False,widget=forms.HiddenInput())
@@ -484,7 +506,7 @@ class LensQueryForm(forms.Form):
 class DataBaseQueryForm(forms.Form):
     instrument_and = forms.BooleanField(required=False,
                                         label='Instrument AND/OR',
-                                        help_text="The selected instruments will be joined in an AND or OR query.",
+                                        help_text="Join the selected instruments as an AND or OR clause.",
                                         widget=forms.CheckboxInput(attrs={'class': 'custom-control-input',
                                                                           'id': 'customSwitch1'
                                                                           })
@@ -492,6 +514,7 @@ class DataBaseQueryForm(forms.Form):
 
     date_taken_min = forms.DateField(
         required = False,
+        label='Date taken<sub>min</sub>',
         help_text="The minimum date the data were taken.",
         widget = forms.SelectDateWidget(
             empty_label = ("Year", "Month", "Day"),
@@ -500,6 +523,7 @@ class DataBaseQueryForm(forms.Form):
     )
     date_taken_max = forms.DateField(
         required = False,
+        label='Date taken<sub>max</sub>',
         help_text="The maximum date the data were taken.",
         widget = forms.SelectDateWidget(
             empty_label = ("Year", "Month", "Day"),
@@ -508,6 +532,7 @@ class DataBaseQueryForm(forms.Form):
     )
     future = forms.NullBooleanField(
         required = False,
+        label='Future',
         help_text="True if the data will be taken in the future.",
         widget = forms.Select(
             choices = [
@@ -562,12 +587,14 @@ class ImagingQueryForm(DataBaseQueryForm):
     exposure_time_min = forms.DecimalField(required=False,
                                            max_digits=8,
                                            decimal_places=4,
+                                           label = 'Exposure time<sub>min</sub>',
                                            help_text="The minimum exposure time [s].",
                                            widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                            validators=[MinValueValidator(0.0,"Exposure type must be positive.")]
                                            )
     exposure_time_max = forms.DecimalField(required=False,
                                            max_digits=8,
+                                           label = 'Exposure time<sub>max</sub>',
                                            decimal_places=4,
                                            help_text="The maximum exposure time [s].",
                                            widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
@@ -576,6 +603,7 @@ class ImagingQueryForm(DataBaseQueryForm):
     pixel_size_min = forms.DecimalField(required=False,
                                         max_digits=7,
                                         decimal_places=4,
+                                        label = 'Pixel size<sub>min</sub>',
                                         help_text="The minimum pixel size [arcsec].",
                                         widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                         validators=[MinValueValidator(0.0,"Pixel size must be positive.")]
@@ -583,6 +611,7 @@ class ImagingQueryForm(DataBaseQueryForm):
     pixel_size_max = forms.DecimalField(required=False,
                                         max_digits=7,
                                         decimal_places=4,
+                                        label = 'Pixel size<sub>max</sub>',
                                         help_text="The maximum pixel size [arcsec].",
                                         widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                         validators=[MinValueValidator(0.0,"Pixel size must be positive.")]
@@ -611,6 +640,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
     exposure_time_min = forms.DecimalField(required=False,
                                            max_digits=8,
                                            decimal_places=4,
+                                           label = 'Exposure time<sub>min</sub>',
                                            help_text="The minimum exposure time [s].",
                                            widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                            validators=[MinValueValidator(0.0,"Exposure type must be positive.")]
@@ -618,6 +648,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
     exposure_time_max = forms.DecimalField(required=False,
                                            max_digits=8,
                                            decimal_places=4,
+                                           label = 'Exposure time<sub>max</sub>',
                                            help_text="The maximum exposure time [s].",
                                            widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                            validators=[MinValueValidator(0.0,"Exposure type must be positive.")]
@@ -625,6 +656,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
     wavelength_min = forms.DecimalField(required=False,
                                         max_digits=10,
                                         decimal_places=4,
+                                        label = '&lambda;<sub>min</sub>',
                                         help_text="The minimum wavelength [nm].",
                                         widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                         validators=[MinValueValidator(0.0,"Wavelength must be positive.")]
@@ -632,6 +664,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
     wavelength_max = forms.DecimalField(required=False,
                                         max_digits=10,
                                         decimal_places=4,
+                                        label = '&lambda;<sub>max</sub>',
                                         help_text="The maximum wavelength [nm].",
                                         widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                         validators=[MinValueValidator(0.0,"Wavelength must be positive.")]
@@ -639,6 +672,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
     resolution_min = forms.DecimalField(required=False,
                                         max_digits=7,
                                         decimal_places=4,
+                                        label = 'Resolution<sub>min</sub>',
                                         help_text="The minimum spectral resolution [nm].",
                                         widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                         validators=[MinValueValidator(0.0,"Wavelength resolution must be positive.")]
@@ -646,6 +680,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
     resolution_max = forms.DecimalField(required=False,
                                         max_digits=7,
                                         decimal_places=4,
+                                        label = 'Resolution<sub>max</sub>',
                                         help_text="The maximum spectral resolution [nm].",
                                         widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                         validators=[MinValueValidator(0.0,"Wavelength resolution must be positive.")]
@@ -682,6 +717,7 @@ class CatalogueQueryForm(DataBaseQueryForm):
     distance_min = forms.DecimalField(required=False,
                                       max_digits=7,
                                       decimal_places=4,
+                                      label = 'Distance<sub>min</sub>',
                                       help_text="The minimum distance from the lens [arcsec].",
                                       widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                       validators=[MinValueValidator(0.0,"Distance must be positive.")]
@@ -689,6 +725,7 @@ class CatalogueQueryForm(DataBaseQueryForm):
     distance_max = forms.DecimalField(required=False,
                                       max_digits=7,
                                       decimal_places=4,
+                                      label = 'Distance<sub>max</sub>',
                                       help_text="The maximum distance from the lens [arcsec].",
                                       widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                       validators=[MinValueValidator(0.0,"Distance must be positive.")]
@@ -696,6 +733,7 @@ class CatalogueQueryForm(DataBaseQueryForm):
     mag_min = forms.DecimalField(required=False,
                                  max_digits=7,
                                  decimal_places=4,
+                                 label = 'Mag<sub>min</sub>',
                                  help_text="The minimum detection magnitude",
                                  widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                  validators=[MinValueValidator(0.0,"Magnitude must be positive.")]
@@ -703,6 +741,7 @@ class CatalogueQueryForm(DataBaseQueryForm):
     mag_max = forms.DecimalField(required=False,
                                  max_digits=7,
                                  decimal_places=4,
+                                 label = 'Mag<sub>max</sub>',
                                  help_text="The maximum detection magnitude",
                                  widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                  validators=[MinValueValidator(0.0,"Magnitude must be positive.")]

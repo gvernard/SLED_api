@@ -479,7 +479,7 @@ class LensUpdateView(TemplateView):
                     os.makedirs(path)
                 for i,form in enumerate(myformset.forms):
                     if 'mugshot' in myformset.forms[i].changed_data:
-                        print(myformset.forms[i].cleaned_data['mugshot'])
+                        #print(myformset.forms[i].cleaned_data['mugshot'])
                         input_field_name = myformset.forms[i]['mugshot'].html_name
                         name = myformset.forms[i].cleaned_data['mugshot'].name
                         f = request.FILES[input_field_name]
@@ -912,7 +912,7 @@ class LensQueryView(TemplateView):
     def lens_search(self,lenses,form,user):
         keywords = list(form.keys())
         values = [form[keyword] for keyword in keywords]
-        print(form)
+
         #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
         over_meridian = False
         if 'ra_min' in form and 'ra_max' in form:

@@ -73,9 +73,11 @@ class DataBase(models.Model):
                              on_delete=models.CASCADE,
                              related_name="%(class)s")
     instrument = models.ForeignKey(Instrument,
+                                   verbose_name="Instrument",
                                    to_field='name',
                                    on_delete=models.CASCADE)
     date_taken = models.DateField(blank=False,
+                                  verbose_name="Date taken",
                                   help_text="The date when the data were taken (can be in the future).")
     exists = models.BooleanField(default=True,
                                  blank=True, 
@@ -114,6 +116,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     # Field-of-view probably needs to be stored as a rectangular in ra,dec space (Polygon? GeoDjango type?)
     band = models.ForeignKey(Band,
                              to_field='name',
+                             verbose_name="Band",
                              on_delete=models.CASCADE)
     image = models.ImageField(blank=True,
                               upload_to='data/imaging')
@@ -180,14 +183,14 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                                      null=True,
                                      max_digits=10,
                                      decimal_places=3,
-                                     verbose_name="Minimum &lambda;",
+                                     verbose_name="&lambda;<sub>min</sub>",
                                      help_text="The minimum wavelength of the spectrum [nm].",
                                      validators=[MinValueValidator(0.0,"Minimum wavelength must be positive."),])
     lambda_max = models.DecimalField(blank=True,
                                      null=True,
                                      max_digits=10,
                                      decimal_places=3,
-                                     verbose_name="Maximum &lambda;",
+                                     verbose_name="&lambda;<sub>max</sub>",
                                      help_text="The maximum wavelength of the spectrum [nm].",
                                      validators=[MinValueValidator(0.0,"Maximum wavelength must be positive."),])
     exposure_time = models.DecimalField(blank=True,
