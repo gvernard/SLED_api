@@ -75,7 +75,7 @@ class DataBase(models.Model):
     instrument = models.ForeignKey(Instrument,
                                    verbose_name="Instrument",
                                    to_field='name',
-                                   on_delete=models.CASCADE)
+                                   on_delete=models.PROTECT)
     date_taken = models.DateField(blank=False,
                                   verbose_name="Date taken",
                                   help_text="The date when the data were taken (can be in the future).")
@@ -117,7 +117,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     band = models.ForeignKey(Band,
                              to_field='name',
                              verbose_name="Band",
-                             on_delete=models.CASCADE)
+                             on_delete=models.PROTECT)
     image = models.ImageField(blank=True,
                               upload_to='data/imaging')
 
@@ -296,7 +296,10 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                                    verbose_name="Distance",
                                    help_text="Distance from the RA,dec of the lens [arcsec].",
                                    validators=[MinValueValidator(0.0,"Distance must be positive."),])
-    band = models.ForeignKey(Band,to_field='name',on_delete=models.CASCADE)
+    band = models.ForeignKey(Band,
+                             to_field='name',
+                             verbose_name="Band",
+                             on_delete=models.PROTECT)
 
     FIELDS_TO_CHECK = ['instrument','band','radet','decdet','mag','Dmag','distance','date_taken','info','future']
         

@@ -31,7 +31,7 @@ def get_tab_active(fwe,fwf,name):
             else:
                 return ''
         else:
-            if name == 'default':
+            if name == 'lenses':
                 return 'show active'
             else:
                 return ''
