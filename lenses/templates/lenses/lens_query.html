@@ -563,6 +563,7 @@
   {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count target="lenses" %}
 
   <div>
+    <input type="hidden" id="lenses-count" value="{{ lenses_count }}" >
     <form id="ids-form" method="POST">
       {% csrf_token %}
       {% include "lenses/lens_query_list.html" with lenses=lenses %}

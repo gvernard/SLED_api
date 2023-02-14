@@ -31,14 +31,19 @@ $(document).ready(function() {
 
     $(".sled-process-lenses").click(function() {
 	// Check if queryset is empty
-	
+	var lenses_count = $('#lenses-count').val();
+	if( lenses_count == 0 ){
+	    alert('The query result is empty!');
+	    return;
+	}
+
 	// Construct get query string
 	var values = [];
 	$('#exe_summary input[type="checkbox"]:checked').each(function() {
             values.push('ids=' + $(this).val());
 	});
 	if( values.length == 0 ){
-            if( confirm('This will select the entire query result, i.e. lenses!\nAre you sure you want to proceed?') ){
+            if( confirm('This will select the entire query result, i.e. '+lenses_count+' lenses!\nAre you sure you want to proceed?') ){
 		var get_str = '?' + $("#lens-query").serialize() + '&';
 	    }
 	} else {
