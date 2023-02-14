@@ -56,7 +56,7 @@ class Band(models.Model):
 
     wavelength = models.FloatField(blank=False,
                                    default=0,
-                                   help_text="Central wavelength of the band in Angstroms")
+                                   help_text="Central wavelength of the band [nm].")
 
     class Meta():
         ordering = ["wavelength"]
