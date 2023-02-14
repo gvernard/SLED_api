@@ -30,44 +30,26 @@ $(document).ready(function() {
     });
 
     $(".sled-process-lenses").click(function() {
+	// Check if queryset is empty
+	
 	// Construct get query string
 	var values = [];
 	$('#exe_summary input[type="checkbox"]:checked').each(function() {
             values.push('ids=' + $(this).val());
 	});
-	
-	if (values.length == 0) {
-            alert('You need to select at least one item!');
+	if( values.length == 0 ){
+            if( confirm('This will select the entire query result, i.e. lenses!\nAre you sure you want to proceed?') ){
+		var get_str = '?' + $("#lens-query").serialize() + '&';
+	    }
 	} else {
             var get_str = '?' + values.join('&') + '&';
-            
-            // Fetch only the first part of the URL (without any GET arguments)
-            var url = $(this).data('form-url').split('?');
-            var url_core = url[0];
-            
-            // Trigger modal
-            var new_form_url = url_core + get_str;
-            $(this).modalFormTrigger({
-		formURL: new_form_url,
-		modalID: "#id-modal"
-            });
 	}
-    });
-    
-    $(".sled-export-function").click(function() {
-	// Construct get query string
-	var values = [];
-	$('#exe_summary input[type="checkbox"]:checked').each(function() {
-            values.push('ids=' + $(this).val());
-	});
-	
-        var get_str = '?' + values.join('&') + '&';
-	
+
         // Fetch only the first part of the URL (without any GET arguments)
         var url = $(this).data('form-url').split('?');
         var url_core = url[0];
-	
-        // Trigger modal
+        
+        // Combine base URL with GET arguments and trigger modal
         var new_form_url = url_core + get_str;
         $(this).modalFormTrigger({
 	    formURL: new_form_url,

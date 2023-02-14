@@ -748,7 +748,7 @@ class CatalogueQueryForm(DataBaseQueryForm):
                                  )
 
     def clean(self):
-        super(CatalogueQueryForm,self).clean()    
+        super(CatalogueQueryForm,self).clean()
         if self.cleaned_data.get('distance_min') and self.cleaned_data.get('distance_max'):
             if float(self.cleaned_data.get('distance_min')) > float(self.cleaned_data.get('distance_max')):
                 self.add_error('__all__','The maximum distance is lower than the minimum.')                
@@ -758,13 +758,11 @@ class CatalogueQueryForm(DataBaseQueryForm):
 
 
 
-class DownloadForm(BSModalModelForm):
-
-    class Meta:
-        model = Lenses
-        fields = ['name']
-        widgets = {
-            'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
-            'item_type': forms.HiddenInput()
-        }
-
+class DownloadForm(BSModalForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+    N = forms.IntegerField(required=False,
+                           label="N<sub>images,min</sub>",
+                           help_text="Minimum number of source images.",
+                           widget=forms.NumberInput(attrs={"disabled": True}),
+                           )
+    
