@@ -174,10 +174,13 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
             os.mkdir(settings.MEDIA_ROOT+'/imaging/')
         sled_fname = '/imaging/' + str( self.pk ) + '.png'
         if fname != sled_fname:
-            os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
-            print(self.image.name)
+            print(settings.MEDIA_ROOT+fname)
+            print(os.path.exists(settings.MEDIA_ROOT+fname))
+            print(settings.MEDIA_ROOT+sled_fname)
+            print(os.path.exists(settings.MEDIA_ROOT+sled_fname))
+            os.system('mv '+settings.MEDIA_ROOT+fname+' '+settings.MEDIA_ROOT+sled_fname)
+            #os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.image.name = sled_fname
-            print(self.image.name)
 
 
         super(Imaging,self).save(*args,**kwargs)

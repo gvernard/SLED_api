@@ -39,6 +39,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         
     def save(self,*args,**kwargs):
         if self._state.adding:
+            super().save(*args,**kwargs)
             self.user_set.add(self.owner)
         else:
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
@@ -57,7 +58,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             if len(dirty) > 0:
                 action.send(self.owner,target=self,verb='UpdateLog',level='info',fields=json.dumps(dirty))
 
-        super().save(*args,**kwargs)
+            super().save(*args,**kwargs)
 
         
     def delete(self):
