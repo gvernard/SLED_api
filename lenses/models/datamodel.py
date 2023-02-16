@@ -114,6 +114,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                              on_delete=models.CASCADE)
     image = models.ImageField(blank=True,
                               upload_to='data/imaging')
+    url = models.URLField(max_length=300)
 
     
     class Meta():
@@ -156,10 +157,15 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
             
         # Create new file and remove old one
         fname = '/'+self.image.name
-        sled_fname = '/data/imaging/' + str( self.pk ) + '.png'
+        if not os.path.exists(settings.MEDIA_ROOT+'/imaging/'):
+            os.mkdir(settings.MEDIA_ROOT+'/imaging/')
+        sled_fname = '/imaging/' + str( self.pk ) + '.png'
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+            print(self.image.name)
             self.image.name = sled_fname
+            print(self.image.name)
+
 
         super(Imaging,self).save(*args,**kwargs)
 
@@ -238,7 +244,9 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
 
         # Create new file and remove old one
         fname = '/'+self.image.name
-        sled_fname = '/data/spectrum/' + str( self.pk ) + '.png'
+        if not os.path.exists(settings.MEDIA_ROOT+'/spectrum/'):
+            os.mkdir(settings.MEDIA_ROOT+'/spectrum/')
+        sled_fname = '/spectrum/' + str( self.pk ) + '.png'
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.image.name = sled_fname

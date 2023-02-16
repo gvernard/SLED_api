@@ -16,11 +16,18 @@
     <tr><td>Exp. time:</td><td>{{ imaging.exposure_time }}</td></tr>
     <tr><td>Pixel size:</td><td>{{ imaging.pixel_size }}</td></tr>
     <tr><td>Info:</td><td>{{ imaging.info }}</td></tr>
+
   </table>
+
+  {% if imaging.url %}
+  Data URL: <a href={{ imaging.url }}> {{ imaging.url }} </a>
+  {% endif %}
   
   {% if imaging.future %}
   Future
   {% else %}
+
+
   <img src="{{ imaging.image.url }}" style="width:100%">
   {% endif %}
 
