@@ -1,5 +1,6 @@
 from django import template
 from django.apps import apps
+import simplejson as json
 
 from lenses.models import Users
 
@@ -37,3 +38,18 @@ def get_ad_col_url(ad_col):
     else:
         url = ad_col.get_absolute_url()
     return url
+
+@register.filter(name='loadjson')
+def loadjson(data):
+    json_data = json.loads(data)
+    return json_data
+
+@register.filter(name='split')
+def split(value, key):
+    return value.split(key)
+
+@register.filter(name='get_str')
+def get_str(obj):
+    return obj.__str__()
+
+

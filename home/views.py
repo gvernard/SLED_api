@@ -13,8 +13,8 @@ class HomePageView(TemplateView):
         context = {'stream': stream}
         return context
 
-class HomeAllActivityView(TemplateView):
-    template_name = 'home/home_all_activity.html'
+class ActivityHomeDetailedView(TemplateView):
+    template_name = 'home/activity_home_detailed.html'
 
     def get_context_data(self, **kwargs):
         stream = target_stream(Users.objects.get(username='admin'))
@@ -22,8 +22,11 @@ class HomeAllActivityView(TemplateView):
         # Paginator for stream
         stream_paginator = Paginator(stream,50)
         stream_page_number = self.request.GET.get('stream-page',1)
-        context = {'N_stream_total': stream_paginator.count,
-                   'stream_range': stream_paginator.page_range,
-                   'stream': stream_paginator.get_page(stream_page_number)
-                   }
+        context = {
+            'N_stream_total': stream_paginator.count,
+            'stream_range': stream_paginator.page_range,
+            'stream': stream_paginator.get_page(stream_page_number)
+        }
+
+        [print(action) for action in stream_paginator.get_page(stream_page_number)]
         return context

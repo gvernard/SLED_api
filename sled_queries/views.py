@@ -128,3 +128,31 @@ class QueryLinkView(BSModalReadView):
 
     def get_queryset(self):
         return SledQuery.objects.all()
+
+
+
+
+        
+# View for dynamic lens queries and collections
+@method_decorator(login_required,name='dispatch')
+class StandardQueriesView(ListView):
+    model = SledQuery
+    allow_empty = True
+    template_name = 'lenses/lens_all_collections.html'
+
+    def get_queryset(self):
+        admin = Users.objects.get(username='admin')
+        admin_queries = SledQuery.accessible_objects.owned(admin)
+        return admin_queries
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        admin = Users.objects.get(username='admin')
+        admin_queries = SledQuery.accessible_objects.owned(admin)
+        context['queries'] = admin_queries
+
+        collections = Collection.accessible_objects.owned(admin)
+        context['collections'] = collections
+        return context
+
+

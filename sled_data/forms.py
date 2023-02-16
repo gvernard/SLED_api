@@ -22,14 +22,13 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
             self.fields['owner'].widget = forms.HiddenInput()
         if 'lens' in self.fields:
             self.fields['lens'].widget = forms.HiddenInput()
-        self.fields['date_taken'] = forms.DateField(
-            widget=forms.SelectDateWidget(
-                empty_label=("Year", "Month", "Day"),
-                years=reversed(range(1950,timezone.now().year+10))
-            )
+        self.fields['date_taken'].widget=forms.SelectDateWidget(
+            empty_label=("Year", "Month", "Day"),
+            years=reversed(range(1950,timezone.now().year+10))
         )
         self.fields['info'].widget.attrs['rows'] = 3
         self.fields['info'].widget.attrs['cols'] = 30
+        self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
 
     def clean(self):
         if not self.has_changed():
@@ -47,6 +46,8 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
 
 
 class ImagingBaseForm(BaseCreateUpdateDataForm):
+    field_order = ['instrument','band','date_taken','future','exposure_time','pixel_size','info','image']
+
     class Meta(BaseCreateUpdateDataForm):
         model = Imaging
         exclude = ['exists']
@@ -66,6 +67,8 @@ class ImagingBaseForm(BaseCreateUpdateDataForm):
 
 
 class SpectrumBaseForm(BaseCreateUpdateDataForm):
+    field_order = ['instrument','date_taken','future','exposure_time','lambda_min','lambda_max','resolution','info','image']
+
     class Meta(BaseCreateUpdateDataForm):
         model = Spectrum
         exclude = ['exists']
@@ -85,6 +88,8 @@ class SpectrumBaseForm(BaseCreateUpdateDataForm):
 
 
 class CatalogueBaseForm(BaseCreateUpdateDataForm):
+    field_order = ['instrument','band','date_taken','future','radet','decdet','distance','mag','Dmag','info']
+
     class Meta(BaseCreateUpdateDataForm):
         model = Catalogue
         exclude = ['exists']
@@ -101,17 +106,17 @@ class CatalogueBaseForm(BaseCreateUpdateDataForm):
 class ImagingCreateFormModal(ImagingBaseForm,BSModalModelForm):
     class Meta(ImagingBaseForm):
         model = Imaging
-        exclude = ()
+        exclude = ['exists']
 
 class SpectrumCreateFormModal(SpectrumBaseForm,BSModalModelForm):
     class Meta(SpectrumBaseForm):
         model = Spectrum
-        exclude = ()
+        exclude = ['exists']
 
 class CatalogueCreateFormModal(CatalogueBaseForm,BSModalModelForm):
     class Meta(CatalogueBaseForm):
         model = Catalogue
-        exclude = ()
+        exclude = ['exists']
 ##############################################################################
 
 
@@ -122,34 +127,34 @@ class CatalogueCreateFormModal(CatalogueBaseForm,BSModalModelForm):
 class ImagingUpdateForm(ImagingBaseForm):
     class Meta(ImagingBaseForm):
         model = Imaging
-        exclude = ['instrument','band','lens','owner','access_level','exists']
+        exclude = ['lens','owner','access_level','exists']
         
 class ImagingUpdateFormModal(BSModalModelForm,ImagingBaseForm):
     class Meta(ImagingBaseForm):
         model = Imaging
-        exclude = ['instrument','band','lens','owner','access_level','exists']
+        exclude = ['lens','owner','access_level','exists']
 
         
 class SpectrumUpdateForm(SpectrumBaseForm):
     class Meta(SpectrumBaseForm):
         model = Spectrum
-        exclude = ['instrument','band','lens','owner','access_level','exists']
+        exclude = ['lens','owner','access_level','exists']
         
 class SpectrumUpdateFormModal(BSModalModelForm,SpectrumBaseForm):
     class Meta(SpectrumBaseForm):
         model = Spectrum
-        exclude = ['instrument','band','lens','owner','access_level','exists']
+        exclude = ['lens','owner','access_level','exists']
 
         
 class CatalogueUpdateForm(CatalogueBaseForm):
     class Meta(CatalogueBaseForm):
         model = Catalogue
-        exclude = ['instrument','band','lens','owner','access_level','exists']
+        exclude = ['lens','owner','access_level','exists']
         
 class CatalogueUpdateFormModal(BSModalModelForm,CatalogueBaseForm):
     class Meta(CatalogueBaseForm):
         model = Catalogue
-        exclude = ['instrument','band','lens','owner','access_level','exists']
+        exclude = ['lens','owner','access_level','exists']
 
         
 class DataUpdateManyFormSet(forms.BaseInlineFormSet):

@@ -1,9 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse_lazy
+from django.urls import reverse,reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView
+from django.db.models import ProtectedError
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -55,4 +56,10 @@ class BandDeleteView(BSModalDeleteView):
     success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'bands'})
     context_object_name = 'band'
 
-
+    def post(self,request,*args,**kwargs):
+        try:
+            return self.delete(request,*args,**kwargs)
+        except ProtectedError as e:
+            list(messages.get_messages(request))
+            messages.add_message(self.request,messages.ERROR,'Cannot delete Band <strong>%s</strong> because it is being used (protected foreign key)!' % self.object.name)
+            return redirect(reverse('sled_users:user-admin',kwargs={'hash':'bands'}))

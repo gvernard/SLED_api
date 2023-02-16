@@ -2,7 +2,7 @@ import os
 from collections import OrderedDict,defaultdict
 from django.shortcuts import render, redirect
 from django.urls import reverse,reverse_lazy
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 from django.db import connection
@@ -27,6 +27,7 @@ from urllib.parse import urlparse
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band
 
 from . import forms
+from . import query_utils
 
 from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView,BSModalCreateView
 
@@ -34,6 +35,7 @@ from bootstrap_modal_forms.utils import is_ajax
 
 from notifications.signals import notify
 from actstream import action
+from actstream.actions import follow,unfollow,is_following
 
 import numpy as np
 from pprint import pprint
@@ -181,7 +183,7 @@ class LensUpdateModalView(BSModalUpdateView):
     form_class = forms.LensModalUpdateForm
     context_object_name = 'lens'
     success_message = 'Success: Lens was successfully updated.'
-   
+
     def get_queryset(self):
         return Lenses.accessible_objects.owned(self.request.user)
 
@@ -196,24 +198,63 @@ class LensUpdateModalView(BSModalUpdateView):
                 receiver = Users.objects.filter(id=self.request.user.id) # receiver must be a queryset
                 mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
                 return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
-            else:
-                instance.save()
 
         response = super().form_valid(form)
         return response
-
+        
     def get_success_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.object.id})
-    
+
+
+@method_decorator(login_required,name='dispatch')
+class ExportToCSV(ModalIdsBaseMixin):
+    template_name = 'lenses/csv_download.html'
+    form_class = forms.DownloadForm
+    success_url = reverse_lazy('lenses:lens-query')
+
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids',None)
+        if not ids:
+            ids = query_utils.get_combined_qset(self.request.GET,self.request.user)
+        ids_str = ','.join(ids)
+        return {'ids': ids_str,'N':len(ids)}
+
+    def my_form_valid(self,form):
+        ids = form.cleaned_data['ids'].split(',')
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment;filename=lenses.csv'
+        writer = csv.writer(response)
+        field_names = ['ra',
+                       'dec',
+                       'name',
+                       'alt_name',
+                       'flag_confirmed',
+                       'flag_contaminant',
+                       'flag_candidate',
+                       'score',
+                       'image_sep',
+                       'z_source',
+                       'z_source_secure',
+                       'z_lens',
+                       'z_lens_secure',
+                       'info',
+                       'n_img',
+                       'image_conf',
+                       'lens_type',
+                       'source_type',
+                       'contaminant_type']
+        writer.writerow(field_names)
+        for lens in lenses:
+            writer.writerow([getattr(lens,field) for field in field_names])
+        return response
+
 #=============================================================================================================================
 ### END: Modal views
 #=============================================================================================================================
 
 
-
-#=============================================================================================================================
-### BEGIN: Non-modal views (to add and update lenses and handle duplicates)
-#=============================================================================================================================
 
 # View for a single lens
 @method_decorator(login_required,name='dispatch')
@@ -232,6 +273,7 @@ class LensDetailView(DetailView):
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allcataloguedata = list(Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True))
 
+        following = is_following(self.request.user,context['lens'])
         
         ## Imaging data
         #for each instrument associate only one image per band for now
@@ -329,6 +371,7 @@ class LensDetailView(DetailView):
             labels.append(flags)
         paper_labels = [ ','.join(x) for x in labels ]
 
+        context['following'] = following
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
@@ -478,7 +521,7 @@ class LensUpdateView(TemplateView):
                     os.makedirs(path)
                 for i,form in enumerate(myformset.forms):
                     if 'mugshot' in myformset.forms[i].changed_data:
-                        print(myformset.forms[i].cleaned_data['mugshot'])
+                        #print(myformset.forms[i].cleaned_data['mugshot'])
                         input_field_name = myformset.forms[i]['mugshot'].html_name
                         name = myformset.forms[i].cleaned_data['mugshot'].name
                         f = request.FILES[input_field_name]
@@ -503,6 +546,8 @@ class LensUpdateView(TemplateView):
                 return TemplateResponse(request,'simple_message.html',context={'message':'No lenses to display. Select some from your user profile.'})
 
 
+
+    
 # View to manage merging duplicate lenses, e.g. from a user making public some private lenses that already exist as public by another user
 @method_decorator(login_required,name='dispatch')
 class LensResolveDuplicatesView(TemplateView):
@@ -592,7 +637,7 @@ class LensResolveDuplicatesView(TemplateView):
 
 
 
-
+# View to add data to lenses
 @method_decorator(login_required,name='dispatch')
 class LensAddDataView(TemplateView):
     template_name = 'lenses/lens_add_data.html'
@@ -684,8 +729,9 @@ class LensAddDataView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
 
+
 # View for lens Collage
-#@method_decorator(login_required,name='dispatch')
+@method_decorator(login_required,name='dispatch')
 class LensCollageView(ListView):
     model = Lenses
     allow_empty = True
@@ -707,257 +753,13 @@ class LensCollageView(ListView):
         return TemplateResponse(request,'simple_message.html',context={'message':'You are accessing this page in an unauthorized way.'})
 
 
-@method_decorator(login_required,name='dispatch')
-class ExportToCsv(BSModalCreateView):
-    template_name = 'lenses/csv_download.html'
-    form_class = forms.DownloadForm
-    success_url = reverse_lazy('lenses:lens-query')
-
-    def get_initial(self):
-        ids = self.kwargs['all_lens_ids'].split(',')
-        ids_str = ','.join(ids)
-        return {'ids': ids_str}
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        ids = self.kwargs['all_lens_ids'].split(',')
-        print(ids)
-        items = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        context['items'] = items
-        return context
-
-    def form_valid(self,form):
-        if not is_ajax(self.request.META):
-            ids = self.kwargs['all_lens_ids'].split(',')
-            print(ids)
-            items = Lenses.accessible_objects.in_ids(self.request.user,ids)
-            print(items)
-            opts = items.model._meta
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment;filename=lenses.csv'
-
-            writer = csv.writer(response)
-            #field_names = [field.name for field in opts.fields]
-            field_names = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','score','image_sep','z_source','z_source_secure','z_lens','z_lens_secure','info','n_img','image_conf','lens_type','source_type','contaminant_type']
-            writer.writerow(field_names)
-            for obj in items:
-                writer.writerow([getattr(obj, field) for field in field_names])
-            return response
-        else:
-            response = super().form_valid(form)
-            return response
-
-
-# View for dynamic lens queries and collections
-@method_decorator(login_required,name='dispatch')
-class StandardQueriesView(ListView):
-    model = SledQuery
-    allow_empty = True
-    template_name = 'lenses/lens_all_collections.html'
-
-    def get_queryset(self):
-        admin = Users.objects.get(username='admin')
-        admin_queries = SledQuery.accessible_objects.owned(admin)
-        return admin_queries
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        admin = Users.objects.get(username='admin')
-        admin_queries = SledQuery.accessible_objects.owned(admin)
-        context['queries'] = admin_queries
-
-        collections = Collection.accessible_objects.owned(admin)
-        context['collections'] = collections
-        return context
-
 
 
 # View for lens queries
 @method_decorator(login_required,name='dispatch')
 class LensQueryView(TemplateView):
     template_name = 'lenses/lens_query.html'
-
     
-    def combined_query(self,page_number,lens_form,imaging_form,spectrum_form,catalogue_form,user):
-        #start with available lenses
-        lenses = Lenses.accessible_objects.all(user)
-
-        if lens_form:
-            print('Lenses form has values')
-            lenses = self.lens_search(lenses,lens_form,user)
-            print(len(lenses))
-
-        if imaging_form:
-            print('Imaging form has values')
-            lenses = self.imaging_search(lenses,imaging_form,user)
-            print(len(lenses))
-
-        if spectrum_form:
-            print('Spectrum not empty')
-            lenses = self.spectrum_search(lenses,spectrum_form,user)
-            print(len(lenses))
-
-        if catalogue_form:
-            print('CATALOGUE not empty')
-            lenses = self.catalogue_search(lenses,catalogue_form,user)
-            print(len(lenses))
-
-        # Paginator for lenses
-        lens_ids = [str(lens.id) for lens in lenses]
-        all_lens_ids = ','.join(lens_ids)
-        paginator = Paginator(lenses,50)
-        lenses_page = paginator.get_page(page_number)
-        lenses_count = paginator.count
-        lenses_range = paginator.page_range
-        return lenses_page,lenses_range,lenses_count,all_lens_ids
-
-
-    def catalogue_search(self,lenses,cleaned_form,user):
-        conditions = Q(catalogue__exists=True)
-        for key,value in cleaned_form.items():
-            if key not in ['instrument','instrument_and'] and value != None:
-                if '_min' in key:
-                    conditions.add(Q(**{'catalogue__'+key.split('_min')[0]+'__gte':value}),Q.AND)
-                elif '_max' in key:
-                    conditions.add(Q(**{'catalogue__'+key.split('_max')[0]+'__lte':value}),Q.AND)
-                else:
-                    conditions.add(Q(**{'catalogue__'+key:value}),Q.AND)
-
-        instrument = cleaned_form.get('instrument',None)
-        if instrument:
-            if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
-                sets = []
-                for item in instrument:
-                    sets.append( set(lenses.filter(conditions & Q(catalogue__instrument__name=item)).values_list('id',flat=True)) )
-                final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
-                lenses = Lenses.accessible_objects.all(user).filter(id__in=final)
-            else:
-                q = Q()
-                for item in instrument:
-                    q.add( Q(catalogue__instrument__name=item), Q.OR )
-                lenses = lenses.filter(conditions & q).distinct()
-        else:
-            lenses = lenses.filter(conditions).distinct()
-        return lenses
-
-    
-    def spectrum_search(self,lenses,cleaned_form,user):
-        conditions = Q(spectrum__exists=True)
-        for key,value in cleaned_form.items():
-            if key not in ['instrument','instrument_and','wavelength_min','wavelength_max'] and value != None:
-                if '_min' in key:
-                    conditions.add(Q(**{'spectrum__'+key.split('_min')[0]+'__gte':value}),Q.AND)
-                elif '_max' in key:
-                    conditions.add(Q(**{'spectrum__'+key.split('_max')[0]+'__lte':value}),Q.AND)
-                else:
-                    conditions.add(Q(**{'spectrum__'+key:value}),Q.AND)
-
-        wavelength_min = cleaned_form.get('wavelength_min',None)
-        wavelength_max = cleaned_form.get('wavelength_max',None)
-        if wavelength_min and wavelength_max:
-            conditions.add( Q(spectrum__lambda_min__range=(wavelength_min,wavelength_max)) | Q(spectrum__lambda_max__range=(wavelength_min,wavelength_max)) ,Q.AND)
-        elif wavelength_max:
-            conditions.add( Q(spectrum__lambda_min__lt=wavelength_max) ,Q.AND)
-        elif wavelength_min:
-            conditions.add( Q(spectrum__lambda_max__gt=wavelength_min) ,Q.AND)
-                    
-        instrument = cleaned_form.get('instrument',None)
-        if instrument:
-            if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
-                sets = []
-                for item in instrument:
-                    sets.append( set(lenses.filter(conditions & Q(spectrum__instrument__name=item)).values_list('id',flat=True)) )
-                final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
-                lenses = Lenses.accessible_objects.all(user).filter(id__in=final)
-            else:
-                q = Q()
-                for item in instrument:
-                    q.add( Q(spectrum__instrument__name=item), Q.OR )
-                lenses = lenses.filter(conditions & q).distinct()
-        else:
-            lenses = lenses.filter(conditions).distinct()
-        return lenses
-
-    
-    def imaging_search(self,lenses,cleaned_form,user):
-        conditions = Q(imaging__exists=True)
-        for key,value in cleaned_form.items():
-            if key not in ['instrument','instrument_and'] and value != None:
-                if '_min' in key:
-                    conditions.add(Q(**{'imaging__'+key.split('_min')[0]+'__gte':value}),Q.AND)
-                elif '_max' in key:
-                    conditions.add(Q(**{'imaging__'+key.split('_max')[0]+'__lte':value}),Q.AND)
-                else:
-                    conditions.add(Q(**{'imaging__'+key:value}),Q.AND)
-
-        instrument = cleaned_form.get('instrument',None)
-        if instrument:
-            if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
-                sets = []
-                for item in instrument:
-                    sets.append( set(lenses.filter(conditions & Q(imaging__instrument__name=item)).values_list('id',flat=True)) )
-                final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
-                lenses = Lenses.accessible_objects.all(user).filter(id__in=final)
-            else:
-                q = Q()
-                for item in instrument:
-                    q.add( Q(imaging__instrument__name=item), Q.OR )
-                lenses = lenses.filter(conditions & q).distinct()
-        else:
-            lenses = lenses.filter(conditions).distinct()
-        return lenses
-    
-
-    def lens_search(self,lenses,form,user):
-        keywords = list(form.keys())
-        values = [form[keyword] for keyword in keywords]
-        print(form)
-        #decide if special attention needs to be paid to the fact that the search is done over the RA=0hours line
-        over_meridian = False
-        if 'ra_min' in form and 'ra_max' in form:
-            if float(form['ra_min']) > float(form['ra_max']):
-                over_meridian = True
-
-        #now apply the filter for each non-null entry
-        for k, value in enumerate(values):
-            if value!=None:
-                if 'ra_' in keywords[k] and over_meridian:
-                    continue
-                if '_min' in keywords[k]:
-                    args = {keywords[k].split('_min')[0]+'__gte':float(value)}
-                    lenses = lenses.filter(**args).order_by('ra')
-                elif '_max' in keywords[k]:
-                    args = {keywords[k].split('_max')[0]+'__lte':float(value)}
-                    lenses = lenses.filter(**args).order_by('ra')
-
-                if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
-                    if len(value) > 0:
-                        search_params = Q()
-                        for i in range(len(value)):
-                            search_params = search_params | Q((keywords[k]+'__contains', value[i]))
-                            if i==len(value)-1:
-                                lenses = lenses.filter(search_params)
-                                
-                if 'flag_' in keywords[k]:
-                    if 'flag_un' in keywords[k]:
-                        keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
-                        value = False
-                        args = {keywords[k]:value}
-                        lenses = lenses.filter(**args)
-                    else:
-                        args = {keywords[k]:value}
-                        lenses = lenses.filter(**args)    
-                        
-        #come back to the special case where RA_min is less than 0hours
-        if over_meridian:
-            lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
-
-        if 'ra_centre' in form:
-            lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(form['ra_centre'], form['dec_centre'], lenses=lenses,radius=float(form['radius'])*3600.)
-
-        return lenses
-
-
 
     def my_response(self,request,user):
         lens_form = forms.LensQueryForm(request,prefix="lens")
@@ -967,17 +769,23 @@ class LensQueryView(TemplateView):
 
         forms_with_fields = []
         forms_with_errors = []
-        zipped = zip(['imaging','spectrum','catalogue'],[imaging_form,spectrum_form,catalogue_form])
+        zipped = zip(['lenses','imaging','spectrum','catalogue'],[lens_form,imaging_form,spectrum_form,catalogue_form])
         for name,form in zipped:
             if form.is_valid():
                 if form.cleaned_data:
                     forms_with_fields.append(name)
             else:
                 forms_with_errors.append(name)
+                
+        if len(forms_with_errors) == 0:
+            qset = query_utils.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
 
-        page_number = request.get('lenses-page',1)
-        if len(forms_with_errors) == 0 and lens_form.is_valid():
-            lenses_page,lenses_range,lenses_count,all_lens_ids = self.combined_query(page_number,lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            # Paginator
+            paginator = Paginator(qset,50)
+            lenses_page = paginator.get_page( request.get('lenses-page',1) )
+            lenses_count = paginator.count
+            lenses_range = paginator.page_range
+
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
@@ -987,7 +795,7 @@ class LensQueryView(TemplateView):
                        'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
                        'forms_with_errors': forms_with_errors,
-                       'all_lens_ids': all_lens_ids}
+                       }
         else:
             context = {'lenses': None,
                        'lenses_range': [],
@@ -998,7 +806,7 @@ class LensQueryView(TemplateView):
                        'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
                        'forms_with_errors':forms_with_errors,
-                       'all_lens_ids': ''}
+                       }
         return context
 
     
@@ -1018,3 +826,20 @@ class LensQueryView(TemplateView):
 #=============================================================================================================================
 ### END: Non-modal views
 #=============================================================================================================================
+
+def follow_unfollow(request):
+    if request.is_ajax and request.method == "GET":
+        
+        action = request.GET.get("action",None)
+        user = Users.objects.get(pk=request.GET.get("user_id",None))
+        lens = Lenses.objects.get(pk=request.GET.get("lens_id",None))
+        if action == 'follow':
+            follow(user,lens,actor_only=False,send_action=False)
+            return JsonResponse({"action":action,"message":"Now following "+lens.__str__()},status=200)
+        elif action == 'unfollow':
+            unfollow(user,lens,send_action=False)
+            return JsonResponse({"action":action,"message":"Stopped following "+lens.__str__()},status=200)
+        else:
+            return JsonResponse({"message":"Action can only be 'follow' or 'unfollow'. Something went wrong, please try again later or report this to the admins!"},status=200)
+    return JsonResponse({}, status = 400)
+

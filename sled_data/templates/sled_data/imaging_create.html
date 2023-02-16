@@ -23,51 +23,16 @@ Add Imaging data?
     {{ form.lens }}
     <table>
       <tbody>
+	{% for field in form.visible_fields %}
 	<tr>
-	  <td>{{ form.instrument.error }}</td>
-	  <td>{{ form.instrument.label_tag }}</td>
-	  <td>{{ form.instrument }}</td>
+	  <td>{{ field.error }}</td>
+          <td>
+	    <div class="sled-help-tooltip">{{ field.label_tag }}</div>
+	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
+	  </td>
+	  <td>{{ field }}</td>
 	</tr>
-	<tr>
-	  <td>{{ form.band.error }}</td>
-	  <td>{{ form.band.label_tag }}</td>
-	  <td>{{ form.band }}</td>
-	</tr>
-	<tr>
-	  <td>{{ form.access_level.error }}</td>
-	  <td>{{ form.access_level.label_tag }}</td>
-	  <td>{{ form.access_level }}</td>
-	</tr>
-	<tr>
-	  <td>{{ form.future.error }}</td>
-	  <td>{{ form.future.label_tag }}</td>
-	  <td>{{ form.future }}</td>
-	</tr>
-	<tr>
-	  <td>{{ form.date_taken.error }}</td>
-	  <td>{{ form.date_taken.label_tag }}</td>
-	  <td>{{ form.date_taken }}</td>
-	</tr>
-	<tr>
-	  <td>{{ form.exposure_time.error }}</td>
-	  <td>{{ form.exposure_time.label_tag }}</td>
-	  <td>{{ form.exposure_time }}</td>
-	</tr>
-	<tr>
-	  <td>{{ form.pixel_size.error }}</td>
-	  <td>{{ form.pixel_size.label_tag }}</td>
-	  <td>{{ form.pixel_size }}</td>
-	</tr>
-	<tr>
-	  <td>{{ form.info.error }}</td>
-	  <td>{{ form.info.label_tag }}</td>
-	  <td>{{ form.info }}</td>
-	</tr>
-	<tr>
-	  <td>{{ form.image.error }}</td>
-	  <td>{{ form.image.label_tag }}</td>
-	  <td>{{ form.image }}</td>
-	</tr>
+	{% endfor %}
       </tbody>
     </table>
   </div>
@@ -77,6 +42,10 @@ Add Imaging data?
 
 
 {% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
+<script type="text/javascript">
+  set_help();
+</script>
 {% endblock extrascripts %}
 
 

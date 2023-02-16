@@ -11,6 +11,7 @@ from guardian.shortcuts import assign_perm, remove_perm
 
 from notifications.signals import notify
 from actstream import action
+from actstream.actions import unfollow
 
 from operator import itemgetter
 from itertools import groupby
@@ -257,7 +258,9 @@ class Users(AbstractUser,GuardianUserMixin):
                                 verb='RevokeAccessNote',
                                 level='error',
                                 timestamp=timezone.now(),
-                                action_object=ad_col)    
+                                action_object=ad_col)
+                    for obj in revoked_objects_per_user:
+                        unfollow(user,obj)
                 else:
                     action.send(self,target=user,verb='RevokeAccessGroup',level='error',action_object=ad_col)  # here the user is actually a group
 
@@ -390,11 +393,11 @@ class Users(AbstractUser,GuardianUserMixin):
                 ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
                 action.send(self,target=gwa[i],verb='MadePublicGroup',level='info',action_object=ad_col)
 
-            # Finally, update only those objects that need to be updated in a single query
+            # Finally, update only those objects that need to be updated
             #####################################################
             for obj in target_objs:
                 obj.access_level = 'PUB'
-            model_ref.accessible_objects.bulk_update(target_objs,['access_level'])
+                obj.save()
 
             ad_col = AdminCollection.objects.create(item_type=object_type,myitems=target_objs)
             action.send(self,target=Users.getAdmin().first(),verb='MadePublicHome',level='info',action_object=ad_col)
@@ -484,39 +487,41 @@ class Users(AbstractUser,GuardianUserMixin):
             return Users.objects.none()
     
     def remove_from_third_collections(self,objects,user):
-        obj_col_ids = list(objects.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
-        object_type = objects[0]._meta.model.__name__
-        model_ref = apps.get_model(app_label="lenses",model_name=object_type)
-        if len(obj_col_ids) > 0:
-            all_cols = list(Collection.accessible_objects.owned(user))
-            all_cols_ids = [col.id for col in all_cols]
-             
-            pairs = [] 
-            for tmp in obj_col_ids:
-                for col_id in tmp['col_ids'].split(','):
-                    col_index = all_cols_ids.index(int(col_id))
-                    pairs.append((tmp['id'],col_index))
-            col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
-             
-            final_cols = []
-            for index in col_index_obj_ids.keys():
-                to_remove = model_ref.objects.filter(id__in=col_index_obj_ids[index])
-                all_cols[index].removeItems(user,to_remove)
-                final_cols.append(all_cols[index])
-            # for i in range(0,len(col_index_obj_ids)):
-            #     print(all_cols[i],col_index_obj_ids[i])
-            #     to_remove = model_ref.accessible_objects.in_ids(user,list(col_index_obj_ids[i]))
-            #     all_cols[i].removeItems(user,to_remove)
-            #     final_col_ids.append(all_cols[i].id)
-            # #print(final_col_ids)                    
+        user_type = user._meta.model.__name__
+        if user_type == 'SledGroup':
+            obj_col_ids = list(objects.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
+            object_type = objects[0]._meta.model.__name__
+            model_ref = apps.get_model(app_label="lenses",model_name=object_type)
+            if len(obj_col_ids) > 0:
+                all_cols = list(Collection.accessible_objects.owned(user))
+                all_cols_ids = [col.id for col in all_cols]
+            
+                pairs = [] 
+                for tmp in obj_col_ids:
+                    for col_id in tmp['col_ids'].split(','):
+                        col_index = all_cols_ids.index(int(col_id))
+                        pairs.append((tmp['id'],col_index))
+                        col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
+                    
+                final_cols = []
+                for index in col_index_obj_ids.keys():
+                    to_remove = model_ref.objects.filter(id__in=col_index_obj_ids[index])
+                    all_cols[index].removeItems(user,to_remove)
+                    final_cols.append(all_cols[index])
+                    # for i in range(0,len(col_index_obj_ids)):
+                    #     print(all_cols[i],col_index_obj_ids[i])
+                    #     to_remove = model_ref.accessible_objects.in_ids(user,list(col_index_obj_ids[i]))
+                    #     all_cols[i].removeItems(user,to_remove)
+                    #     final_col_ids.append(all_cols[i].id)
+                    # #print(final_col_ids)                    
 
-            ad_col = AdminCollection.objects.create(item_type=final_cols[0]._meta.model.__name__,myitems=final_cols)    
-            notify.send(sender=self,
-                        recipient=user,
-                        verb='RemovedFromThirdCollectionNote',
-                        level='error',
-                        timestamp=timezone.now(),
-                        action_object=ad_col)
+                ad_col = AdminCollection.objects.create(item_type=final_cols[0]._meta.model.__name__,myitems=final_cols)    
+                notify.send(sender=self,
+                            recipient=user,
+                            verb='RemovedFromThirdCollectionNote',
+                            level='error',
+                            timestamp=timezone.now(),
+                            action_object=ad_col)
 
 
             

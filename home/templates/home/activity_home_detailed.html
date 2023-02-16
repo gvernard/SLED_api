@@ -6,7 +6,7 @@
 <div class="jb-container">
   
   {% include "pagination_top.html" with qset=stream request=request qset_range=stream_range qset_total=N_stream_total %}
-  {% include "activity_all.html" with stream=stream %}
+  {% include "home/activity_home.html" with stream=stream %}
   {% include "pagination_bottom.html" with qset=stream request=request qset_range=stream_range qset_total=N_stream_total %}
 
 </div>

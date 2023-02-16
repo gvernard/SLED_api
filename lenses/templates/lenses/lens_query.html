@@ -8,180 +8,34 @@
 
 <div class="jb-container">
   <h1 class="jb-heading-1">Query Lenses</h1>
+
+  <div class="instructions">
+    <p>
+      Instructions for queries and joined queries.
+    </p>
+  </div>
+
   
   <div class="jb-table-no-lines2">
     <form id="lens-query" method="POST">
       {% csrf_token %}
 
-      <div>
-	<h1 class="jb-heading-2">Lens properties</h1>
-	
-	{% if lens_form.non_field_errors|length > 0 %}
-	<div class="invalid jb-modal-field">
-	  <ul>
-	    {% for error in lens_form.non_field_errors %}
-	    <li>{{ error }}</li>
-	    {% endfor %}
-	  </ul>
-	</div>
-	{% endif %}
-
-	{% with form=lens_form %}
-	<table>
-          <tr>
-            <td>
-
-
-
-	      <div class="container">
-		<br>
-		<!-- Nav tabs -->
-		<ul class="nav nav-tabs" role="tablist">
-		  <li class="nav-item">
-		    <a class="nav-link active" data-toggle="tab" href="#home">Box search</a>
-		  </li>
-		  <li class="nav-item">
-		    <a class="nav-link" data-toggle="tab" href="#menu1">Cone search</a>
-		  </li>
-		</ul>
-
-		<!-- Tab panes -->
-		<div class="tab-content taba">
-		  <div id="home" class="container tab-pane active"><br>
-
-		    <table>
-		      <tr>
-			<td>{{ form.ra_min.errors }}</td>
-			<td>{{ form.ra_min }}</td>
-			<td> &lt; R.A. &lt; </td>
-			<td>{{ form.ra_max }}</td>
-			<td>{{ form.ra_max.errors }}</td>
-		      </tr>
-		      <tr>
-			<td>{{ form.dec_min.errors }}</td>
-			<td>{{ form.dec_min }}</td>
-			<td> &lt; Dec. &lt; </td>
-			<td>{{ form.dec_max }}</td>
-			<td>{{ form.dec_max.errors }}</td>
-		      </tr>
-		    </table>
-
-		  </div>
-		  <div id="menu1" class="container tab-pane"><br>
-		    
-		    <table>
-		      <tr>
-			<td> R.A. </td>
-			<td>{{ form.ra_centre }}</td>
-			<td>{{ form.ra_centre.errors }}</td>
-
-			<td> Dec. </td>
-			<td>{{ form.dec_centre }}</td>
-			<td>{{ form.dec_centre.errors }}</td>
-		      </tr>
-		      <tr>
-			<td> Radius (in deg.) </td>
-			<td>{{ form.radius }}</td>
-			<td>{{ form.radius.errors }}</td>
-		      </tr>
-		    </table>
-
-		  </div>
-		</div>
-	      </div>
-
-
-	      <!-- Tabs content -->
-              <table>
-		<tr>
-                  <td>{{ form.n_img_min.errors }}</td>
-                  <td>{{ form.n_img_min }}</td>
-                  <td> &lt; Number of images &lt; </td>
-                  <td>{{ form.n_img_max }}</td>
-                  <td>{{ form.n_img_max.errors }}</td>
-		</tr>
-		<tr>
-                  <td>{{ form.image_sep_min.errors }}</td>
-                  <td>{{ form.image_sep_min }}</td>
-                  <td> &lt; Image separation &lt; </td>
-                  <td>{{ form.image_sep_max }}</td>
-                  <td>{{ form.image_sep_max.errors }}</td>
-		</tr>
-		<tr>
-                  <td>{{ form.z_lens_min.errors }}</td>
-                  <td>{{ form.z_lens_min }}</td>
-                  <td> &lt; Lens Redshift &lt; </td>
-                  <td>{{ form.z_lens_max }}</td>
-                  <td>{{ form.z_lens_max.errors }}</td>
-		</tr>
-		<tr>
-                  <td>{{ form.z_source_min.errors }}</td>
-                  <td>{{ form.z_source_min }}</td>
-                  <td> &lt; Source redshift &lt; </td>
-                  <td>{{ form.z_source_max }}</td>
-                  <td>{{ form.z_source_max.errors }}</td>
-		</tr>
-		<tr>
-                  <td>{{ form.score_min.errors }}</td>
-                  <td>{{ form.score_min }}</td>
-                  <td> &lt; Score &lt; </td>
-                  <td>{{ form.score_max }}</td>
-                  <td>{{ form.score_max.errors }}</td>
-		</tr>
-              </table>
-            </td>
-
-            <td>
-              <table>
-		<tr>
-                  <td>Confirmed Lens?</td>
-                  <td>{{ form.flag_confirmed }}</td>
-		</tr>
-		<tr>
-                  <td>Not Confirmed Lens? </td>
-                  <td>{{ form.flag_unconfirmed }}</td>
-		</tr>
-		<tr>
-                  <td>Confirmed Contaminant?</td>
-                  <td>{{ form.flag_contaminant }}</td>
-		</tr>
-		<tr>
-                  <td>Not Confirmed Contaminant?</td>
-                  <td>{{ form.flag_uncontaminant }}</td>
-		</tr>
-		<tr>
-                  <td>Lens Type</td>
-                  <td>{{ form.lens_type }}</td>
-		</tr>
-		<tr>
-                  <td>Source Type</td>
-                  <td>{{ form.source_type }}</td>
-		</tr>
-		<tr>
-                  <td>Configuration</td>
-                  <td>{{ form.image_conf }}</td>
-		</tr>
-              </table>
-            </td>
-
-          </tr>
-	</table>
-	{{ form.page }}
-	{% endwith %}
-      </div>
-
-
       {% with fwe=forms_with_errors %}
       {% with fwf=forms_with_fields %}
       <ul class="nav nav-tabs" id="myTab">
 	<li class="nav-item">
-	  <button class="nav-link {% get_tab_active fwe fwf 'default' %}" id="default-tab" data-toggle="tab" data-target="#default" type="button">
-	    Joined Queries
+	  <button class="nav-link {% get_tab_active fwe fwf 'lenses' %}" id="lenses-tab" data-toggle="tab" data-target="#lenses" type="button">
+	    Lens properties
+	    {% if 'lenses' in fwe %}
+	    <span class="badge badge-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
+	    {% elif 'lenses' in fwf %}
+	    <span class="badge badge-pill badge-success"><img src="{% static 'icons/check.svg' %}"></span>
+	    {% endif %}
 	  </button>
 	</li>
 	<li class="nav-item">
 	  <button class="nav-link {% get_tab_active fwe fwf 'imaging' %}" id="imaging-tab" data-toggle="tab" data-target="#imaging" type="button">
-	    Imaging
+	    Imaging data
 	    {% if 'imaging' in fwe %}
 	    <span class="badge badge-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
 	    {% elif 'imaging' in fwf %}
@@ -201,7 +55,7 @@
 	</li>
 	<li class="nav-item">
 	  <button class="nav-link {% get_tab_active fwe fwf 'catalogue' %}" id="catalogue-tab" data-toggle="tab" data-target="#catalogue" type="button">
-	    Catalogues
+	    Catalogue data
 	    {% if 'catalogue' in fwe %}
 	    <span class="badge badge-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
 	    {% elif 'catalogue' in fwf %}
@@ -216,16 +70,10 @@
 	</li>
       </ul>
       <div class="tab-content" id="myTabContent">
-	<div class="data-form tab-pane fade show {% get_tab_active fwe fwf 'default' %}" id="default">
-	  <div class="instructions">
-	    <p>
-	      Instructions for joined queries
-	    </p>
-	  </div>
-	</div>
-	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'imaging' %}" id="imaging">
-	  {% with form=imaging_form %}
-	      
+
+	<div class="data-form tab-pane fade show {% get_tab_active fwe fwf 'lenses' %}" id="lenses">
+	  {% with form=lens_form %}
+
 	  {% if form.non_field_errors|length > 0 %}
 	  <div class="invalid jb-modal-field">
 	    <ul>
@@ -236,33 +84,240 @@
 	  </div>
 	  {% endif %}
 	  
-	  <table>
+	  <table class="sled-lens-table">
+            <tr>
+              <td>
+		
+		<div class="sled-cone-box">
+		  <ul class="nav nav-tabs" role="tablist">
+		    <li class="nav-item">
+		      <a class="nav-link active" data-toggle="tab" href="#home">Box search</a>
+		    </li>
+		    <li class="nav-item">
+		      <a class="nav-link" data-toggle="tab" href="#menu1">Cone search</a>
+		    </li>
+		  </ul>
+		  
+		  <div class="tab-content taba">
+		    <div id="home" class="tab-pane active"><br>
+		      <table>
+			<tr>
+			  <td>{{ form.ra_min.errors }}</td>
+			  <td>{{ form.ra_min }}</td>
+                          <td>
+			    <div class="sled-help-tooltip"><label>&lt; RA &lt;</label></div>
+			    <div class="sled-help-tooltip-content">Set the min. and max. RA [degrees]</div>
+			  </td>
+			  <td>{{ form.ra_max }}</td>
+			  <td>{{ form.ra_max.errors }}</td>
+			</tr>
+			<tr>
+			  <td>{{ form.dec_min.errors }}</td>
+			  <td>{{ form.dec_min }}</td>
+                          <td>
+			    <div class="sled-help-tooltip"><label>&lt; DEC &lt;</label></div>
+			    <div class="sled-help-tooltip-content">Set the min. and max. DEC [degrees]</div>
+			  </td>
+			  <td>{{ form.dec_max }}</td>
+			  <td>{{ form.dec_max.errors }}</td>
+			</tr>
+		      </table>  
+		    </div>
+		    
+		    <div id="menu1" class="tab-pane"><br>  
+		      <table>
+			<tr>
+                          <td>
+			    <div class="sled-help-tooltip"><label>{{ form.ra_centre.label|safe }}</label></div>
+			    <div class="sled-help-tooltip-content">{{ form.ra_centre.help_text }}</div>
+			  </td>
+			  <td>{{ form.ra_centre }}</td>
+			  <td>{{ form.ra_centre.errors }}</td>
+                          <td>
+			    <div class="sled-help-tooltip"><label>{{ form.dec_centre.label|safe }}</label></div>
+			    <div class="sled-help-tooltip-content">{{ form.dec_centre.help_text }}</div>
+			  </td>
+			  <td>{{ form.dec_centre }}</td>
+			  <td>{{ form.dec_centre.errors }}</td>
+			</tr>
+			<tr>
+                          <td>
+			    <div class="sled-help-tooltip"><label>{{ form.radius.label }}</label></div>
+			    <div class="sled-help-tooltip-content">{{ form.radius.help_text }}</div>
+			  </td>
+			  <td>{{ form.radius }}</td>
+			  <td>{{ form.radius.errors }}</td>
+			</tr>
+		      </table>
+		    </div>
+		    
+		  </div>
+		</div>
+		
+		
+		<table>
+		  <tr>
+                    <td>{{ form.n_img_min.errors }}</td>
+                    <td>{{ form.n_img_min }}</td>
+                    <td>
+		      <div class="sled-help-tooltip"><label>&lt; N<sub>images</sub> &lt;</label></div>
+		      <div class="sled-help-tooltip-content">Set the min. and max. number of images.</div>
+		    </td>
+                    <td>{{ form.n_img_max }}</td>
+                    <td>{{ form.n_img_max.errors }}</td>
+		  </tr>
+		  <tr>
+                    <td>{{ form.image_sep_min.errors }}</td>
+                    <td>{{ form.image_sep_min }}</td>
+                    <td>
+		      <div class="sled-help-tooltip"><label>&lt; Separation &lt;</label></div>
+		      <div class="sled-help-tooltip-content">Set the min. and max. image separation [arcsec].</div>
+		    </td>
+                    <td>{{ form.image_sep_max }}</td>
+                    <td>{{ form.image_sep_max.errors }}</td>
+		  </tr>
+		  <tr>
+                    <td>{{ form.z_lens_min.errors }}</td>
+                    <td>{{ form.z_lens_min }}</td>
+                    <td>
+		      <div class="sled-help-tooltip"><label>&lt; Z<sub>lens</sub> &lt;</label></div>
+		      <div class="sled-help-tooltip-content">Set the min. and max. lens redshift.</div>
+		    </td>
+                    <td>{{ form.z_lens_max }}</td>
+                    <td>{{ form.z_lens_max.errors }}</td>
+		  </tr>
+		  <tr>
+                    <td>{{ form.z_source_min.errors }}</td>
+                    <td>{{ form.z_source_min }}</td>
+                    <td>
+		      <div class="sled-help-tooltip"><label>&lt; Z<sub>source</sub> &lt;</label></div>
+		      <div class="sled-help-tooltip-content">Set the min. and max. source redshift.</div>
+		    </td>
+                    <td>{{ form.z_source_max }}</td>
+                    <td>{{ form.z_source_max.errors }}</td>
+		  </tr>
+		  <tr>
+                    <td>{{ form.score_min.errors }}</td>
+                    <td>{{ form.score_min }}</td>
+                    <td>
+		      <div class="sled-help-tooltip"><label>&lt; Score &lt;</label></div>
+		      <div class="sled-help-tooltip-content">Set the min. and max. score (between 0 and 3).</div>
+		    </td>
+                    <td>{{ form.score_max }}</td>
+                    <td>{{ form.score_max.errors }}</td>
+		  </tr>
+		</table>
+              </td>
+	      
+              <td>
+		<table>
+		  <tr>
+                    <td>
+		      <div class="sled-help-tooltip"><label>{{ form.flag_confirmed.label }}</label></div>
+		      <div class="sled-help-tooltip-content">{{ form.flag_confirmed.help_text }}</div>
+		    </td>
+                    <td>{{ form.flag_confirmed }}</td>
+		  </tr>
+		  <tr>
+                    <td>
+		      <div class="sled-help-tooltip"><label>{{ form.flag_unconfirmed.label }}</label></div>
+		      <div class="sled-help-tooltip-content">{{ form.flag_unconfirmed.help_text }}</div>
+		    </td>
+                    <td>{{ form.flag_unconfirmed }}</td>
+		  </tr>
+		  <tr>
+                    <td>
+		      <div class="sled-help-tooltip"><label>{{ form.flag_contaminant.label }}</label></div>
+		      <div class="sled-help-tooltip-content">{{ form.flag_contaminant.help_text }}</div>
+		    </td>
+                    <td>{{ form.flag_contaminant }}</td>
+		  </tr>
+		  <tr>
+                    <td>
+		      <div class="sled-help-tooltip"><label>{{ form.flag_uncontaminant.label }}</label></div>
+		      <div class="sled-help-tooltip-content">{{ form.flag_uncontaminant.help_text }}</div>
+		    </td>
+                    <td>{{ form.flag_uncontaminant }}</td>
+		  </tr>
+		  <tr>
+                    <td>
+		      <div class="sled-help-tooltip"><label>{{ form.lens_type.label }}</label></div>
+		      <div class="sled-help-tooltip-content">{{ form.lens_type.help_text }}</div>
+		    </td>
+                    <td>{{ form.lens_type }}</td>
+		  </tr>
+		  <tr>
+                    <td>
+		      <div class="sled-help-tooltip"><label>{{ form.source_type.label }}</label></div>
+		      <div class="sled-help-tooltip-content">{{ form.source_type.help_text }}</div>
+		    </td>
+                    <td>{{ form.source_type }}</td>
+		  </tr>
+		  <tr>
+                    <td>
+		      <div class="sled-help-tooltip"><label>{{ form.image_conf.label }}</label></div>
+		      <div class="sled-help-tooltip-content">{{ form.image_conf.help_text }}</div>
+		    </td>
+                    <td>{{ form.image_conf }}</td>
+		  </tr>
+		</table>
+              </td>
+	      
+            </tr>
+	  </table>
+	  {{ form.page }}
+	  {% endwith %}
+	</div>
+	
+	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'imaging' %}" id="imaging">
+	  {% with form=imaging_form %}
+	  
+	  {% if form.non_field_errors|length > 0 %}
+	  <div class="invalid jb-modal-field">
+	    <ul>
+	      {% for error in form.non_field_errors %}
+	      <li>{{ error }}</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	  {% endif %}
+	  
+	  <table class="data-form-table">
 	    <tr>
 	      <td>&nbsp;</td>
 	      <td>{{ form.instrument }}</td>
-	      <td style="vertical-align:top">
-		<div class="surro">OR</div>
-		<div class="surro">
-		  <label class="switch">
-		    {{ form.instrument_and }}
-		    <span class="slider round"></span>
+	      <td>
+		<div class="sled-help-tooltip" style="margin-top:0px;height:30px;">
+		  <label>
+		    <table>
+		      <tr>
+			<td>OR</td>
+			<td>
+			  <div class="switch">
+			    {{ form.instrument_and }}
+			    <span class="slider round"></span>
+			  </div>
+			</td>
+			<td>AND</td>
+		      </tr>
+		    </table>
 		  </label>
 		</div>
-		<div class="surro">AND</div>
+		<div class="sled-help-tooltip-content">{{ form.instrument_and.help_text }}</div>
 	      </td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
 	    </tr>
 	    <tr>
 	      <td>&nbsp;</td>
-	      <td>Band</td>
+	      <td>{{ form.band.label }}</td>
 	      <td>{{ form.band }}</td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
 	    </tr>
 	    <tr>
 	      <td>&nbsp;</td>
-	      <td>Future</td>
+	      <td>{{ form.future.label }}</td>
 	      <td>{{ form.future }} </td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
@@ -270,27 +325,37 @@
 	    <tr>
 	      <td>{{ form.date_taken_min.errors }}</td>
 	      <td>{{ form.date_taken_min }}</td>
-	      <td>&lt; Date taken &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Date taken &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set a date range.</div>
+	      </td>
 	      <td>{{ form.date_taken_max }}</td>
 	      <td>{{ form.date_taken_max.errors }}</td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.exposure_time_min.errors }}</td>
 	      <td>{{ form.exposure_time_min }}</td>
-	      <td>&lt; Exposure time [s] &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Exposure time &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. exposure time [s].</div>
+	      </td>
 	      <td>{{ form.exposure_time_max }}</td>
 	      <td>{{ form.exposure_time_max.errors }}</td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.pixel_size_min.errors }}</td>
 	      <td>{{ form.pixel_size_min }}</td>
-	      <td>&lt; Pixel size [arcsec] &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Pixel size &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. pixel size [arcsec].</div>
+	      </td>
 	      <td>{{ form.pixel_size_max }}</td>
 	      <td>{{ form.pixel_size_max.errors }}</td>
 	    </tr>
 	  </table>
 	  {% endwith %}
 	</div>
+	
 	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'spectrum' %}" id="spectrum">
 	  {% with form=spectrum_form %}
 	  
@@ -304,26 +369,35 @@
 	  </div>
 	  {% endif %}
 	  
-	  <table>
+	  <table class="data-form-table">
 	    <tr>
 	      <td>&nbsp;</td>
 	      <td>{{ form.instrument }}</td>
-	      <td style="vertical-align:top">
-		<div class="surro">OR</div>
-		<div class="surro">
-		  <label class="switch">
-		    {{ form.instrument_and }}
-		    <span class="slider round"></span>
+	      <td>
+		<div class="sled-help-tooltip" style="margin-top:0px;height:30px;">
+		  <label>
+		    <table>
+		      <tr>
+			<td>OR</td>
+			<td>
+			  <div class="switch">
+			    {{ form.instrument_and }}
+			    <span class="slider round"></span>
+			  </div>
+			</td>
+			<td>AND</td>
+		      </tr>
+		    </table>
 		  </label>
 		</div>
-		<div class="surro">AND</div>
+		<div class="sled-help-tooltip-content">{{ form.instrument_and.help_text }}</div>
 	      </td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
 	    </tr>
 	    <tr>
 	      <td>&nbsp;</td>
-	      <td>Future</td>
+	      <td>{{ form.future.label }}</td>
 	      <td>{{ form.future }} </td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
@@ -331,34 +405,47 @@
 	    <tr>
 	      <td>{{ form.date_taken_min.errors }}</td>
 	      <td>{{ form.date_taken_min }}</td>
-	      <td>&lt; Date taken &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Date taken &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set a date range.</div>
+	      </td>
 	      <td>{{ form.date_taken_max }}</td>
 	      <td>{{ form.date_taken_max.errors }}</td>		  
 	    </tr>
 	    <tr>
 	      <td>{{ form.exposure_time_min.errors }}</td>
 	      <td>{{ form.exposure_time_min }}</td>
-	      <td>&lt; Exposure time [s] &lt;</td>
+	      <td>
+		<div class="sled-help-tooltip"><label>&lt; Exposure time &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. exposure time [s].</div>
+	      </td>
 	      <td>{{ form.exposure_time_max }}</td>
 	      <td>{{ form.exposure_time_max.errors }}</td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.wavelength_min.errors }}</td>
 	      <td>{{ form.wavelength_min }}</td>
-	      <td>&lt; Wavelength [nm] &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; &lambda; &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set a wavelength range [nm].</div>
+	      </td>
 	      <td>{{ form.wavelength_max }}</td>
 	      <td>{{ form.wavelength_max.errors }}</td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.resolution_min.errors }}</td>
 	      <td>{{ form.resolution_min }}</td>
-	      <td>&lt; Resolution [nm] &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Resolutiion &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. resolution [arcsec].</div>
+	      </td>
 	      <td>{{ form.resolution_max }}</td>
 	      <td>{{ form.resolution_max.errors }}</td>
 	    </tr>
 	  </table>
 	  {% endwith %}
 	</div>
+	
 	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'catalogue' %}" id="catalogue">
 	  {% with form=catalogue_form %}
 	  
@@ -372,33 +459,42 @@
 	  </div>
 	  {% endif %}
 	  
-	  <table>
+	  <table class="data-form-table">
 	    <tr>
 	      <td>&nbsp;</td>
 	      <td>{{ form.instrument }}</td>
-	      <td style="vertical-align:top">
-		<div class="surro">OR</div>
-		<div class="surro">
-		  <label class="switch">
-		    {{ form.instrument_and }}
-		    <span class="slider round"></span>
+	      <td>
+		<div class="sled-help-tooltip" style="margin-top:0px;height:30px;">
+		  <label>
+		    <table>
+		      <tr>
+			<td>OR</td>
+			<td>
+			  <div class="switch">
+			    {{ form.instrument_and }}
+			    <span class="slider round"></span>
+			  </div>
+			</td>
+			<td>AND</td>
+		      </tr>
+		    </table>
 		  </label>
 		</div>
-		<div class="surro">AND</div>
+		<div class="sled-help-tooltip-content">{{ form.instrument_and.help_text }}</div>
 	      </td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
 	    </tr>
 	    <tr>
 	      <td>&nbsp;</td>
-	      <td>Band</td>
+	      <td>{{ form.band.label }}</td>
 	      <td>{{ form.band }}</td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
 	    </tr>
 	    <tr>
 	      <td>&nbsp;</td>
-	      <td>Future</td>
+	      <td>{{ form.future.label }}</td>
 	      <td>{{ form.future }} </td>
 	      <td>&nbsp;</td>
 	      <td>&nbsp;</td>
@@ -406,27 +502,37 @@
 	    <tr>
 	      <td>{{ form.date_taken_min.errors }}</td>
 	      <td>{{ form.date_taken_min }}</td>
-	      <td>&lt; Date taken &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Date taken &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set a date range.</div>
+	      </td>
 	      <td>{{ form.date_taken_max }}</td>
 	      <td>{{ form.date_taken_max.errors }}</td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.distance_min.errors }}</td>
 	      <td>{{ form.distance_min }}</td>
-	      <td>&lt; Distance [arcsec] &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Distance &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. distance from the lens [arcsec].</div>
+	      </td>
 	      <td>{{ form.distance_max }}</td>
 	      <td>{{ form.distance_max.errors }}</td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.mag_min.errors }}</td>
 	      <td>{{ form.mag_min }}</td>
-	      <td>&lt; Magnitude &lt;</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Mag &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. magnitudes.</div>
+	      </td>
 	      <td>{{ form.mag_max }}</td>
 	      <td>{{ form.mag_max.errors }}</td>
 	    </tr>
 	  </table>
 	  {% endwith %}
 	</div>
+	
 	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'lensmodel' %}" id="lensmodel">
 	  <div class="instructions">
 	    <p>
@@ -434,6 +540,7 @@
 	    </p>
 	  </div>
 	</div>
+	
       </div>
       {% endwith %}
       {% endwith %}
@@ -442,11 +549,13 @@
       
 
     </form>
-    <button id="mysubmit" type="submit" class="jb-submit-button-1" form="lens-query">Submit</button>
-    <button type="button" id="save-query" class="jb-submit-button-1" data-form-url="{% url 'sled_queries:query-save' %}">
-      <img src="{% static 'icons/folder-fill.svg' %}">
-      Save query
-    </button>
+    <div>
+      <button id="mysubmit" type="submit" class="jb-submit-button-1" form="lens-query">Submit</button>
+      <button type="button" id="save-query" class="jb-submit-button-1" data-form-url="{% url 'sled_queries:query-save' %}">
+	<img src="{% static 'icons/folder-fill.svg' %}">
+	Save query
+      </button>
+    </div>
   </div>
 
 
@@ -454,6 +563,7 @@
   {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count target="lenses" %}
 
   <div>
+    <input type="hidden" id="lenses-count" value="{{ lenses_count }}" >
     <form id="ids-form" method="POST">
       {% csrf_token %}
       {% include "lenses/lens_query_list.html" with lenses=lenses %}
@@ -468,14 +578,9 @@
       See collage
     </button>
 
-    <!--<button type="button" id="export-csv" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:export-csv' %}">
-      <img src="{% static 'icons/columns-gap.svg' %}">
-      Export to csv
-    </button>-->
-
-    <button type="button" id="export" class="sled-export-function jb-submit-button-1" data-form-url="{% url 'lenses:export-csv' all_lens_ids %}">
+    <button type="button" id="export-csv" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:export-csv' %}">
       <img src="{% static 'icons/folder-fill.svg' %}">
-      Export all lenses
+      Export to csv
     </button>
 
     <button type="button" id="make-collection" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
@@ -505,5 +610,36 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 {{ lens_form.media.js }}
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_query.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+      $('.data-form').find('input').change(function(){
+	  var id = $(this).parents('.data-form').attr('id');
+	  
+	  var exist = 0;
+	  $('#'+id).find('input').each(function(){
+	      if( !$(this).attr('name').match('instrument_and') ){
+		  if( $(this).attr('type') == "checkbox" ){
+		      if( $(this).is(":checked") ) {
+			  exist++;
+		      }
+		  } else if( $(this).val().length != 0 ){
+		      exist++;
+		  }
+	      }
+	  });
+	  
+	  var target = $('#myTab button[data-target="#'+id+'"]');
+	  console.log(exist,target.html());
+	  if( exist == 0 ){
+	      target.children('.badge').remove();
+	  } else {
+	      if( target.children('.badge').length == 0 ){
+		  target.append("<span class=\"badge badge-pill badge-success\"><img src=\"{% static 'icons/check.svg' %}\"></span>");
+	      }
+	  }
+      });  
+  });
+</script>
 {% endblock extrascripts %}

@@ -2,6 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.apps import apps
+from django.db.models import Count
 
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
@@ -30,15 +31,29 @@ class SingleObjectMakePrivateForm(BSModalForm):
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for making these items private.','rows':3,'cols':30}))
                 
     def clean(self):
-        # All items MUST be public
         obj_type = self.cleaned_data.get('obj_type')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
         ids = self.cleaned_data.get('ids').split(',')
-        qset = model_ref.objects.filter(id__in=ids).filter(access_level='PRI')
-        if qset.count() > 0:
+        qset = model_ref.objects.filter(id__in=ids)
+        dum = len(qset) # this is just to evaluate the queryset
+        
+        # All items MUST be public
+        if qset.filter(access_level='PRI').count() > 0:
             self.add_error('__all__',"You are selecting already private items!")
+            return
+
+        # None of the items can be associated with a paper
+        if obj_type == 'Lenses':
+            with_papers = qset.annotate(paper_count=Count('papers')).filter(paper_count__gt=0)
+            if len(with_papers) > 0:
+                names = []
+                for lens in with_papers:
+                    names.append( lens.__str__() )
+                self.add_error('__all__',"The following %d lenses cannot be made private because they are associated with papers: %s" % (len(names),','.join(names)) )
+                return
 
 
+            
 class SingleObjectMakePublicForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())

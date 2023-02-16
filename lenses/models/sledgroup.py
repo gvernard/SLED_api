@@ -127,7 +127,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             #to_add = sled_user_qset.values_list('username',flat=True)
             #action.send(owner,target=self,verb='AddedToGroup',level='info',user_names=[u.username for u in to_add],user_urls=[u.get_absolute_url() for u in to_add])
             ad_col = AdminCollection.objects.create(item_type="Users",myitems=sled_user_qset)
-            action.send(owner,target=self,verb='AddedToGroupLog',level='success',action_object=ad_col)
+            action.send(owner,target=self,verb='AddedToGroup',level='success',action_object=ad_col)
 
             
     def removeMember(self,owner,sled_user_qset):
@@ -159,7 +159,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             #to_remove = sled_user_qset.values_list('username',flat=True)
             #action.send(owner,target=self,verb='RemovedFromGroup',level='info',user_names=[u.usernames for u in to_remove],user_urls=[u.get_absolute_url() for u in to_remove])
             ad_col = AdminCollection.objects.create(item_type="Users",myitems=sled_user_qset)
-            action.send(owner,target=self,verb='RemovedFromGroupLog',level='error',action_object=ad_col)
+            action.send(owner,target=self,verb='RemovedFromGroup',level='error',action_object=ad_col)
 
 
     def delete(self, *args, **kwargs):

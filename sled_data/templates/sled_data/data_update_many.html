@@ -67,87 +67,20 @@
                     <td>
                       <div>
                         <table>
-                          <tr>
-                            <td>{{ form.date_taken.errors }}</td>
-                            <td>{{ form.date_taken.label_tag }}</td>
-                            <td>{{ form.date_taken }}</td>
-                          </tr>
-			  {% if form.future %}
-                          <tr>
-                            <td>{{ form.future.errors }}</td>
-                            <td>{{ form.future.label_tag }}</td>
-                            <td>{{ form.future }}</td>
-                          </tr>
-			  {% endif %}
-                          <tr>
-                            <td>{{ form.info.errors }}</td>
-                            <td>{{ form.info.label_tag }}</td>
-                            <td>{{ form.info }}</td>
-                          </tr>
-
-			  {% if model == 'Imaging' %}
-                          <tr>
-                            <td>{{ form.exposure_time.errors }}</td>
-                            <td>{{ form.exposure_time.label_tag }}</td>
-                            <td>{{ form.exposure_time }}</td>
-			  </tr>
-                          <tr>
-                            <td>{{ form.pixel_size.errors }}</td>
-                            <td>{{ form.pixel_size.label_tag }}</td>
-                            <td>{{ form.pixel_size }}</td>
-			  </tr>
-			  {% elif model == 'Spectrum' %}
-                          <tr>
-                            <td>{{ form.exposure_time.errors }}</td>
-                            <td>{{ form.exposure_time.label_tag }}</td>
-                            <td>{{ form.exposure_time }}</td>
-			  </tr>
-                          <tr>
-                            <td>{{ form.lambda_min.errors }}</td>
-                            <td>{{ form.lambda_min.label_tag }}</td>
-                            <td>{{ form.lambda_min }}</td>
-			  </tr>
-                          <tr>
-                            <td>{{ form.lambda_max.errors }}</td>
-                            <td>{{ form.lambda_max.label_tag }}</td>
-                            <td>{{ form.lambda_max }}</td>
-			  </tr>
-                          <tr>
-                            <td>{{ form.resolution.errors }}</td>
-                            <td>{{ form.resolution.label_tag }}</td>
-                            <td>{{ form.resolution }}</td>
-			  </tr>
-			  {% elif model == 'Catalogue' %}
-                          <tr>
-                            <td>{{ form.radet.errors }}</td>
-                            <td>{{ form.radet.label_tag }}</td>
-                            <td>{{ form.radet }}</td>
-			  </tr>
-                          <tr>
-                            <td>{{ form.decdet.errors }}</td>
-                            <td>{{ form.decdet.label_tag }}</td>
-                            <td>{{ form.decdet }}</td>
-			  </tr>
-			  <tr>
-                            <td>{{ form.mag.errors }}</td>
-                            <td>{{ form.mag.label_tag }}</td>
-                            <td>{{ form.mag }}</td>
-			  </tr>
-			  <tr>
-                            <td>{{ form.Dmag.errors }}</td>
-                            <td>{{ form.Dmag.label_tag }}</td>
-                            <td>{{ form.Dmag }}</td>
-			  </tr>
-			  <tr>
-                            <td>{{ form.distance.errors }}</td>
-                            <td>{{ form.distance.label_tag }}</td>
-                            <td>{{ form.distance }}</td>
-			  </tr>
-			  {% else %}
-			  <tr>
-			    <td>Unknown data type</td>
-			  </tr>
-			  {% endif %}
+			  <tbody>
+			    {% for field in form.visible_fields %}
+			    {% if field.name != 'image' %}
+			    <tr>
+			      <td>{{ field.error }}</td>
+			      <td>
+				<div class="sled-help-tooltip">{{ field.label_tag }}</div>
+				<div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
+			      </td>
+			      <td>{{ field }}</td>
+			    </tr>
+			    {% endif %}
+			    {% endfor %}
+			  </tbody>
                         </table>
                       </div>
                     </td>
@@ -206,6 +139,7 @@
 
 
 {% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     function readURL(input, $img) {
@@ -221,6 +155,8 @@
       var $img = $(this).parent().parent().parent().find('img');
       readURL(this, $img);
     });
+
+      set_help();
   });
 </script>
 {% endblock extrascripts %}

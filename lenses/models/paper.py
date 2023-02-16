@@ -76,12 +76,27 @@ class Paper(SingleObject):
         return '%s' % (self.cite_as)
 
     def save(self,*args,**kwargs):
-        ad_col = AdminCollection.objects.create(item_type="Paper",myitems=[self])
-        action.send(self.owner,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
-        for lens in self.lenses_in_paper:
-            action.send(self.owner,target=lens,verb='AddPaperTargetLog',level='success',action_object=self)
         super(Paper,self).save(*args,**kwargs)
-    
+        if self._state.adding:
+            ad_col = AdminCollection.objects.create(item_type="Paper",myitems=[self])
+            action.send(self.owner,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
+            per_owner = {}
+            for lens in self.lenses_in_paper:
+                action.send(self.owner,target=lens,verb='AddPaperTargetLog',level='success',action_object=self)
+                if lens.owner in per_owner.keys():
+                    per_owner[lens.owner.username]["lenses"].append(lens)
+                else:
+                    per_owner[lens.owner.username] = {"owner":lens.owner,"lenses":[lens]}
+            for lens_owner,lenses in per_owner.items():
+                ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=lenses)
+                notify.send(sender=self.owner,
+                            recipient=lens_owner,
+                            verb='AddedPaperOwnerNote',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            action_object=ad_col,
+                            paper=self)
+                
     def get_absolute_url(self):
         return reverse('sled_papers:paper-detail',kwargs={'pk':self.id})
 

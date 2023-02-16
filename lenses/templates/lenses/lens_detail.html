@@ -16,7 +16,19 @@
       <tr>
 	<td>
 	  <div>
-            <h1 class="jb-heading-1">{{lens.name}}</h1>
+            <h1 class="jb-heading-1">{{lens.name}}
+	    {% if lens.owner != user %}
+	    <button id="follow-button" class="jb-submit-button-1" style="margin-left:10px;">
+	      {% if following %}
+	      <img src="{% static 'icons/person-x-fill.svg' %}" >
+	      Unfollow
+	      {% else %}	      
+	      <img src="{% static 'icons/person-fill-add.svg' %}" >
+	      Follow
+	      {% endif %}
+	    </button>
+	    {% endif %}
+	    </h1>
 	  </div>
 	  {% if lens.alt_name %}
 	  <p>
@@ -24,7 +36,9 @@
 	  </p>
 	  {% endif %}
 	  <p style="margin-bottom:2px">
-            Created at: {{ lens.created_at }} by <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
+            Created at: {{ lens.created_at }}
+	    <br>
+	    Managed by: <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
 	    {% if lens.owner != user %}
 	    <a href="mailto:{{lens.owner.email}}?subject=Re:SLED lens {{ lens.name }}&body=The message">
 	      <button class="jb-submit-button-1">
@@ -40,7 +54,7 @@
 	    {% include "activity_object.html" with stream=stream max_entries=5 %}
 	    {% if stream|length > 5 %}
 	    <a href="#myModal" data-toggle="modal" data-target="#myModal">Display all activity</a>
-	    {% include "activity_all_modal.html" with stream=stream %}
+	    {% include "activity_object_modal.html" with stream=stream %}
 	    {% endif %}
 	  </div>
 	  <p>
@@ -407,6 +421,59 @@
 
   
   $(document).ready(function(){
+      $('#follow-button').click(function(){
+	  $('#follow-button').prop('disabled',true);
+	  var action = '';
+	  if( $('#follow-button').hasClass('following') ){
+	      action = 'unfollow';
+	  } else {
+	      action = 'follow';
+	  }
+          $.ajax({
+              type: 'GET',
+              url: "{% url 'lenses:follow-unfollow' %}",
+              data: {
+		  "action": action,
+		  "lens_id": {{ lens.id }},
+		  "user_id": {{ user.id }},		  
+	      },
+              success: function(response){
+		  var myclass = '';
+		  if( response["action"] == 'follow' ){
+		      $('#follow-button').addClass('following');
+		      $('#follow-button').html("<img src=\"{% static 'icons/person-x-fill.svg' %}\" > Unfollow");
+		      myclass = 'alert-success';
+		  } else {
+		      $('#follow-button').removeClass('following');
+		      $('#follow-button').html("<img src=\"{% static 'icons/person-fill-add.svg' %}\" > Follow");
+		      myclass = 'alert-warning';
+		  }
+		  jQuery('<div>', {
+		      id: 'alert-message',
+		      class: 'alert alert-icon alert-dismissible fade show mb-0 ' + myclass,
+		      text: response["message"],
+		      style: "border-radius:0;display:none;",
+		  }).appendTo('.alert-message-container');
+		  $('#alert-message').slideDown(500).delay(2000).slideUp(500).queue(function(){
+		      $('#follow-button').prop('disabled',false);
+		      $(this).remove();
+		  });
+              },
+              error: function(response){
+		  jQuery('<div>', {
+		      id: 'alert-message',
+		      class: 'alert alert-icon alert-error alert-dismissible fade show mb-0',
+		      text: response["message"],
+		      style: "border-radius:0;display:none;",
+		  }).appendTo('.alert-message-container');
+		  $('#alert-message').slideDown(500).delay(2000).slideUp(500).queue(function(){
+		      $('#follow-button').prop('disabled',false);
+		      $(this).remove();
+		  });
+	      }
+          });
+      });
+
       // Modals
       $(".sled-modal").each(function() {
           $(this).modalForm({

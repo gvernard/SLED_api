@@ -13,4 +13,5 @@ urlpatterns = [
     path('query-delete/<int:pk>',views.QueryDeleteView.as_view(),name='query-delete'),
     path('query-delete-admin/<int:pk>',views.QueryDeleteView.as_view(),kwargs={'admin':True},name='query-delete-admin'),
     path('link/<int:pk>',views.QueryLinkView.as_view(),name='query-link'),
+    path('all-collections/',views.StandardQueriesView.as_view(),name='lens-all-collections'),
 ]

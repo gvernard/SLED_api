@@ -4,121 +4,163 @@
 {% if stream %}
 
 
-<table class="jb-activity">
+<table>
   <tbody>
 
-    {% with  activityCount=max_entries|stringformat:"s" %}
-    {% with  activitySlice=":"|add:activityCount %}
+    {% with activityCount=max_entries|stringformat:"s" %}
+    {% with activitySlice=":"|add:activityCount %}
     
     {% for action in stream|slice:activitySlice %}
     {% with N=action.action_object.myitems.all|length %}
+
+    {% if action.verb != "started following" and action.verb != "stopped following" %}
     <tr>
       <td>
-	<div data-index="{{ forloop.counter0 }}" style="display:inline-block;">
-	  {% if action.data.level == "info" %}
-	  <img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2">
-	  {% elif action.data.level == "success" %}
-	  <img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2">
-	  {% elif action.data.level == "error" %}
-	  <img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2">
-	  {% elif action.data.level == "warning" %}
-	  <img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2">
-	  {% else %}
-	  {{ action.data.level }}
-	  {% endif %}
+	{% if action.data.level == "info" %}
+	<img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2 jb-alert-icon">
+	{% elif action.data.level == "success" %}
+	<img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2 jb-alert-icon">
+	{% elif action.data.level == "error" %}
+	<img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2 jb-alert-icon">
+	{% elif action.data.level == "warning" %}
+	<img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2 jb-alert-icon">
+	{% else %}
+	{{ action.data.level }}
+	{% endif %}
+      </td>
+      <td>
+	
+	{% if show_item_type == "Lenses" %}
+	<a href="{{ action.target.get_absolute_url }}">{{ action.target }}</a>: 
+	{% endif %}
+	
+	
+	{# ########################### The following is for Lenses,Collections,Groups ########################### #}
+        {% if action.verb == "UpdateLog" %}
+        Field(s) were updated:
+	{% with myjson=action.data.fields|loadjson %}
+	{% for field_name,field_values in myjson.items %}
+	<strong>{{ field_name }}</strong> ({{ field_values.saved }} -> {{ field_values.current }}),
+	{% endfor %}
+	{% endwith %}
+
+	
+        {% elif action.verb == "CedeOwnershipLog" %}
+        Owner changed from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
+	
+
+	{% elif action.verb == "MadePublicLog" %}
+	Made public
 
 
-	  
-	  {# ########################### The following is for Lenses,Collections,Groups ########################### #}
-          {% if action.verb == "UpdateLog" %}
-          Field(s) were updated
-
-	  
-          {% elif action.verb == "CedeOwnershipLog" %}
-          Owner changed from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
-	  
-
-	  {% elif action.verb == "MadePublicLog" %}
-	  Made public
+	{% elif action.verb == "MadePrivateLog" %}
+	Made private
 
 
-	  {% elif action.verb == "MadePrivateLog" %}
-	  Made private
+	{% elif action.verb == "ImageChangeLog" %}
+	Image changed
 
 
-	  {% elif action.verb == "ImageChangeLog" %}
-	  Image changed
-	  
+	{% elif action.verb == "started following" %}
+	{{ action.actor.id|get_user_link|safe }} started following 
 
 
-	  {# ########################### The following is for Imaging,Spectrum,Catalogue ########################### #}
-	  {% elif action.verb == "AddedTargetLog" %}
-	  Added {{ action.action_object }}
-
-	  
-	  {% elif action.verb == "UpdatedTargetLog" %}
-	  Updated {{ action.action_object }}
+	{% elif action.verb == "stopped following" %}
+	{{ action.actor.id|get_user_link|safe }} stopped following 
 
 
-	  {% elif action.verb == "MadePublicTargetLog" %}
-	  Made public {{ action.action_object }}
-
-	  
-	  {% elif action.verb == "ImageChangeTargetLog" %}
-	  Image of {{ action.action_object }} changed
-
-	  
-          {% elif action.verb == "AddPaperTargetLog" %}
-	  Paper <a href="{{ action.action_object.get_absolute_url }}">{{ action.action_object.cite_as }}</a> was linked to this lens
-
-	  
-	  
-	  {# ########################### The following is for Groups ########################### #}
-          {% elif action.verb == "GiveAccessGroup" %}
-          The group was granted access to {{ N }} private {% singular_or_plural action.action_object.item_type N %}
+	
 
 
-          {% elif action.verb == "RevokeAccessGroup" %}
-          The group's access to {{ N }} private {% singular_or_plural action.action_object.item_type N %} was revoked
+	{# ########################### The following is for Imaging,Spectrum,Catalogue ########################### #}
+	{% elif action.verb == "AddedTargetLog" %}
+	Added {{ action.action_object }}
 
-	  
-          {% elif action.verb == "CedeOwnershipGroup" %}
-          {{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to changed owner
-	  from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
+	
+	{% elif action.verb == "UpdateTargetLog" %}
+	Updated {{ action.action_object|get_str|split:" - "|last }}:
+	{% with myjson=action.data.fields|loadjson %}
+	{% for field_name,field_values in myjson.items %}
+	<strong>{{ field_name }}</strong> ({{ field_values.saved }} -> {{ field_values.current }}),
+	{% endfor %}
+	{% endwith %}
 
-	  
-          {% elif action.verb == "LeftGroup" %}
-          User {{ action.actor.id|get_user_link|safe }} left the group
+	
+	{% elif action.verb == "MadePublicTargetLog" %}
+	Made public {{ action.action_object }}
 
-	  
-          {% elif action.verb == "RemovedFromGroup" %}
-	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} removed from the group
+	
+	{% elif action.verb == "ImageChangeTargetLog" %}
+	Image of {{ action.action_object }} changed
+
+	
+        {% elif action.verb == "AddPaperTargetLog" %}
+	Paper <a href="{{ action.action_object.get_absolute_url }}">{{ action.action_object.cite_as }}</a> was linked to this lens
+
+	
+	
+	{# ########################### The following is for Groups ########################### #}
+        {% elif action.verb == "GiveAccessGroup" %}
+        The group was granted access to {{ N }} private {% singular_or_plural action.action_object.item_type N %}:
+	{% for item in action.action_object.myitems.all %}
+	 <a href="{{ item.get_absolute.url }}">{{ item }}</a>,
+	{% endfor %}
+
+        {% elif action.verb == "RevokeAccessGroup" %}
+        The group's access to {{ N }} private {% singular_or_plural action.action_object.item_type N %} was revoked:
+	{% for item in action.action_object.myitems.all %}
+	 <strong>{{ item }}</strong>,
+	{% endfor %}
+
+	
+        {% elif action.verb == "CedeOwnershipGroup" %}
+        {{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to changed owner
+	from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
+
+	
+        {% elif action.verb == "LeftGroup" %}
+        User {{ action.actor.id|get_user_link|safe }} left the group
+
+	
+        {% elif action.verb == "RemovedFromGroup" %}
+	{{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} removed from the group:
+	{% for user in action.action_object.myitems.all %}
+	 {{ user.id|get_user_link|safe }},
+	{% endfor %}
+	
+	
+        {% elif action.verb == "AddedToGroup" %}
+	{{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added to the group:
+	{% for user in action.action_object.myitems.all %}
+	 {{ user.id|get_user_link|safe }},
+	{% endfor %}
 
 
-          {% elif action.verb == "AddedToGroup" %}
-	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added to the group
+        {% elif action.verb == "MadePublicGroup" %}
+	{{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to {{ N|pluralize:"was,were" }} made public
 
 
-          {% elif action.verb == "MadePublicGroup" %}
-	  {{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to {{ N|pluralize:"was,were" }} made public
+	
+	{# ########################### The following is for Collections ########################### #}
+	{% elif action.verb == "AddedToCollection" %}
+	{{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added to the collection:
+	{% for item in action.action_object.myitems.all %}
+	 <a href="{{ item.get_absolute.url }}">{{ item }}</a>,
+	{% endfor %}
+
+        {% elif action.verb == "RemovedFromCollection" %}
+	{{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} removed from the collection:
+	{% for item in action.action_object.myitems.all %}
+	 <strong>{{ item }}</strong>,
+	{% endfor %}
 
 
-	  
-	  {# ########################### The following is for Collections ########################### #}
-	  {% elif action.verb == "AddedToCollection" %}
-	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added to the collection
-
-
-          {% elif action.verb == "RemovedFromCollection" %}
-	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} removed from the collection
-
-
-	  
-	  {% endif %}
-          {{ action.timestamp|timesince }} ago
-	</div>
+	
+	{% endif %}
+        {{ action.timestamp|timesince }} ago
       </td>
     </tr>
+    {% endif %}
     {% endwith %}
     {% endfor %}
     {% endwith %}

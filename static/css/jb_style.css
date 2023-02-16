@@ -374,6 +374,9 @@ table td {
 .jb-submit-button-1 img {
     filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(129deg) brightness(106%) contrast(104%);
 }
+.jb-overlay-button-1 img {
+    filter: invert(100%) sepia(100%) saturate(0%) hue-rotate(129deg) brightness(106%) contrast(104%);
+}
 
 .jb-submit-button-red {
     position: static;
@@ -404,7 +407,7 @@ table td {
     background-color: #6F73DD;
     color: #FFFFFF;
     font-size: 14px;
-    border-radius: 3px;
+    border-radius: 12px;
 }
 
 
@@ -426,10 +429,8 @@ table td {
 .jb-activity {
     color: #ACACAC !important;
     font-size: 12px;
-}
-.jb-activity table {
     table-layout: auto;
-}  
+}
 .jb-activity td {
     padding-left:0px;
     padding-top: 2px;
@@ -603,5 +604,23 @@ ul.jb-select-radio {
 }
 .filter-warning2 {
     filter: invert(82%) sepia(53%) saturate(2355%) hue-rotate(351deg) brightness(100%) contrast(104%);
+}
+
+.jb-alert-icon {margin-right:10px;}
+
+.jb-active-lens {
+    background:#efefef;
+    float:left;
+    margin:5px;
+    padding:4px;
+    border: 1px solid #dddddd;
+    border-radius: 8px;
+}
+
+.sled-help-tooltip label:hover {
+    cursor: help;
+}
+.sled-help-tooltip-content {
+    display: none;
 }
 

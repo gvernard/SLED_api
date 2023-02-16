@@ -23,6 +23,7 @@ from bootstrap_modal_forms.generic import (
 from bootstrap_modal_forms.utils import is_ajax
 
 from lenses.forms import LensQueryForm
+from lenses.query_utils import get_combined_qset
 from .forms import *
 from lenses.models import Collection, Lenses, ConfirmationTask
 from urllib.parse import urlparse
@@ -85,6 +86,8 @@ class CollectionCreateView(BSModalCreateView):
 
     def get_initial(self):
         ids = self.request.GET.getlist('ids')
+        if not ids:
+            ids = get_combined_qset(self.request.GET,self.request.user)
         ids_str = ','.join(ids)
         item_type = self.kwargs['obj_type']
         return {'ids': ids_str,'item_type':item_type}
@@ -223,6 +226,8 @@ class CollectionAddItemsView(BSModalFormView):
     
     def get_initial(self):
         ids = self.request.GET.getlist('ids')
+        if not ids:
+            ids = get_combined_qset(self.request.GET,self.request.user)
         ids_str = ','.join(ids)
         return {'ids': ids_str}
     

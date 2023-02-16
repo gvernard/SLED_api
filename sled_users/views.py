@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
 from django.http import Http404
 from django.utils.translation import gettext as _
+from django.db.models import Q
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -16,9 +17,11 @@ from bootstrap_modal_forms.generic import (
     BSModalDeleteView,
     BSModalReadView,
 )
+from actstream.models import following, target_stream, Action
+from operator import attrgetter
+from itertools import chain
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument
-
 from .forms import UserUpdateForm
 
 
@@ -43,6 +46,27 @@ class UserVisitCard(DetailView):
         return obj
 
 
+class UserFollowingView(TemplateView):
+    template_name = 'sled_users/user_following.html'
+
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        followed_lenses = following(user,Lenses)
+        qset = Lenses.accessible_objects.filter(pk__in=[lens.id for lens in followed_lenses])
+
+        lenses_paginator = Paginator(qset,50)
+        lenses_page_number = request.GET.get('lenses-page',1)
+        lenses_page = lenses_paginator.get_page(lenses_page_number)
+
+        context = {
+            'N_lenses_total': lenses_paginator.count,
+            'lenses_range': lenses_paginator.page_range,
+            'lenses': lenses_page,
+        }
+        return render(request,self.template_name,context=context)
+
+
+    
 @method_decorator(login_required,name='dispatch')
 class UserProfileView(TemplateView):
     template_name = 'sled_users/user_index.html'
@@ -72,7 +96,37 @@ class UserProfileView(TemplateView):
         unread_notifications = user.notifications.unread()
         N_note_unread = unread_notifications.count()
 
+        # Get following lenses
+        followed_lenses = following(user,Lenses)
+        lenses_with_updates = []
+        followed_stream = []
+        if followed_lenses:
+            for lens in followed_lenses:
+                dum = []
+                for action in target_stream(lens):
+                    if action.verb not in ["started following","stopped following"]:
+                        dum.append(action)
+                followed_stream.append(dum)
+                #followed_stream.append( lens.target_actions.all().first())
+                #time = Action.objects.target(lens,verb="started following").first().timestamp
 
+                latest_actions = Action.objects.target(lens,timestamp__gt=user.last_login).exclude(verb__in=["started following","stopped following"])
+                #followed_stream.append(latest_actions)
+                if latest_actions:
+                    lenses_with_updates.append({"lens":lens,"N":len(latest_actions)})
+                
+        ordered_actions = sorted(
+            chain(*followed_stream),
+            key=attrgetter('timestamp'),
+            reverse=True
+        )
+        N_last_login = 0
+        for i,action in enumerate(ordered_actions):
+            if action.timestamp < user.last_login:
+                N_last_login = i
+                break
+
+            
         # Get queries
         queries = SledQuery.accessible_objects.owned(user)
         N_queries = queries.count()
@@ -138,6 +192,10 @@ class UserProfileView(TemplateView):
 
 
         context={'user':user,
+                 'ordered_actions': ordered_actions,
+                 'N_last_login': N_last_login,
+                 'followed_lenses': followed_lenses,
+                 'lenses_with_updates': lenses_with_updates,
                  'groups':groups,
                  'N_groups': N_groups,
                  'papers':papers,

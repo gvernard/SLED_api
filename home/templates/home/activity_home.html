@@ -1,6 +1,7 @@
 {% load static %}
 {% load project_tags %}
 
+
 {% if stream %}
 
 
@@ -9,20 +10,20 @@
     
     {% with  activityCount=max_entries|stringformat:"s" %}
     {% with  activitySlice=":"|add:activityCount %}
-    
+
     {% for action in stream|slice:activitySlice %}
     {% with N=action.action_object.myitems.all|length %}
     <tr>
       <td>
 	<div data-index="{{ forloop.counter0 }}" style="display:inline-block;">
 	  {% if action.data.level == "info" %}
-	  <img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2">
+	  <img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2 jb-alert-icon">
 	  {% elif action.data.level == "success" %}
-	  <img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2">
+	  <img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2 jb-alert-icon">
 	  {% elif action.data.level == "error" %}
-	  <img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2">
+	  <img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2 jb-alert-icon">
 	  {% elif action.data.level == "warning" %}
-	  <img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2">
+	  <img src="{% static 'icons/exclamation-triangle-fill.svg' %}" class="filter-warning2 jb-alert-icon">
 	  {% else %}
 	  {{ action.data.level }}
 	  {% endif %}

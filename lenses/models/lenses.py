@@ -219,7 +219,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                    null=True,
                                    max_digits=5,
                                    decimal_places=4,
-                                   verbose_name="Z source",
+                                   verbose_name="Z<sub>source</sub>",
                                    help_text="The redshift of the source, if known.",
                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                                MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
@@ -232,9 +232,9 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
     z_lens = models.DecimalField(blank=True,
                                  null=True,
-                                 max_digits=5,
+                                 max_digits=6,
                                  decimal_places=4,
-                                 verbose_name="Z lens",
+                                 verbose_name="Z<sub>lens</sub>",
                                  help_text="The redshift of the lens, if known.",
                                  validators=[MinValueValidator(0.0,"Redshift must be positive"),
                                              MaxValueValidator(20.0,"If your lens is further than that then congrats! (but probably it's a mistake)")])
@@ -250,7 +250,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     
     n_img = models.IntegerField(blank=True,
                                 null=True,
-                                verbose_name="Number of images",
+                                verbose_name="N<sub>images</sub>",
                                 help_text="The number of source images, if known.",
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
@@ -276,6 +276,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     image_conf = MultiSelectField(max_length=100,
                                   blank=True,
                                   null=True,
+                                  verbose_name="Image configuration",
+                                  help_text="The configuration of the lensing system, if known.",
                                   choices=ImageConfChoices)
     
     LensTypeChoices = (
@@ -290,6 +292,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     lens_type = MultiSelectField(max_length=100,
                                  blank=True,
                                  null=True,
+                                 verbose_name="Lens type",
+                                 help_text="The type of the lensing galaxy, if known.",
                                  choices=LensTypeChoices)
     
     SourceTypeChoices = (
@@ -313,6 +317,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     source_type = MultiSelectField(max_length=100,
                                    blank=True,
                                    null=True,
+                                   verbose_name="Source type",
+                                   help_text="The type of the source, if known.",
                                    choices=SourceTypeChoices)
 
     ContaminantTypeChoices = (
@@ -340,16 +346,16 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ('RING GALAXY', 'Ring Galaxy'),
         ('PLANETARY NEBULA', 'Ring Galaxy')
     )
-
     contaminant_type = models.CharField(max_length=100,
                                    blank=True,
                                    null=True,
+                                   verbose_name="Contaminant type",                                        
                                    choices=ContaminantTypeChoices)
 
 
 
     # Fields to report updates on
-    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','z_lens','z_source','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type']
+    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','z_lens','z_source','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type','owner','access_level']
 
     
     proximate = ProximateLensManager()
@@ -383,6 +389,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
         
     def clean(self):
+        super(Lenses,self).clean()
         if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
         #if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
@@ -396,7 +403,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         if self._state.adding:
             super(Lenses,self).save(*args,**kwargs)
         else:
-            dirty = self.get_dirty_fields(verbose=True)
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
 
             if "access_level" in dirty.keys():
                 if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
@@ -406,7 +413,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                 dirty.pop("access_level",None) # remove from any subsequent report
 
             if "owner" in dirty.keys():
-                action.send(self.owner,target=self,verb='CedeOwnershipLog',level='info',previous_owner=dirty["owner"]["saved"],next_owner=dirty["owner"]["current"])
+                action.send(self.owner,target=self,verb='CedeOwnershipLog',level='info',previous_id=dirty["owner"]["saved"],next_id=dirty["owner"]["current"])
                 dirty.pop("owner",None) # remove from any subsequent report
 
             if "mugshot" in dirty.keys():

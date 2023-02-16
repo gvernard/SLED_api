@@ -1,5 +1,6 @@
 from django.db import models,connection
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core import serializers
@@ -15,6 +16,8 @@ from guardian.shortcuts import assign_perm
 
 from notifications.signals import notify
 from actstream import action
+from actstream.actions import unfollow
+from actstream.models import followers,following
 
 import abc
 import json
@@ -127,7 +130,7 @@ class ConfirmationTask(SingleObject):
         task.recipients.set(users)
         task.save()
         task.recipient_names = list(users.values_list('username',flat=True))
-        task.inviteRecipients(task.recipients)
+        task.inviteRecipients(task.recipients.all())
         return task
 
     def load_task(task_id):
@@ -162,14 +165,17 @@ class ConfirmationTask(SingleObject):
         
         for user in users:
             html_message = get_template('emails/task_notification.html')
-            mycontext = Context({
+            mycontext = {
                 'first_name': user.first_name,
                 'task_type': self.task_type,
-                'task_url': self.get_absolute_url()
-            })
-            message = html_message.render(mycontext)
+                'protocol': 'http',
+                'domain': site.domain,
+                'task_url': reverse('sled_tasks:tasks-list')
+            }
+            html_message = html_message.render(mycontext)
+            plain_message = strip_tags(html_message)
             recipient_email = user.email
-            send_mail(subject,message,from_email,recipient_emails)
+            send_mail(subject,plain_message,from_email,[recipient_email],html_message=html_message)
 
 
 
@@ -301,15 +307,31 @@ class CedeOwnership(ConfirmationTask):
             object_type = self.cargo['object_type']
             model_ref = apps.get_model(app_label="lenses",model_name=object_type)
             objs = model_ref.objects.filter(pk__in=self.cargo['object_ids'])
-            objs.update(owner=heir)
             pri = []
             pub = []
             for obj in objs:
+                obj.owner=heir
+                obj.save()
                 if obj.access_level == 'PRI':
                     pri.append(obj)
                 else:
                     pub.append(obj)
 
+            # Heir to unfollow any of the inherited objects
+            if object_type == 'Lenses':
+                set_followed = set(following(heir,Lenses))
+                set_lenses = set(objs)
+                intersection = list(set_followed.intersection(set_lenses))
+                for lens in intersection:
+                    unfollow(heir,lens)
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=intersection)
+                notify.send(sender=heir,
+                            recipient=heir,
+                            verb='HeirUnfollowNote',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            action_object=ad_col)
+                    
             # Handle public objects
             if pub and object_type != 'SledGroup':
                 from . import Users
@@ -399,8 +421,30 @@ class MakePrivate(ConfirmationTask):
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 
+            # Unfollow lenses (nobody has access to these private lenses yet)
+            if self.cargo['object_type'] == 'Lenses':
+                users = {}
+                for lens in objs:
+                    uf = followers(lens)
+                    for u in uf:
+                        if u.username in users.keys():
+                            users[u.username]["lenses"].append(lens)
+                        else:
+                            users[u.username] = {"user":u,"lenses":[lens]}
+                        unfollow(u,lens)
+                for u,mydict in users.items():
+                    ad_col = AdminCollection.objects.create(item_type='Lenses',myitems=mydict["lenses"])
+                    notify.send(sender=self.owner,
+                                recipient=u,
+                                verb='MakePrivateUnfollowNote',
+                                level='warning',
+                                timestamp=timezone.now(),
+                                action_object=ad_col)
+                    
             # Finally update the objects' access_level to private
-            objs.update(access_level='PRI')                    
+            for obj in objs:
+                obj.access_level='PRI'
+                obj.save()
 
         else:
             notify.send(sender=admin,
@@ -600,10 +644,13 @@ class AcceptNewUser(ConfirmationTask):
             mycontext = Context({
                 'first_name': task_owner.first_name,
                 'last_name': task_owner.last_name,
+                'protocol': 'http',
+                'domain': site.domain,
                 'user_url': task_owner.get_absolute_url(),
                 'username': task_owner.username,
             })
-            message = html_message.render(mycontext)
+            html_message = html_message.render(mycontext)
+            plain_message = strip_tags(html_message)
         else:
             subject = 'SLED: Unsuccessful registration'
             html_message = get_template('emails/unsuccessful_registration.html')
@@ -612,14 +659,14 @@ class AcceptNewUser(ConfirmationTask):
                 'last_name': task_owner.last_name,
                 'response':self. heard_from().get().response_comment
             })
-            message = html_message.render(mycontext)
-            
+            html_message = html_message.render(mycontext)
+            plain_message = strip_tags(html_message)
 
         # Send email to user with the response
         site = Site.objects.get_current()
         user_email = task_owner.email
         from_email = 'no-reply@%s' % site.domain
-        send_mail(subject,message,from_email,user_email)            
+        send_mail(subject,plain_message,from_email,[user_email],html_message=html_message)
             
 ### END: Confirmation task specific code
 ################################################################################################################################################
