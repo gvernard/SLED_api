@@ -338,6 +338,8 @@ class PaperUploadListSerializer(serializers.ListSerializer):
             else:
                 paper.cite_as = ' and '.join(in_ads[i].author) + ' (' + paper.year + ')'
         print(ads_ids)
+
+
         
         ## Check that ads_id do not exist already in the database
         existing = Paper.objects.filter(ads_id__in=ads_ids).values('bibcode','cite_as')
@@ -361,7 +363,8 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                 decs.append(lens['dec'])
 
             user = self.context['request'].user
-            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10) # This call includes PRI lenses visible to the user
+            #indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10) # This call includes PRI lenses visible to the user
+            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10).filter(access_level="PUB") # Only public lenses
             
             if len(indices) != N_lenses:
                 #print(neis)
