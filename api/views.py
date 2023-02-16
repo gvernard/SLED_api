@@ -122,7 +122,8 @@ class UploadPapers(APIView):
             papers = validated_data["papers"]
             lenses_pp = validated_data["lenses_per_paper"]
             flags_pp = validated_data["flags_per_paper"]
-            
+
+            paper_instances = []
             for i,paper in enumerate(papers):
                 paper["owner"] = request.user
                 paper["access_level"] = "PUB"
@@ -131,8 +132,9 @@ class UploadPapers(APIView):
                 for j in range(0,len(lenses_pp[i])):
                     paper_obj.lenses_in_paper.add(lenses_pp[i][j],through_defaults=flags_pp[i][j])
                 print(paper_obj.pk)
-
-            ad_col = AdminCollection.objects.create(item_type="Paper",myitems=papers)
+                paper_instances.append(paper_obj)
+                
+            ad_col = AdminCollection.objects.create(item_type="Paper",myitems=paper_instances)
             action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
                 
             response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"

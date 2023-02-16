@@ -364,7 +364,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
 
             user = self.context['request'].user
             #indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10) # This call includes PRI lenses visible to the user
-            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10).filter(access_level="PUB") # Only public lenses
+            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs,radius=10) # Only public lenses
             
             if len(indices) != N_lenses:
                 #print(neis)
