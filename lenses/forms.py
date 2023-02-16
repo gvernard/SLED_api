@@ -552,11 +552,11 @@ class DataBaseQueryForm(forms.Form):
             if now > self.cleaned_data.get('date_taken_max'):
                 self.add_error('__all__','The maximum date needs to be in the future.')
 
-        if self.cleaned_data.get('instrument'):
-            if len(self.cleaned_data.get('instrument')) > 1 and not self.cleaned_data.get('instrument_and'):
-                self.add_error('__all__','You are selecting multiple instruments, please select AND/OR also.')
-        else:
-            self.cleaned_data.pop('instrument_and')
+        #if self.cleaned_data.get('instrument'):
+        #    if len(self.cleaned_data.get('instrument')) > 1 and not self.cleaned_data.get('instrument_and'):
+        #        self.add_error('__all__','You are selecting multiple instruments, please select AND/OR also.')
+        #else:
+        #    self.cleaned_data.pop('instrument_and')
             
         keys = list(self.cleaned_data.keys())
         for key in keys:

@@ -1,6 +1,6 @@
 from lenses.models import Users, Lenses, Imaging, Spectrum, Catalogue
 from lenses.forms import *
-
+from django.db.models import Max, Subquery, Q
 
 def get_combined_qset(request,user): # Must be self.request.GET or self.request.POST
     lens_form = LensQueryForm(request,prefix="lens")
