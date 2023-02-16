@@ -169,19 +169,15 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
             
         # Create new file and remove old one
-        fname = '/'+self.image.name
-        if not os.path.exists(settings.MEDIA_ROOT+'/imaging/'):
-            os.mkdir(settings.MEDIA_ROOT+'/imaging/')
-        sled_fname = '/imaging/' + str( self.pk ) + '.png'
-        if fname != sled_fname:
-            print(settings.MEDIA_ROOT+fname)
-            print(os.path.exists(settings.MEDIA_ROOT+fname))
-            print(settings.MEDIA_ROOT+sled_fname)
-            print(os.path.exists(settings.MEDIA_ROOT+sled_fname))
-            os.system('mv '+settings.MEDIA_ROOT+fname+' '+settings.MEDIA_ROOT+sled_fname)
-            #os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
-            self.image.name = sled_fname
-
+        if self.exists:
+            fname = '/'+self.image.name
+            if not os.path.exists(settings.MEDIA_ROOT+'/imaging/'):
+                os.mkdir(settings.MEDIA_ROOT+'/imaging/')
+            sled_fname = '/imaging/' + str( self.pk ) + '.png'
+            if fname != sled_fname:
+                #os.system('mv '+settings.MEDIA_ROOT+fname+' '+settings.MEDIA_ROOT+sled_fname)
+                os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+                self.image.name = sled_fname
 
         super(Imaging,self).save(*args,**kwargs)
 
@@ -260,13 +256,16 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
 
         # Create new file and remove old one
-        fname = '/'+self.image.name
-        if not os.path.exists(settings.MEDIA_ROOT+'/spectrum/'):
-            os.mkdir(settings.MEDIA_ROOT+'/spectrum/')
-        sled_fname = '/spectrum/' + str( self.pk ) + '.png'
-        if fname != sled_fname:
-            os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
-            self.image.name = sled_fname
+        if self.exists:
+            fname = '/'+self.image.name
+            if not os.path.exists(settings.MEDIA_ROOT+'/spectrum/'):
+                os.mkdir(settings.MEDIA_ROOT+'/spectrum/')
+            sled_fname = '/spectrum/' + str( self.pk ) + '.png'
+            if fname != sled_fname:
+                #os.system('mv '+settings.MEDIA_ROOT+fname+' '+settings.MEDIA_ROOT+sled_fname)
+                os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+                self.image.name = sled_fname
+
 
         super(Spectrum,self).save(*args,**kwargs)
 

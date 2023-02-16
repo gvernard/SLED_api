@@ -42,7 +42,7 @@ def combined_query(lens_form,imaging_form,spectrum_form,catalogue_form,user):
 
 
 def catalogue_search(lenses,cleaned_form,user):
-    conditions = Q(catalogue__exists=True)
+    conditions = Q() #catalogue__exists=True)
     for key,value in cleaned_form.items():
         if key not in ['instrument','instrument_and'] and value != None:
             if '_min' in key:
@@ -71,7 +71,7 @@ def catalogue_search(lenses,cleaned_form,user):
 
     
 def spectrum_search(lenses,cleaned_form,user):
-    conditions = Q(spectrum__exists=True)
+    conditions = Q() #spectrum__exists=True)
     for key,value in cleaned_form.items():
         if key not in ['instrument','instrument_and','wavelength_min','wavelength_max'] and value != None:
             if '_min' in key:
@@ -102,15 +102,16 @@ def spectrum_search(lenses,cleaned_form,user):
             q = Q()
             for item in instrument:
                 q.add( Q(spectrum__instrument__name=item), Q.OR )
-                lenses = lenses.filter(conditions & q).distinct()
+            lenses = lenses.filter(conditions & q).distinct()
     else:
         lenses = lenses.filter(conditions).distinct()
     return lenses
 
     
 def imaging_search(lenses,cleaned_form,user):
-    conditions = Q(imaging__exists=True)
+    conditions = Q() #imaging__exists=True)
     for key,value in cleaned_form.items():
+        print(key, value)
         if key not in ['instrument','instrument_and'] and value != None:
             if '_min' in key:
                 conditions.add(Q(**{'imaging__'+key.split('_min')[0]+'__gte':value}),Q.AND)
@@ -119,7 +120,10 @@ def imaging_search(lenses,cleaned_form,user):
             else:
                 conditions.add(Q(**{'imaging__'+key:value}),Q.AND)
 
+
+
     instrument = cleaned_form.get('instrument',None)
+    print('instrument:', instrument)
     if instrument:
         if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
             sets = []
@@ -131,7 +135,7 @@ def imaging_search(lenses,cleaned_form,user):
             q = Q()
             for item in instrument:
                 q.add( Q(imaging__instrument__name=item), Q.OR )
-                lenses = lenses.filter(conditions & q).distinct()
+            lenses = lenses.filter(conditions & q).distinct()
     else:
         lenses = lenses.filter(conditions).distinct()
     return lenses

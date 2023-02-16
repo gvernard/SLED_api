@@ -425,10 +425,13 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         
         # Create new file and remove old one
         fname = '/'+self.mugshot.name
+        if not os.path.exists(settings.MEDIA_ROOT+'/lenses/'):
+            os.mkdir(settings.MEDIA_ROOT+'/lenses/')
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.mugshot.name = sled_fname
+
 
         super(Lenses,self).save(*args,**kwargs)
 
