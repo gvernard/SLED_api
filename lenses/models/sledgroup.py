@@ -41,6 +41,7 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         if self._state.adding:
             super().save(*args,**kwargs)
             self.user_set.add(self.owner)
+            self.save()
         else:
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
             
