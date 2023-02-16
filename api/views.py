@@ -366,57 +366,61 @@ class UpdateLenses(APIView):
 
     def post(self,request):
         user = request.user
-        ra, dec = float(request.data['ra']), float(request.data['dec'])
-        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=10.)
-        
-        lens = lenses[0]
-        update_data = request.data.copy()
-        print(update_data)
-        #check for any update in parameters
 
-        '''for key in ['lens_type', 'source_type', 'image_conf']:
-            if key in update_data.keys():
-                if ',' in update_data[key]:
-                    update_data[key] = [field.strip() for field in update_data[key].split(',')]
-                else:
-                    update_data[key] = [update_data[key].strip()]'''
+        updates = list(json.loads(request.body))
+        for update in updates:
+            ra, dec = float(update['ra']), float(update['dec'])
+            lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=10.)
+            
+            lens = lenses[0]
+            update_data = update.copy()
+            print(update_data)
+            #check for any update in parameters
 
-        for key in ['lens_type', 'source_type', 'image_conf']:
-            if key in update_data.keys():
-                print(update_data[key])
-                if ',' in update_data[key]:
-                    update_data[key] = [field.strip() for field in update_data[key].split(',')]
+            '''for key in ['lens_type', 'source_type', 'image_conf']:
+                if key in update_data.keys():
+                    if ',' in update_data[key]:
+                        update_data[key] = [field.strip() for field in update_data[key].split(',')]
+                    else:
+                        update_data[key] = [update_data[key].strip()]'''
+
+            for key in ['lens_type', 'source_type', 'image_conf']:
+                if key in update_data.keys():
                     print(update_data[key])
-                else:
-                    print(update_data[key])
-                    update_data[key] = [update_data[key].strip()]
+                    if ',' in update_data[key]:
+                        update_data[key] = [field.strip() for field in update_data[key].split(',')]
+                        print(update_data[key])
+                    else:
+                        print(update_data[key])
+                        update_data[key] = [update_data[key].strip()]
 
 
-        print(update_data)
-        print('about to serialize')
-        serializer = LensesUpdateSerializer(data=update_data, many=False)
-        if serializer.is_valid():
-            updated_lens = serializer.create(serializer.validated_data)
-            print('managed to serialize:', updated_lens)
+            print(update_data)
+            print('about to serialize')
+            serializer = LensesUpdateSerializer(data=update_data, many=False)
+            if serializer.is_valid():
+                updated_lens = serializer.create(serializer.validated_data)
+                print('managed to serialize:', updated_lens)
 
-            for key in update_data.keys():
-                #do not update ra, dec; delete lens is likely best option, otherwise all external data-fetching tasks 
-                #will have to be restarted...
-                if key in ['ra', 'dec']:
-                    continue
+                for key in update_data.keys():
+                    #do not update ra, dec; delete lens is likely best option, otherwise all external data-fetching tasks 
+                    #will have to be restarted...
+                    if key in ['ra', 'dec']:
+                        continue
 
-                print('Might be updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
-                value = getattr(lens, key)
+                    print('Might be updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
+                    value = getattr(lens, key)
 
-                if str(type(getattr(lens, key)))=="<class 'decimal.Decimal'>":
-                    value = float(value)
+                    if str(type(getattr(lens, key)))=="<class 'decimal.Decimal'>":
+                        value = float(value)
 
-                if value!=update_data[key]:
-                    print('Updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
-                    setattr(lens, key, getattr(updated_lens, key))
+                    if value!=update_data[key]:
+                        print('Updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
+                        setattr(lens, key, getattr(updated_lens, key))
 
-            lens.save()
+                lens.save()
 
-            return Response('updated values')
-        else:
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+        return Response('updated values for '+str(len(updates))+' requests')
