@@ -120,7 +120,8 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                              on_delete=models.PROTECT)
     image = models.ImageField(blank=True,
                               upload_to='data/imaging')
-    url = models.URLField(max_length=300)
+    url = models.URLField(blank=True,
+                          max_length=300)
 
     FIELDS_TO_CHECK = ['instrument','band','exposure_time','pixel_size','image','date_taken','info','future']
     
