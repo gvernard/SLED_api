@@ -144,13 +144,14 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
         if self._state.adding and self.access_level == "PUB":
             # Creating object for the first time, calling save first to create a primary key
             super(Imaging,self).save(*args,**kwargs)
-            action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
-            notify.send(sender=self.owner,
-                        recipient=self.lens.owner,
-                        verb='AddedDataOwnerNote',
-                        level='warning',
-                        timestamp=timezone.now(),
-                        action_object=self)
+            if self.exists:
+                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+                notify.send(sender=self.owner,
+                            recipient=self.lens.owner,
+                            verb='AddedDataOwnerNote',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            action_object=self)
         else:
             # Updating object
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
@@ -237,7 +238,8 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
         if self._state.adding and self.access_level == "PUB":
             # Creating object for the first time, calling save first to create a primary key
             super(Spectrum,self).save(*args,**kwargs)
-            action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+            if self.exists:
+                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
         else:
             # Updating object
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
@@ -334,7 +336,8 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
         if self._state.adding and self.access_level == "PUB":
             # Creating object for the first time, calling save first to create a primary key
             super(Catalogue,self).save(*args,**kwargs)
-            action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+            if self.exists:
+                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
         else:
             # Updating object
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
