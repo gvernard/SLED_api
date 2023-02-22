@@ -5,9 +5,9 @@
 {% block content %}
 <div class="jb-container">
   
-  {% include "pagination_top.html" with qset=stream request=request qset_range=stream_range qset_total=N_stream_total %}
+  {% include "pagination_top.html" with qset=stream request=request qset_range=stream_range qset_total=N_stream_total target="stream" %}
   {% include "home/activity_home.html" with stream=stream %}
-  {% include "pagination_bottom.html" with qset=stream request=request qset_range=stream_range qset_total=N_stream_total %}
+  {% include "pagination_bottom.html" with qset=stream request=request qset_range=stream_range qset_total=N_stream_total target="stream" %}
 
 </div>
 {% endblock content %}
