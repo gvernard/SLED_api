@@ -56,7 +56,8 @@ class Band(models.Model):
 
     wavelength = models.FloatField(blank=False,
                                    default=0,
-                                   help_text="Central wavelength of the band [nm].")
+                                   help_text="Central wavelength of the band [nm].",
+                                   validators=[MinValueValidator(0.0,"Central wavelength must be positive."),])
 
     class Meta():
         ordering = ["wavelength"]

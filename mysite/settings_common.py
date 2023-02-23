@@ -81,6 +81,7 @@ AUTHENTICATION_BACKENDS = (
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -148,16 +149,14 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR,'static'),
 ]
 
 # Media files, i.e. user uploaded files
 MEDIA_URL = '/media/'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
-FILE_UPLOAD_MAX_MEMORY_SIZE = 15242880
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1000000
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 ACTSTREAM_SETTINGS = {
@@ -171,7 +170,7 @@ ACTSTREAM_SETTINGS = {
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
 
 
 REDIS_HOST = 'localhost'

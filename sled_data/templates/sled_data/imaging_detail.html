@@ -17,7 +17,7 @@
     <tr><td>Exposure time [s]:</td><td>{{ imaging.exposure_time|default:"-" }}</td></tr>
     <tr><td>Pixel size [arcsec]:</td><td>{{ imaging.pixel_size|default:"-" }}</td></tr>
     <tr><td>Info:</td><td>{{ imaging.info|default:"-" }}</td></tr>
-
+  </table>
 
   {% if imaging.url %}
   Data URL: <a href={{ imaging.url }}> {{ imaging.url }} </a>

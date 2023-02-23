@@ -19,12 +19,21 @@ Update band
   </div>
   {% endif %}
 
-  {% for field in form %}
-  <div class="jb-modal-field">
-    {{ field }}
+  <div class="jb-table-no-lines">
+    <table>
+      {% for field in form %}
+      <tr>
+	<td>{{ field.errors }}</td>
+	<td>
+	  <div class="jb-modal-field">
+	    {{ field }}
+	  </div>
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
   </div>
-  {% endfor %}
-
+    
 </div>
 {% endblock content %}
 

@@ -18,20 +18,19 @@ Create new band?
   </div>
   {% endif %}
   
-  <div class="jb-modal-field">
-    {{ form.name }}
-  </div>
-  
-  <div class="jb-modal-field">
-    {{ form.extended_name }}
-  </div>
-  
-  <div class="jb-modal-field">
-    {{ form.wavelength }}
-  </div>
-  
-  <div class="jb-modal-field">
-    {{ form.info }}
+  <div class="jb-table-no-lines">
+    <table>
+      {% for field in form %}
+      <tr>
+	<td>{{ field.errors }}</td>
+	<td>
+	  <div class="jb-modal-field">
+	    {{ field }}
+	  </div>
+	</td>
+      </tr>
+      {% endfor %}
+    </table>
   </div>
 
 </div>

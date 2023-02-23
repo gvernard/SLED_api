@@ -46,9 +46,7 @@ class PaperQueryView(TemplateView):
 
     
     def get(self, request, *args, **kwargs):
-        referer = urlparse(request.META['HTTP_REFERER']).path
-        if referer == request.path:
-            # Submitting to itself, get the form
+        if request.GET:
             form = PaperSearchForm(request.GET)
         else:
             form = PaperSearchForm(initial={'year_min':datetime.date.today().year})
