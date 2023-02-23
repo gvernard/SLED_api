@@ -14,7 +14,7 @@ from bootstrap_modal_forms.generic import (
 )
 from bootstrap_modal_forms.utils import is_ajax
 
-from lenses.models import Users, SledQuery
+from lenses.models import Users, SledQuery, Collection
 from .forms import *
 
 

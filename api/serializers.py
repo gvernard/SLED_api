@@ -126,7 +126,7 @@ class LensesUploadListSerializer(serializers.ListSerializer):
     def validate(self,attrs):
         print('validating the lens')
         ### Check proximity here
-        check_radius = 16 # arcsec
+        check_radius = 5 # arcsec
         proximal_lenses = []
         for i in range(0,len(attrs)-1):
             lens1 = attrs[i]
@@ -170,6 +170,7 @@ class LensesUploadSerializer(serializers.ModelSerializer):
     #z_lens = serializers.DecimalField(allow_null=True)
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('LTG','Late-type Galaxy'),
         ('SPIRAL','Spiral galaxy'),
         ('GALAXY PAIR','Galaxy pair'),
         ('GROUP','Group of galaxies'),
@@ -178,9 +179,11 @@ class LensesUploadSerializer(serializers.ModelSerializer):
         ('QUASAR','Quasar')
     )
     lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
-    
+
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('ETG','Early-type Galaxy'),
+        ('SMG','Sub-millimetre Galaxy'),
         ('QUASAR','Quasar'),
         ('DLA','DLA'),
         ('PDLA','PDLA'),
@@ -228,6 +231,7 @@ class LensesUpdateSerializer(serializers.ModelSerializer):
     #z_lens = serializers.DecimalField(allow_null=True)
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('LTG','Late-type Galaxy'),
         ('SPIRAL','Spiral galaxy'),
         ('GALAXY PAIR','Galaxy pair'),
         ('GROUP','Group of galaxies'),
@@ -392,15 +396,23 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                     # Queryset evaluation happens here
                     dum = []
                     for q in neis:
+                        print('NEIS')
+                        print(q)
+                        if len(q)>1:
+                            print('NEIS NEIS')
+
                         dum.extend( list(q) )
                     lenses_per_paper.append( dum )
 
-        print('lenses per paper:', lenses_per_paper)
+        #print('lenses per paper:', lenses_per_paper)
         
         ## Loop over papers and check for discovery
+        print(len(lenses_per_paper[0]))
         lenses_with_discovery = []
         for i,paper in enumerate(papers):
+            print(i, paper)
             for j,lens in enumerate(lenses_per_paper[i]):
+                print(j, lens)
                 if papers[i]["lenses"][j]["discovery"]:
                     lenses_with_discovery.append(lenses_per_paper[i][j])
 
@@ -491,7 +503,7 @@ class PaperUploadSerializer(serializers.Serializer):
 
     def validate(self,data):
         ### Check proximity of given lenses with each other
-        check_radius = 16 # arcsec
+        check_radius = 10 # arcsec
         proximal_lenses = []
         for i in range(0,len(data['lenses'])-1):
             ra1 = data['lenses'][i]['ra']
@@ -503,6 +515,7 @@ class PaperUploadSerializer(serializers.Serializer):
 
                 if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
                     proximal_lenses.append(j)
+                    print(ra1, dec1, ra2, dec2)
 
         if len(proximal_lenses) > 0:
             message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission is not allowed.'
