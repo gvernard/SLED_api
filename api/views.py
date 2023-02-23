@@ -207,10 +207,7 @@ class UploadLenses(APIView):
         #print(lenses)'''
         #print(lenses)
 
-        print(request.body)
         lenses = list(json.loads(request.body))
-        #print(lenses[1])
-        print(lenses)
 
         #Keep non-empty fields
         potential_headers = list(lenses[0].keys())
@@ -235,8 +232,9 @@ class UploadLenses(APIView):
         #deal with multiple names
         for lens in lenses:
             if ',' in lens['name']:
+                lens['alt_name'] = ', '.join(lens['name'].split(',')[1:])
                 lens['name'] = lens['name'].split(',')[0].strip()
-                lens['altname'] =[altname.strip() for altname in lens['name'].split(',')[1:]]
+                
 
         #remove any trailing spaces from strings:
         for lens in lenses:
@@ -277,7 +275,6 @@ class UploadLenses(APIView):
                 if not os.path.exists(path):
                     os.makedirs(path)
                 for i,lens in enumerate(lenses):
-                    print(type(lens.mugshot),lens.mugshot.path)
                     with open(path + lens.mugshot.name,'wb+') as destination:
                         for chunk in lens.mugshot.chunks():
                             destination.write(chunk)

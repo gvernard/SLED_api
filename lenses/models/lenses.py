@@ -214,7 +214,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                     verbose_name="Separation",
                                     help_text="An estimate of the maximum image separation or arc radius [arcsec].",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
-                                                MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
+                                                MaxValueValidator(100,"Separation must be less than 10 arcsec.")])
     z_source = models.DecimalField(blank=True,
                                    null=True,
                                    max_digits=5,
@@ -282,6 +282,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('LTG','Late-type Galaxy'),
         ('SPIRAL','Spiral galaxy'),
         ('GALAXY PAIR','Galaxy pair'),
         ('GROUP','Group of galaxies'),
@@ -298,6 +299,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('ETG','Early-type Galaxy'),
+        ('SMG','Sub-millimetre Galaxy'),
         ('QUASAR','Quasar'),
         ('DLA','DLA'),
         ('PDLA','PDLA'),
@@ -373,7 +376,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             CheckConstraint(check=Q(z_source__range=(0,20)),name='z_source_range'),
             CheckConstraint(check=Q(ra__range=(0,360)),name='ra_range'),
             CheckConstraint(check=Q(dec__range=(-90,90)),name='dec_range'),
-            CheckConstraint(check=Q(image_sep__range=(0,40)),name='image_sep_range'),
+            CheckConstraint(check=Q(image_sep__range=(0,100)),name='image_sep_range'),
             CheckConstraint(check=Q(z_lens__lt=F('z_source')),name='z_lens_lt_z_source'),
             CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
             #I think it can be useful to know what people thought contaminants looked like
