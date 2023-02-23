@@ -363,8 +363,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     
     class Meta():
         db_table = "lenses"
-        verbose_name = "lens"
-        verbose_name_plural = "lenses"
+        verbose_name = "Lens"
+        verbose_name_plural = "Lenses"
         ordering = ["ra"]
         # The constraints below should encompass both field Validators above, and the clean method below.
         constraints = [

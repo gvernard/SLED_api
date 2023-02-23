@@ -4,6 +4,7 @@ from django.db import connection
 from django.core import serializers
 from django.urls import reverse,reverse_lazy
 from django.forms.models import model_to_dict
+from django.apps import apps
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,7 +12,7 @@ from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
 from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper, Imaging, Spectrum, Catalogue
 
 from guardian.shortcuts import assign_perm
 from actstream import action
@@ -297,7 +298,59 @@ class UploadLenses(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
             
         
+class GlobalSearch(APIView):
+    authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
+    # The dict keys must match the qset dict keys below
+    fields_per_model = {
+        "Users": ['username','first_name','last_name','email'],
+        "Lenses": ['name','alt_name','info'],
+        "Collection": ['name','description'],
+        "SledGroup": ['name','description'],
+        "Paper": ['first_author','title'],
+        "Imaging": ['info'],
+        "Spectrum": ['info'],
+        "Catalogue": ['info'],
+    }
+    
+    def get(self,request):
+        term = request.query_params.get('q')
+
+        if term is not None:
+            qsets = {}
+            user_qset = Users.objects.exclude(username__in=['AnonymousUser','admin'])
+            qsets["Users"] = user_qset = user_qset.filter(Q(username__icontains=term) | Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(email__icontains=term))
+            qsets["Lenses"] = Lenses.accessible_objects.all(request.user).filter(Q(name__icontains=term) | Q(alt_name__icontains=term) | Q(info__icontains=term))
+            qsets["Collection"] = Collection.accessible_objects.all(request.user).filter(Q(name__icontains=term) | Q(description__icontains=term))
+            qsets["SledGroup"] = SledGroup.accessible_objects.all(request.user).filter(Q(name__icontains=term) | Q(description__icontains=term))
+            qsets["Paper"] = Paper.objects.filter(Q(first_author__icontains=term) | Q(title__icontains=term))
+            qsets["Imaging"] = Imaging.accessible_objects.all(request.user).filter(info__icontains=term)
+            qsets["Spectrum"] = Spectrum.accessible_objects.all(request.user).filter(info__icontains=term)
+            qsets["Catalogue"] = Catalogue.accessible_objects.all(request.user).filter(info__icontains=term)
+
+
+            items = []
+            for obj_type,qset in qsets.items():
+                for item in qset:
+                    match = ''
+                    fields = model_to_dict(item,fields=self.fields_per_model[obj_type])
+                    for key,val in fields.items():
+                        if val:
+                            if val.find(term) != -1:
+                                match = val
+                                break  
+                    items.append({
+                        "type": apps.get_model(app_label='lenses',model_name=obj_type)._meta.verbose_name.title(),
+                        "link": item.get_absolute_url(),
+                        "name": item.__str__(),
+                        "match": match.replace(term,"<b><u>"+term+"</u></b>")
+                    })
+
+        return Response(items)
+
+
+    
 
 class UsersAutocomplete(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]

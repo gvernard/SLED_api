@@ -67,8 +67,8 @@ class Paper(SingleObject):
 
     class Meta():
         db_table = "papers"
-        verbose_name = "paper"
-        verbose_name_plural = "papers"
+        verbose_name = "Paper"
+        verbose_name_plural = "Papers"
         ordering = ["year","first_author"]
         # constrain the number of lenses per paper?
         

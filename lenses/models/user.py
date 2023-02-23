@@ -75,8 +75,8 @@ class Users(AbstractUser,GuardianUserMixin):
     
     class Meta():
         db_table = "users"
-        verbose_name = "user"
-        verbose_name_plural = "users"
+        verbose_name = "User"
+        verbose_name_plural = "Users"
         ordering = ["username"]
     
     def __str__(self):
