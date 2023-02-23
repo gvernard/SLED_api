@@ -22,6 +22,10 @@
     margin: 20px auto;
 }
 
+.sled-global-search-result {
+    width:500px !important;
+}
+
 .jb-homepage-container p {
     margin: auto;
     font-family: basic-sans, sans-serif;
@@ -40,13 +44,21 @@
 .jb-navbar-container {
     margin: auto;
     max-width: 1040px;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 10px;
+}
+
+.jb-navbar-container-table {
+    margin: 0px;
+}
+.jb-navbar-container-table td {
+    margin: 0px;
+    padding: 0px;
+    border: 0px;
 }
 
 .jb-navbar {
-    padding-top: 20px;
-    padding-bottom: 10px;
+    padding-top: 5px;
+    padding-bottom: 0px;
 }
 
 .jb-navbar a {
@@ -59,7 +71,7 @@
 
 .jb-navbar-login {
     color: #ACACAC !important;
-    float: right
+    float: left;
 }
 
 .jb-nav-brand {

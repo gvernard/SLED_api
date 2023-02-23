@@ -31,8 +31,8 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
 
     class Meta():
         db_table = "sledgroups"
-        verbose_name = "group"
-        verbose_name_plural = "groups"
+        verbose_name = "Group"
+        verbose_name_plural = "Groups"
         ordering = ["name"]
         # constrain on the Min and Max number of users that are members?
 

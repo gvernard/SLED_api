@@ -6,6 +6,7 @@ from . import views
 # Additionally, we include login URLs for the browsable API.
 app_name = 'api'
 urlpatterns = [
+    path('global-search/',views.GlobalSearch.as_view(), name="global-search-view"),
     path('users/', views.UsersAutocomplete.as_view(), name="users-view"),
     path('groups/', views.GroupsAutocomplete.as_view(), name="groups-view"),
     path('papers/', views.PapersAutocomplete.as_view(), name="papers-view"),

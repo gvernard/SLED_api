@@ -124,8 +124,6 @@ function_distance_on_sky.sql
 mysite/my.cnf
 trial_sample/images/
 lenses/static/lenses/mugshots/*.png
-static/js/*
-!static/js/jquery.bootstrap.modal.forms.js
 
 data/images_to_upload/*/*.png
 data/images_to_upload/*/*.json

@@ -602,6 +602,8 @@
 {% block extrastyles %}
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="{% static 'lenses/css/lens_query.css' %}" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
 {% endblock extrastyles %}
 
 
@@ -610,6 +612,7 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 {{ lens_form.media.js }}
+<script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_query.js' %}"></script>
 <script type="text/javascript">

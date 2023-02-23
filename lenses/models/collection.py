@@ -54,8 +54,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
     
     class Meta(SingleObject.Meta):
         db_table = "collection"
-        verbose_name = "collection"
-        verbose_name_plural = "collections"
+        verbose_name = "Collection"
+        verbose_name_plural = "Collections"
         ordering = ["modified_at"]
         # Constrain the number of objects in a collection?
 

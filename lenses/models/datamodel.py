@@ -38,8 +38,8 @@ class Instrument(models.Model):
     class Meta():
         ordering = ["name"]
         db_table = "instruments"
-        verbose_name = "instrument"
-        verbose_name_plural = "instruments"
+        verbose_name = "Instrument"
+        verbose_name_plural = "Instruments"
 
     def __str__(self):
         return self.name
@@ -62,8 +62,8 @@ class Band(models.Model):
     class Meta():
         ordering = ["wavelength"]
         db_table = "bands"
-        verbose_name = "band"
-        verbose_name_plural = "bands"
+        verbose_name = "Band"
+        verbose_name_plural = "Bands"
 
     def __str__(self):
         return self.name
@@ -140,7 +140,11 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     def __str__(self):
         return self.lens.name + " - " + self.instrument.name + " " + self.band.name
 
+    
+    def get_absolute_url(self):
+        return self.lens.get_absolute_url()
 
+    
     def save(self,*args,**kwargs):
         if self._state.adding and self.access_level == "PUB":
             # Creating object for the first time, calling save first to create a primary key
@@ -227,8 +231,8 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
         ]
         ordering = ["created_at"]
         db_table = "spectra"
-        verbose_name = "spectrum"
-        verbose_name_plural = "spectra"
+        verbose_name = "Spectrum"
+        verbose_name_plural = "Spectra"
 
         
     def __str__(self):
