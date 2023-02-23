@@ -482,7 +482,7 @@ class LensQueryForm(forms.Form):
             if float(z_lens_min) > float(z_lens_max):
                 raise ValidationError('The maximum lens redshift is lower than the minimum.')
         if z_source_min and z_source_max:
-            if float(z_source_min) and float(z_source_max):
+            if float(z_source_min) > float(z_source_max):
                 raise ValidationError('The maximum source redshift is lower than the minimum.')
         if z_lens_min and z_source_max:
             if float(z_lens_min) > float(z_source_max):
