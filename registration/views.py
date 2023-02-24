@@ -62,7 +62,7 @@ def password_reset_request(request):
                     mycontext = {
                         'first_name': user.first_name,
                         'protocol': request.scheme,
-                        'domain': request.get_host(), #site.domain, THIS DOES NOT WORK AND HAS TO BE SET MANUALLY...
+                        'domain': site.domain, #site.domain, THIS HAS TO BE SET MANUALLY...
                         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                         'token': default_token_generator.make_token(user),
                     }
