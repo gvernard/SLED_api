@@ -26,7 +26,6 @@ def register(response):
     if response.method == "POST":
         form = RegisterForm(response.POST)
         if form.is_valid():
-            print(form)
             candidate_user = form.save(commit=False)
             candidate_user.is_active = False
             candidate_user.save()
@@ -57,13 +56,13 @@ def password_reset_request(request):
                 for user in associated_users:
                     subject = 'SLED: Password reset'
                     html_message = get_template('emails/password_reset.html')
-                    mycontext = Context({
+                    mycontext = {
                         'first_name': task_owner.first_name,
                         'protocol': request.scheme,
                         'domain': site.domain,
                         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                         'token': default_token_generator.make_token(user),
-                    })
+                    }
                     html_message = html_message.render(mycontext)
                     plain_message = strip_tags(html_message)
 
