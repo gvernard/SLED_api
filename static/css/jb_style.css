@@ -47,18 +47,24 @@
     padding-top: 10px;
 }
 
-.jb-navbar-container-table {
-    margin: 0px;
+.jb-navbar-table-top {
+    table-layout: auto;
+    width:60%;
+    margin: 0px auto;
 }
-.jb-navbar-container-table td {
+.jb-navbar-table-top td {
     margin: 0px;
     padding: 0px;
     border: 0px;
 }
 
-.jb-navbar {
-    padding-top: 5px;
-    padding-bottom: 0px;
+.jb-navbar-table-bottom {
+    table-layout: auto;
+    width:80%;
+    margin: 0px auto;
+}
+.jb-navbar-table-bottom td {
+    text-align:center;
 }
 
 .jb-navbar a {
@@ -66,7 +72,6 @@
     color: #000;
     font-size: 20px;
     text-decoration: none;
-    margin-left: 40px;
 }
 
 .jb-navbar-login {
@@ -87,7 +92,7 @@
     color: #000;
     font-size: 40px;
     font-weight: 700;
-    padding-top: 75px;
+    padding-top: 40px;
 }
 
 .jb-heading-2 {

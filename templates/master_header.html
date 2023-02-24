@@ -70,8 +70,8 @@
 
     
     <!-- Top navigation bar -->
-    <div class="jb-navbar-container">
-      <table class="jb-navbar-container-table">
+    <div class="jb-navbar-container jb-table-no-lines">
+      <table class="jb-navbar-table-top">
 	<tr>
 	  <td style="width:300px;">
 	    <a href="{% url 'home:homepage' %}" class="jb-nav-brand"><img src="{% static 'images/JB_Master Header_Logo.png' %}" loading="lazy" width="248" alt=""></a>
@@ -90,26 +90,24 @@
 	    {% endif %}
 	  </td>
 	</tr>
-	<tr>
-	  <td colspan="4">
-	    <div class="jb-navbar">
-	      <nav role="navigation">
-		<a href="{% url 'home:homepage' %}">Home</a>
-		<a href="{% url 'lenses:lens-index' %}">Lenses</a>
-		<a href="{% url 'sled_groups:group-list' %}">Groups</a>
-		<a href="{% url 'sled_collections:collections-list' %}">Collections</a>
-		<a href="{% url 'sled_papers:paper-query' %}">Papers</a>
-		{% if user.is_authenticated %}
-		<a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>
-		{% endif %}
-		{% if user.is_staff %}
-		<a href="{% url 'sled_users:user-admin' %}">Admin</a>
-		{% endif %}	
-	      </nav>
-	    </div>
-	  </td>
-	</tr>
       </table>
+      <nav role="navigation">
+	<table class="jb-navbar-table-bottom jb-navbar">
+	  <tr>
+	    <td><a href="{% url 'home:homepage' %}">Home</a></td>
+	    <td><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
+	    <td><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
+	    <td><a href="{% url 'sled_collections:collections-list' %}">Collections</a></td>
+	    <td><a href="{% url 'sled_papers:paper-query' %}">Papers</a></td>
+	    {% if user.is_authenticated %}
+	    <td><a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a></td>
+	    {% endif %}
+	    {% if user.is_staff %}
+	    <td><a href="{% url 'sled_users:user-admin' %}">Admin</a></td>
+	    {% endif %}	
+	  </tr>
+	</table>
+      </nav>
     </div>
 
     

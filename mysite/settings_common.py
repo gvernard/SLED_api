@@ -154,7 +154,7 @@ STATICFILES_DIRS = [
 ]
 
 # Media files, i.e. user uploaded files
-MEDIA_URL = '/media/'
+MEDIA_URL = '/mediafiles/'
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1000000
 DATA_UPLOAD_MAX_MEMORY_SIZE = None

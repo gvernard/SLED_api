@@ -29,7 +29,6 @@ def register(response):
     if response.method == "POST":
         form = RegisterForm(response.POST)
         if form.is_valid():
-            print(form)
             candidate_user = form.save(commit=False)
             candidate_user.is_active = False
             candidate_user.save()

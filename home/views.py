@@ -28,5 +28,5 @@ class ActivityHomeDetailedView(TemplateView):
             'stream': stream_paginator.get_page(stream_page_number)
         }
 
-        [print(action) for action in stream_paginator.get_page(stream_page_number)]
+        #[print(action) for action in stream_paginator.get_page(stream_page_number)]
         return context

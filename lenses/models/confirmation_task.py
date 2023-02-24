@@ -10,7 +10,6 @@ from django.db.models import Q,F,Count,CharField
 from django.apps import apps
 from django.conf import settings
 from django.template.loader import get_template
-from django.template import Context
 
 from guardian.shortcuts import assign_perm
 
@@ -635,35 +634,35 @@ class AcceptNewUser(ConfirmationTask):
         response = self.heard_from().get().response
         from . import Users
         task_owner = Users.objects.get(id=self.owner.id) # needs to be a query set
+        site = Site.objects.get_current()
         if response == 'yes':
             task_owner.is_active = True
             task_owner.save()
             action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUserHome',level='success',action_object=task_owner)
             subject = 'Welcome to SLED'
             html_message = get_template('emails/successful_registration.html')
-            mycontext = Context({
+            mycontext = {
                 'first_name': task_owner.first_name,
                 'last_name': task_owner.last_name,
                 'protocol': 'http',
                 'domain': site.domain,
                 'user_url': task_owner.get_absolute_url(),
                 'username': task_owner.username,
-            })
+            }
             html_message = html_message.render(mycontext)
             plain_message = strip_tags(html_message)
         else:
             subject = 'SLED: Unsuccessful registration'
             html_message = get_template('emails/unsuccessful_registration.html')
-            mycontext = Context({
+            mycontext = {
                 'first_name': task_owner.first_name,
                 'last_name': task_owner.last_name,
                 'response':self. heard_from().get().response_comment
-            })
+            }
             html_message = html_message.render(mycontext)
             plain_message = strip_tags(html_message)
 
         # Send email to user with the response
-        site = Site.objects.get_current()
         user_email = task_owner.email
         from_email = 'no-reply@%s' % site.domain
         send_mail(subject,plain_message,from_email,[user_email],html_message=html_message)
