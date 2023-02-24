@@ -368,7 +368,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
 
             user = self.context['request'].user
             #indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10) # This call includes PRI lenses visible to the user
-            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs,radius=10) # Only public lenses
+            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs,radius=5) # Only public lenses
             
             if len(indices) != N_lenses:
                 #print(neis)
@@ -503,7 +503,7 @@ class PaperUploadSerializer(serializers.Serializer):
 
     def validate(self,data):
         ### Check proximity of given lenses with each other
-        check_radius = 10 # arcsec
+        check_radius = 5 # arcsec
         proximal_lenses = []
         for i in range(0,len(data['lenses'])-1):
             ra1 = data['lenses'][i]['ra']
@@ -565,7 +565,7 @@ class CollectionUploadSerializer(serializers.Serializer):
         for lensinstance in data['lenses']:
             ra, dec = lensinstance['ra'], lensinstance['dec']
             user = self.context['request'].user
-            qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=3) # This call includes PRI lenses visible to the user
+            qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=5) # This call includes PRI lenses visible to the user
             lenses_in_collection.append(qset.values_list('id', flat=True)[0])
         print(lenses_in_collection)
         data['lenses_in_collection'] = lenses_in_collection

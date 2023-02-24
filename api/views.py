@@ -447,6 +447,12 @@ class UpdateLenses(APIView):
 
             print(update_data)
             print('about to serialize')
+            #cannot create a lens with the same name, so let's pop it and then bring it back later
+            name = False
+            if 'name' in update_data.keys():
+                print('Saving name for update later')
+                name = update_data['name']
+                update_data.pop('name')
             serializer = LensesUpdateSerializer(data=update_data, many=False)
             if serializer.is_valid():
                 updated_lens = serializer.create(serializer.validated_data)
@@ -467,6 +473,9 @@ class UpdateLenses(APIView):
                     if value!=update_data[key]:
                         print('Updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
                         setattr(lens, key, getattr(updated_lens, key))
+
+                    if name:
+                       setattr(lens, 'name', name) 
 
                 lens.save()
 

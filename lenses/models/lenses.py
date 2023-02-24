@@ -174,7 +174,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                               help_text="The DEC of the lens [degrees].",
                               validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
                                           MaxValueValidator(90,"DEC must be below 90 degrees.")])
-    name = models.CharField(blank=True,
+    name = models.CharField(unique=True,
+                            blank=True,
                             max_length=100,
                             help_text="An identification for the lens, e.g. the usual phone numbers.")
 
@@ -428,9 +429,11 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         
         # Create new file and remove old one
         fname = '/'+self.mugshot.name
+
         if not os.path.exists(settings.MEDIA_ROOT+'/lenses/'):
             os.mkdir(settings.MEDIA_ROOT+'/lenses/')
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
+        print(fname, sled_fname)
         if fname != sled_fname:
             os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             self.mugshot.name = sled_fname

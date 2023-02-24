@@ -14,6 +14,9 @@ from django.shortcuts import render, redirect
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponse
 from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.sites.models import Site
+from django.template.loader import get_template
+from django.template import Context
 from .forms import RegisterForm, UserLoginForm
 
 from lenses.models import Users, ConfirmationTask
@@ -57,13 +60,13 @@ def password_reset_request(request):
                 for user in associated_users:
                     subject = 'SLED: Password reset'
                     html_message = get_template('emails/password_reset.html')
-                    mycontext = Context({
-                        'first_name': task_owner.first_name,
+                    mycontext = {
+                        'first_name': user.first_name,
                         'protocol': request.scheme,
-                        'domain': site.domain,
+                        'domain': request.get_host(), #site.domain, THIS DOES NOT WORK AND HAS TO BE SET MANUALLY...
                         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                         'token': default_token_generator.make_token(user),
-                    })
+                    }
                     html_message = html_message.render(mycontext)
                     plain_message = strip_tags(html_message)
 

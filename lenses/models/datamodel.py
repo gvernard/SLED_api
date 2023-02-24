@@ -102,7 +102,7 @@ class DataBase(models.Model):
 class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     exposure_time = models.DecimalField(blank=True,
                                         null=True,
-                                        max_digits=10,
+                                        max_digits=12,
                                         decimal_places=3,
                                         verbose_name="Exposure time",
                                         help_text="The exposure time of the image [seconds].",
