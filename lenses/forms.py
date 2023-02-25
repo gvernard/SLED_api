@@ -518,7 +518,7 @@ class DataBaseQueryForm(forms.Form):
         help_text="The minimum date the data were taken.",
         widget = forms.SelectDateWidget(
             empty_label = ("Year", "Month", "Day"),
-            years = reversed(range(1950,timezone.now().year+10))
+            years = list(reversed(range(1950,timezone.now().year+10)))
         )
     )
     date_taken_max = forms.DateField(
@@ -527,7 +527,7 @@ class DataBaseQueryForm(forms.Form):
         help_text="The maximum date the data were taken.",
         widget = forms.SelectDateWidget(
             empty_label = ("Year", "Month", "Day"),
-            years = reversed(range(1950,timezone.now().year+10))
+            years = list(reversed(range(1950,timezone.now().year+10)))
         )
     )
     future = forms.NullBooleanField(
@@ -542,7 +542,7 @@ class DataBaseQueryForm(forms.Form):
             ]
         )
     )
-
+        
     def clean(self):
         if self.cleaned_data.get('date_taken_min') and self.cleaned_data.get('date_taken_max'):
             if self.cleaned_data.get('date_taken_min') > self.cleaned_data.get('date_taken_max'):
