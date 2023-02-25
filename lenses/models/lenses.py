@@ -427,6 +427,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             if len(dirty) > 0:
                 action.send(self.owner,target=self,verb='UpdateLog',level='info',fields=json.dumps(dirty))
         
+
+        super(Lenses,self).save(*args,**kwargs)
         # Create new file and remove old one
         fname = '/'+self.mugshot.name
 

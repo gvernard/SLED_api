@@ -188,6 +188,7 @@ class LensUpdateModalView(BSModalUpdateView):
         return Lenses.accessible_objects.owned(self.request.user)
 
     def form_valid(self,form):
+        print('REQUEST', self.request.FILES)
         if not is_ajax(self.request.META):
             # Check for duplicates and redirect here
             instance = form.save(commit=False)
