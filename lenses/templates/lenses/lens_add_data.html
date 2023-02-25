@@ -48,7 +48,7 @@
             <td>
               {% if form %}
               {{ form.mychoices.errors }}
-              {{ form.mychoices.label_tag }}
+              {{ form.mychoices.label|safe }}
               {{ form.mychoices }}
               {% endif %}
             </td>

@@ -44,7 +44,7 @@
             <td colspan="2">
               {% if form %}
               {{ form.insert.errors }}
-              {{ form.insert.label_tag }}
+              {{ form.insert.label|safe }}
               {{ form.insert }}
               {{ form.index }}
               {% endif %}

@@ -67,14 +67,14 @@
 		<td>
 		  <div class="column">
 		    <table>
-		      <tr><td>{{ form.ra.errors }}</td><td>{{ form.ra.label_tag }}</td><td>{{ form.ra }}</td></tr>
-		      <tr><td>{{ form.dec.errors }}</td><td>{{ form.dec.label_tag }}</td><td>{{ form.dec }}</td></tr>
-		      <tr><td>{{ form.image_sep.errors }}</td><td>{{ form.image_sep.label_tag }}</td><td>{{ form.image_sep }}</td></tr>
-		      <tr><td>{{ form.z_lens.errors }}</td><td>{{ form.z_lens.label_tag }}</td><td>{{ form.z_lens }}</td></tr>
-		      <tr><td>{{ form.z_source.errors }}</td><td>{{ form.z_source.label_tag }}</td><td>{{ form.z_source }}</td></tr>
-		      <tr><td>{{ form.flag_confirmed.errors }}</td><td>{{ form.flag_confirmed.label_tag }}</td><td>{{ form.flag_confirmed }}</td></tr>
-		      <tr><td>{{ form.flag_contaminant.errors }}</td><td>{{ form.flag_contaminant.label_tag }}</td><td>{{ form.flag_contaminant }}</td></tr>
-		      <tr><td>{{ form.access_level.errors }}</td><td>{{ form.access_level.label_tag }}</td><td>{{ form.access_level }}</td></tr>
+		      <tr><td>{{ form.ra.errors }}</td><td>{{ form.ra.label|safe }}</td><td>{{ form.ra }}</td></tr>
+		      <tr><td>{{ form.dec.errors }}</td><td>{{ form.dec.label|safe }}</td><td>{{ form.dec }}</td></tr>
+		      <tr><td>{{ form.image_sep.errors }}</td><td>{{ form.image_sep.label|safe }}</td><td>{{ form.image_sep }}</td></tr>
+		      <tr><td>{{ form.z_lens.errors }}</td><td>{{ form.z_lens.label|safe }}</td><td>{{ form.z_lens }}</td></tr>
+		      <tr><td>{{ form.z_source.errors }}</td><td>{{ form.z_source.label|safe }}</td><td>{{ form.z_source }}</td></tr>
+		      <tr><td>{{ form.flag_confirmed.errors }}</td><td>{{ form.flag_confirmed.label|safe }}</td><td>{{ form.flag_confirmed }}</td></tr>
+		      <tr><td>{{ form.flag_contaminant.errors }}</td><td>{{ form.flag_contaminant.label|safe }}</td><td>{{ form.flag_contaminant }}</td></tr>
+		      <tr><td>{{ form.access_level.errors }}</td><td>{{ form.access_level.label|safe }}</td><td>{{ form.access_level }}</td></tr>
 		    </table>
 		  </div>
 		</td>
@@ -84,9 +84,9 @@
 		<td>
 		  <div class="column">
 		    <table>
-		      <tr><td>{{ form.lens_type.errors }}</td><td>{{ form.lens_type.label_tag }}</td><td>{{ form.lens_type }}</td></tr>
-		      <tr><td>{{ form.source_type.errors }}</td><td>{{ form.source_type.label_tag }}</td><td>{{ form.source_type }}</td></tr>
-		      <tr><td>{{ form.image_conf.errors }}</td><td>{{ form.image_conf.label_tag }}</td><td>{{ form.image_conf }}</td></tr>
+		      <tr><td>{{ form.lens_type.errors }}</td><td>{{ form.lens_type.label|safe }}</td><td>{{ form.lens_type }}</td></tr>
+		      <tr><td>{{ form.source_type.errors }}</td><td>{{ form.source_type.label|safe }}</td><td>{{ form.source_type }}</td></tr>
+		      <tr><td>{{ form.image_conf.errors }}</td><td>{{ form.image_conf.label|safe }}</td><td>{{ form.image_conf }}</td></tr>
 		      <tr><td>{{ form.info.errors }}</td><td colspan="2">{{ form.info }}</td></tr>
 		    </table>
 		  </div>
@@ -112,7 +112,7 @@
 
 	  {% if existing %}
 	  {{ form.insert.errors }}
-	  {{ form.insert.label_tag }}
+	  {{ form.insert.label|safe }}
 	  {{ form.insert }}
 	  {% endif %}
 	  

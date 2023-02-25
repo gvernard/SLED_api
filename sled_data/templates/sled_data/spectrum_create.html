@@ -27,7 +27,7 @@ Add Spectrum?
 	<tr>
 	  <td>{{ field.error }}</td>
           <td>
-	    <div class="sled-help-tooltip">{{ field.label_tag }}</div>
+	    <div class="sled-help-tooltip">{{ field.label|safe }}</div>
 	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
 	  </td>
 	  <td>{{ field }}</td>
