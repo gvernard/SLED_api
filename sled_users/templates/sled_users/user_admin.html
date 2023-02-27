@@ -27,7 +27,7 @@
 	  Pending tasks
 	  {% if N_tasks > 0 %}
 	  <span class="jb-important-text">
-	    - you have <b>{{N_tasks}}</b> new pending {{ N_tasks|pluralize:"task,tasks" }}!
+	  &nbsp; - you have <b>{{N_tasks}}</b> new pending {{ N_tasks|pluralize:"task,tasks" }}!
 	  </span>
 	  {% endif %}
 	</label>
@@ -54,7 +54,7 @@
 	  Notifications
 	  {% if N_note_unread > 0 %}
 	  <span class="jb-important-text">
-	    - you have <b>{{N_note_unread}}</b> unread {{ N_note_unread|pluralize:"notification,notifications" }}!
+	  &nbsp; - you have <b>{{N_note_unread}}</b> unread {{ N_note_unread|pluralize:"notification,notifications" }}!
 	  </span>
 	  {% endif %}
 	</label>
