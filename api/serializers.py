@@ -396,9 +396,8 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                     # Queryset evaluation happens here
                     dum = []
                     for q in neis:
-                        print('NEIS')
-                        print(q)
                         if len(q)>1:
+                            print(q)
                             print('NEIS NEIS')
 
                         dum.extend( list(q) )
@@ -407,12 +406,12 @@ class PaperUploadListSerializer(serializers.ListSerializer):
         #print('lenses per paper:', lenses_per_paper)
         
         ## Loop over papers and check for discovery
-        print(len(lenses_per_paper[0]))
+        #print(len(lenses_per_paper[0]))
         lenses_with_discovery = []
         for i,paper in enumerate(papers):
-            print(i, paper)
+            #print(i, paper)
             for j,lens in enumerate(lenses_per_paper[i]):
-                print(j, lens)
+                #print(j, lens)
                 if papers[i]["lenses"][j]["discovery"]:
                     lenses_with_discovery.append(lenses_per_paper[i][j])
 
