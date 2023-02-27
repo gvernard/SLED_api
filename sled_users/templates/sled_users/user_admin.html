@@ -11,35 +11,12 @@
     <p style="margin-bottom:2px">
       Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
     </p>
-    <div>
-      {% if N_note_unread == 1 %}
-      <span class="jb-important-text">
-	You have <b>1</b> new notification!
-      </span>
-      {% else %}
-      <span class="jb-important-text">
-	You have <b>{{ N_note_unread }}</b> new notifications!
-      </span>
-      {% endif %}
-      <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
-    </div>
-    <div>
-      {% if N_tasks == 1 %}
-      <span class="jb-important-text">
-	You have <b>1</b> new pending task!
-      </span>
-      {% else %}
-      <span class="jb-important-text">
-	You have <b>{{ N_tasks }}</b> new pending tasks!
-      </span>	    
-      {% endif %}	    
-    </div>
   </div>
 
 
   
   
-  <div style="margin-top:60px;">
+  <div>
     
     <h1 class="jb-heading-2">Admin panel</h1>
     
@@ -47,7 +24,12 @@
       <input class="accordion-checkbox" type="checkbox" id="admin-0">
       <h1 class="jb-heading-2">
 	<label for="admin-0">
-	  Pending tasks ({{ N_tasks }})
+	  Pending tasks
+	  {% if N_tasks > 0 %}
+	  <span class="jb-important-text">
+	    - you have <b>{{N_tasks}}</b> new pending {{ N_tasks|pluralize:"task,tasks" }}!
+	  </span>
+	  {% endif %}
 	</label>
       </h1>
       <div class="p">
@@ -63,6 +45,33 @@
       </div>
     </div>
     
+
+    
+    <div class="c c-admin">
+      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <h1 class="jb-heading-2">
+	<label for="faq-7">
+	  Notifications
+	  {% if N_note_unread > 0 %}
+	  <span class="jb-important-text">
+	    - you have <b>{{N_note_unread}}</b> unread {{ N_note_unread|pluralize:"notification,notifications" }}!
+	  </span>
+	  {% endif %}
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_note_unread > 0 %}
+	{% include "notifications_container.html" with notifications=unread_notifications %}
+	{% else %}
+	<p class="jb-paragraph-2">No new notifications</p>
+	{% endif %}
+	<a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
+	<br>
+	<br>
+      </div>
+    </div>
+
     
 
     <div class="c c-admin">

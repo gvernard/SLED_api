@@ -16,29 +16,6 @@
 	  <p style="margin-bottom:2px">
 	    Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
 	  </p>
-	  <div>
-	    {% if N_note_unread == 1 %}
-	    <span class="jb-important-text">
-	      You have <b>1</b> new notification!
-	    </span>
-	    {% else %}
-	    <span class="jb-important-text">
-	      You have <b>{{ N_note_unread }}</b> new notifications!
-	    </span>
-	    {% endif %}
-	    <a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
-	  </div>
-	  <div>
-	    {% if N_tasks == 1 %}
-	    <span class="jb-important-text">
-	      You have <b>1</b> new pending task!
-	    </span>
-	    {% else %}
-	    <span class="jb-important-text">
-	      You have <b>{{ N_tasks }}</b> new pending tasks!
-	    </span>	    
-	    {% endif %}	    
-	  </div>
 	</td>
 	<td valign="bottom" align="right">
 	  <img src="{{ user.avatar }}" loading="lazy" width="100" class="jb-image-2" />
@@ -50,7 +27,7 @@
   
   
   
-  <div style="margin-top:60px;">
+  <div>
     <h1 class="jb-heading-2">Notifications, Tasks, and Updates</h1>
 
     <div class="c c-user">
@@ -110,7 +87,12 @@
       <input class="accordion-checkbox" type="checkbox" id="faq-4">
       <h1 class="jb-heading-2">
 	<label for="faq-4">
-	  Pending Tasks ({{ N_tasks }})
+	  Pending Tasks
+	  {% if N_tasks > 0 %}
+	  <span class="jb-important-text">
+	    - you have <b>{{N_tasks}}</b> new pending {{ N_tasks|pluralize:"task,tasks" }}!
+	  </span>
+	  {% endif %}
 	</label>
       </h1>
       <div class="p">
@@ -118,7 +100,7 @@
 	{% if N_tasks > 0 %}
 	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks admin=view.kwargs.admin %}
 	{% else %}
-	<p class="jb-paragraph-2">No pending confirmation tasks</p>
+	<p class="jb-paragraph-2">No pending tasks</p>
 	{% endif %}
 	<a href="{% url 'sled_tasks:tasks-list' %}">See all tasks</a>
 	<br>
@@ -126,12 +108,38 @@
       </div>
     </div>
 
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <h1 class="jb-heading-2">
+	<label for="faq-7">
+	  Notifications
+	  {% if N_note_unread > 0 %}
+	  <span class="jb-important-text">
+	    - you have <b>{{N_note_unread}}</b> unread {{ N_note_unread|pluralize:"notification,notifications" }}!
+	  </span>
+	  {% endif %}
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_note_unread > 0 %}
+	{% include "notifications_container.html" with notifications=unread_notifications %}
+	{% else %}
+	<p class="jb-paragraph-2">No new notifications</p>
+	{% endif %}
+	<a href="{% url 'sled_notifications:notifications-list' %}">See all notifications</a>
+	<br>
+	<br>
+      </div>
+    </div>
+    
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-6">
       <h1 class="jb-heading-2">
 	<label for="faq-6">
-	  Following {{ followed_lenses|length }} lenses
+	  Following lenses ({{ followed_lenses|length }})
 	</label>
       </h1>
       <div class="p">
@@ -171,7 +179,7 @@
 
 
   
-  <div style="margin-top:60px;">
+  <div style="margin-top:20px;">
     <h1 class="jb-heading-2">Database Management</h1>
     
     <div class="c c-user">
