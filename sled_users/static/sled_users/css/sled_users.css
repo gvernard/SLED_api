@@ -24,10 +24,15 @@ div.c h1 {
     padding: 10px 20px 5px 20px;
     position: relative;
     border-radius: 8px;
-    background-color: #efefef;
    -webkit-background-clip: padding-box; 
     -moz-background-clip:    padding; 
     background-clip:         padding-box;
+}
+div.c-admin h1 {
+    background-color: #87e6e6;
+}
+div.c-user h1 {
+    background-color: #dfdfdf;
 }
 div.c label::before {
   content: "";
