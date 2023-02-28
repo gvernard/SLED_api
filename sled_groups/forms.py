@@ -52,6 +52,9 @@ class GroupCreateForm(BSModalModelForm):
         if not users:
             self.add_error('__all__',"Select at least one User.")
 
+        if self.request.user in users:
+            self.add_error('__all__',"The group contains the owner as a member by default.")
+
 
 class GroupAddRemoveMembersForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)

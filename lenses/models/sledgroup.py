@@ -12,6 +12,8 @@ from notifications.signals import notify
 from actstream import action
 from dirtyfields import DirtyFieldsMixin
 
+import inspect
+
 class SledGroup(Group,SingleObject,DirtyFieldsMixin):
     """
     The custom SLED model for a group of users, inheriting from the django `Group`.
