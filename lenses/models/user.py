@@ -485,7 +485,8 @@ class Users(AbstractUser,GuardianUserMixin):
             return Users.objects.filter(collection__id__in=cleaned)
         else:
             return Users.objects.none()
-    
+
+        
     def remove_from_third_collections(self,objects,user):
         user_type = user._meta.model.__name__
         if user_type == 'SledGroup':
@@ -524,17 +525,38 @@ class Users(AbstractUser,GuardianUserMixin):
                             action_object=ad_col)
 
 
-            
+    def get_pending_tasks(self):
+        pending_tasks = list(ConfirmationTask.objects.filter(status='P').filter(Q(owner=self)|Q(recipients__username=self.username)))
+        return pending_tasks
+
+        
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
     def getAdmin():
         return Users.objects.filter(is_superuser=True)
+    
 
     def selectRandomAdmin():
         # returns a queryset
         user_id = Users.objects.filter(Q(is_staff=True) & Q(is_superuser=False)).order_by('?').first().id
         qset = Users.objects.filter(id=user_id)
         return qset
+
+    def get_admin_pending_tasks(self):
+        if self.is_staff:
+            admin = Users.getAdmin()[0]
+            pending_tasks = list(ConfirmationTask.objects.filter(status='P').filter(Q(owner=admin)|Q(recipients__username=admin.username)))
+            return pending_tasks
+        else:
+            return []
+
+    def get_admin_notifications(self):
+        if self.is_staff:
+            admin = Users.getAdmin()[0]
+            return admin.notifications.unread()
+        else:
+            return []
+
         
     # def deactivateUser(self,user):
     #     # See django documentation for is_active for login and permissions
