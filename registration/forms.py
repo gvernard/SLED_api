@@ -1,11 +1,16 @@
 from django import forms
-from lenses.models.user import Users
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
+import re
 import os
 import time
 import slack_sdk
 from slack_sdk.errors import SlackApiError
+
+from lenses.models.user import Users
+
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -31,13 +36,20 @@ class RegisterForm(UserCreationForm):
         self.fields['affiliation'].widget.attrs['class'] = 'field-label'
         self.fields['slack_display_name'].widget.attrs['class'] = 'field-label'
 
+    def clean_username(self):
+        value = self.cleaned_data['username']
+        if re.match(r'[A-z0-9]+',value):
+            self.add_error("username","Only alphanumeric characters are allowed in the username!")
+        return value
+
+        
     def clean(self):
         # Check that at least one field was changed
         if not self.has_changed():
             self.add_error("__all__","No changes detected!")
 
         if self.cleaned_data["username"] == self.cleaned_data["email"]:
-            self.add_error("__all__"," Your user name cannot be the same as your email address!")
+            self.add_error("__all__","Your user name cannot be the same as your email address!")
             
         if "slack_display_name" in self.changed_data:
             SLACK_TOKEN = os.environ['DJANGO_SLACK_API_TOKEN']
