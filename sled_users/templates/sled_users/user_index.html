@@ -98,7 +98,7 @@
       <div class="p">
 	<br>
 	{% if N_tasks > 0 %}
-	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks admin=view.kwargs.admin %}
+	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks %}
 	{% else %}
 	<p class="jb-paragraph-2">No pending tasks</p>
 	{% endif %}
@@ -397,7 +397,7 @@
 	<br>
 	{% if user.is_superuser %}
 	<p>
-	  The adming owns all the automatically fetched data, which are too many to display here.
+	  The admin owns all the automatically fetched data, which are too many to display here.
 	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
 	</p>
 	{% else %}
@@ -520,7 +520,7 @@
 	<br>
 	{% if user.is_superuser %}
 	<p>
-	  The adming owns all the automatically fetched data, which are too many to display here.
+	  The admin owns all the automatically fetched data, which are too many to display here.
 	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
 	</p>
 	{% else %}
@@ -641,7 +641,7 @@
 	<br>
 	{% if user.is_superuser %}
 	<p>
-	  The adming owns all the automatically fetched data, which are too many to display here.
+	  The admin owns all the automatically fetched data, which are too many to display here.
 	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
 	</p>
 	{% else %}

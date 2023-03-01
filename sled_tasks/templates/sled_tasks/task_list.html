@@ -8,7 +8,7 @@
 
   <div id="tasks_recipient">
     <h1 class="jb-heading-1">Tasks Addressed to
-      {% if view.kwargs.admin %}
+      {% if admin_page %}
       the Admins
       {% else %}
       Me
@@ -16,7 +16,7 @@
     </h1>
 
     {% include "pagination_top.html" with qset=recipient request=request qset_range=recipient_range qset_total=N_recipient target="tasks_recipient" %}
-    {% include 'sled_tasks/task_list_recipient.html' with recipient=recipient admin=view.kwargs.admin %}
+    {% include 'sled_tasks/task_list_recipient.html' with recipient=recipient admin_page=admin_page %}
     {% include "pagination_bottom.html" with qset=recipient request=request qset_range=recipient_range qset_total=N_recipient target="tasks_recipient" %}
   </div>
 
@@ -25,7 +25,7 @@
   
   <div id="tasks_owned">
     <h1 class="jb-heading-1">Tasks Initiated by
-      {% if view.kwargs.admin %}
+      {% if admin_page %}
       the Admins
       {% else %}
       Me
@@ -63,10 +63,17 @@
             <td>{{ task.created_at }}</td>
             <td>{{ task.recipients.all|join:", " }}</td>
 	    <td>
+	      {% if admin_page %}
 	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
-		<img src="{% static 'icons/eye-fill.svg' %}" alt="people">
+		<img src="{% static 'icons/eye-fill.svg' %}">
 		View
 	      </button>
+	      {% else %}
+	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-owner' task.id %}">
+		<img src="{% static 'icons/eye-fill.svg' %}">
+		View
+	      </button>
+	      {% endif %}
 	    </td>
           </tr>
           {% empty %}

@@ -44,6 +44,7 @@
 
       <td>
         {% if admin_page %}
+	
         {% if task.status == 'C' %}
         <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
           <img src="{% static 'icons/eye-fill.svg' %}">
@@ -65,8 +66,7 @@
 	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
           <img src="{% static 'icons/eye-fill.svg' %}">
           View
-        </button>
-
+	</button>
         {% else %}
         {% if task.owner == request.user %}
         <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
@@ -78,7 +78,6 @@
           <img src="{% static 'icons/send-fill.svg' %}">
           Respond
 	</button>
-	
         {% endif %}
         {% endif %}
 	
