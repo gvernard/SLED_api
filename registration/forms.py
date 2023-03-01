@@ -38,12 +38,14 @@ class RegisterForm(UserCreationForm):
 
     def clean_username(self):
         value = self.cleaned_data['username']
-        if re.match(r'[A-z0-9]+',value):
+        if not re.match(r'^[0-9a-zA-Z]*$',value):
             self.add_error("username","Only alphanumeric characters are allowed in the username!")
         return value
 
         
     def clean(self):
+        cleaned_data = super(UserCreationForm,self).clean()
+
         # Check that at least one field was changed
         if not self.has_changed():
             self.add_error("__all__","No changes detected!")
@@ -83,7 +85,20 @@ class RegisterForm(UserCreationForm):
 
             if counter >= 10:
                 self.add_error("__all__","Too many requests to the Slack API. Please try again later!")
-            
+
+
+        # Need to call model clean methods here to raise and catch any errors
+        dum = self.cleaned_data.copy()
+        dum.pop('password1')
+        dum["password"] = dum.pop('password2')
+        instance = Users(**dum)
+        try:
+            instance.full_clean()
+        except ValidationError as e:
+            for err in e:
+                self.add_error(err[0],err[1])
+            return
+        
         return
     
 
