@@ -84,7 +84,10 @@ def spectrum_search(lenses,cleaned_form,user):
     wavelength_min = cleaned_form.get('wavelength_min',None)
     wavelength_max = cleaned_form.get('wavelength_max',None)
     if wavelength_min and wavelength_max:
-        conditions.add( Q(spectrum__lambda_min__range=(wavelength_min,wavelength_max)) | Q(spectrum__lambda_max__range=(wavelength_min,wavelength_max)) ,Q.AND)
+        conditions.add( Q(spectrum__lambda_min__range=(wavelength_min,wavelength_max)) |
+                        Q(spectrum__lambda_max__range=(wavelength_min,wavelength_max)) |
+                        (Q(spectrum__lambda_min__lt=wavelength_min) & Q(spectrum__lambda_max__gt=wavelength_max))
+                        ,Q.AND)
     elif wavelength_max:
         conditions.add( Q(spectrum__lambda_min__lt=wavelength_max) ,Q.AND)
     elif wavelength_min:
