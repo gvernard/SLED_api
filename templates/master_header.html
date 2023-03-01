@@ -102,31 +102,17 @@
 	    {% if user.is_authenticated %}
 	    <td>
 	      <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>
-	      {% with N=user.get_pending_tasks|length %}
-	      {% if N > 0 %}
-	      <span class="badge rounded-pill badge-danger">{{N}} {{N|pluralize:"Task,Tasks"}}</span>	
+	      {% if user.get_pending_tasks|length > 0 or user.notifications.unread|length > 0 %}
+	      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
 	      {% endif %}
-	      {% endwith %}
-	      {% with N=user.notifications.unread|length %}
-	      {% if N > 0 %}
-	      <span class="badge rounded-pill badge-danger">{{N}} {{N|pluralize:"Notification,Notifications"}}</span>
-	      {% endif %}
-	      {% endwith %}
 	    </td>
 	    {% endif %}
 	    {% if user.is_staff %}
 	    <td>
 	      <a href="{% url 'sled_users:user-admin' %}">Admin</a>
-	      {% with N=user.get_admin_pending_tasks|length %}
-	      {% if N > 0 %}
-	      <span class="badge rounded-pill badge-danger">{{N}} {{N|pluralize:"Task,Tasks"}}</span>	
+	      {% if user.get_admin_pending_tasks|length > 0 or user.get_admin_notifications|length > 0 %}
+	      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
 	      {% endif %}
-	      {% endwith %}
-	      {% with N=user.get_admin_notifications|length %}
-	      {% if N > 0 %}
-	      <span class="badge rounded-pill badge-danger">{{N}} {{N|pluralize:"Notification,Notifications"}}</span>
-	      {% endif %}
-	      {% endwith %}
 	    </td>
 	    {% endif %}	
 	  </tr>

@@ -1,17 +1,8 @@
-@import url("https://fonts.googleapis.com/css?family=Poppins:400,400i,700");
-*,
-*::after,
-*::before {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-div.c {
+.c {
   position: relative;
   margin: 8px;
 }
-div.c > input {
+.c > input {
   position: absolute;
   left: 0;
   top: 0;
@@ -19,7 +10,7 @@ div.c > input {
   opacity: 0;
   visibility: 0;
 }
-div.c h1 {
+.c h1 {
     color: black;
     padding: 10px 20px 5px 20px;
     position: relative;
@@ -28,26 +19,26 @@ div.c h1 {
     -moz-background-clip:    padding; 
     background-clip:         padding-box;
 }
-div.c-admin h1 {
+.c-admin h1 {
     background-color: #b8e6e6;
 }
-div.c-user h1 {
+.c-user h1 {
     background-color: #dfdfdf;
 }
-div.c label::before {
+.c label::before {
   content: "";
   display: inline-block;
   border: 10px solid transparent;
   border-left: 10px solid black;
   margin-right: 10px;
 }
-div.c label {
+.c label {
   cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
 }
-div.p {
+.p {
   overflow: hidden;
   background-color: white;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);

@@ -36,6 +36,9 @@ class RegisterForm(UserCreationForm):
         if not self.has_changed():
             self.add_error("__all__","No changes detected!")
 
+        if self.cleaned_data["username"] == self.cleaned_data["email"]:
+            self.add_error("__all__"," Your user name cannot be the same as your email address!")
+            
         if "slack_display_name" in self.changed_data:
             SLACK_TOKEN = os.environ['DJANGO_SLACK_API_TOKEN']
             slack_client = slack_sdk.WebClient(SLACK_TOKEN)
