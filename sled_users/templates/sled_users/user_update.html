@@ -19,12 +19,23 @@ Update your information
   </div>
   {% endif %}
 
-  {% for field in form %}
-  <div class="jb-modal-field">
-    {{ field }}
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      <tbody>
+	{% for field in form %}
+	<tr>
+	  <td>{{ field.error }}</td>
+          <td>
+	    <div class="sled-help-tooltip">{{ field.label|safe }}</div>
+	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
+	  </td>
+	  <td>{{ field }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
   </div>
-  {% endfor %}
-
+  
 </div>
 {% endblock content %}
 

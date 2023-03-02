@@ -278,11 +278,13 @@ textarea:focus, {
     color: #ACACAC;
 }
 
-.jb-image-2 {
-    margin-top: auto;
-    max-height: 125px;
-    max-width: 125px;
-    padding-top: 25px;
+.jb-avatar {
+    height: 150px;
+    width: 150px;
+    margin-right: 50px;
+    padding: 5px;
+    border-radius:50%;
+    border: 1px solid #ddd;
 }
 
 .jb-float-child-1 {

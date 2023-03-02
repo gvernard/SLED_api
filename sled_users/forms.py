@@ -1,10 +1,8 @@
 from django import forms
-from lenses.models import Users
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
-import os
-import time
-import slack_sdk
-from slack_sdk.errors import SlackApiError
+
+from lenses.models import Users
+from sled_core.slack_api_calls import get_slack_avatar
 
 class UserUpdateForm(BSModalModelForm):
 
@@ -29,37 +27,18 @@ class UserUpdateForm(BSModalModelForm):
 
 
         if "slack_display_name" in self.changed_data:
-            SLACK_TOKEN = os.environ['DJANGO_SLACK_API_TOKEN']
-            slack_client = slack_sdk.WebClient(SLACK_TOKEN)
-
-            looper = True
-            counter = 1
-            while looper and counter < 10:
-                try:
-                    response = slack_client.users_list()
-                    found = False
-                    if response["ok"]:
-                        for i in range(0,len(response["members"])):
-                            name = response["members"][i]["profile"]["display_name"]
-                            if name == self.cleaned_data["slack_display_name"]:
-                                self.cleaned_data["avatar"] = response["members"][i]["profile"]["image_512"]
-                                found = True
-                    if not found:
-                        self.add_error("__all__","User '" + self.cleaned_data["slack_display_name"] + "' does not exist in the SLED Slack workspace!")
-                    looper = False
-                except SlackApiError as e:
-                    if e.response["error"] == "ratelimited":
-                        print("Retrying connection to Slack API...")
-                        time.sleep(3)
-                        counter = counter + 1
-                    else:
-                        # Other error
-                        self.add_error("__all__","Slack API error: " + e.response["error"])
-                        looper = False
-                        pass
-
-            if counter >= 10:
-                self.add_error("__all__","Too many requests to the Slack API. Please try again later!")
+            slack_name_avatar = [{
+                "slack_name": self.cleaned_data["slack_display_name"],
+                "avatar": ''
+            }]
+            errors,flags,slack_name_avatar = get_slack_avatar(slack_name_avatar)
+            print(errors,flags,slack_name_avatar)
+            
+            if errors:
+                for e in errors:
+                    self.add_error(e[0],e[1])
+            else:
+                self.cleaned_data["avatar"] = slack_name_avatar[0]["avatar"]
             
         return
 

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'gm2m',
     'widget_tweaks',
     'bootstrap_modal_forms',
+    'sled_core',
     'sled_collections',
     'sled_admin_collections',
     'sled_notifications',

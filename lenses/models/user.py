@@ -412,7 +412,7 @@ class Users(AbstractUser,GuardianUserMixin):
         First makes sure that the user owns all the objects, then creates a confirmation task for the database admin.
 
         Args:
-            objects(List[SingleObject]): A list of primary objects of a specific type.
+            objects(queryset <SingleObject>): A queryset of primary objects of a specific type.
 
         Returns:
             task: A confirmation task
