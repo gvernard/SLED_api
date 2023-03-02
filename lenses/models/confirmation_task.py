@@ -107,7 +107,10 @@ class ConfirmationTask(SingleObject):
         return '%s_%s' % (self.task_type,str(self.id))
 
     def get_absolute_url(self):
-        return reverse('sled_tasks:tasks-detail-owner',kwargs={'pk':self.id})
+        if self.owner.is_superuser:
+            return reverse('sled_tasks:tasks-detail-admin-owner',kwargs={'pk':self.id})
+        else:
+            return reverse('sled_tasks:tasks-detail-owner',kwargs={'pk':self.id})
 
     def create_task(sender,users,task_type,cargo):
         """

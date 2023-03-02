@@ -6,13 +6,40 @@
 
 <div class="jb-container">
   {% if unread|length > 0 %}
-  <h1 class="jb-heading-1">New notifications</h1>
+
+  <h1 class="jb-heading-1">
+    New notifications
+    {% if admin_page %}
+    for the Admins
+    {% else %}
+    for {{ request.user }}
+    {% endif %}
+  </h1>
   {% include "notifications_container.html" with notifications=unread %}
-  <h1 class="jb-heading-1">Past notifications</h1>
+  <h1 class="jb-heading-1">
+    Past notifications
+    {% if admin_page %}
+    for the Admins
+    {% else %}
+    for {{ request.user }}
+    {% endif %}
+  </h1>
   {% include "notifications_container.html" with notifications=read %}
+
   {% else %}
-  <h1 class="jb-heading-1">All notifications</h1>
-  {% include "notifications_container.html" with notifications=read %}  
+  
+  <h1 class="jb-heading-1">
+    All notifications
+    {% if admin_page %}
+    for the Admins
+    {% else %}
+    for {{ request.user }}
+    {% endif %}
+  </h1>
+  {% include "pagination_top.html" with qset=read request=request qset_range=read_range qset_total=N_read target="notifications_read" %}
+  {% include "notifications_container.html" with notifications=read %}
+  {% include "pagination_bottom.html" with qset=read request=request qset_range=read_range qset_total=N_read target="notifications_read" %}
+  
   {% endif %}
 </div>
 {% endblock content %}
@@ -26,4 +53,15 @@
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+      // Modals
+      $(".sled-modal").each(function() {
+          $(this).modalForm({
+              formURL: $(this).data("form-url"),
+              modalID: "#id-modal"
+          });
+      });
+  });
+</script>
 {% endblock extrascripts %}
