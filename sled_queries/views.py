@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from django.contrib import messages
 from django.urls import reverse,reverse_lazy
 from django.http import HttpResponseRedirect
+from django.contrib.sites.models import Site
 
 from bootstrap_modal_forms.generic import (
     BSModalCreateView,
@@ -128,7 +129,12 @@ class QueryLinkView(BSModalReadView):
 
     def get_queryset(self):
         return SledQuery.objects.all()
-
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        site = Site.objects.get_current()
+        context["link"] = self.request.scheme + '://' + site.domain + self.object.get_GET_url()
+        return context
 
 
 
