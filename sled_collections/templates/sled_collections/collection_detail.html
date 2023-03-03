@@ -30,13 +30,13 @@
     <table>
       <tr>
         <th style="width:100px">Owner</th>
-        <th style="width:120px">Item type</th>
+        <th style="width:120px">Items</th>
         <th style="width:120px">Access level</th>
         <th>Description</th>
       </tr>
       <tr>
         <td><a href="{{ collection.owner.get_absolute_url }}">{{ collection.owner }}</a></td>
-        <td>{{collection.item_type}}</td>
+        <td>{{collection.myitems.all|length}} {{collection.item_type}}</td>
         <td>{{collection.access_level}}</td>
         <td>{{collection.description}}</td>
       </tr>

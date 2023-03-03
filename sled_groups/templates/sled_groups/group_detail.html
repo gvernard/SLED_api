@@ -29,15 +29,15 @@
     <h1 class="jb-heading-2">Group Information</h1>
     <table>
       <tr>
-        <th>Owner</th>
-        <th>Number of members</th>
-        <th>Access to private objects</th>
+        <th style="width:100px">Owner</th>
+        <th style="width:120px">Members</th>
+        <th style="width:120px">Access level</th>
         <th>Description</th>
       </tr>
       <tr>
         <td><a href="{{ group.owner.get_absolute_url }}">{{ group.owner }}</a></td>
         <td>{{ group.user_set.all|length }}</td>
-        <td>Coming soon</td>
+        <td>{{ group.access_level }}</td>
         <td>{{ group.description }}</td>
       </tr>
     </table>
@@ -90,7 +90,7 @@
   <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
   {% if user == group.owner or request.user|has_group:group.name %}
   <div>
-    <h1 class="jb-heading-2">List of Group Members</h1>
+    <h1 class="jb-heading-2">Group member list</h1>
     <table>
       <tr>
         <th>Username</th>
@@ -110,7 +110,7 @@
   </div>
 
 
-  <h1 class="jb-heading-2">List group access to various object types and collections</h1>
+  <h1 class="jb-heading-2">Group access to various object types and collections</h1>
   (coming soon)
   {% endif %}
   <br></br>
