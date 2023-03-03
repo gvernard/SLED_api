@@ -324,15 +324,16 @@ class CedeOwnership(ConfirmationTask):
                 set_followed = set(following(heir,Lenses))
                 set_lenses = set(objs)
                 intersection = list(set_followed.intersection(set_lenses))
-                for lens in intersection:
-                    unfollow(heir,lens)
-                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=intersection)
-                notify.send(sender=heir,
-                            recipient=heir,
-                            verb='HeirUnfollowNote',
-                            level='warning',
-                            timestamp=timezone.now(),
-                            action_object=ad_col)
+                if len(intesection) > 0:
+                    for lens in intersection:
+                        unfollow(heir,lens)
+                    ad_col = AdminCollection.objects.create(item_type=object_type,myitems=intersection)
+                    notify.send(sender=heir,
+                                recipient=heir,
+                                verb='HeirUnfollowNote',
+                                level='warning',
+                                timestamp=timezone.now(),
+                                action_object=ad_col)
                     
             # Handle public objects
             if pub and object_type != 'SledGroup':
