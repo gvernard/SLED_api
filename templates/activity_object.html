@@ -49,11 +49,11 @@
         Owner changed from {{ action.data.previous_id|get_user_link|safe }} to {{ action.data.next_id|get_user_link|safe }}
 	
 
-	{% elif action.verb == "MadePublicLog" %}
+	{% elif action.verb == "MakePublicLog" %}
 	Made public
 
 
-	{% elif action.verb == "MadePrivateLog" %}
+	{% elif action.verb == "MakePrivateLog" %}
 	Made private
 
 
