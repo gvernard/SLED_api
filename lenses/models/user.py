@@ -84,6 +84,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
     def get_absolute_url(self):
         return reverse('sled_users:user-visit-card',kwargs={'username':self.username})
+
     
     def getOwnedObjects(self,user_object_types=None):
         """
@@ -108,12 +109,14 @@ class Users(AbstractUser,GuardianUserMixin):
             objects[table] = model_ref.accessible_objects.owned(self)
         return objects
 
+    
     def leaveGroup(self,group):
         if self != group.owner:
             if self in group.getAllMembers(): 
                 group.user_set.remove(self)
                 action.send(self,target=group,verb='LeftGroup',level='error',user_name=self.username,user_url=self.get_absolute_url())
                 
+
     def getGroupsIsMember(self):
         """
         Provides access to all the Groups that the user is a member of.
@@ -125,6 +128,7 @@ class Users(AbstractUser,GuardianUserMixin):
         groups = SledGroup.objects.filter(user=user)
         return groups
 
+    
     def getGroupsIsMemberNotOwner(self):
         """
         Provides access to all the Groups that the user is a member of but not the owner.
@@ -136,6 +140,7 @@ class Users(AbstractUser,GuardianUserMixin):
         groups = SledGroup.objects.filter(user=user).filter(~Q(owner=user))
         return groups
 
+    
     def checkOwnsList(self,objects):
         """
         Finds any objects in the given list that are not owned by the user.
@@ -156,7 +161,8 @@ class Users(AbstractUser,GuardianUserMixin):
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
             raise
-            
+
+        
     def giveAccess(self,objects,target_users):
         """
         Gives access to the primary object(s) that are owned by the user to a list of users or groups.
@@ -213,6 +219,7 @@ class Users(AbstractUser,GuardianUserMixin):
                 else:
                     action.send(self,target=user,verb='GiveAccessGroup',level='success',action_object=ad_col) # the user here is a group
 
+                    
     def revokeAccess(self,objects,target_users):
         """
         Revokes 'view' permission of the 'target_users' from the given 'objects'.
@@ -323,6 +330,7 @@ class Users(AbstractUser,GuardianUserMixin):
                     accessible_objects.append(ug_accesses_objects[ug.id])
             #print(unique_ugs,accessible_objects)
             return unique_ugs,accessible_objects
+
         
     def makePublic(self,qset):
         """
@@ -404,7 +412,8 @@ class Users(AbstractUser,GuardianUserMixin):
             
             output = {'success':True,'message': '<b>%d</b> private %s are know public.' % (len(target_objs),object_type),'duplicates':[]}
             return output
-                
+
+        
     def makePrivate(self,qset,justification=None):
         """
         Changes the AccessLevel of the given objects to 'private'.
@@ -427,12 +436,28 @@ class Users(AbstractUser,GuardianUserMixin):
             ids.append(obj.id)
         cargo["object_ids"] = ids
         cargo["comment"] = justification
-
-        # This line needs to be replaced with the DB admin
         cargo['user_admin'] = Users.selectRandomAdmin()[0].username
-        mytask = ConfirmationTask.create_task(self,Users.getAdmin(),'MakePrivate',cargo)
-        return mytask 
-      
+
+        if cargo["object_type"] == "Lenses":
+            with_papers = qset.annotate(paper_count=Count('papers')).filter(paper_count__gt=0)
+            try:
+                assert (len(with_papers) == 0), "Lenses that are in papers cannot be made private!"
+            except AssertionError as error:
+                print(error)
+                print("The following lenses are in papers: ")
+                for lens in with_papers:
+                    print(lens.__str__())
+                caller = inspect.getouterframes(inspect.currentframe(),2)
+                print("The operation of '"+caller[1][3]+"' should not proceed")
+                raise
+            else:
+                mytask = ConfirmationTask.create_task(self,Users.getAdmin(),'MakePrivate',cargo)
+                return mytask
+        else:
+            mytask = ConfirmationTask.create_task(self,Users.getAdmin(),'MakePrivate',cargo)
+            return mytask 
+
+        
     def cedeOwnership(self,objects,heir,justification=None):
         """
         Changes the owner of the given objects to the heir.
@@ -542,6 +567,7 @@ class Users(AbstractUser,GuardianUserMixin):
         qset = Users.objects.filter(id=user_id)
         return qset
 
+    
     def get_admin_pending_tasks(self):
         if self.is_staff:
             admin = Users.getAdmin()[0]
@@ -550,6 +576,7 @@ class Users(AbstractUser,GuardianUserMixin):
         else:
             return []
 
+        
     def get_admin_notifications(self):
         if self.is_staff:
             admin = Users.getAdmin()[0]
