@@ -43,8 +43,6 @@
     </table>
   </div>
   
-  <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
-  {% if user == group.owner or request.user|has_group:group.name %}
 
   <!-- Div with different actions depending on if the user is owner, member, or neither -->
   <div>
@@ -89,8 +87,8 @@
 
 
 
-
-
+  <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
+  {% if user == group.owner or request.user|has_group:group.name %}
   <div>
     <h1 class="jb-heading-2">List of Group Members</h1>
     <table>
