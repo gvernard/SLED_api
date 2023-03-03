@@ -28,7 +28,7 @@
     <tbody>
       {% for query in queries %}
       <tr>
-        <td><a href="{{ group.get_absolute_url }}">{{query.name}}</td>
+        <td>{{query.name}}</td>
         <td>{{ query.description }}</td>
 	<td>{{ query.created_at }}</td>
 	<td>
