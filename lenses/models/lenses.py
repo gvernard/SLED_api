@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
 from django.urls import reverse
 from django.conf import settings
+from functools import partial as curry
 from multiselectfield import MultiSelectField
 
 from dirtyfields import DirtyFieldsMixin
@@ -392,6 +393,19 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ]
 
         
+    def __init__(self, *args, **kwargs):
+        # Call the superclass first; it'll create all of the field objects.
+        super(Lenses, self).__init__(*args, **kwargs)
+
+        for field in self._meta.fields:
+            method_name = "get_{0}_help_text".format(field.name)
+            curried_method = curry(self._get_help_text,field_name=field.name)
+            setattr(self, method_name, curried_method)
+            method_name = "get_{0}_label".format(field.name)
+            curried_method = curry(self._get_label,field_name=field.name)
+            setattr(self, method_name, curried_method)
+
+            
     def clean(self):
         super(Lenses,self).clean()
         if self.flag_confirmed and self.flag_contaminant: # flag_check
@@ -451,7 +465,18 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     #        c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
     #        return 'J'+c.to_string('hmsdms')
 
-        
+    def _get_help_text(self,field_name):
+        """Given a field name, return it's help text."""
+        for field in self._meta.fields:
+            if field.name == field_name:
+                return field.help_text
+
+    def _get_label(self,field_name):
+        """Given a field name, return it's label."""
+        for field in self._meta.fields:
+            if field.name == field_name:
+                return '<label>' + field.verbose_name + '</label>'
+            
     def create_name(self):
         c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
         self.name = 'J'+c.to_string('hmsdms')

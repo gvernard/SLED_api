@@ -75,12 +75,29 @@
     <h1 class="jb-heading-2">System Information</h1>
     <table>
       <tr>
-        <th>Right Ascension </th>
-        <th>Declination </th>
-        <th>Image separation</th>
-        <th>Lens redshift</th>
-        <th>Source redshift </th>
-        <th>Score </th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_ra_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_ra_help_text|safe }}</div>
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_dec_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_dec_help_text|safe }}</div>
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_image_sep_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_image_sep_help_text|safe }}</div>
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_z_lens_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_z_lens_help_text|safe }}</div>
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_flag_confirmed_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_flag_confirmed_help_text|safe }}</div>
+	</th>
+        <th>
+	  Score
+	</th>
       </tr>
       <tr>
         <td>{{lens.ra}}</td>
@@ -93,12 +110,29 @@
     </table>
     <table>
       <tr>
-        <th>Lens Type </th>
-        <th>Source Type </th>
-        <th>Image Configuration</th>
-        <th>Flag Confirmed</th>
-        <th>Flag Candidate</th>
-        <th>Flag Contaminant </th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_lens_type_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_lens_type_help_text|safe }}</div>
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_source_type_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_source_type_help_text|safe }}</div>
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_image_conf_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_image_conf_help_text|safe }}</div>
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_flag_confirmed_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_flag_confirmed_help_text|safe }}</div>
+	</th>
+        <th>
+	  Flag Candidate
+	</th>
+        <th>
+	  <div class="sled-help-tooltip">{{ lens.get_flag_contaminant_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_flag_contaminant_help_text|safe }}</div>
+	</th>
       </tr>
       <tr>
         <td>{{lens.lens_type}}</td>
@@ -336,6 +370,8 @@
 {% block extrastyles %}
 <link href="{% static 'lenses/css/lens_detail.css' %}" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
 {% endblock extrastyles %}
 
 
@@ -344,6 +380,8 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script src="https://cdn.plot.ly/plotly-2.18.0.min.js"></script>
 <script type="text/javascript">
   // Create the array holding all the detections in ra,dec per instrument-band
@@ -474,6 +512,8 @@
           });
       });
 
+      set_help();
+      
       // Modals
       $(".sled-modal").each(function() {
           $(this).modalForm({
