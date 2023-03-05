@@ -324,7 +324,7 @@ class CedeOwnership(ConfirmationTask):
                 set_followed = set(following(heir,Lenses))
                 set_lenses = set(objs)
                 intersection = list(set_followed.intersection(set_lenses))
-                if len(intesection) > 0:
+                if len(intersection) > 0:
                     for lens in intersection:
                         unfollow(heir,lens)
                     ad_col = AdminCollection.objects.create(item_type=object_type,myitems=intersection)
