@@ -345,7 +345,7 @@ class CedeOwnership(ConfirmationTask):
             # Handle private objects
             if pri:
                 perm = 'view_' + model_ref._meta.db_table
-                assign_perm(perm,heir,pri) # don't forget to assign view permission to the new owner for the private lenses
+                assign_perm(perm,heir,pri) # assign view permission to the new owner for the private lenses
 
                 if object_type != 'SledGroup':
                     # Notify users with access

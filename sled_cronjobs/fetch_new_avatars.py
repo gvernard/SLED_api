@@ -1,3 +1,4 @@
+import os
 import sys
 import django
 dirname = os.path.dirname(__file__)
