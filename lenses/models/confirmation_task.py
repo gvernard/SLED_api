@@ -179,9 +179,6 @@ class ConfirmationTask(SingleObject):
             plain_message = strip_tags(html_message)
             recipient_email = user.email
             send_mail(subject,plain_message,from_email,[recipient_email],html_message=html_message)
-
-
-
         
     def get_all_recipients(self):
         """
@@ -234,6 +231,7 @@ class ConfirmationTask(SingleObject):
             self.status = "C"
             self.save()
 
+
     # To be overwritten by the proxy models
     #@property
     #@abc.abstractmethod
@@ -245,7 +243,12 @@ class ConfirmationTask(SingleObject):
     def finalizeTask(self):
         pass
 
-     
+
+
+
+
+
+    
 class ConfirmationResponse(models.Model):
     confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
     recipient = models.ForeignKey('Users',on_delete=models.CASCADE)
@@ -348,21 +351,22 @@ class CedeOwnership(ConfirmationTask):
                 assign_perm(perm,heir,pri) # assign view permission to the new owner for the private lenses
 
                 if object_type != 'SledGroup':
-                    # Notify users with access
+                    # Notify users with access (except the previous owner, who has access already)
                     users_with_access,accessible_objects = heir.accessible_per_other(pri,'users')
-                    for i,user in enumerate(users_with_access):
-                        objects = []
-                        for j in accessible_objects[i]:
-                            objects.append(pri[j])
-                        ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
-                        notify.send(sender=self.owner,
-                                    recipient=user,
-                                    verb='CedeOwnershipNote',
-                                    level='info',
-                                    timestamp=timezone.now(),
-                                    action_object=ad_col,
-                                    previous_id=self.owner.id,
-                                    next_id=heir.id)
+                    if user not self.owner:
+                        for i,user in enumerate(users_with_access):
+                            objects = []
+                            for j in accessible_objects[i]:
+                                objects.append(pri[j])
+                            ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
+                            notify.send(sender=self.owner,
+                                        recipient=user,
+                                        verb='CedeOwnershipNote',
+                                        level='info',
+                                        timestamp=timezone.now(),
+                                        action_object=ad_col,
+                                        previous_id=self.owner.id,
+                                        next_id=heir.id)
                         
                     # Notify groups with access
                     groups_with_access,accessible_objects = heir.accessible_per_other(pri,'groups')

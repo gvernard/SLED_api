@@ -551,10 +551,47 @@ class Users(AbstractUser,GuardianUserMixin):
 
 
     def get_pending_tasks(self):
-        pending_tasks = list(ConfirmationTask.objects.filter(status='P').filter(Q(owner=self)|Q(recipients__username=self.username)))
+        # This is to facilitate calls in templates
+        pending_tasks = list(ConfirmationTask.objects.custom_manage.pending_for_user(self))
         return pending_tasks
 
+
+    def pending_tasks_for_object_list(self,obj_type,obj_list):
+        # If input argument is a single value, convert to list
+        if isinstance(obj_list,SingleObject):
+            obj_list = [obj_list]
+        # Check that user is the owner
+        self.checkOwnsList(obj_list)
+
+        if obj_type == 'Lenses':
+            type_list = ['CedeOwnership', 'MakePrivate', 'DeleteObject', 'AskPrivateAccess']
+        elif obj_type == 'SledGroup':
+            type_list = ['CedeOwnership', 'MakePrivate', 'DeleteObject', 'AskPrivateAccess', 'AskToJoinGroup']
+        else:
+            type_list = [ x[0] for x in ConfirmationTask.TaskTypeChoices ]
+
+        ids = [ obj.id for obj in obj_list ]
+        set_ids = set(ids)
+        dictionary = dict(zip(ids,obj_list))
         
+        tasks = ConfirmationTask.custom_manager.pending_for_user(self).filter(task_type__in=type_list).filter(cargo__object_type=obj_type)
+        tasks_objects = []
+        for task in tasks:
+            json = task.cargo
+            set_task_ids = set(json["object_ids"])
+            intersection = list(set_task_ids.intersection(set_ids))
+            if len(intersection) > 0:
+                objs_in_task = [ dictionary[key] for key in intersection ]
+                tasks_objects.append( {"task":task,"objs":objs_in_task} )
+
+        return tasks_objects
+        
+            
+
+
+
+
+    
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
     def getAdmin():
