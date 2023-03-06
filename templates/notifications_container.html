@@ -56,7 +56,7 @@
 	{# ###################### Ownership notifications ###################### #}
         {% elif note.verb == "CedeOwnershipNote" %}
 	{% if N > 1 %}
-	<a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
+	<a href="{{ note.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
 	{% else %}
 	{% with note.action_object.myitems.all|first as item %}
 	<a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
@@ -79,9 +79,14 @@
 	
 
         {% elif note.verb == "AddedPaperOwnerNote" %}
-	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a> that you own
-	were linked to paper <a href="{{ note.data.paper.get_absolute_url }}" target="_blank">{{ note.data.paper }}</a>
-
+	{% if N > 1 %}
+	<a href="{{ note.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	{{ note.action_object.item_type|get_name_singular }} <a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
+	{% endwith %}
+	{% endif %}
+	that you own {{ N|pluralize:"was,were" }} linked to paper <a href="{{ note.data.paper.get_absolute_url }}" target="_blank">{{ note.data.paper }}</a>
 
 	
 
@@ -97,24 +102,46 @@
 
 
         {% elif note.verb == "MakePublicNote" %}
-	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural note.data.object_type N %}</a> that you have access to {{ N|pluralize:"is,are" }} now public.
+	{% if N > 1 %}
+	<a href="{{ note.action_object|get_ad_col_url }}" target="_blank">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	{{ note.action_object.item_type|get_name_singular }} <a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
+	{% endwith %}
+	{% endif %}
+	that you have access to {{ N|pluralize:"is,are" }} now public.
 
 
         {% elif note.verb == "GiveAccessNote" %}
-	You were given access to <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a>.
+	You were given access to
+	{% if N > 1 %}
+	<a href="{{ note.action_object|get_ad_col_url }}" target="_blank">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	private {{ note.action_object.item_type|get_name_singular }} <a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
+	{% endwith %}
+	{% endif %}
 
 
         {% elif note.verb == "RevokeAccessNote" %}
-        Your access to <a class="sled-open-tooltip" href="">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a> was revoked.
-        <div class="sled-notification-tooltip" style="display:none">
+        Your access to
+	{% if N > 1 %}
+	<a class="sled-open-tooltip" href="">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a>
+	<div class="sled-notification-tooltip" style="display:none">
           <table>
-            {% for col in note.action_object.myitems.all %}
+            {% for item in note.action_object.myitems.all %}
             <tr>
-              <td>{{ col.name }}</td>
+              <td>{{ item }}</td>
             </tr>
             {% endfor %}
           </table>
         </div>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	private {{ note.action_object.item_type|get_name_singular }} {{ item }}
+	{% endwith %}
+	{% endif %}
+	was revoked.
 
 	
         {% elif note.verb == "AskPrivateAccessRejectedNote" %}
@@ -135,16 +162,40 @@
 
 
 	{% elif note.verb == "HeirUnfollowNote" %}
-	You cannot follow <a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a> anymore because you now own them.
+	You cannot follow
+	{% if N > 1 %}
+	<a href="{{ note.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	{{ note.action_object.item_type|get_name_singular }} <a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
+	{% endwith %}
+	{% endif %}
+	anymore because you now own {{ N|pluralize:"it,them" }}.
 
 
 	{% elif note.verb == "MakePrivateUnfollowNote" %}
-	<a href="{{ note.action_object.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a> that you followed {{ N|pluralize:"is,are" }} not public anymore.
-
-
+	{% if N > 1 %}
+	<a href="{{ note.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
+	<a class="sled-open-tooltip" href="">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
+	<div class="sled-notification-tooltip" style="display:none">
+          <table>
+            {% for item in note.action_object.myitems.all %}
+            <tr>
+              <td>{{ item }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	{{ note.action_object.item_type|get_name_singular }} {{ item }}
+	{% endwith %}
+	{% endif %}
+	that you followed {{ N|pluralize:"is,are" }} not public anymore.	
 	
 
-	
+
+
 	
 	{# ###################### Group notifications ###################### #}
         {% elif note.verb == "AddedToGroupNote" %}
