@@ -55,10 +55,16 @@
 
 	{# ###################### Ownership notifications ###################### #}
         {% elif note.verb == "CedeOwnershipNote" %}
-        {{ N }} private {% singular_or_plural note.data.object_type N %} you have access to changed owner
-	from {{ note.data.previous_id|get_user_link|safe }} to {{ note.data.next_id|get_user_link|safe }}
+	{% if N > 1 %}
+	<a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	<a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
+	{% endwith %}
+	{% endif %}
+	you have access to changed owner from {{ note.data.previous_id|get_user_link|safe }} to {{ note.data.next_id|get_user_link|safe }}
 
-
+	
         {% elif note.verb == "CedeOwnershipAcceptedNote" %}
         <a class="sled-modal-anchor" data-form-url="{{ note.action_object.get_absolute_url }}">Your request</a> to cede ownership was accepted.
 
