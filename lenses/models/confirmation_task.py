@@ -354,7 +354,7 @@ class CedeOwnership(ConfirmationTask):
                     # Notify users with access (except the previous owner, who has access already)
                     users_with_access,accessible_objects = heir.accessible_per_other(pri,'users')
                     for i,user in enumerate(users_with_access):
-                        if user not self.owner:
+                        if user.id not self.owner.id:
                             objects = []
                             for j in accessible_objects[i]:
                                 objects.append(pri[j])
