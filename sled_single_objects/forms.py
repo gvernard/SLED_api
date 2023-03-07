@@ -9,6 +9,30 @@ from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from lenses.models import Lenses, Users, SledGroup
 
 
+
+def check_for_other_tasks(user,obj_type,ids):
+    model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
+    qset = model_ref.objects.filter(id__in=ids)
+    object_list = list(qset)
+    tasks_objects = user.pending_tasks_for_object_list(obj_type,object_list)
+    error_txt = ''
+    if len(tasks_objects) > 0:
+        error_txt = '<ul>'
+        for item in tasks_objects:
+            error_txt += '<li>'
+            error_txt += 'Existing <a href="'+item["task"].get_absolute_url()+'">'+item["task"].task_type+' task</a> contains '
+            if len(item["objs"]) > 1:
+                error_txt += model_ref._meta.verbose_name_plural.title()
+            else:
+                error_txt += model_ref._meta.verbose_name.title()
+            error_txt += ': '
+            error_txt += ' , '.join( [ '<a href="'+obj.get_absolute_url()+'">'+obj.__str__()+'</a>' for obj in item["objs"] ])
+            error_txt += '</li>'
+        error_txt += '</ul>'
+    return error_txt
+
+
+
 class SingleObjectCedeOwnershipForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
@@ -22,6 +46,13 @@ class SingleObjectCedeOwnershipForm(BSModalForm):
         # New owner cannot be the same as the current one
         if self.request.user == self.cleaned_data['heir']:
             self.add_error('__all__',"The new owner must be a different user!")
+
+        # Check for other tasks
+        obj_type = self.cleaned_data.get('obj_type')
+        ids = self.cleaned_data.get('ids').split(',')
+        error_txt = check_for_other_tasks(self.request.user,obj_type,ids)
+        if error_txt != '':
+            self.add_error('__all__',error_txt)
 
 
         
@@ -40,7 +71,6 @@ class SingleObjectMakePrivateForm(BSModalForm):
         # All items MUST be public
         if qset.filter(access_level='PRI').count() > 0:
             self.add_error('__all__',"You are selecting already private items!")
-            return
 
         # None of the items can be associated with a paper
         if obj_type == 'Lenses':
@@ -50,8 +80,13 @@ class SingleObjectMakePrivateForm(BSModalForm):
                 for lens in with_papers:
                     names.append( lens.__str__() )
                 self.add_error('__all__',"The following %d lenses cannot be made private because they are associated with papers: %s" % (len(names),','.join(names)) )
-                return
 
+        # Check for other tasks
+        error_txt = check_for_other_tasks(self.request.user,obj_type,ids)
+        if error_txt != '':
+            self.add_error('__all__',error_txt)
+            
+            
 
             
 class SingleObjectMakePublicForm(BSModalForm):
@@ -68,6 +103,8 @@ class SingleObjectMakePublicForm(BSModalForm):
             self.add_error('__all__',"You are selecting already public items!")
 
 
+
+            
 class SingleObjectGiveRevokeAccessForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
