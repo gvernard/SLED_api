@@ -116,9 +116,12 @@ class GroupDeleteView(BSModalDeleteView):
     def get_queryset(self):
         return SledGroup.accessible_objects.owned(self.request.user)
 
-    def delete(self, *args, **kwargs):
-        self.object = self.get_object()
-        return super().delete(*args, **kwargs)
+#    def delete(self, *args, **kwargs):
+        #obj = self.get_object()
+        #print(obj)
+        #obj.delete()
+        #return redirect('sled_groups:group-list')
+#        return super().delete(*args, **kwargs)
 
     
 @method_decorator(login_required,name='dispatch')

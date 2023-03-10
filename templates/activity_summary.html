@@ -24,53 +24,30 @@
 	  {{ N }} new {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added
 
 	  
+          {% elif action.verb == "Update" %}
+	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} updated
+
+
           {% elif action.verb == "RemoveData" %}
 	  Data taken in {{ action.data.instrument }} - {{ action.data.band }} removed
 
 
 	  {% elif action.verb == "DeletedSingleObject" %}
 	  {{ action.object_name }} private {{ action.object_type }} the group had access to was deleted by <a href="{{ action.actor.get_absolute_url }}" target="_blank">{{ action.actor }}</a>
-
 	  
-
-          {% elif action.verb == "Update" %}
-	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} updated
-
 
           {% elif action.verb == "DeleteObject" %}
 	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} deleted
 
 
-
-
-
-
-
-
-          {% elif action.verb == "AddedToCollection" %}
-	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} added to the collection
-
-
-          {% elif action.verb == "RemovedFromCollection" %}
-	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} removed from the collection
-
-
-
-
           {% elif action.verb == "MadePublic" %}
 	  {{ N }} {% singular_or_plural action.action_object.item_type N %} {{ N|pluralize:"was,were" }} made public
-
-
-
-
 
 	  
           {% elif action.verb == "CedeOwnershipPublic" %}
           <a href="{{ action.action_object.myitems.first.get_absolute_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a> changed owner
 	  from <a href="{{ action.data.previous_owner_url }}" target="_blank">{{ action.data.previous_owner }}</a>
           to <a href="{{ action.data.next_owner_url }}" target="_blank">{{ action.data.next_owner }}</a>
-
-
 
 	  
 	  {% elif action.verb == "NewUser" %}

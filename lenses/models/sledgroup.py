@@ -1,15 +1,20 @@
 from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
 
 import simplejson as json
-from guardian.shortcuts import get_objects_for_group,remove_perm
+from guardian.shortcuts import get_objects_for_group,remove_perm,get_perms_for_model
 
 from . import SingleObject, AdminCollection
 
+from notifications.models import Notification
 from notifications.signals import notify
 from actstream import action
+from actstream.models import target_stream
 from dirtyfields import DirtyFieldsMixin
 
 import inspect
@@ -64,27 +69,13 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             super().save(*args,**kwargs)
 
         
-    def delete(self):
-        members = self.getAllMembers()
+#    def delete(self,*args,**kwargs):
+#        print('DUM')
 
-        # Notify group members
-        for user in members:
-            notify.send(sender=self.owner,
-                        recipient=user,
-                        verb='DeletedGroupNote',
-                        level='error',
-                        timestamp=timezone.now(),
-                        group_name=self.name)
-
-        # Remove permissions
-        for model_class in SingleObject.__subclasses__():
-            perm = 'view_'+model_class._meta.db_table
-            objs = get_objects_for_group(self,perm)
-            remove_perm(self,perm,*objs)
-        
-        super().delete()
+        #super(SledGroup,self).delete(*args,**kwargs)
 
 
+    
     def __str__(self):
         return self.name
 
@@ -166,17 +157,9 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             action.send(owner,target=self,verb='RemovedFromGroup',level='error',action_object=ad_col)
 
 
-    def delete(self, *args, **kwargs):
-        # notify group members.
-        members = self.getAllMembers()
-        for member in members:
-            notify.send(sender=self.owner,
-                        recipient=member,
-                        verb='DeletedGroupNote',
-                        level='error',
-                        timestamp=timezone.now(),
-                        group_name=self.name,
-                        owner_name=self.owner.username,
-                        owner_url=self.owner.get_absolute_url())
 
-        super().delete(*args, **kwargs)  # Call the "real" delete() method.
+
+
+#@receiver(pre_delete,sender=SledGroup)
+#def my_handler(sender, instance, **kwargs):
+#    print('EDW')
