@@ -196,12 +196,12 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
                             verb='DeletedPrivateSingleObjectNote',
                             level='error',
                             timestamp=timezone.now(),
-                            object_type=self.__class__,
+                            object_type=self.__class__.__name__,
                             object_name=self.__str__())
             for group in gwa:
                 remove_perm(perm,group,self)
                 action.send(self.owner,target=group,verb='DeletedPrivateSingleObject',level='error',object_type=self.__class__,object_name=self.__str__())
-        super().delete()
+        super(SingleObject,self).delete()
 
         
     def isOwner(self, user):

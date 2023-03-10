@@ -69,13 +69,6 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             super().save(*args,**kwargs)
 
         
-#    def delete(self,*args,**kwargs):
-#        print('DUM')
-
-        #super(SledGroup,self).delete(*args,**kwargs)
-
-
-    
     def __str__(self):
         return self.name
 

@@ -3,12 +3,15 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.dispatch import receiver
 from django.utils import timezone
+from django.apps import apps
+from django.db.models import Count
 
 from notifications.signals import notify
 from notifications.models import Notification
 from guardian.shortcuts import get_objects_for_group,remove_perm,get_perms_for_model
+from gm2m.signals import deleting
 
-from lenses.models import Lenses, SingleObject, SledGroup, ConfirmationTask
+from lenses.models import Lenses, SingleObject, SledGroup, ConfirmationTask, Collection, AdminCollection
 
 
 
@@ -26,13 +29,12 @@ def delete_group(sender,instance,**kwargs):
                     group_name=instance.name)
 
     # Remove permissions
-    #group = Group.objects.get(id=self.id)
     for model_class in SingleObject.__subclasses__():
         perm = 'view_'+model_class._meta.db_table
         pri_objs = model_class.objects.filter(access_level="PRI")
         objs = get_objects_for_group(instance,perm,klass=pri_objs)
         if objs:
-            remove_perm(perm,self,*objs)
+            remove_perm(perm,instance,*objs)
 
     # Remove group's activity stream (where action target is the group)
     instance.target_actions.all().delete()
@@ -49,3 +51,27 @@ def delete_group(sender,instance,**kwargs):
             task_ids.append(task["id"])
     if task_ids:
         ConfirmationTask.objects.filter(id__in=task_ids).delete()
+
+
+
+# If collection is private, notifying users and groups with access and removing permissions happens in the SingleObject.delete method.
+@receiver(pre_delete,sender=Collection)
+def delete_collection(sender,instance,**kwargs):
+    # Remove collection's activity stream (where action target is the collection)
+    instance.target_actions.all().delete()
+
+    # Remove notifications where the action_object is the collection
+    content_type_id = ContentType.objects.get_for_model(instance).id
+    Notification.objects.filter(action_object_content_type_id=content_type_id).filter(action_object_object_id=instance.id).delete()
+
+    
+
+
+# Select all the AdminCollections that have only one item in them and remove the notifications that are associated to them (also the AdminCollection itself)
+@receiver(pre_delete,sender=Lenses)
+@receiver(pre_delete,sender=Collection)
+def remove_ad_col(sender,instance,**kwargs):
+    content_type_id = ContentType.objects.get_for_model(AdminCollection).id
+    adcols = instance.admincollection_set.annotate(Nitems=Count('admincollection_myitems')).filter(Nitems=1)
+    for adcol in adcols:
+        Notification.objects.filter(action_object_content_type_id=content_type_id).filter(action_object_object_id=adcol.id) # This deletes the adcol as well

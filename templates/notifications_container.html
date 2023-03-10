@@ -43,8 +43,8 @@
         <a class="sled-modal-anchor" data-form-url="{{ note.action_object.get_absolute_url }}">Your request</a> to delete public objects was rejected.
 
 
-        {% elif note.verb == "DeletedSingleObjectNote" %}
-	{{ action.object_name }} private {{ action.object_type }} you had access to was deleted.
+        {% elif note.verb == "DeletedPrivateSingleObjectNote" %}
+	Private {{ note.data.object_type }} {{ note.data.object_name }} you had access to was deleted.
 
 
         {% elif note.verb == "DeletedGroupNote" %}

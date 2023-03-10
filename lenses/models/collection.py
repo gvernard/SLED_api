@@ -80,9 +80,8 @@ class Collection(SingleObject,DirtyFieldsMixin):
 
         super().save(*args,**kwargs)
 
-
-        
-        
+   
+    
     def __str__(self):
         return self.name
 
