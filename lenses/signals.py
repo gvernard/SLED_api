@@ -10,6 +10,7 @@ from notifications.signals import notify
 from notifications.models import Notification
 from guardian.shortcuts import get_objects_for_group,remove_perm,get_perms_for_model
 from gm2m.signals import deleting
+from actstream.models import Action
 
 from lenses.models import Lenses, SingleObject, SledGroup, ConfirmationTask, Collection, AdminCollection
 
@@ -64,14 +65,21 @@ def delete_collection(sender,instance,**kwargs):
     content_type_id = ContentType.objects.get_for_model(instance).id
     Notification.objects.filter(action_object_content_type_id=content_type_id).filter(action_object_object_id=instance.id).delete()
 
+    # Remove actions from home activity stream
+
+
+
     
 
 
-# Select all the AdminCollections that have only one item in them and remove the notifications that are associated to them (also the AdminCollection itself)
+    
+# Select all the AdminCollections that have only one item in them
+# and remove the notifications and actions that are associated with them (also the AdminCollection itself)
 @receiver(pre_delete,sender=Lenses)
 @receiver(pre_delete,sender=Collection)
 def remove_ad_col(sender,instance,**kwargs):
     content_type_id = ContentType.objects.get_for_model(AdminCollection).id
     adcols = instance.admincollection_set.annotate(Nitems=Count('admincollection_myitems')).filter(Nitems=1)
     for adcol in adcols:
-        Notification.objects.filter(action_object_content_type_id=content_type_id).filter(action_object_object_id=adcol.id) # This deletes the adcol as well
+        Notification.objects.filter(action_object_content_type_id=content_type_id).filter(action_object_object_id=adcol.id).delete() # This deletes the adcol as well
+        Action.objects.action_object(adcol).delete()
