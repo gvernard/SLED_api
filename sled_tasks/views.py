@@ -33,6 +33,7 @@ class TaskListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+                
         if self.kwargs.get('admin'):
             admin = Users.getAdmin().first()
             owner = self.model.accessible_objects.owned(admin)
@@ -61,7 +62,12 @@ class TaskListView(ListView):
                    }
         return context
 
+    def get(self, *args, **kwargs):
+        if self.kwargs.get('admin') and not self.request.user.is_staff:
+            return TemplateResponse(self.request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
+        return super(TaskListView,self).get(*args, **kwargs)
 
+    
 @method_decorator(login_required,name='dispatch')
 class TaskDetailOwnerView(BSModalReadView):
     model = ConfirmationTask

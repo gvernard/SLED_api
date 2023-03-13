@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, DetailView, ListView
 from django.core.paginator import Paginator
+from django.template.response import TemplateResponse
 
 from bootstrap_modal_forms.generic import BSModalReadView
 
@@ -45,7 +46,11 @@ class NotificationListView(TemplateView):
                    }
         return context
 
-
+    def get(self, *args, **kwargs):
+        if self.kwargs.get('admin') and not self.request.user.is_staff:
+            return TemplateResponse(self.request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
+        return super(NotificationListView,self).get(*args, **kwargs)
+    
 
 @method_decorator(login_required,name='dispatch')
 class NotificationDetailView(BSModalReadView):

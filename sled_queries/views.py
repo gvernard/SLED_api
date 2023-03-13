@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.urls import reverse,reverse_lazy
 from django.http import HttpResponseRedirect
 from django.contrib.sites.models import Site
+from django.template.response import TemplateResponse
 
 from bootstrap_modal_forms.generic import (
     BSModalCreateView,
@@ -36,7 +37,12 @@ class QueryListView(ListView):
         context['queries'] = self.object_list
         return context
 
+    def get(self, *args, **kwargs):
+        if self.kwargs.get('admin') and not self.request.user.is_staff:
+            return TemplateResponse(self.request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
+        return super(QueryListView,self).get(*args, **kwargs)
 
+    
 @method_decorator(login_required,name='dispatch')
 class QuerySaveView(BSModalCreateView):
     model = SledQuery

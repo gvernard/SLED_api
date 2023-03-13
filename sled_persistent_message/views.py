@@ -31,7 +31,7 @@ class PersistentMessageListView(ListView):
         context['past_messages'] = PersistentMessage.timeline.past()
         return context
 
-
+    
 @method_decorator(staff_member_required,name='dispatch')
 class PersistentMessageCreateView(BSModalCreateView):
     model = PersistentMessage
@@ -51,7 +51,7 @@ class PersistentMessageUpdateView(BSModalUpdateView):
     context_object_name = 'message'
     success_url = reverse_lazy('sled_persistent_message:message-list')
 
-
+    
 @method_decorator(staff_member_required,name='dispatch')
 class PersistentMessageDeleteView(BSModalDeleteView):
     model = PersistentMessage
