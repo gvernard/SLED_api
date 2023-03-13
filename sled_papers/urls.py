@@ -8,4 +8,5 @@ urlpatterns = [
     path('list/',views.PaperListView.as_view(),name='paper-list'),
     path('delete/<int:pk>',views.PaperDeleteView.as_view(),name='paper-delete'),
     path('quick-query/',views.PaperQuickQueryView.as_view(),name='paper-quick-query'),
+    path('export-csv/<int:pk>', views.PaperExportToCSVView.as_view(), name='export-csv'),    
 ]

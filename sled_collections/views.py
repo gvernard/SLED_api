@@ -22,12 +22,13 @@ from bootstrap_modal_forms.generic import (
 )
 from bootstrap_modal_forms.utils import is_ajax
 
-from lenses.forms import LensQueryForm
+from lenses.forms import LensQueryForm,DownloadForm
 from lenses.query_utils import get_combined_qset
 from .forms import *
 from lenses.models import Collection, Lenses, ConfirmationTask
 from urllib.parse import urlparse
 from random import randint
+import csv
 
     
 @method_decorator(login_required,name='dispatch')
@@ -397,6 +398,57 @@ class CollectionViewAccessView(BSModalReadView):
         context['g_no_access'] = zip(groups,N_no_access,names_no_access)        
         
         return context
+
+
+
+@method_decorator(login_required,name='dispatch')
+class CollectionExportToCSVView(BSModalFormView):
+    template_name = 'csv_download.html'
+    form_class = DownloadForm
+
+    def get_initial(self):
+        col = Collection.accessible_objects.all(self.request.user).get(pk=self.kwargs['pk'])
+        lenses = col.getSpecificModelInstances(self.request.user)
+        return {'ids': 'dum','N':len(lenses)}
+    
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            col = Collection.accessible_objects.all(self.request.user).get(pk=self.kwargs['pk'])
+            lenses = col.getSpecificModelInstances(self.request.user)
+            
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment;filename=lenses.csv'
+            writer = csv.writer(response)
+            field_names = ['ra',
+                           'dec',
+                           'name',
+                           'alt_name',
+                           'flag_confirmed',
+                           'flag_contaminant',
+                           'flag_candidate',
+                           'score',
+                           'image_sep',
+                           'z_source',
+                           'z_source_secure',
+                           'z_lens',
+                           'z_lens_secure',
+                           'info',
+                           'n_img',
+                           'image_conf',
+                           'lens_type',
+                           'source_type',
+                           'contaminant_type']
+            writer.writerow(field_names)
+            for lens in lenses:
+                writer.writerow([getattr(lens,field) for field in field_names])
+            return response
+        else:
+            response = super().form_valid(form)
+            return response
+        
+    def get_success_url(self):
+        return reverse('sled_collections:collections-detail',kwargs={'pk':self.kwargs['pk']})
+
 
 #=============================================================================================================================
 ### END: Modal views

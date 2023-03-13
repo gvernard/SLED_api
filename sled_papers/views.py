@@ -3,14 +3,18 @@ from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, DetailView, ListView
 from django.db.models import F, Q
-from django.urls import reverse_lazy
-from django.http import JsonResponse
+from django.urls import reverse_lazy,reverse
+from django.http import JsonResponse,HttpResponse
 from django.core.paginator import Paginator
+
 import datetime
 from urllib.parse import urlparse
+import csv
 
+from bootstrap_modal_forms.utils import is_ajax
 from bootstrap_modal_forms.generic import BSModalDeleteView,BSModalFormView
 from .forms import *
+from lenses.forms import DownloadForm
 
 from lenses.models import Lenses, Paper
 
@@ -166,4 +170,52 @@ class PaperQuickQueryView(BSModalFormView):
     form_class = PaperQuickQueryForm
     success_url = reverse_lazy('sled_users:user-profile')
     
+    
+@method_decorator(login_required,name='dispatch')
+class PaperExportToCSVView(BSModalFormView):
+    template_name = 'csv_download.html'
+    form_class = DownloadForm
+
+    def get_initial(self):
+        paper = Paper.objects.get(pk=self.kwargs['pk'])
+        lenses = paper.lenses_in_paper.all()
+        return {'ids': 'dum','N':len(lenses)}
+    
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            paper = Paper.objects.get(pk=self.kwargs['pk'])
+            lenses = paper.lenses_in_paper.all()
+                    
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment;filename=lenses.csv'
+            writer = csv.writer(response)
+            field_names = ['ra',
+                           'dec',
+                           'name',
+                           'alt_name',
+                           'flag_confirmed',
+                           'flag_contaminant',
+                           'flag_candidate',
+                           'score',
+                           'image_sep',
+                           'z_source',
+                           'z_source_secure',
+                           'z_lens',
+                           'z_lens_secure',
+                           'info',
+                           'n_img',
+                           'image_conf',
+                           'lens_type',
+                           'source_type',
+                           'contaminant_type']
+            writer.writerow(field_names)
+            for lens in lenses:
+                writer.writerow([getattr(lens,field) for field in field_names])
+            return response
+        else:
+            response = super().form_valid(form)
+            return response
+        
+    def get_success_url(self):
+        return reverse('sled_papers:paper-detail',kwargs={'pk':self.kwargs['pk']})
 

@@ -12,6 +12,10 @@
     <p class="jb-heading-paper-title"> "{{ paper.title }}" </p>
     <p style="font-size:30px;"> <a href="{{ paper.get_ads_url }}">{{ paper.cite_as }}</a> </p>
     <p> Created at {{ paper.created_at }} by <a href="{{ paper.owner.get_absolute_url }}">{{paper.owner}}</a></p>
+    <button type="button" id="export-csv" disabled class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:export-csv' paper.pk %}">
+      <img src="{% static 'icons/cloud-arrow-down-fill.svg' %}">
+      Export to csv
+    </button>
     <p> Contains the following <b>{{ Nlenses }}</b> lenses: </p>
   </div>
 
@@ -48,6 +52,13 @@
       isDeleteForm: true
     });
 
+    $(".sled-modal").each(function() {
+	$(this).modalForm({
+            formURL: $(this).data("form-url"),
+            modalID: "#id-modal"
+	});
+    });
+      
   });
 </script>
 {% endblock extrascripts %}

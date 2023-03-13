@@ -18,4 +18,5 @@ urlpatterns = [
     path('ask-access/<int:pk>', views.CollectionAskAccessView.as_view(), name='collection-ask-access'),
     path('cede-ownership/<int:pk>', views.CollectionCedeOwnershipView.as_view(), name='collection-cede-ownership'),
     path('view-access/<int:pk>', views.CollectionViewAccessView.as_view(), name='collection-view-access'),
+    path('export-csv/<int:pk>', views.CollectionExportToCSVView.as_view(), name='export-csv'),    
 ]

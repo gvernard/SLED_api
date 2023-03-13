@@ -209,7 +209,7 @@ class LensUpdateModalView(BSModalUpdateView):
 
 @method_decorator(login_required,name='dispatch')
 class ExportToCSV(ModalIdsBaseMixin):
-    template_name = 'lenses/csv_download.html'
+    template_name = 'csv_download.html'
     form_class = forms.DownloadForm
     success_url = reverse_lazy('lenses:lens-query')
 
