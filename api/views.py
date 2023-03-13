@@ -1,10 +1,12 @@
-from django.db.models import Q,F
-from django.conf import settings
 from django.db import connection
+from django.db.models import Q,F,Value
+from django.db.models.functions import Collate
+from django.conf import settings
 from django.core import serializers
 from django.urls import reverse,reverse_lazy
 from django.forms.models import model_to_dict
 from django.apps import apps
+
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -316,16 +318,17 @@ class GlobalSearch(APIView):
 
         if term is not None:
             qsets = {}
+            cterm = Collate(Value(term),'utf8_general_ci')
+            
             user_qset = Users.objects.exclude(username__in=['AnonymousUser','admin'])
-            qsets["Users"] = user_qset = user_qset.filter(Q(username__icontains=term) | Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(email__icontains=term))
-            qsets["Lenses"] = Lenses.accessible_objects.all(request.user).filter(Q(name__icontains=term) | Q(alt_name__icontains=term) | Q(info__icontains=term))
-            qsets["Collection"] = Collection.accessible_objects.all(request.user).filter(Q(name__icontains=term) | Q(description__icontains=term))
-            qsets["SledGroup"] = SledGroup.accessible_objects.all(request.user).filter(Q(name__icontains=term) | Q(description__icontains=term))
-            qsets["Paper"] = Paper.objects.filter(Q(first_author__icontains=term) | Q(title__icontains=term))
-            qsets["Imaging"] = Imaging.accessible_objects.all(request.user).filter(info__icontains=term)
-            qsets["Spectrum"] = Spectrum.accessible_objects.all(request.user).filter(info__icontains=term)
-            qsets["Catalogue"] = Catalogue.accessible_objects.all(request.user).filter(info__icontains=term)
-
+            qsets["Users"] = user_qset = user_qset.filter(Q(username__icontains=cterm) | Q(first_name__icontains=cterm) | Q(last_name__icontains=cterm) | Q(email__icontains=cterm))
+            qsets["Lenses"] = Lenses.accessible_objects.all(request.user).filter(Q(name__icontains=cterm) | Q(alt_name__icontains=cterm) | Q(info__icontains=cterm))
+            qsets["Collection"] = Collection.accessible_objects.all(request.user).filter(Q(name__icontains=cterm) | Q(description__icontains=cterm))
+            qsets["SledGroup"] = SledGroup.accessible_objects.all(request.user).filter(Q(name__icontains=cterm) | Q(description__icontains=cterm))
+            qsets["Paper"] = Paper.objects.filter(Q(first_author__icontains=cterm) | Q(title__icontains=cterm))
+            qsets["Imaging"] = Imaging.accessible_objects.all(request.user).filter(info__icontains=cterm)
+            qsets["Spectrum"] = Spectrum.accessible_objects.all(request.user).filter(info__icontains=cterm)
+            qsets["Catalogue"] = Catalogue.accessible_objects.all(request.user).filter(info__icontains=cterm)
 
             items = []
             for obj_type,qset in qsets.items():
