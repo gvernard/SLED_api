@@ -6,7 +6,7 @@ from django.core.paginator import Paginator
 from lenses.models import Users
 
 class HomePageView(TemplateView):
-    template_name = 'home/home_index.html'
+    template_name = 'sled_home/home_index.html'
 
     def get_context_data(self, **kwargs):
         stream = target_stream(Users.objects.get(username='admin'))
@@ -14,7 +14,7 @@ class HomePageView(TemplateView):
         return context
 
 class ActivityHomeDetailedView(TemplateView):
-    template_name = 'home/activity_home_detailed.html'
+    template_name = 'sled_home/activity_home_detailed.html'
 
     def get_context_data(self, **kwargs):
         stream = target_stream(Users.objects.get(username='admin'))

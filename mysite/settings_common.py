@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'sled_persistent_message',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
-    'home.apps.HomeConfig',
+    'sled_home.apps.HomeConfig',
     'sled_users.apps.UsersConfig',
     'actstream',
     'multiselectfield',

@@ -15,9 +15,9 @@
 	    
 	    <!-- Recent activity div -->
 	    <div class="jb-activity">
-	      {% include "home/activity_home.html" with stream=stream max_entries=10 %}
+	      {% include "sled_home/activity_home.html" with stream=stream max_entries=10 %}
 	      {% if stream|length > 10 %}
-	      <a href="{% url 'home:activity-home-detailed'%}">Display all activity</a>
+	      <a href="{% url 'sled_home:activity-home-detailed'%}">Display all activity</a>
 	      {% endif %}
 	    </div>
 	    
