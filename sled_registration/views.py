@@ -44,7 +44,7 @@ def register(response):
     else:
         form = RegisterForm()
 
-    return render(response, "registration/register.html", {"form":form}) 
+    return render(response, "sled_registration/register.html", {"form":form}) 
 
 
 def password_reset_request(request):

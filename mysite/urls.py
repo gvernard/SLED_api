@@ -21,8 +21,8 @@ from django.contrib.staticfiles import views
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 
-from registration import views as vregistration
-from registration.forms import UserLoginForm
+from sled_registration import views as vregistration
+from sled_registration.forms import UserLoginForm
 import notifications.urls
 
 
@@ -39,10 +39,10 @@ urlpatterns = [
     path('sled_queries/', include('sled_queries.urls'), name='sled_queries'),
     path('register/', vregistration.register, name='register'),
     path('login/', auth_views.LoginView.as_view(
-            template_name="registration/login.html",
+            template_name="sled_registration/login.html",
             authentication_form=UserLoginForm
             ), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(template_name='registration/login.html'), name='logout'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='sled_registration/login.html'), name='logout'),
     #path('accounts/', include('django.contrib.auth.urls')),
     path("password_reset", vregistration.password_reset_request, name="password_reset"),
     path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password/password_reset_done.html'), name='password_reset_done'),

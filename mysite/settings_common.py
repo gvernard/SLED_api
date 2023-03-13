@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'guardian',
-    'registration.apps.RegistrationConfig',  
+    'sled_registration.apps.RegistrationConfig',  
     'crispy_forms',
     'notifications',
     'api',
