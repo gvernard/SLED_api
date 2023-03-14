@@ -239,6 +239,10 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
         return self.lens.name + " - " + self.instrument.name
 
     
+    def get_absolute_url(self):
+        return self.lens.get_absolute_url()
+
+    
     def save(self,*args,**kwargs):
         if self._state.adding and self.access_level == "PUB":
             # Creating object for the first time, calling save first to create a primary key
@@ -335,6 +339,10 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
         
     def __str__(self):
         return self.lens.name + " - " + self.instrument.name + " - " + self.band.name
+
+    
+    def get_absolute_url(self):
+        return self.lens.get_absolute_url()
 
     
     def save(self,*args,**kwargs):
