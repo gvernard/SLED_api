@@ -9,6 +9,7 @@ from django.apps import apps
 from django.forms import inlineformset_factory
 from django.conf import settings
 from django.template.response import TemplateResponse
+from django.utils import timezone
 
 from urllib.parse import urlparse
 
@@ -22,9 +23,11 @@ from bootstrap_modal_forms.generic import (
 from bootstrap_modal_forms.utils import is_ajax
 from actstream import action
 from dirtyfields import DirtyFieldsMixin
+from guardian.shortcuts import assign_perm,remove_perm
+from notifications.signals import notify
 
 import lenses
-from lenses.models import Users, Lenses, Imaging, Spectrum, Catalogue, AdminCollection
+from lenses.models import Users, Lenses, SledGroup, Imaging, Spectrum, Catalogue, AdminCollection
 from . import forms
 
 
@@ -103,6 +106,10 @@ class DataCreateView(BSModalCreateView):
             new_object = form.save(commit=False)
             new_object.exists = True
             new_object.save()
+            if new_object.access_level == 'PRI':
+                perm = 'view_' + self.kwargs.get('model').lower()
+                print(perm)
+                assign_perm(perm,self.request.user,new_object)
         response = super().form_valid(form)
         return response
 
@@ -265,7 +272,7 @@ class DataDeleteManyView(ModalIdsBaseMixin):
                 for j in accessible_objects[i]:
                     objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,user,objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                remove_perm(perm,user,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self.request.user,
                             recipient=user,
                             verb='DeleteObjectsPrivateNote',
@@ -284,7 +291,7 @@ class DataDeleteManyView(ModalIdsBaseMixin):
                 for j in accessible_objects[i]:
                     objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,group,objects) # (just 1 query)
+                remove_perm(perm,group,*objects) # (just 1 query)
                 action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=obj_type,object_names=names)
 
             ### Finally, delete the private objects

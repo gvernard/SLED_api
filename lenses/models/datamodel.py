@@ -9,6 +9,7 @@ from actstream import action
 from notifications.signals import notify
 import os
 import simplejson as json
+from pprint import pprint
 
 from . import SingleObject, Lenses
 
@@ -120,7 +121,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                              verbose_name="Band",
                              on_delete=models.PROTECT)
     image = models.ImageField(blank=True,
-                              upload_to='data/imaging')
+                              upload_to='imaging')
     url = models.URLField(blank=True,
                           max_length=300)
 
@@ -175,14 +176,14 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
             if len(dirty) > 0 and self.access_level == "PUB":
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
             
-        # Create new file and remove old one
         if self.exists:
+            # Create new file and remove old one        
+            super(Imaging,self).save(*args,**kwargs)
             fname = '/'+self.image.name
             if not os.path.exists(settings.MEDIA_ROOT+'/imaging/'):
                 os.mkdir(settings.MEDIA_ROOT+'/imaging/')
             sled_fname = '/imaging/' + str( self.pk ) + '.png'
             if fname != sled_fname:
-                #os.system('mv '+settings.MEDIA_ROOT+fname+' '+settings.MEDIA_ROOT+sled_fname)
                 os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
                 self.image.name = sled_fname
 
@@ -230,7 +231,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
             CheckConstraint(check=Q(lambda_min__lt=F("lambda_max")),name='wavelength_range'),
         ]
         ordering = ["created_at"]
-        db_table = "spectra"
+        db_table = "spectrum"
         verbose_name = "Spectrum"
         verbose_name_plural = "Spectra"
 
@@ -267,20 +268,18 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
             if len(dirty) > 0 and self.access_level == "PUB":
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
 
-        # Create new file and remove old one
         if self.exists:
+            # Create new file and remove old one
+            super(Spectrum,self).save(*args,**kwargs)
             fname = '/'+self.image.name
             if not os.path.exists(settings.MEDIA_ROOT+'/spectrum/'):
                 os.mkdir(settings.MEDIA_ROOT+'/spectrum/')
             sled_fname = '/spectrum/' + str( self.pk ) + '.png'
             if fname != sled_fname:
-                #os.system('mv '+settings.MEDIA_ROOT+fname+' '+settings.MEDIA_ROOT+sled_fname)
                 os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
                 self.image.name = sled_fname
 
-
         super(Spectrum,self).save(*args,**kwargs)
-
 
 
     

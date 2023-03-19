@@ -291,6 +291,7 @@ class LensesUpdateSerializer(serializers.ModelSerializer):
 ################################################################################
 class PaperUploadListSerializer(serializers.ListSerializer):
     def validate(self,papers):
+        print('Serializer: ',len(papers))
         
         bibcodes = [paper['bibcode'] for paper in papers]
 
@@ -306,13 +307,24 @@ class PaperUploadListSerializer(serializers.ListSerializer):
             raise serializers.ValidationError('There are duplicate bibcodes: '+','.join(dupl))
 
 
+        
+        ## Check that bibcodes do not exist already in the database
+        existing = Paper.objects.filter(bibcode__in=bibcodes).values('bibcode','cite_as')
+        if len(existing) != 0:
+            labels = []
+            for q in existing:
+                labels.append( q['cite_as']+' ('+q['bibcode']+')' )
+            raise serializers.ValidationError('These bibcodes already exist: '+'\n'.join(labels))
+
+        
+
         ## Check ADS if bibcodes are valid and fetch data that will be added to validated_data
         ## Check only at the end in order not to waste calls to the ADS API.
         ads.config.token = 'vL9nHFH4ozMNFtds3lwRnvmXOW8W2xdJIznHa4TO'
         r = ads.RateLimits('SearchQuery')
         q = ads.SearchQuery(bibcode="2022MNRAS.516.1347V") # random bibcode to test the remaining queries
         q.execute()
-        print(r.limits['remaining'])
+        print('Remaining ADS api calls: ',r.limits['remaining'])
         if r.limits['remaining'] == 0:
             raise serializers.ValidationError('Daily limit of contacting the ADS API has been reached. Try again in 24 hours!')
 
@@ -354,6 +366,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
             raise serializers.ValidationError('These bibcodes already exist: '+'\n'.join(labels))
 
 
+        
     
         ## Loop over papers and check for proximity.
         ## If not all lenses exist, return paper and RA,DEC that do not exist.
