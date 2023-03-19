@@ -245,10 +245,10 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def save(self,*args,**kwargs):
-        if self._state.adding and self.access_level == "PUB":
-            # Creating object for the first time, calling save first to create a primary key
-            super(Spectrum,self).save(*args,**kwargs)
-            if self.exists:
+        if self._state.adding:
+            if self.exists and self.access_level == "PUB":
+                # Creating object for the first time, calling save first to create a primary key
+                super(Spectrum,self).save(*args,**kwargs)
                 action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
         else:
             # Updating object

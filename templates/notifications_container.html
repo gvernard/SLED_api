@@ -149,7 +149,9 @@
 
 
 	{% elif note.verb == "RemovedFromThirdCollectionNote" %}
-        Private {{ note.action_object.object_type|get_name_plural }} were removed from <a class="sled-open-tooltip">{{ N }} Collections</a> that you own.
+	Private {{ note.data.object_type|get_name_plural }} were removed from
+	{% if N > 1 %}
+	<a class="sled-open-tooltip">{{ N }} Collections</a> that you own.
         <div class="sled-notification-tooltip" style="display:none">
           <table>
             {% for col in note.action_object.myitems.all %}
@@ -159,6 +161,12 @@
             {% endfor %}
           </table>
         </div>
+	{% else %}
+	{% with note.action_object.myitems.all|first as item %}
+	Collection <a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
+	{% endwith %}
+	{% endif %}
+	that you own.
 
 
 	{% elif note.verb == "HeirUnfollowNote" %}

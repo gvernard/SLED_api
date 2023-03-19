@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q, CharField
+from django.db.models import Q, CharField, Count
 from django.contrib.auth.models import AbstractUser
 from django.urls import reverse
 from django.utils import timezone
@@ -514,7 +514,7 @@ class Users(AbstractUser,GuardianUserMixin):
         
     def remove_from_third_collections(self,objects,user):
         user_type = user._meta.model.__name__
-        if user_type == 'SledGroup':
+        if user_type != 'SledGroup':
             obj_col_ids = list(objects.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
             object_type = objects[0]._meta.model.__name__
             model_ref = apps.get_model(app_label="lenses",model_name=object_type)
@@ -547,7 +547,9 @@ class Users(AbstractUser,GuardianUserMixin):
                             verb='RemovedFromThirdCollectionNote',
                             level='error',
                             timestamp=timezone.now(),
-                            action_object=ad_col)
+                            action_object=ad_col,
+                            object_type=object_type
+                            )
 
 
     def get_pending_tasks(self):

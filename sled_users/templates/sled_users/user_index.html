@@ -150,7 +150,7 @@
 	</p>
 	{% else %}
 	<p>
-	  You are following <a href="{% url 'sled_users:user-following' %}">{{ followed_lenses|length }} lenses</a>
+	  You are following <a href="{% url 'sled_users:user-following' %}">{{ followed_lenses|length }} {{followed_lenses|length|pluralize:"Lens,Lenses"}}</a>
 	</p>	
 	<br>
 	{% if lenses_with_updates %}
