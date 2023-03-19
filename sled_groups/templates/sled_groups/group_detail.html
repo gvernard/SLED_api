@@ -15,6 +15,7 @@
   </p>
 
   <!-- Recent activity div -->
+  {% if request.user|has_group:group.name %}
   <div class="jb-activity">
     {% activity_stream 'target' group %}
     {% include "activity_object.html" with stream=stream max_entries=5 %}
@@ -23,7 +24,8 @@
     {% include "activity_object_modal.html" with stream=stream %}
     {% endif %}
   </div>
-
+  {% endif %}
+  
   <!-- Div with some information about the group -->
   <div>
     <h1 class="jb-heading-2">Group Information</h1>
