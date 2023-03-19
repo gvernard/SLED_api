@@ -78,7 +78,7 @@
 
 	
 	{% elif action.verb == "UpdateTargetLog" %}
-	Updated {{ action.action_object|get_str|split:" - "|last }}:
+	Updated {{ action.data.object_name }}:
 	{% with myjson=action.data.fields|loadjson %}
 	{% for field_name,field_values in myjson.items %}
 	<strong>{{ field_name }}</strong> ({{ field_values.saved }} -> {{ field_values.current }}),
@@ -87,11 +87,15 @@
 
 	
 	{% elif action.verb == "MadePublicTargetLog" %}
-	Made public {{ action.action_object }}
+	Added {{ action.data.object_name }}
+
+
+	{% elif action.verb == "MadePrivateTargetLog" %}
+	Removed {{ action.data.object_name }}
 
 	
 	{% elif action.verb == "ImageChangeTargetLog" %}
-	Image of {{ action.action_object }} changed
+	Image of {{ action.data.object_name }} changed
 
 	
         {% elif action.verb == "AddPaperTargetLog" %}
@@ -106,6 +110,7 @@
 	 <a href="{{ item.get_absolute.url }}">{{ item }}</a>,
 	{% endfor %}
 
+	 
         {% elif action.verb == "RevokeAccessGroup" %}
         The group's access to {{ N }} private {% singular_or_plural action.action_object.item_type N %} was revoked:
 	{% for item in action.action_object.myitems.all %}
@@ -137,9 +142,16 @@
 
 
         {% elif action.verb == "MadePublicGroup" %}
-	{{ N }} private {% singular_or_plural action.action_object.item_type N %} the group has access to {{ N|pluralize:"was,were" }} made public
+	{% if N > 1 %}
+	<a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} private {% singular_or_plural action.action_object.item_type N %}</a>
+	{% else %}
+	{% with action.action_object.myitems.all|first as item %}
+	<a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a>
+	{% endwith %}
+	{% endif %}
+	the group has access to {{ N|pluralize:"was,were" }} made public
 
-
+	
 	
 	{# ########################### The following is for Collections ########################### #}
 	{% elif action.verb == "AddedToCollection" %}

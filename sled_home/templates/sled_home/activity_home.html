@@ -69,7 +69,7 @@
 
 	  {% elif action.verb == "MadePublicHome" %}
 	  {% if N > 1 %}
-	  <a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %} were
+	  <a href="{{ action.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural action.action_object.item_type N %}</a> were
 	  {% else %}
 	  {% with action.action_object.myitems.all|first as item %}
 	  <a href="{{ item.get_absolute_url }}" target="_blank">{{ item }}</a> was

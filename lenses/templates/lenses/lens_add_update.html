@@ -234,9 +234,12 @@
 {% if request.resolver_match.url_name == 'lens-add' %}
 <script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
 {% endif %}
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 {{ form.media.js }}
 <script type="text/javascript">
   $(document).ready(function() {

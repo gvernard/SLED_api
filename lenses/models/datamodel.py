@@ -125,7 +125,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     url = models.URLField(blank=True,
                           max_length=300)
 
-    FIELDS_TO_CHECK = ['instrument','band','exposure_time','pixel_size','image','date_taken','info','future']
+    FIELDS_TO_CHECK = ['instrument','band','exposure_time','pixel_size','image','date_taken','info','future','access_level']
     
     class Meta():
         constraints = [
@@ -147,10 +147,10 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def save(self,*args,**kwargs):
-        if self._state.adding and self.access_level == "PUB":
-            # Creating object for the first time, calling save first to create a primary key
-            super(Imaging,self).save(*args,**kwargs)
-            if self.exists:
+        if self._state.adding:
+            if self.exists and self.access_level == "PUB":
+                # Creating object for the first time, calling save first to create a primary key
+                super(Imaging,self).save(*args,**kwargs)
                 action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
                 notify.send(sender=self.owner,
                             recipient=self.lens.owner,
@@ -163,18 +163,22 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
             dirty.pop("owner",None) # Do not report ownership changes
 
+            ref_name = self.instrument.name + ' - ' + self.band.name
+
             if "access_level" in dirty.keys():
                 # Report only when making public
                 if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
-                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='warning',action_object=self)
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='success',object_name=ref_name)
+                if dirty["access_level"]["saved"] == "PUB" and dirty["access_level"]["current"] == "PRI":
+                    action.send(self.owner,target=self.lens,verb='MadePrivateTargetLog',level='error',object_name=ref_name)
                 dirty.pop("access_level",None) # remove from any subsequent report
 
             if "image" in dirty.keys():
-                action.send(self.owner,target=self.lens,verb='ImageChangeTargetLog',level='info',action_object=self)
+                action.send(self.owner,target=self.lens,verb='ImageChangeTargetLog',level='info',object_name=ref_name)
                 dirty.pop("image",None) # remove from any subsequent report
                 
             if len(dirty) > 0 and self.access_level == "PUB":
-                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
             
         if self.exists:
             # Create new file and remove old one        
@@ -223,7 +227,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     image = models.ImageField(blank=True,
                               upload_to='data/spectrum')
 
-    FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future']
+    FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future','access_level']
 
     class Meta():
         constraints = [
@@ -322,7 +326,7 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                              verbose_name="Band",
                              on_delete=models.PROTECT)
 
-    FIELDS_TO_CHECK = ['instrument','band','radet','decdet','mag','Dmag','distance','date_taken','info','future']
+    FIELDS_TO_CHECK = ['instrument','band','radet','decdet','mag','Dmag','distance','date_taken','info','future','access_level']
         
     class Meta():
         constraints = [

@@ -7,7 +7,7 @@ from django.apps import apps
 
 from guardian.core import ObjectPermissionChecker
 from guardian.mixins import GuardianUserMixin
-from guardian.shortcuts import assign_perm, remove_perm
+from guardian.shortcuts import assign_perm, remove_perm,get_objects_for_group
 
 from notifications.signals import notify
 from actstream import action
@@ -193,6 +193,7 @@ class Users(AbstractUser,GuardianUserMixin):
         self.checkOwnsList(objects)
 
         # User owns all objects, proceed with giving access
+        print(objects)
         perm = "view_"+objects[0]._meta.db_table
 
         # first loop over the target_users
@@ -243,6 +244,7 @@ class Users(AbstractUser,GuardianUserMixin):
             target_users.remove(self)
             
         # User owns all objects, proceed with revoking access
+        print(objects)
         perm = "view_"+objects[0]._meta.db_table
 
         # Loop over the target_users
@@ -376,11 +378,12 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################            
             users_with_access,accessible_objects = self.accessible_per_other(target_objs,'users')
             for i,user in enumerate(users_with_access):
-                objects = []
+                object_ids = []
                 for j in accessible_objects[i]:
-                    objects.append(target_objs[j])
-                remove_perm(perm,user,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
+                    object_ids.append(target_objs[j].id)
+                qset = model_ref.accessible_objects.in_ids(user,object_ids)
+                remove_perm(perm,user,qset) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=qset)
                 notify.send(sender=self,
                             recipient=user,
                             verb='MakePublicNote',
@@ -394,18 +397,24 @@ class Users(AbstractUser,GuardianUserMixin):
             id_list = [g.id for g in groups_with_access]
             gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
-                objects = []
+                object_ids = []
                 for j in accessible_objects[i]:
-                    objects.append(target_objs[j])
-                remove_perm(perm,group,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
-                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=objects)
+                    object_ids.append(target_objs[j].id)
+                qset = model_ref.objects.filter(pk__in=object_ids)
+                ad_col = AdminCollection.objects.create(item_type=object_type,myitems=qset) # I have to create the ad_col with this queryset
+                qset = get_objects_for_group(group,perm,qset)
+                remove_perm(perm,group,qset) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 action.send(self,target=gwa[i],verb='MadePublicGroup',level='info',action_object=ad_col)
 
             # Finally, update only those objects that need to be updated
             #####################################################
             for obj in target_objs:
                 obj.access_level = 'PUB'
+                print('pre-save makepublic')
+                print(obj.is_dirty())
+                print(obj.get_dirty_fields())
                 obj.save()
+                print('POST-save makepublic')
 
             ad_col = AdminCollection.objects.create(item_type=object_type,myitems=target_objs)
             action.send(self,target=Users.getAdmin().first(),verb='MadePublicHome',level='info',action_object=ad_col)
@@ -554,7 +563,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
     def get_pending_tasks(self):
         # This is to facilitate calls in templates
-        pending_tasks = list(ConfirmationTask.objects.custom_manage.pending_for_user(self))
+        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(self))
         return pending_tasks
 
 

@@ -277,9 +277,7 @@ class LensDetailView(DetailView):
         following = is_following(self.request.user,context['lens'])
         
         ## Imaging data
-        #for each instrument associate only one image per band for now
         instruments = allimages.values_list('instrument__name', flat=True).distinct().order_by()
-        #print(instruments)
         display_images = {}
         band_order = list(Band.objects.all().values_list('name', flat=True))
         for instrument in instruments:
@@ -288,13 +286,11 @@ class LensDetailView(DetailView):
 
             which_imaging = {}
             for band in bands:
-                #order this by exposure time in future
-                which_imaging[band] = allimages.filter(instrument__name=instrument).filter(band__name=band).first()
+                which_imaging[band] = allimages.filter(instrument__name=instrument).filter(band__name=band).order_by('-exposure_time','-date_taken')
             
             if instrument=='PS1-GPC1':
                 instrument = 'Pan-STARRS'
             display_images[instrument] = which_imaging
-
             
         ## Catalogue data: preparing instrument and band order
         instruments_bands = defaultdict(list)

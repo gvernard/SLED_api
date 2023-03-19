@@ -22,7 +22,6 @@ from bootstrap_modal_forms.generic import (
 )
 from bootstrap_modal_forms.utils import is_ajax
 from actstream import action
-from dirtyfields import DirtyFieldsMixin
 from guardian.shortcuts import assign_perm,remove_perm
 from notifications.signals import notify
 

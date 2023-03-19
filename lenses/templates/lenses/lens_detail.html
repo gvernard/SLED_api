@@ -189,7 +189,8 @@
 	<td>
 	  {{ instrument }}
 	  <br>
-	  {% for band, image in imaging.items %}
+	  {% for band, images in imaging.items %}
+	  {% for image in images %}
 	  <div class="imaging-item">
 	    <div class="header">
 	      {{ band }}
@@ -210,6 +211,7 @@
 	      </div>
 	    </div>
 	  </div>
+	  {% endfor %}	  
 	  {% endfor %}
 	</td>
       </tr>

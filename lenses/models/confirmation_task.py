@@ -443,7 +443,7 @@ class MakePrivate(ConfirmationTask):
                 for u,mydict in users.items():
                     ad_col = AdminCollection.objects.create(item_type='Lenses',myitems=mydict["lenses"])
                     notify.send(sender=self.owner,
-                                recipient=u,
+                                recipient=mydict["user"],
                                 verb='MakePrivateUnfollowNote',
                                 level='warning',
                                 timestamp=timezone.now(),
