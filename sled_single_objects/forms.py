@@ -4,6 +4,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.apps import apps
 from django.db.models import Count
 
+from guardian.shortcuts import get_objects_for_user,get_objects_for_group,get_perms_for_model
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
 from lenses.models import Lenses, Users, SledGroup
@@ -111,7 +112,12 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
     groups = forms.ModelMultipleChoiceField(label='Groups',queryset=SledGroup.objects.all(),required=False)
     #justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
-                
+    mode = 'dum' # necessary to define self.mode
+
+    def __init__(self,*args,**kwargs):
+        self.mode = kwargs.pop('mode')
+        super(SingleObjectGiveRevokeAccessForm,self).__init__(*args,**kwargs)
+    
     def clean(self):
         # All objects MUST be private
         obj_type = self.cleaned_data.get('obj_type')
@@ -130,3 +136,30 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
         # User must not be the owner
         if self.request.user in users:
             self.add_error('__all__',"You cannot revoke access from yourself!.")
+
+        # Specific checks for giving or revoking access
+        perm = "view_"+obj_type.lower()
+        qset = model_ref.objects.filter(id__in=ids)
+        if self.mode == 'give':
+            set1 = set(qset)
+            for u in users:
+                set2 = set(get_objects_for_user(u,perm,klass=qset))
+                if set1 == set2:
+                    self.add_error('__all__',"User %s already has access anyway!" % u)
+            for g in groups:
+                set2 = set(get_objects_for_group(g,perm,klass=qset))
+                if set1 == set2:
+                    self.add_error('__all__',"Group %s already has access anyway!" % g)
+        elif self.mode == 'revoke':
+            for u in users:
+                with_access = get_objects_for_user(u,perm,klass=qset)
+                if len(with_access) == 0:
+                    self.add_error('__all__',"User %s does not have access anyway!" % u)
+            for g in groups:
+                with_access = get_objects_for_group(g,perm,klass=qset)
+                if len(with_access) == 0:
+                    self.add_error('__all__',"Group %s does not have access anyway!" % g)
+        else:
+            self.add_error('__all__',"Unknown form action! Can be either <b>give</b> or <b>revoke</b>.")
+            
+

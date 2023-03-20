@@ -87,8 +87,13 @@ class SingleObjectMakePrivateView(ModalIdsBaseMixin):
 @method_decorator(login_required,name='dispatch')
 class SingleObjectGiveRevokeAccessView(ModalIdsBaseMixin):
     template_name = 'sled_single_objects/so_give_revoke_access.html'
-    form_class = forms.SingleObjectGiveRevokeAccessForm
     success_url = reverse_lazy('sled_users:user-profile')
+    form_class = forms.SingleObjectGiveRevokeAccessForm
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update({'mode':self.kwargs.get('mode')})
+        return kwargs
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']
