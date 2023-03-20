@@ -11,7 +11,7 @@ from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band
 class BaseLensForm(forms.ModelForm):
     class Meta:
         model = Lenses
-        exclude = ['name']
+        exclude = []
         widgets = {
             'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
@@ -29,7 +29,7 @@ class BaseLensForm(forms.ModelForm):
 
 class BaseLensUpdateForm(BaseLensForm):
     class Meta:
-        exclude = ['name','access_level']
+        exclude = ['access_level']
         widgets = {
             'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
@@ -42,14 +42,14 @@ class BaseLensUpdateForm(BaseLensForm):
 class LensModalUpdateForm(BSModalModelForm):
     class Meta:
         model = Lenses
-        exclude = ['name']
+        exclude = ['access_level']
         widgets = {
             'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'owner': forms.HiddenInput(),
-            'access_level': forms.HiddenInput(),
+            #'access_level': forms.HiddenInput(),
         }
         
     def __init__(self, *args, **kwargs):

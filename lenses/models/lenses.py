@@ -476,7 +476,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             
     def create_name(self):
         c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
-        self.name = 'J'+c.to_string('hmsdms')
+        return 'J'+c.to_string('hmsdms')
 
         
     def get_absolute_url(self):

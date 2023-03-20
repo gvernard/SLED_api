@@ -32,11 +32,27 @@ Update Lens {{ lens.name }}
           <div>
             <table>
               <tr>
+                <td>{{ form.name.errors }}</td>
+                <td>
+      <div class="sled-help-tooltip">{{ form.name.label|safe }}</div>
+      <div class="sled-help-tooltip-content">{{ form.name.help_text|safe }}</div>
+    </td>
+                <td>{{ form.name }}</td>
+              </tr>
+              <tr>
+                  <td>{{ form.alt_name.errors }}</td>
+                  <td>
+        <div class="sled-help-tooltip">{{ form.alt_name.label|safe }}</div>
+        <div class="sled-help-tooltip-content">{{ form.alt_name.help_text|safe }}</div>
+      </td>
+                  <td>{{ form.alt_name }}</td>
+                </tr>
+              <tr>
                 <td>{{ form.ra.errors }}</td>
                 <td>
-		  <div class="sled-help-tooltip">{{ form.ra.label|safe }}</div>
-		  <div class="sled-help-tooltip-content">{{ form.ra.help_text|safe }}</div>
-		</td>
+      <div class="sled-help-tooltip">{{ form.ra.label|safe }}</div>
+      <div class="sled-help-tooltip-content">{{ form.ra.help_text|safe }}</div>
+    </td>
                 <td>{{ form.ra }}</td>
               </tr>
               <tr>
