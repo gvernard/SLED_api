@@ -193,22 +193,27 @@ class Users(AbstractUser,GuardianUserMixin):
         self.checkOwnsList(objects)
 
         # User owns all objects, proceed with giving access
-        print(objects)
         perm = "view_"+objects[0]._meta.db_table
 
         # first loop over the target_users
+        set1 = set(objects)
+        object_type = objects[0]._meta.model.__name__
+        model_ref = apps.get_model(app_label="lenses",model_name=object_type)
         for user in target_users:
-            # fetch permissions for all the objects for the given user (just 1 query)
             new_objects_per_user = []
-            checker = ObjectPermissionChecker(user)
-            checker.prefetch_perms(objects)
-            object_type = objects[0]._meta.model.__name__
-            for obj in objects:
-                if not checker.has_perm(perm,obj):
-                    new_objects_per_user.append(obj)
             # if there are objects for which this user was just granted new permission, create a notification
+            if isinstance(user,SledGroup):
+                set2 = set(get_objects_for_group(user,perm,klass=objects))
+            else:
+                set2 = set(get_objects_for_user(user,perm,klass=objects,use_groups=False))
+            new_objects_per_user = list(set1.difference(set2))
             if len(new_objects_per_user) > 0:
-                assign_perm(perm,user,new_objects_per_user) # (just 1 query)
+                # Below I have to loop over each object individually because of the way assign_perm is coded.
+                # If the given obj is a list, the it calls bulk_assign_perms that checks for any permission (including through a group) using ObjectPermissionChecker.
+                # As a result, if a user already has access through a group explicit permission (user-object pair) is not created.
+                for obj in new_objects_per_user:
+                    assign_perm(perm,user,obj)
+                
                 ad_col = AdminCollection.objects.create(item_type=object_type,myitems=new_objects_per_user)
                 if isinstance(user,Users):
                     notify.send(sender=self,

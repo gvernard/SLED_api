@@ -135,7 +135,7 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
 
         # User must not be the owner
         if self.request.user in users:
-            self.add_error('__all__',"You cannot revoke access from yourself!.")
+            self.add_error('__all__',"You cannot give/revoke access to/from yourself!.")
 
         # Specific checks for giving or revoking access
         perm = "view_"+obj_type.lower()
@@ -143,7 +143,7 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
         if self.mode == 'give':
             set1 = set(qset)
             for u in users:
-                set2 = set(get_objects_for_user(u,perm,klass=qset))
+                set2 = set(get_objects_for_user(u,perm,klass=qset,use_groups=False))
                 if set1 == set2:
                     self.add_error('__all__',"User %s already has access anyway!" % u)
             for g in groups:
@@ -152,7 +152,7 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
                     self.add_error('__all__',"Group %s already has access anyway!" % g)
         elif self.mode == 'revoke':
             for u in users:
-                with_access = get_objects_for_user(u,perm,klass=qset)
+                with_access = get_objects_for_user(u,perm,klass=qset,use_groups=False)
                 if len(with_access) == 0:
                     self.add_error('__all__',"User %s does not have access anyway!" % u)
             for g in groups:
