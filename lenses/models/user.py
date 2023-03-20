@@ -7,7 +7,7 @@ from django.apps import apps
 
 from guardian.core import ObjectPermissionChecker
 from guardian.mixins import GuardianUserMixin
-from guardian.shortcuts import assign_perm, remove_perm,get_objects_for_group
+from guardian.shortcuts import assign_perm, remove_perm, get_objects_for_group, get_objects_for_user
 
 from notifications.signals import notify
 from actstream import action
@@ -244,7 +244,6 @@ class Users(AbstractUser,GuardianUserMixin):
             target_users.remove(self)
             
         # User owns all objects, proceed with revoking access
-        print(objects)
         perm = "view_"+objects[0]._meta.db_table
 
         # Loop over the target_users
@@ -361,7 +360,7 @@ class Users(AbstractUser,GuardianUserMixin):
         else:
             object_type = target_objs.model.__name__
             model_ref = apps.get_model(app_label='lenses',model_name=object_type)
-            perm = "view_"+object_type
+            perm = "view_"+object_type.lower()
             target_objs = list(target_objs)
                         
             ### Very important: check for proximity before making public.
@@ -410,11 +409,7 @@ class Users(AbstractUser,GuardianUserMixin):
             #####################################################
             for obj in target_objs:
                 obj.access_level = 'PUB'
-                print('pre-save makepublic')
-                print(obj.is_dirty())
-                print(obj.get_dirty_fields())
                 obj.save()
-                print('POST-save makepublic')
 
             ad_col = AdminCollection.objects.create(item_type=object_type,myitems=target_objs)
             action.send(self,target=Users.getAdmin().first(),verb='MadePublicHome',level='info',action_object=ad_col)
