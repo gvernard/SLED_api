@@ -433,7 +433,7 @@ class LensAddView(TemplateView):
                         new_lenses = Lenses.objects.bulk_create(instances)
 
                     if pri:
-                        assign_perm('view_lenses',request.user,pri)
+                        assign_perm('view_lenses',request.user,pri) # pri being a list here is fine because new lenses are added (no existing permissions)
                     if pub:
                         # Main activity stream for public lenses
                         ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)

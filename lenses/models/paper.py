@@ -6,7 +6,6 @@ from django.apps import apps
 from django.urls import reverse
 from django.db.models import Q, CheckConstraint, UniqueConstraint
 
-from guardian.shortcuts import assign_perm
 from gm2m import GM2MField
 import simplejson as json
 from actstream import action

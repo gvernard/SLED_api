@@ -264,7 +264,7 @@ class UploadLenses(APIView):
                     else:
                         pub.append(lens)
                 if pri:
-                    assign_perm('view_lenses',request.user,pri)
+                    assign_perm('view_lenses',request.user,pri) # pri being a list here is fine because new lenses are uploaded (no existing permissions)
                 if len(pub) > 0:
                     ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
                     action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)

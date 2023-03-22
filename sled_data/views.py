@@ -108,7 +108,7 @@ class DataCreateView(BSModalCreateView):
             if new_object.access_level == 'PRI':
                 perm = 'view_' + self.kwargs.get('model').lower()
                 print(perm)
-                assign_perm(perm,self.request.user,new_object)
+                assign_perm(perm,self.request.user,new_object) # new_object here is not a list, so giving permission to the user is guaranteed
         response = super().form_valid(form)
         return response
 
