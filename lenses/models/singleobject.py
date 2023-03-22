@@ -111,7 +111,7 @@ class AccessManager(models.Manager):
         perm = "view_"+objects[0]._meta.db_table
         pairs = []
         for j,ug in enumerate(ugs):
-            checker = ObjectPermissionChecker(ug)
+            checker = ObjectPermissionChecker(ug) # ObjectPermissionChecker here is fine because we want users or groups without permissions
             checker.prefetch_perms(objects)
             for i,obj in enumerate(objects):
                 if obj.access_level == 'PRI' and not checker.has_perm(perm,obj):
@@ -133,10 +133,11 @@ class AccessManager(models.Manager):
         perm = "view_"+objects[0]._meta.db_table
         pairs = []
         for j,ug in enumerate(ugs):
-            checker = ObjectPermissionChecker(ug)
-            checker.prefetch_perms(objects)
+            #checker = ObjectPermissionChecker(ug)
+            #checker.prefetch_perms(objects)
             for i,obj in enumerate(objects):
-                if obj.access_level == 'PRI' and checker.has_perm(perm,obj):
+                #if obj.access_level == 'PRI' and checker.has_perm(perm,obj):
+                if obj.access_level == 'PRI' and ug.has_perm(perm,obj):
                     pairs.append((j,i))
         out = self._arrange_by_object(pairs,ugs,objects)
         return out

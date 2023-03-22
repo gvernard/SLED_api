@@ -254,7 +254,7 @@ class Users(AbstractUser,GuardianUserMixin):
         # Loop over the target_users
         for user in target_users:
             # fetch permissions for all the objects for the given user (just 1 query)
-            checker = ObjectPermissionChecker(user)
+            checker = ObjectPermissionChecker(user) # ObjectPermissionChecker here is fine because we are revoking access
             checker.prefetch_perms(objects)            
             object_type = objects[0]._meta.model.__name__
             model_ref = apps.get_model(app_label="lenses",model_name=object_type)
