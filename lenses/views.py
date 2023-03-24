@@ -24,7 +24,7 @@ from django.db.models.query import QuerySet
 import json
 from urllib.parse import urlparse
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift
 
 from . import forms
 from . import query_utils
@@ -347,7 +347,11 @@ class LensDetailView(DetailView):
             all_results[entry.instrument.name]['table'][str(entry.radet) + ',' + str(entry.decdet)][entry.band.name]['Dmag'] = entry.Dmag
 
 
-        
+        # Redshifts
+        redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+
+
+            
         # All papers are public, no need for the accessible_objects manager
         allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
                                                     model=F('paperlensconnection__model'),
@@ -374,6 +378,7 @@ class LensDetailView(DetailView):
         context['display_spectra'] = allspectra
         context['display_catalogues_plot'] = dict(catalogue_entries_plot)
         context['display_catalogues_table'] = all_results
+        context["redshifts"] = redshifts
         return context
     
 

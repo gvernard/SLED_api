@@ -1,5 +1,9 @@
 .sled-mugshot-image {width:250px;height:250px;}
 .sled-mugshot-icon {width:70px;height:70px;}
 
+.supsub {position: absolute}
+.supsub sup {display:block; position:relative; left:2px; top:0px}
+.supsub sub {display:block; position:relative; left:2px; bottom:-20px}
+
 
 .errorlist {color:red}

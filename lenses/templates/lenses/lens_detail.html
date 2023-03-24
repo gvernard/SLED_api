@@ -88,14 +88,6 @@
 	  <div class="sled-help-tooltip-content">{{ lens.get_image_sep_help_text|safe }}</div>
 	</th>
         <th>
-	  <div class="sled-help-tooltip">{{ lens.get_z_lens_label|safe }}</div>
-	  <div class="sled-help-tooltip-content">{{ lens.get_z_lens_help_text|safe }}</div>
-	</th>
-        <th>
-	  <div class="sled-help-tooltip">{{ lens.get_z_source_label|safe }}</div>
-	  <div class="sled-help-tooltip-content">{{ lens.get_z_source_help_text|safe }}</div>
-	</th>
-        <th>
 	  Score
 	</th>
       </tr>
@@ -103,8 +95,6 @@
         <td>{{lens.ra}}</td>
         <td>{{lens.dec}}</td>
         <td>{{lens.image_sep}}</td>
-        <td>{{lens.z_lens}}</td>
-        <td>{{lens.z_source}}</td>
         <td>{{lens.score}}</td>
       </tr>
     </table>
@@ -178,6 +168,64 @@
     </button>    
   </div>
 
+  
+  <!-- Div containing all the redshift measurements  -->
+  <div class="jb-section jb-table-no-lines">
+    <h1 class="jb-heading-2">Redshifts</h1>
+    {% if redshifts %}
+    <table>
+      <thead>
+	<tr>
+	  <th>Value</th>
+	  <th>Method</th>
+	  <th>Linked Spectrum</th>
+	  <th>Info</th>
+	  <th>&nbsp;</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for redshift in redshifts %}
+	<tr>
+	  <td style="padding-right:10px;">
+	    Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>
+	  </td>
+	  <td>
+	    {% if redshift.paper %}
+	    <a href="{{ redshift.paper }}">{{ redshift.method }}</a>
+	    {% else %}
+	    {{ redshift.method }}
+	    {% endif %}
+	  </td>
+	  <td>
+	    {% if redshift.spectrum %}
+	    <a href="{{ redshift.spectrum.get_absolute_url }}">
+	      {{ redshift.spectrum }}
+	    </a>
+	    {% else %}
+	    -
+	    {% endif %}
+	  </td>
+	  <td>
+	    {{ redshift.info }}
+	  </td>
+	  <td>
+	    {% if redshift.owner == user %}
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}">
+	      Update
+	    </button>	
+	    {% endif %}
+	  </td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:redshift-create' lens=lens.id %}">
+      <img src="{% static 'icons/plus.svg' %}">
+      Add Redshift
+    </button>
+  </div>
 
   
   <!-- Div containing all the imaging data  -->

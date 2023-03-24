@@ -258,19 +258,23 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
             # Updating object
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
             dirty.pop("owner",None) # Do not report ownership changes
+
+            ref_name = self.instrument.name
             
             if "access_level" in dirty.keys():
                 # Report only when making public
                 if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
-                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='warning',action_object=self)
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='success',object_name=ref_name)
+                if dirty["access_level"]["saved"] == "PUB" and dirty["access_level"]["current"] == "PRI":
+                    action.send(self.owner,target=self.lens,verb='MadePrivateTargetLog',level='error',object_name=ref_name)
                 dirty.pop("access_level",None) # remove from any subsequent report
 
             if "image" in dirty.keys():
-                action.send(self.owner,target=self.lens,verb='ImageChangeTargetLog',level='info',action_object=self)
+                action.send(self.owner,target=self.lens,verb='ImageChangeTargetLog',level='info',object_name=ref_name)
                 dirty.pop("image",None) # remove from any subsequent report
                 
             if len(dirty) > 0 and self.access_level == "PUB":
-                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
 
         if self.exists:
             # Create new file and remove old one
@@ -359,28 +363,33 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
             dirty.pop("owner",None) # Do not report ownership changes
             
+            ref_name = 'Catalogue ' + self.instrument.name + ' - ' + self.band.name
+
             if "access_level" in dirty.keys():
                 # Report only when making public
                 if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
-                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='warning',action_object=self)
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='success',object_name=ref_name)
+                if dirty["access_level"]["saved"] == "PUB" and dirty["access_level"]["current"] == "PRI":
+                    action.send(self.owner,target=self.lens,verb='MadePrivateTargetLog',level='error',object_name=ref_name)
                 dirty.pop("access_level",None) # remove from any subsequent report
                     
             if len(dirty) > 0 and self.access_level == "PUB":
-                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
                 
         super(Catalogue,self).save(*args,**kwargs)
 
 
         
-class Redshift(SingleObject):
+class Redshift(SingleObject,DirtyFieldsMixin):
     lens = models.ForeignKey(Lenses,
                              on_delete=models.CASCADE,
                              related_name="%(class)s")
 
-    spectrum = models.ForeignKey(blank=True,
-                                 Spectrum,
-                                 on_delete=models.CASCADE,
-                                 related_name="%(class)s")
+    # spectrum = models.ForeignKey(blank=True,
+    #                              null=True,
+    #                              Spectrum,
+    #                              on_delete=models.CASCADE,
+    #                              related_name="%(class)s")
     
     value = models.DecimalField(max_digits=5,
                                 decimal_places=4,
@@ -402,7 +411,7 @@ class Redshift(SingleObject):
                                      null=True,
                                      max_digits=5,
                                      decimal_places=4,
-                                     verbose_name="-&delta;Z",
+                                     verbose_name="+&delta;Z",
                                      help_text="The higher uncertainty bound, if known.",
                                      validators=[MinValueValidator(0.0,"Uncertainty must be positive"),
                                                  MaxValueValidator(20,"This is a very uncertain value, or most likely a mistake!")])
@@ -411,26 +420,27 @@ class Redshift(SingleObject):
         ('SOURCE','Source'),
         ('LOS','Line-of-sight'),
     )
-    redshift_tag = MultiSelectField(max_length=100,
-                                       verbose_name="Redshift Tag",
-                                       help_text="Whether the redshift refers to the lens, the source, or anything else along the line-of-sight",
-                                       choices=RedshiftTagChoices)
-
+    tag = models.CharField(max_length=100,
+                             verbose_name="Redshift Tag",
+                             help_text="Whether the redshift refers to the lens, the source, or anything else along the line-of-sight",
+                             choices=RedshiftTagChoices)
+    
     RedshiftMethodChoices = (
         ('PHOTO-Z','Photometric'),
         ('SPECTRO','Spectroscopic'),
         ('OTHER','Other'),
     )
-    redshift_method = MultiSelectField(max_length=100,
-                                       verbose_name="Method",
-                                       help_text="The method used to determine the redshift",
-                                       choices=RedshiftMethodChoices)
-  
+    method = models.CharField(max_length=100,
+                                verbose_name="Method",
+                                help_text="The method used to determine the redshift",
+                                choices=RedshiftMethodChoices)
+    
     info = models.TextField(blank=True,
                             null=True,
                             default='',
                             help_text="Description of any important aspects of the measurement.")
 
+    FIELDS_TO_CHECK = ['value','dvalue_min','dvalue_max','tag','method','info','access_level']
     
     class Meta():
         constraints = [
@@ -445,7 +455,7 @@ class Redshift(SingleObject):
 
         
     def __str__(self):
-        return self.lens.name + " - " + self.redshift_method + " - " + self.redshift_tag
+        return self.lens.name + " - " + self.method + " - " + self.tag
 
     
     def get_absolute_url(self):
@@ -453,8 +463,27 @@ class Redshift(SingleObject):
 
     
     def save(self,*args,**kwargs):
-        super(Redshift,self).save(*args,**kwargs)
         if self._state.adding:
             if self.access_level == "PUB":
                 # Creating object for the first time, calling save first to create a primary key
+                super(Redshift,self).save(*args,**kwargs)
                 action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+        else:
+            # Updating object
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            dirty.pop("owner",None) # Do not report ownership changes
+
+            ref_name = self.tag + " " + self.method + " redshift"
+            
+            if "access_level" in dirty.keys():
+                # Report only when making public
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='success',object_name=ref_name)
+                if dirty["access_level"]["saved"] == "PUB" and dirty["access_level"]["current"] == "PRI":
+                    action.send(self.owner,target=self.lens,verb='MadePrivateTargetLog',level='error',object_name=ref_name)
+                dirty.pop("access_level",None) # remove from any subsequent report
+                    
+            if len(dirty) > 0 and self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
+
+        super(Redshift,self).save(*args,**kwargs)

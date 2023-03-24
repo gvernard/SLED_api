@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
-from lenses.models import DataBase, Imaging, Spectrum, Catalogue
+from lenses.models import DataBase, Imaging, Spectrum, Catalogue, Redshift
 
 
 
@@ -117,6 +117,22 @@ class CatalogueCreateFormModal(CatalogueBaseForm,BSModalModelForm):
     class Meta(CatalogueBaseForm):
         model = Catalogue
         exclude = ['exists']
+
+class RedshiftCreateFormModal(BSModalModelForm):
+    field_order = ['value','dvalue_max','dvalue_min','tag','method','paper','spectrum','info']
+
+    class Meta:
+        model = Redshift
+        exclude = ['spectrum']
+        widgets = {
+            'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
+            'owner': forms.HiddenInput(),
+            'lens': forms.HiddenInput(),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super(RedshiftCreateFormModal, self).__init__(*args, **kwargs)
+        self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
 ##############################################################################
 
 
@@ -156,6 +172,22 @@ class CatalogueUpdateFormModal(BSModalModelForm,CatalogueBaseForm):
         model = Catalogue
         exclude = ['lens','owner','access_level','exists']
 
+
+class RedshiftUpdateFormModal(BSModalModelForm):
+    field_order = ['value','dvalue_max','dvalue_min','tag','method','paper','spectrum','info']
+
+    class Meta:
+        model = Redshift
+        exclude = ['owner','lens','access_level','spectrum']
+        widgets = {
+            'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super(RedshiftUpdateFormModal, self).__init__(*args, **kwargs)
+        self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
+
+    
         
 class DataUpdateManyFormSet(forms.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):

@@ -1,13 +1,18 @@
 {% extends "modal_base.html" %}
 {% load static %}
 
+
 {% block title %}
-Add Catalogue data?
+Update Redshift
 {% endblock title %}
 
+
 {% block content %}
-<div class="jb-container-modal">
-  
+<div class="jb-container">
+  <p>
+    Update Redshift for this lens.
+  </p>
+
   {% if form.non_field_errors|length > 0 %}
   <div class="invalid jb-modal-field">
     <ul>
@@ -17,13 +22,11 @@ Add Catalogue data?
     </ul>
   </div>
   {% endif %}
-		
+  
   <div class="jb-modal-field jb-table-no-lines">
-    {{ form.owner }}
-    {{ form.lens }}
     <table>
       <tbody>
-	{% for field in form.visible_fields %}
+	{% for field in form %}
 	<tr>
 	  <td>{{ field.error }}</td>
           <td>
@@ -36,7 +39,7 @@ Add Catalogue data?
       </tbody>
     </table>
   </div>
-    
+
 </div>
 {% endblock content %}
 
@@ -51,7 +54,7 @@ Add Catalogue data?
 
 {% block action_button %}
 <button type="submit" class="jb-submit-button-1">
-  <img src="{% static 'icons/plus.svg' %}" >
-  Create Catalogue data
+  <img src="{% static 'icons/pencil.svg' %}" >
+  Update
 </button>
 {% endblock action_button %}

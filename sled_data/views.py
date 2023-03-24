@@ -26,7 +26,7 @@ from guardian.shortcuts import assign_perm,remove_perm
 from notifications.signals import notify
 
 import lenses
-from lenses.models import Users, Lenses, SledGroup, Imaging, Spectrum, Catalogue, AdminCollection
+from lenses.models import Users, Lenses, SledGroup, Imaging, Spectrum, Catalogue, AdminCollection, Redshift
 from . import forms
 
 
@@ -79,6 +79,8 @@ class DataCreateView(BSModalCreateView):
             return ['sled_data/spectrum_create.html']
         elif model_name == 'Catalogue':
             return ['sled_data/catalogue_create.html']
+        elif model_name == 'Redshift':
+            return ['sled_data/redshift_create.html']
         else:
             # Maybe return some default error template here
             pass
@@ -91,6 +93,8 @@ class DataCreateView(BSModalCreateView):
             return forms.SpectrumCreateFormModal
         elif model_name == 'Catalogue':
             return forms.CatalogueCreateFormModal
+        elif model_name == 'Redshift':
+            return forms.RedshiftCreateFormModal
         else:
             # Maybe return some default error template here
             pass
@@ -142,6 +146,8 @@ class DataUpdateView(BSModalUpdateView):
             return ['sled_data/spectrum_update.html']
         elif model_name == 'Catalogue':
             return ['sled_data/catalogue_update.html']
+        elif model_name == 'Redshift':
+            return ['sled_data/redshift_update.html']
         else:
             # Maybe return some default error template here
             pass
@@ -154,6 +160,8 @@ class DataUpdateView(BSModalUpdateView):
             return forms.SpectrumUpdateFormModal
         elif model_name == 'Catalogue':
             return forms.CatalogueUpdateFormModal
+        elif model_name == 'Redshift':
+            return forms.RedshiftUpdateFormModal
         else:
             # Maybe return some default error template here
             pass

@@ -21,7 +21,7 @@ from actstream.models import following, target_stream, Action
 from operator import attrgetter
 from itertools import chain
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift
 from .forms import UserUpdateForm
 
 
@@ -145,16 +145,20 @@ class UserProfileView(TemplateView):
         imagings_page_number = request.GET.get('imagings-page',1)
         imagings_page = imagings_paginator.get_page(imagings_page_number)
 
-        # Paginator for Imaging data
+        # Paginator for Spectra
         spectra_paginator = Paginator(owned_objects["Spectrum"],50)
         spectra_page_number = request.GET.get('spectra-page',1)
         spectra_page = spectra_paginator.get_page(spectra_page_number)
 
-        # Paginator for Imaging data
+        # Paginator for Catalogue data
         catalogues_paginator = Paginator(owned_objects["Catalogue"],50)
         catalogues_page_number = request.GET.get('catalogues-page',1)
         catalogues_page = catalogues_paginator.get_page(catalogues_page_number)
 
+        # Paginator for Redshift
+        redshifts_paginator = Paginator(owned_objects["Redshift"],50)
+        redshifts_page_number = request.GET.get('redshifts-page',1)
+        redshifts_page = redshifts_paginator.get_page(redshifts_page_number)
 
         #recipient = ConfirmationTask.custom_manager.all_as_recipient(self.request.user)
 
@@ -219,6 +223,9 @@ class UserProfileView(TemplateView):
                  'N_catalogues_total': catalogues_paginator.count,
                  'catalogues_range': catalogues_paginator.page_range,
                  'catalogues': catalogues_page,
+                 'N_redshifts_total': redshifts_paginator.count,
+                 'redshifts_range': redshifts_paginator.page_range,
+                 'redshifts': redshifts_page,
                  'collections': qset_cols,
                  'collections_users': cols_users_with_access,
                  'collections_groups': cols_groups_with_access,
