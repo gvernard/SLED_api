@@ -369,3 +369,92 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',action_object=self,fields=json.dumps(dirty,default=str))
                 
         super(Catalogue,self).save(*args,**kwargs)
+
+
+        
+class Redshift(SingleObject):
+    lens = models.ForeignKey(Lenses,
+                             on_delete=models.CASCADE,
+                             related_name="%(class)s")
+
+    spectrum = models.ForeignKey(blank=True,
+                                 Spectrum,
+                                 on_delete=models.CASCADE,
+                                 related_name="%(class)s")
+    
+    value = models.DecimalField(max_digits=5,
+                                decimal_places=4,
+                                verbose_name="Z",
+                                help_text="The redshift of the source, if known.",
+                                validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                            MaxValueValidator(20,"If your redshift is further than that then congrats! (but probably it's a mistake)")])
+
+    dvalue_min = models.DecimalField(blank=True,
+                                     null=True,
+                                     max_digits=5,
+                                     decimal_places=4,
+                                     verbose_name="-&delta;Z",
+                                     help_text="The lower uncertainty bound, if known.",
+                                     validators=[MinValueValidator(0.0,"Uncertainty must be positive"),
+                                                MaxValueValidator(20,"This is a very uncertain value, or most likely a mistake!")])
+    
+    dvalue_max = models.DecimalField(blank=True,
+                                     null=True,
+                                     max_digits=5,
+                                     decimal_places=4,
+                                     verbose_name="-&delta;Z",
+                                     help_text="The higher uncertainty bound, if known.",
+                                     validators=[MinValueValidator(0.0,"Uncertainty must be positive"),
+                                                 MaxValueValidator(20,"This is a very uncertain value, or most likely a mistake!")])
+    RedshiftTagChoices = (
+        ('LENS','Lens'),
+        ('SOURCE','Source'),
+        ('LOS','Line-of-sight'),
+    )
+    redshift_tag = MultiSelectField(max_length=100,
+                                       verbose_name="Redshift Tag",
+                                       help_text="Whether the redshift refers to the lens, the source, or anything else along the line-of-sight",
+                                       choices=RedshiftTagChoices)
+
+    RedshiftMethodChoices = (
+        ('PHOTO-Z','Photometric'),
+        ('SPECTRO','Spectroscopic'),
+        ('OTHER','Other'),
+    )
+    redshift_method = MultiSelectField(max_length=100,
+                                       verbose_name="Method",
+                                       help_text="The method used to determine the redshift",
+                                       choices=RedshiftMethodChoices)
+  
+    info = models.TextField(blank=True,
+                            null=True,
+                            default='',
+                            help_text="Description of any important aspects of the measurement.")
+
+    
+    class Meta():
+        constraints = [
+            CheckConstraint(check=Q(value__range=(0,20)),name='z_range'),
+            CheckConstraint(check=Q(dvalue_min__range=(0,20)),name='dz_min_range'),
+            CheckConstraint(check=Q(dvalue_max__range=(0,20)),name='dz_max_range'),
+        ]
+        ordering = ["created_at"]
+        db_table = "redshift"
+        verbose_name = "Redshift"
+        verbose_name_plural = "Redshifts"
+
+        
+    def __str__(self):
+        return self.lens.name + " - " + self.redshift_method + " - " + self.redshift_tag
+
+    
+    def get_absolute_url(self):
+        return self.lens.get_absolute_url()
+
+    
+    def save(self,*args,**kwargs):
+        super(Redshift,self).save(*args,**kwargs)
+        if self._state.adding:
+            if self.access_level == "PUB":
+                # Creating object for the first time, calling save first to create a primary key
+                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
