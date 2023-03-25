@@ -37,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
@@ -69,6 +68,7 @@ INSTALLED_APPS = [
     'actstream',
     'multiselectfield',
     'django_select2',
+    'nolastlogin',
 ]
 
 SITE_ID = 1
@@ -90,6 +90,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 
 ROOT_URLCONF = 'mysite.urls'
 
