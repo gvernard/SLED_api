@@ -403,12 +403,45 @@ class QueryLenses(APIView):
             lensjsons = []
             for lens in lenses:
                 print(lens)
-                json = model_to_dict(lens, exclude=['mugshot', 'owner', 'id'])
+                json = model_to_dict(lens, exclude=['mugshot', 'owner'])
                 print(json)
                 lensjsons.append(json)
         else:
             lensjsons = []
         return Response({'lenses':lensjsons})
+
+
+    
+class QueryPapers(APIView):
+    """
+    API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
+    """
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self,request):
+        user = request.user
+        ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)
+        print('searching papers')
+        if lenses:
+            lens = lenses[0]
+            print(lens.name)
+            allpapers = lens.papers(manager='objects').all()
+            print(allpapers)
+            lensjsons = []
+            if len(allpapers)>0:
+                for paper in allpapers:
+                    print(paper)
+                    json = model_to_dict(paper, exclude=['lenses_in_paper', 'id', 'owner', 'access_level'])
+                    print('jsonised')
+                    print(json)
+                    lensjsons.append(json)
+            else:
+                lensjsons = []
+        else:
+            lensjsons = []
+        return Response({'papers':lensjsons})
 
 class UpdateLenses(APIView):
     """
