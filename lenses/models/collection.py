@@ -209,7 +209,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
                     # Check that collection owner really has view access to the private lenses
                     has_perm = True
                     perm = "view_" + private_objects[0]._meta.db_table
-                    checker = ObjectPermissionChecker(user)
+                    checker = ObjectPermissionChecker(user) # ObjectPermissionChecker here is fine because we care for either direct or group access
                     checker.prefetch_perms(private_objects)
                     for obj in private_objects:
                         if not checker.has_perm(perm,obj):
@@ -347,5 +347,5 @@ def handle_new_collection(sender,**kwargs):
     if created: # a new collection was added
         collection = kwargs.get('instance')
         perm = 'view_'+collection._meta.db_table
-        assign_perm(perm,collection.owner,collection)
+        assign_perm(perm,collection.owner,collection) # collection here is not a list, so giving permission ot the user is guaranteed 
 

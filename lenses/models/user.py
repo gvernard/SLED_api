@@ -20,7 +20,7 @@ import inspect
 from . import SledGroup, SingleObject, ConfirmationTask, Collection, AdminCollection
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
-objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue","Redshift"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 
 from django.db.models import Aggregate
@@ -254,7 +254,7 @@ class Users(AbstractUser,GuardianUserMixin):
         # Loop over the target_users
         for user in target_users:
             # fetch permissions for all the objects for the given user (just 1 query)
-            checker = ObjectPermissionChecker(user)
+            checker = ObjectPermissionChecker(user) # ObjectPermissionChecker here is fine because we are revoking access
             checker.prefetch_perms(objects)            
             object_type = objects[0]._meta.model.__name__
             model_ref = apps.get_model(app_label="lenses",model_name=object_type)

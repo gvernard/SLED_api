@@ -751,7 +751,134 @@
 
 
 
-    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="redshifts">
+      <h1 class="jb-heading-2">
+	<label for="redshifts">
+	  My Redshifts ({{ N_redshifts_total }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if user.is_superuser %}
+	<p>
+	  The admin owns all the automatically fetched data, which are too many to display here.
+	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
+	</p>
+	{% else %}
+	
+	{% if redshifts|length == 0 %}
+	No Redshifts owned
+	{% else %}
+	<form id="redshift-form" class="ids-form" method="POST">
+          {% csrf_token %}
+	  
+	  <div>
+	    {% include "pagination_top.html" with qset=redshifts request=request qset_range=redshifts_range qset_total=N_redshifts_total target="redshifts" %}
+
+	    <input name="obj_type" type="hidden" value="Redshift" />
+	    <table>
+	      <thead>
+		<tr>
+		  <th></th>
+		  <th>Lens</th>
+		  <th>Value</th>
+		  <th>Method</th>
+		  <th>Linked Spectrum</th>
+		  <th>Info</th>
+		  <th>Access level</th>
+		  <th>Accessible by</th>
+		  <th>&nbsp;</th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for redshift in redshifts %}
+		<tr>
+		  <td><input name="ids" type="checkbox" value="{{ redshift.id }}"></td>
+		  <td>
+		    <a href="{{ redshift.lens.get_absolute_url }}">{{ redshift.lens }}</a>
+		  </td>
+		  <td style="padding-right:10px;">
+		    Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>
+		  </td>
+		  <td>
+		    {% if redshift.paper %}
+		    <a href="{{ redshift.paper }}">{{ redshift.method }}</a>
+		    {% else %}
+		    {{ redshift.method }}
+		    {% endif %}
+		  </td>
+		  <td>
+		    {% if redshift.spectrum %}
+		    <a href="{{ redshift.spectrum.get_absolute_url }}">
+		      {{ redshift.spectrum }}
+		    </a>
+		    {% else %}
+		    -
+		    {% endif %}
+		  </td>
+		  <td>
+		    {{ redshift.info }}
+		  </td>
+		  <td>
+		    {{ redshift.access_level }}
+		  </td>
+		  <td>
+		    {{ redshift.getUsersWithAccessNoOwner|join:"," }} - <em>{{ redshift.getGroupsWithAccessNoOwner|join:"," }}</em>
+		  </td>
+		  <td>
+		    {% if redshift.owner == user %}
+		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}">
+		      <img src="{% static 'icons/pencil.svg' %}">
+		      Update
+		    </button>	
+		    {% endif %}
+		  </td>
+		</tr>
+		{% endfor %}
+	    </table>
+	    <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+	  </div>	 
+	  {% include "pagination_bottom.html" with qset=redshifts request=request qset_range=sredshifts_range qset_total=N_redshifts_total target="redshifts" %}
+
+	  <div>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
+	      Revoke access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
+	      Give access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
+	      <img src="{% static 'icons/people-fill.svg' %}" >
+	      Make public
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	      <img src="{% static 'icons/lock-fill.svg' %}" >
+	      Make private
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	      <img src="{% static 'icons/forward-fill.svg' %}" >
+	      Cede ownership
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
+	      <img src="{% static 'icons/trash.svg' %}" >
+	      Delete
+	    </button>
+	  </div>
+
+	</form>
+	{% endif %}
+	<br>
+	<br>
+	
+	{% endif %}
+	<br>
+      </div>
+    </div>
+
+	
 
 
     

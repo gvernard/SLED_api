@@ -217,34 +217,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                     help_text="An estimate of the maximum image separation or arc radius [arcsec].",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                 MaxValueValidator(100,"Separation must be less than 10 arcsec.")])
-    z_source = models.DecimalField(blank=True,
-                                   null=True,
-                                   max_digits=5,
-                                   decimal_places=4,
-                                   verbose_name="Z<sub>source</sub>",
-                                   help_text="The redshift of the source, if known.",
-                                   validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                               MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
-
-    z_source_secure = models.BooleanField(default=False,
-                                           blank=True,
-                                           verbose_name="Secure source redshift flag",
-                                           help_text="Set to true if the lens redshift is definite for (one of) the source(s).")
-
-
-    z_lens = models.DecimalField(blank=True,
-                                 null=True,
-                                 max_digits=6,
-                                 decimal_places=4,
-                                 verbose_name="Z<sub>lens</sub>",
-                                 help_text="The redshift of the lens, if known.",
-                                 validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                             MaxValueValidator(20.0,"If your lens is further than that then congrats! (but probably it's a mistake)")])
-
-    z_lens_secure = models.BooleanField(default=False,
-                                        blank=True,
-                                        verbose_name="Secure lens redshift flag",
-                                        help_text="Set to true if the lens redshift is definite for (one of) the lensing galaxy/galaxies, and not possibly due to another absorption system.")
 
     info = models.TextField(blank=True,
                             default='',
@@ -360,7 +332,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
 
     # Fields to report updates on
-    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','z_lens','z_source','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type','owner','access_level']
+    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type','owner','access_level']
 
     
     proximate = ProximateLensManager()
@@ -374,12 +346,9 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         # The constraints below should encompass both field Validators above, and the clean method below.
         constraints = [
             CheckConstraint(check=Q(n_img__range=(2,20)),name='n_img_range'),
-            CheckConstraint(check=Q(z_lens__range=(0,20)),name='z_lens_range'),
-            CheckConstraint(check=Q(z_source__range=(0,20)),name='z_source_range'),
             CheckConstraint(check=Q(ra__range=(0,360)),name='ra_range'),
             CheckConstraint(check=Q(dec__range=(-90,90)),name='dec_range'),
             CheckConstraint(check=Q(image_sep__range=(0,100)),name='image_sep_range'),
-            CheckConstraint(check=Q(z_lens__lt=F('z_source')),name='z_lens_lt_z_source'),
             CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
             #I think it can be useful to know what people thought contaminants looked like
             #CheckConstraint(check=~( Q(flag_contaminant=True) &
@@ -412,9 +381,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             raise ValidationError('The object cannot be both a lens and a contaminant.')
         #if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
         #    raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
-        if self.z_lens and self.z_source: # z_lens_lt_z_source
-            if self.z_lens > self.z_source:
-                raise ValidationError('The source redshift cannot be lower than the lens redshift.')
 
             
     def save(self,*args,**kwargs):

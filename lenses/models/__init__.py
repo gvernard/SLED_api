@@ -6,7 +6,7 @@ from .collection import Collection
 from .confirmation_task import ConfirmationTask
 from .user import Users
 from .sledquery import SledQuery
-from .datamodel import Instrument, Band, DataBase, Imaging, Spectrum, Catalogue
+from .datamodel import Instrument, Band, DataBase, Imaging, Spectrum, Catalogue, Redshift
 from .paper import Paper
 from .persistent_message import PersistentMessage
 
