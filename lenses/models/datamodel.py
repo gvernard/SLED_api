@@ -385,6 +385,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
                              on_delete=models.CASCADE,
                              related_name="%(class)s")
 
+    # This is if we want to link the redshift to any specific spectrum, TBD
     # spectrum = models.ForeignKey(blank=True,
     #                              null=True,
     #                              Spectrum,
@@ -476,7 +477,6 @@ class Redshift(SingleObject,DirtyFieldsMixin):
             ref_name = self.tag + " " + self.method + " redshift"
             
             if "access_level" in dirty.keys():
-                # Report only when making public
                 if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
                     action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='success',object_name=ref_name)
                 if dirty["access_level"]["saved"] == "PUB" and dirty["access_level"]["current"] == "PRI":

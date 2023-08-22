@@ -298,38 +298,6 @@ class LensQueryForm(forms.Form):
                                        widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
                                        validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                    MaxValueValidator(40,"Separation must be less than 10 arcsec.")])
-    z_source_min = forms.DecimalField(required=False,
-                                      label="Z<sub>source,min</sub>",
-                                      max_digits=4,
-                                      decimal_places=3,
-                                      help_text="The minimum redshift of the source.",
-                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
-                                      validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                                  MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
-    z_source_max = forms.DecimalField(required=False,
-                                      label="Z<sub>source,max</sub>",
-                                      max_digits=4,
-                                      decimal_places=3,
-                                      help_text="The maximum redshift of the source.",
-                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
-                                      validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                                  MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
-    z_lens_min = forms.DecimalField(required=False,
-                                    label="Z<sub>lens,min</sub>",
-                                    max_digits=4,
-                                    decimal_places=3,
-                                    help_text="The minimum redshift of the lens.",
-                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
-                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                                MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
-    z_lens_max = forms.DecimalField(required=False,
-                                    label="Z<sub>lens,max</sub>",
-                                    max_digits=4,
-                                    decimal_places=3,
-                                    help_text="The maximum redshift of the lens.",
-                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
-                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
-                                                MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
     
     score_min = forms.DecimalField(required=False,
                                    label="Score<sub>min</sub>",
@@ -473,21 +441,6 @@ class LensQueryForm(forms.Form):
             if None in [self.cleaned_data.get('ra_centre'), self.cleaned_data.get('dec_centre'), self.cleaned_data.get('radius')]:
                 raise ValidationError('You must provide a right ascension, declination and radius to use the cone search')
         
-        # Redshift checks
-        z_lens_min   = self.cleaned_data.get('z_lens_min')
-        z_lens_max   = self.cleaned_data.get('z_lens_max')
-        z_source_min = self.cleaned_data.get('z_source_min')
-        z_source_max = self.cleaned_data.get('z_source_max')
-        if z_lens_min and z_lens_max:
-            if float(z_lens_min) > float(z_lens_max):
-                raise ValidationError('The maximum lens redshift is lower than the minimum.')
-        if z_source_min and z_source_max:
-            if float(z_source_min) > float(z_source_max):
-                raise ValidationError('The maximum source redshift is lower than the minimum.')
-        if z_lens_min and z_source_max:
-            if float(z_lens_min) > float(z_source_max):
-                raise ValidationError('The maximum source redshift is lower than the minimum lens redshift.')
-
 
         keys = list(self.cleaned_data.keys())
         for key in keys:
@@ -762,6 +715,84 @@ class CatalogueQueryForm(DataBaseQueryForm):
 
 
 
+
+class RedshiftQueryForm(forms.Form):
+    z_source_min = forms.DecimalField(required=False,
+                                      label="Z<sub>source,min</sub>",
+                                      max_digits=4,
+                                      decimal_places=3,
+                                      help_text="The minimum redshift of the source.",
+                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                      validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                  MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])
+    z_source_max = forms.DecimalField(required=False,
+                                      label="Z<sub>source,max</sub>",
+                                      max_digits=4,
+                                      decimal_places=3,
+                                      help_text="The maximum redshift of the source.",
+                                      widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                      validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                  MaxValueValidator(20,"If your source is further than that then congrats! (but probably it's a mistake)")])    
+    z_lens_min = forms.DecimalField(required=False,
+                                    label="Z<sub>lens,min</sub>",
+                                    max_digits=4,
+                                    decimal_places=3,
+                                    help_text="The minimum redshift of the lens.",
+                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
+    z_lens_max = forms.DecimalField(required=False,
+                                    label="Z<sub>lens,max</sub>",
+                                    max_digits=4,
+                                    decimal_places=3,
+                                    help_text="The maximum redshift of the lens.",
+                                    widget=forms.NumberInput(attrs={"class": "jb-number-input"}),
+                                    validators=[MinValueValidator(0.0,"Redshift must be positive"),
+                                                MaxValueValidator(20,"If your lens is further than that then congrats! (but probably it's a mistake)")])
+
+
+    RedshiftMethodChoices = (
+        ('','Any'),
+        ('PHOTO-Z','Photometric'),
+        ('SPECTRO','Spectroscopic'),
+        ('OTHER','Other'),
+    )
+    z_method = forms.ChoiceField(choices=RedshiftMethodChoices,
+                                        required=False,
+                                        label="Method",
+                                        help_text="Select the method used to obtain the source redshift.")
+
+
+
+
+    
+    def clean(self):
+        super(RedshiftQueryForm,self).clean()
+
+        z_lens_min   = self.cleaned_data.get('z_lens_min')
+        z_lens_max   = self.cleaned_data.get('z_lens_max')
+        z_source_min = self.cleaned_data.get('z_source_min')
+        z_source_max = self.cleaned_data.get('z_source_max')
+        if z_lens_min and z_lens_max:
+            if float(z_lens_min) > float(z_lens_max):
+                self.add_error('__all__','The maximum lens redshift is lower than the minimum.')
+        if z_source_min and z_source_max:
+            if float(z_source_min) > float(z_source_max):
+                self.add_error('__all__','The maximum source redshift is lower than the minimum.')
+        if z_lens_min and z_source_max:
+            if float(z_lens_min) > float(z_source_max):
+                self.add_error('__all__','The maximum source redshift is lower than the minimum lens redshift.')
+
+        if len(self.cleaned_data.get('z_method')) == 0:
+            self.cleaned_data.pop('z_method')
+                
+        keys = list(self.cleaned_data.keys())
+        for key in keys:
+            if self.cleaned_data[key] == None:
+                self.cleaned_data.pop(key)
+
+
+                
 class DownloadForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
     N = forms.IntegerField(required=False,

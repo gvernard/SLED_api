@@ -1,9 +1,10 @@
-from lenses.models import Users, Lenses, Imaging, Spectrum, Catalogue
+from lenses.models import Users, Lenses, Redshift, Imaging, Spectrum, Catalogue
 from lenses.forms import *
 from django.db.models import Max, Subquery, Q
 
 def get_combined_qset(request,user): # Must be self.request.GET or self.request.POST
     lens_form = LensQueryForm(request,prefix="lens")
+    redshift_form = RedshiftQueryForm(request,prefix="redshift")
     imaging_form = ImagingQueryForm(request,prefix="imaging")
     spectrum_form = SpectrumQueryForm(request,prefix="spectrum")
     catalogue_form = CatalogueQueryForm(request,prefix="catalogue")
@@ -14,13 +15,18 @@ def get_combined_qset(request,user): # Must be self.request.GET or self.request.
     return ids
 
 
-def combined_query(lens_form,imaging_form,spectrum_form,catalogue_form,user):
+def combined_query(lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,user):
     #start with available lenses
     lenses = Lenses.accessible_objects.all(user)
 
     if lens_form:
         print('Lenses form has values')
         lenses = lens_search(lenses,lens_form,user)
+        print(len(lenses))
+
+    if redshift_form:
+        print('Redshift form has values')
+        lenses = redshift_search(lenses,redshift_form,user)
         print(len(lenses))
 
     if imaging_form:
@@ -123,8 +129,6 @@ def imaging_search(lenses,cleaned_form,user):
             else:
                 conditions.add(Q(**{'imaging__'+key:value}),Q.AND)
 
-
-
     instrument = cleaned_form.get('instrument',None)
     print('instrument:', instrument)
     if instrument:
@@ -142,7 +146,32 @@ def imaging_search(lenses,cleaned_form,user):
     else:
         lenses = lenses.filter(conditions).distinct()
     return lenses
+
+
+def redshift_search(lenses,cleaned_form,user):
+    conditions = Q()
     
+    if cleaned_form.get('z_source_min') or cleaned_form.get('z_source_max'):
+        conditions.add(Q(**{'redshift__tag':'SOURCE'}),Q.AND)        
+        if cleaned_form.get('z_source_min'):
+            conditions.add(Q(**{'redshift__value__gte':cleaned_form.get('z_source_min')}),Q.AND)
+        if cleaned_form.get('z_source_max'):
+            conditions.add(Q(**{'redshift__value__lte':cleaned_form.get('z_source_max')}),Q.AND)
+            
+    if cleaned_form.get('z_lens_min') or cleaned_form.get('z_lens_max'):
+        conditions.add(Q(**{'redshift__tag':'LENS'}),Q.AND)        
+        if cleaned_form.get('z_lens_min'):
+            conditions.add(Q(**{'redshift__value__gte':cleaned_form.get('z_lens_min')}),Q.AND)
+        if cleaned_form.get('z_lens_max'):
+            conditions.add(Q(**{'redshift__value__lte':cleaned_form.get('z_lens_max')}),Q.AND)
+
+    if cleaned_form.get('z_method'):
+        conditions.add(Q(**{'redshift__method':cleaned_form.get('z_method')}),Q.AND)
+
+    print(conditions)
+    lenses = lenses.filter(conditions).distinct()
+    return lenses
+
 
 def lens_search(lenses,form,user):
     keywords = list(form.keys())
