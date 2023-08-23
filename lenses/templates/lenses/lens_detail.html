@@ -148,27 +148,7 @@
     {% endif %}
   </div>
 
-  
-  <div class="jb-section jb-table-no-lines">
-    <h1 class="jb-heading-2">Papers</h1>
-    <table class="jb-paper-table">
-      {% for paper,label in all_papers %}
-      <tr>
-	<td valign="top">{{ label }}</td>
-	<td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
-	<td><i>"{{ paper.title }}"</i></td>
-      </tr>
-      {% empty %}
-      No papers associated with this lens in the database
-      {% endfor %}
-    </table>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-quick-query' %}">
-      <img src="{% static 'icons/search.svg' %}" alt="pencil">
-      Search paper
-    </button>    
-  </div>
 
-  
   <!-- Div containing all the redshift measurements  -->
   <div class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Redshifts</h1>
@@ -227,6 +207,28 @@
     </button>
   </div>
 
+
+  <!-- Div containing all the related papers -->
+  <div class="jb-section jb-table-no-lines">
+    <h1 class="jb-heading-2">Papers</h1>
+    <table class="jb-paper-table">
+      {% for paper,label in all_papers %}
+      <tr>
+	<td valign="top">{{ label }}</td>
+	<td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
+	<td><i>"{{ paper.title }}"</i></td>
+      </tr>
+      {% empty %}
+      No papers associated with this lens in the database
+      {% endfor %}
+    </table>
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-quick-query' %}">
+      <img src="{% static 'icons/search.svg' %}" alt="pencil">
+      Search paper
+    </button>    
+  </div>
+
+  
   
   <!-- Div containing all the imaging data  -->
   <div class="jb-section jb-table-no-lines">

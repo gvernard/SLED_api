@@ -102,14 +102,17 @@ class PaperDetailView(DetailView):
         qset = self.object.lenses_in_paper.annotate(discovery=F('paperlensconnection__discovery'),
                                                     model=F('paperlensconnection__model'),
                                                     classification=F('paperlensconnection__classification'),
-                                                    redshift=F('paperlensconnection__redshift')
-                                                    ).values('discovery','model','redshift','classification')
+                                                    paper_redshift=F('paperlensconnection__redshift')
+                                                    ).values('discovery','model','paper_redshift','classification')
         labels = []
         for lens in qset:
             flags = []
             for key in lens:
                 if lens[key]:
-                    flags.append(key)
+                    if key == 'paper_redshift':
+                        flags.append('redshift')
+                    else:
+                        flags.append(key)
             labels.append(flags)
         mylabels = [ ','.join(x) for x in labels ]
 
