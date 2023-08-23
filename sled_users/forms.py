@@ -4,6 +4,14 @@ from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
 from lenses.models import Users
 from sled_core.slack_api_calls import get_slack_avatar
 
+class UsersSearchForm(forms.Form):
+    search_term = forms.CharField(required=False,
+                                  max_length=100,
+                                  widget=forms.TextInput({'placeholder':'User name/surname/email keyword'}))
+    page = forms.IntegerField(required=False,widget=forms.HiddenInput())
+
+
+
 class UserUpdateForm(BSModalModelForm):
 
     class Meta:

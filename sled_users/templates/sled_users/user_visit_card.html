@@ -2,69 +2,11 @@
 {% load static %}
 {% load activity_tags %}
 
-{% block content %}
-<div class="jb-container">
-  <table class="header-table">
-    <tr>
-      <td>
-	<h1 class="jb-heading-1">{{ sled_user.first_name }} {{ sled_user.last_name }} ({{ sled_user.username }})</h1>
-	<a href="mailto:{{sled_user.email}}?subject=SLED communication:&body=The message">
-	  <button class="jb-submit-button-1">
-	    <img src="{% static 'icons/send-fill.svg' %}" >
-	    Contact
-	  </button>
-	</a>
-	<p>
-	  Joined on {{ sled_user.date_joined }}, last login {{ sled_user.last_login|timesince }} ago
-	</p>
-      </td>
-      <td valign="bottom" align="right">
-	<img src="{{ sled_user.avatar }}" loading="lazy" width="100" alt="" class="jb-avatar" />
-      </td>
-    </tr>
-  </table>
 
-  
-  <div>
-    <h1 class="jb-heading-2">User Information</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>First name</th>
-          <th>Last name</th>
-          <th>Affiliation</th>
-          <th>Email</th>
-          <th>Homepage</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>{{ sled_user.first_name }}</td>
-          <td>{{ sled_user.last_name }}</td>
-          <td>{{ sled_user.affiliation }}</td>
-          <td>{{ sled_user.email }}</td>
-          <td><a href="{{ sled_user.homepage }}">{{ sled_user.homepage }}</a></td>
-        </tr>
-      </tbody>
-    </table>
-    <table>
-      <thead>
-        <tr>
-	  <th style="width:250px">SLACK display name</th>
-          <th>Info</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-	  <td>{{ sled_user.slack_display_name }}</td>
-          <td>{{ sled_user.info }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  
-</div>
+{% block content %}
+{% include "sled_users/user_visit_card_content.html" with sled_user=sled_user %}
 {% endblock content %}
+
 
 {% block extrastyles %}
 <style>

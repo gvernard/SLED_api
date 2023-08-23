@@ -96,9 +96,10 @@
 	  <tr>
 	    <td><a href="{% url 'sled_home:homepage' %}">Home</a></td>
 	    <td><a href="{% url 'lenses:lens-index' %}">Lenses</a></td>
-	    <td><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
 	    <td><a href="{% url 'sled_collections:collections-list' %}">Collections</a></td>
 	    <td><a href="{% url 'sled_papers:paper-query' %}">Papers</a></td>
+	    <td><a href="{% url 'sled_users:user-query' %}">Users</a></td>
+	    <td><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
 	    {% if user.is_authenticated %}
 	    <td>
 	      <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>

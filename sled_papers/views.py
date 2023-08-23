@@ -48,42 +48,33 @@ class PaperQueryView(TemplateView):
 
         return papers_page,papers_range,papers_count
 
-    
+    def get_context(self,form):
+        if form.is_valid():
+            papers_page,papers_range,papers_count = self.paper_query(form.cleaned_data)
+            context = {'N_papers_total': papers_count,
+                       'papers_range': papers_range,
+                       'papers': papers_page,
+                       'form': form}
+        else:
+            context = {'N_papers_total': 0,
+                       'papers_range': [],
+                       'papers': None,
+                       'form': form}
+        return context
+
+            
     def get(self, request, *args, **kwargs):
         if request.GET:
             form = PaperSearchForm(request.GET)
         else:
             form = PaperSearchForm(initial={'year_min':datetime.date.today().year})
-            
-        if form.is_valid():
-            papers_page,papers_range,papers_count = self.paper_query(form.cleaned_data)
-            context = {'N_papers_total': papers_count,
-                       'papers_range': papers_range,
-                       'papers': papers_page,
-                       'form': form}
-        else:
-            context = {'N_papers_total': 0,
-                       'papers_range': [],
-                       'papers': None,
-                       'form': form}
+        context = self.get_context(form)
         return self.render_to_response(context)
 
     
     def post(self, request, *args, **kwargs):
         form = PaperSearchForm(data=request.POST)
-
-        if form.is_valid():
-            papers_page,papers_range,papers_count = self.paper_query(form.cleaned_data)
-            context = {'N_papers_total': papers_count,
-                       'papers_range': papers_range,
-                       'papers': papers_page,
-                       'form': form}
-        else:
-            context = {'N_papers_total': 0,
-                       'papers_range': [],
-                       'papers': None,
-                       'form': form}
-
+        context = self.get_context(form)
         return self.render_to_response(context)
 
     

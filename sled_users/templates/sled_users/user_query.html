@@ -1,0 +1,72 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+
+
+{% block content %}
+<div class="jb-container">
+
+  <h1 class="jb-heading-1">Search Users</h1>
+
+  <form method="POST">
+    {% csrf_token %}
+    
+    {% if form.non_field_errors|length > 0 %}
+    <div class="invalid jb-modal-field">
+      <ul>
+	{% for error in form.non_field_errors %}
+	<li>{{ error }}</li>
+	{% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    
+    <p>
+      {{ form.search_term }}
+      <input id="mysubmit" type="submit" value="Search">
+    </p>
+
+    {{ form.page }}
+  </form>
+
+  {% if users %}
+
+  {% include "pagination_top.html" with qset=users request=request qset_range=users_range qset_total=N_users_total %}
+
+  <div>
+    {% for user in users %}
+    {% include "sled_users/user_visit_card_content.html" with sled_user=user%}
+    {% endfor %}
+  </div>
+
+  {% include "pagination_bottom.html" with qset=users request=request qset_range=users_range qset_total=N_users_total %}
+
+  {% else %}
+  <p>
+    No users to show
+  </p>
+  {% endif %}
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+<style>
+  .header-table td {border-top:none}
+</style>
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script type="text/javascript">
+  $(document).ready(function(){
+      $(".sled_submit").click(function(e) {
+	  e.preventDefault();
+	  var dum = $(this).attr('href').split('page=');
+	  var page = dum[1].replace('#','');
+	  $('#id_page').val(page);
+	  $('#mysubmit').trigger('click');
+      });
+  });
+</script>
+{% endblock extrascripts %}

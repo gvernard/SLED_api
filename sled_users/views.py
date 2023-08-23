@@ -22,7 +22,61 @@ from operator import attrgetter
 from itertools import chain
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift
-from .forms import UserUpdateForm
+from .forms import UserUpdateForm,UsersSearchForm
+
+
+@method_decorator(login_required,name='dispatch')
+class UserQueryView(TemplateView):
+    model = Users
+    template_name = 'sled_users/user_query.html'
+
+    def user_query(self,cleaned_data):
+        search_term = cleaned_data['search_term']
+        if search_term:
+            users = Users.objects.filter(Q(first_name__icontains=search_term) | Q(last_name__icontains=search_term) | Q(email__icontains=search_term))
+        else:
+            users = Users.objects.all()
+        users = users.exclude(username__in=['admin','AnonymousUser'])
+        
+
+        paginator = Paginator(users,50)
+        users_page = paginator.get_page(cleaned_data['page'])
+        users_count = paginator.count
+        users_range = paginator.page_range
+
+        return users_page,users_range,users_count
+
+    def get_context(self,form):
+        if form.is_valid():
+            users_page,users_range,users_count = self.user_query(form.cleaned_data)
+            context = {'N_users_total': users_count,
+                       'users_range': users_range,
+                       'users': users_page,
+                       'form': form}
+        else:
+            context = {'N_users_total': 0,
+                       'users_range': [],
+                       'users': None,
+                       'form': form}
+        return context
+
+        
+    
+    def get(self, request, *args, **kwargs):
+        if request.GET:
+            form = UsersSearchForm(request.GET)
+        else:
+            form = UsersSearchForm()
+        context = self.get_context(form)
+        return self.render_to_response(context)
+
+    
+    def post(self, request, *args, **kwargs):
+        form = UsersSearchForm(data=request.POST)
+        context = self.get_context(form)
+        return self.render_to_response(context)
+    
+
 
 
 class UserVisitCard(DetailView):
