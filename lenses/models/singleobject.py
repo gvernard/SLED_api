@@ -49,7 +49,7 @@ class AccessManager(models.Manager):
         public  = super().get_queryset().filter(access_level='PUB')
         private = super().get_queryset().filter(access_level='PRI')
         perm = 'view_'+self.model._meta.db_table
-        accessible_private = get_objects_for_user(user,perm,klass = private)
+        accessible_private = get_objects_for_user(user,perm,klass = private,with_superuser=False)
         qset = public | accessible_private # merge querysets
         return qset
 
@@ -67,7 +67,7 @@ class AccessManager(models.Manager):
         public  = super().get_queryset().filter(access_level='PUB').filter(id__in=id_list)
         private = super().get_queryset().filter(access_level='PRI').filter(id__in=id_list)
         perm = 'view_'+self.model._meta.db_table        
-        accessible_private = get_objects_for_user(user,perm,klass = private)
+        accessible_private = get_objects_for_user(user,perm,klass = private,with_superuser=False)
         return public | accessible_private # merge and return querysets
 
     def owned(self,user):
