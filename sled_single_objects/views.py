@@ -15,6 +15,14 @@ from . import forms
 
 # Mixin inherited by all the views that are based on Modals
 class ModalIdsBaseMixin(BSModalFormView):
+    def get_success_url(self):
+        redirect = self.request.GET.get('redirect')
+        if redirect:
+            success_url = redirect
+        else:
+            success_url = reverse_lazy('sled_users:user-profile')
+        return success_url
+
     def get_initial(self):
         obj_type = self.request.GET.get('obj_type')
         ids = self.request.GET.getlist('ids')
@@ -50,7 +58,6 @@ class ModalIdsBaseMixin(BSModalFormView):
 class SingleObjectCedeOwnershipView(ModalIdsBaseMixin):
     template_name = 'sled_single_objects/so_cede_ownership.html'
     form_class = forms.SingleObjectCedeOwnershipForm
-    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']
@@ -68,7 +75,6 @@ class SingleObjectCedeOwnershipView(ModalIdsBaseMixin):
 class SingleObjectMakePrivateView(ModalIdsBaseMixin):
     template_name = 'sled_single_objects/so_make_private.html'
     form_class = forms.SingleObjectMakePrivateForm
-    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']
@@ -87,9 +93,8 @@ class SingleObjectMakePrivateView(ModalIdsBaseMixin):
 @method_decorator(login_required,name='dispatch')
 class SingleObjectGiveRevokeAccessView(ModalIdsBaseMixin):
     template_name = 'sled_single_objects/so_give_revoke_access.html'
-    success_url = reverse_lazy('sled_users:user-profile')
     form_class = forms.SingleObjectGiveRevokeAccessForm
-    
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs.update({'mode':self.kwargs.get('mode')})
@@ -141,7 +146,6 @@ class SingleObjectGiveRevokeAccessView(ModalIdsBaseMixin):
 class SingleObjectMakePublicView(ModalIdsBaseMixin):
     template_name = 'sled_single_objects/so_make_public.html'
     form_class = forms.SingleObjectMakePublicForm
-    success_url = reverse_lazy('sled_users:user-profile')
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']

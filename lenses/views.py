@@ -153,8 +153,15 @@ class LensDeleteView(ModalIdsBaseMixin):
 class LensMakePublicView(ModalIdsBaseMixin):
     template_name = 'lenses/lens_make_public.html'
     form_class = forms.LensMakePublicForm
-    success_url = reverse_lazy('sled_users:user-profile')
 
+    def get_success_url(self):
+        redirect = self.request.GET.get('redirect')
+        if redirect:
+            success_url = redirect
+        else:
+            success_url = reverse_lazy('sled_users:user-profile')
+        return success_url
+    
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)

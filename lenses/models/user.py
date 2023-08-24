@@ -610,9 +610,10 @@ class Users(AbstractUser,GuardianUserMixin):
     
 
     def selectRandomAdmin():
-        # returns a queryset
-        user_id = Users.objects.filter(Q(is_staff=True) & Q(is_superuser=False)).order_by('?').first().id
-        qset = Users.objects.filter(id=user_id)
+        # Returns a queryset
+        #user_id = Users.objects.filter(Q(is_staff=True) & Q(is_superuser=False)).order_by('?').first().id
+        #qset = Users.objects.filter(id=user_id)
+        qset = Users.objects.filter(username='Giorgos')
         return qset
 
     

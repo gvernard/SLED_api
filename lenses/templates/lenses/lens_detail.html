@@ -71,6 +71,65 @@
   </div>
 
 
+
+  {% if lens.owner == user %}
+  <div class="jb-section">
+    <h1 class="jb-heading-2">Admin actions</h1>
+
+    <form id="ids-form" method="POST">
+      {% csrf_token %}
+      <input name="obj_type" type="hidden" value="Lenses">
+      <input name="ids" type="hidden" value="{{ lens.id }}">
+      <input name="redirect" type="hidden" value="{{ request.get_full_path }}">
+    </form>
+
+    <div>
+      Some summary of who has access, who else owns data etc.
+      <ul>
+	<li>
+	  This lens is <b>{{ lens.access_level }}</b>
+	  {% if lens.access_level == 'PRI' %}
+	  and accessible by: {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
+	  {% endif %}
+	</li>
+      </ul>
+    </div>
+    
+    
+    <div>
+      <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}">
+	<img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	Update lens
+      </button>
+      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	<img src="{% static 'icons/person-dash-fill.svg' %}">
+	Revoke access
+      </button>
+      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	<img src="{% static 'icons/person-plus-fill.svg' %}">
+	Give access
+      </button>
+      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
+	<img src="{% static 'icons/people-fill.svg' %}" >
+	Make public
+      </button>
+      
+      <!-- The buttons below should be hidden as extra actions -->
+      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	<img src="{% static 'icons/lock-fill.svg' %}" >
+	Make private
+      </button>
+      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	<img src="{% static 'icons/forward-fill.svg' %}" >
+	Cede ownership
+      </button>
+    </div>
+    
+  </div>
+  {% endif %}
+
+
+  
   <div class="jb-section">
     <h1 class="jb-heading-2">System Information</h1>
     <table>
@@ -133,19 +192,6 @@
         <td>{{lens.flag_contaminant}}</td>
       </tr>
     </table>
-
-    {% if lens.owner == user %}
-    <div>
-      <form id="ids-form" method="POST">
-        {% csrf_token %}
-        <td><input name="ids" type="checkbox" value="{{ lens.id }}" checked hidden></td>
-      </form>
-      <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}">
-        <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-        Update lens
-      </button>
-    </div>
-    {% endif %}
   </div>
 
 
@@ -454,7 +500,7 @@
       sizes.push( 100*(25-mag)/(25-15) );
   }
   {% endfor %}
-
+  
   var myset = {
       x: ras,
       y: decs,
@@ -497,10 +543,10 @@
 	  b: 50,
 	  t: 1,
       },
-
+      
   };
   
-
+  
   function create_plot(){
       var data_to_plot = [];
       $('.sled-catalogue-checkbox:checked').each(function(i){
@@ -508,7 +554,7 @@
       });
       Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
   }
-
+  
   
   $(document).ready(function(){
       $('#follow-button').click(function(){
@@ -563,7 +609,7 @@
 	      }
           });
       });
-
+      
       set_help();
       
       // Modals
@@ -585,12 +631,35 @@
       $('.sled-catalogue-checkbox').click(function(){
 	  create_plot();
       });
-
+      
       var select_all = true;
       $('#toggle_all').click(function(){
 	  $('.sled-catalogue-checkbox').prop('checked',select_all);
 	  select_all = !select_all
 	  create_plot();
+      });
+      
+      
+      $(".sled-process-ids").click(function() {
+	  var values = [];
+	  $('#ids-form').find('input[name="ids"]').each(function() {
+              values.push('ids=' + $(this).val());
+	  });
+
+	  var obj_type = $('#ids-form').find('input[name="obj_type"]').val();
+	  var redirect = $('#ids-form').find('input[name="redirect"]').val();
+          var get_str = '?' + values.join('&') + '&obj_type=' + obj_type + '&redirect=' + redirect;
+	  
+          // Fetch only the first part of the URL (without any GET arguments)
+          var url = $(this).data('form-url').split('?');
+          var url_core = url[0];
+	  
+          // Trigger modal
+          var new_form_url = url_core + get_str;
+          $(this).modalFormTrigger({
+	      formURL: new_form_url,
+	      modalID: "#id-modal"
+          });
       });
   });  
 </script>
