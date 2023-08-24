@@ -121,7 +121,7 @@
 	  {% endif %}
 	</label>
       </h1>
-      <div class="p">
+      <div class="p jb-table-no-lines">
 	<br>
 	{% if N_note_unread > 0 %}
 	{% include "notifications_container.html" with notifications=unread_notifications %}
@@ -165,7 +165,7 @@
 	<br>
 	{% endif %}
 	<h1 class="jb-heading-3" style="background-color:white !important;">Follow stream:</h1>
-	<div class="jb-activity">
+	<div class="jb-activity jb-table-no-lines">
 	  {% include "activity_object.html" with stream=ordered_actions show_item_type='Lenses' %}
 	</div>
 	{% endif %}

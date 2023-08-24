@@ -15,7 +15,7 @@
   </p>
 
   <!-- Recent activity div -->
-  <div class="jb-activity">
+  <div class="jb-activity jb-table-no-lines">
     {% activity_stream 'target' collection %}
     {% include "activity_object.html" with stream=stream max_entries=5 %}
     {% if stream|length > 5 %}
@@ -174,12 +174,8 @@
 
 
 {% block extrastyles %}
-<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="{% static 'sled_collections/css/collection_detail.css' %}" rel="stylesheet" />
-<style>
-  .header-table td {border-top:none;}
-  .jb-activity table {text-align:left;}
-</style>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 {% endblock extrastyles %}
 
 

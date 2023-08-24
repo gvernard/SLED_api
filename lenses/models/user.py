@@ -192,20 +192,23 @@ class Users(AbstractUser,GuardianUserMixin):
         # Check that user is the owner
         self.checkOwnsList(objects)
 
+        # Get the list of objects as a queryset
+        object_type = objects[0]._meta.model.__name__
+        model_ref = apps.get_model(app_label="lenses",model_name=object_type)
+        objects_qset = model_ref.objects.filter(id__in=[obj.id for obj in objects])
+        
         # User owns all objects, proceed with giving access
         perm = "view_"+objects[0]._meta.db_table
 
         # first loop over the target_users
         set1 = set(objects)
-        object_type = objects[0]._meta.model.__name__
-        model_ref = apps.get_model(app_label="lenses",model_name=object_type)
         for user in target_users:
             new_objects_per_user = []
             # if there are objects for which this user was just granted new permission, create a notification
             if isinstance(user,SledGroup):
-                set2 = set(get_objects_for_group(user,perm,klass=objects))
+                set2 = set(get_objects_for_group(user,perm,klass=objects_qset))
             else:
-                set2 = set(get_objects_for_user(user,perm,klass=objects,use_groups=False))
+                set2 = set(get_objects_for_user(user,perm,klass=objects_qset,use_groups=False))
             new_objects_per_user = list(set1.difference(set2))
             if len(new_objects_per_user) > 0:
                 # Below I have to loop over each object individually because of the way assign_perm is coded.
