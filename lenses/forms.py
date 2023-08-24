@@ -26,7 +26,7 @@ class BaseLensForm(forms.ModelForm):
             if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
 
-
+            
 class BaseLensUpdateForm(BaseLensForm):
     class Meta:
         exclude = ['access_level']
@@ -126,7 +126,7 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
 
     def clean(self):
         data = super(BaseLensAddUpdateFormSet,self).clean()
-        
+
         """Checks that no two new lenses are within a proximity radius."""
         if any(self.errors):
             # Don't bother validating the formset unless each form is valid on its own

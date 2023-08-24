@@ -420,17 +420,7 @@ class LensAddView(TemplateView):
                     pub = []
                     for i,lens in enumerate(instances):
                         instances[i].owner = request.user
-                        altname = instances[i].create_name()
-                        if instances[i].alt_name:
-                            altnames = [name.strip() for name in instances[i].alt_name.split(',')]
-                            if altname not in altnames:
-                                altnames.append(altname)
-                            instances[i].alt_name = ', '.join(altnames)
 
-                        else:
-                            instances[i].alt_name = altname
-
-                        #instances[i].create_name()
                         if lens.access_level == 'PRI':
                             pri.append(lens)
                         else:

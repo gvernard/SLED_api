@@ -376,12 +376,27 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
             
     def clean(self):
-        super(Lenses,self).clean()
+        #super(Lenses,self).clean()
         if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
         #if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
         #    raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
 
+        jname = self.create_name()
+        if not self.name:
+            self.name = jname
+        else:
+            if not self.alt_name:
+                self.alt_name = jname
+            else:
+                altnames = [name.strip() for name in self.alt_name.split(',')]
+                if jname not in altnames:
+                    altnames.append(jname)
+                    self.alt_name = ', '.join(altnames)
+
+
+
+            
             
     def save(self,*args,**kwargs):
         if self._state.adding:
@@ -423,22 +438,21 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             
     def __str__(self):
         return self.name
-    #    if self.name:
-    #    else:
-    #        c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
-    #        return 'J'+c.to_string('hmsdms')
 
+    
     def _get_help_text(self,field_name):
         """Given a field name, return it's help text."""
         for field in self._meta.fields:
             if field.name == field_name:
                 return field.help_text
 
+            
     def _get_label(self,field_name):
         """Given a field name, return it's label."""
         for field in self._meta.fields:
             if field.name == field_name:
                 return '<label>' + field.verbose_name + '</label>'
+
             
     def create_name(self):
         c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
