@@ -161,7 +161,7 @@ class ProximateLensManager(models.Manager):
         return index_list,neis_list
 
     
-    
+
 class Lenses(SingleObject,DirtyFieldsMixin):
     ra = models.DecimalField(max_digits=10,
                              decimal_places=6,
@@ -184,9 +184,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 blank=True,
                                 null=True,
                                 help_text="A list of comma-separated strings for the alternative names of the systems")
-    # alt_name = models.CharField(max_length=100,
-    #                             help_text="A colloquial name with which the lens is know, e.g. 'The Einstein cross', etc.")  # This could become a comma separated list of names.
-    #discovered_at = models.DateField(help_text="The date when the lens was discovered, or the discovery paper published.")
+
     flag_confirmed = models.BooleanField(default=False,
                                          blank=True,
                                          verbose_name="Confirmed",
@@ -230,9 +228,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
     mugshot = models.ImageField(upload_to='lenses')
-    #mugshot_name = models.CharField(max_length=100,
-    #                                blank=True,
-    #                                help_text='File location of the mugshot image, relative to base directory')
     
     ImageConfChoices = (
         ('LONG-AXIS CUSP','Long-axis Cusp'),
@@ -329,8 +324,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                    verbose_name="Contaminant type",                                        
                                    choices=ContaminantTypeChoices)
 
-
-
     # Fields to report updates on
     FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type','owner','access_level']
 
@@ -350,22 +343,12 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             CheckConstraint(check=Q(dec__range=(-90,90)),name='dec_range'),
             CheckConstraint(check=Q(image_sep__range=(0,100)),name='image_sep_range'),
             CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
-            #I think it can be useful to know what people thought contaminants looked like
-            #CheckConstraint(check=~( Q(flag_contaminant=True) &
-                                     #(
-                                         #(Q(image_conf__isnull=False) | ~Q(image_conf__exact='')) |  
-                                         #(Q(lens_type__isnull=False) | ~Q(lens_type__exact='')) |
-                                         #(Q(source_type__isnull=False) | ~Q(source_type__exact=''))
-                                     #)
-                                    #),
-                            #name='contaminant_check'),
         ]
 
-        
+
     def __init__(self, *args, **kwargs):
         # Call the superclass first; it'll create all of the field objects.
         super(Lenses, self).__init__(*args, **kwargs)
-
         for field in self._meta.fields:
             method_name = "get_{0}_help_text".format(field.name)
             curried_method = curry(self._get_help_text,field_name=field.name)
@@ -378,8 +361,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     def clean(self):
         if self.flag_confirmed and self.flag_contaminant: # flag_check
             raise ValidationError('The object cannot be both a lens and a contaminant.')
-        #if self.flag_contaminant and (self.image_conf or self.lens_type or self.source_type): # contaminant_check
-        #    raise ValidationError('The object cannot be a contaminant and have a lens or source type, or an image configuration.')
 
         jname = self.create_name()
         if not self.name:
@@ -393,9 +374,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                     altnames.append(jname)
                     self.alt_name = ', '.join(altnames)
 
-
-
-            
             
     def save(self,*args,**kwargs):
         if self._state.adding:
@@ -421,7 +399,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             if len(dirty) > 0:
                 action.send(self.owner,target=self,verb='UpdateLog',level='info',fields=json.dumps(dirty))
         
-
         # Create new file and remove old one
         super(Lenses,self).save(*args,**kwargs)
         fname = '/'+self.mugshot.name
