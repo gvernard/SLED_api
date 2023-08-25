@@ -440,6 +440,12 @@ class Redshift(SingleObject,DirtyFieldsMixin):
                             default='',
                             help_text="Description of any important aspects of the measurement.")
 
+    
+    reference = models.TextField(blank=True,
+                            null=True,
+                            default='',
+                            help_text="Reference for redshift values, can be name of a spectroscopic data release, or a bibcode/paper.")
+
     FIELDS_TO_CHECK = ['value','dvalue_min','dvalue_max','tag','method','info','access_level']
     
     class Meta():

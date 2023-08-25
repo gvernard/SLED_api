@@ -253,7 +253,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                   verbose_name="Image configuration",
                                   help_text="The configuration of the lensing system, if known.",
                                   choices=ImageConfChoices)
-    
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
         ('LTG','Late-type Galaxy'),
@@ -262,7 +261,10 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ('GROUP','Group of galaxies'),
         ('CLUSTER','Galaxy cluster'),
         ('CLUSTER MEMBER','Galaxy cluster member'),
-        ('QUASAR','Quasar')
+        ('QUASAR','Quasar'),
+        ('LRG','Luminous Red Galaxy'),
+        ('ETG', 'Early Type Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
     lens_type = MultiSelectField(max_length=100,
                                  blank=True,
@@ -289,8 +291,11 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ('GW','Gravitational Wave'),
         ('FRB','Fast Radio Burst'),
         ('GRB','Gamma Ray Burst'),
-        ('SN','Supernova')
+        ('SN','Supernova'),
+        ('LBG', 'Lyman Break Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
+
     source_type = MultiSelectField(max_length=100,
                                    blank=True,
                                    null=True,
@@ -321,7 +326,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ('PROJECTED GALAXIES', 'Projected Galaxies'),
         ('PROJECTED GALAXY + QUASAR', 'Projected galaxy + quasar'),
         ('RING GALAXY', 'Ring Galaxy'),
-        ('PLANETARY NEBULA', 'Ring Galaxy')
+        ('PLANETARY NEBULA', 'Ring Galaxy'),
+        ('QUASAR', 'Single quasar')
     )
     contaminant_type = models.CharField(max_length=100,
                                    blank=True,

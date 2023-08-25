@@ -1,21 +1,23 @@
-from django.shortcuts import render
+# Standard library imports
+import csv
+
+# Django imports
+from django.shortcuts import render  
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, DetailView, ListView
-from django.db.models import F, Q
-from django.urls import reverse_lazy,reverse
-from django.http import JsonResponse,HttpResponse
+from django.db.models import F, Q, Min, Max
+from django.urls import reverse_lazy, reverse  
+from django.http import HttpResponse
 from django.core.paginator import Paginator
 
-import datetime
-from urllib.parse import urlparse
-import csv
-
+# Third party app imports 
 from bootstrap_modal_forms.utils import is_ajax
-from bootstrap_modal_forms.generic import BSModalDeleteView,BSModalFormView
-from .forms import *
-from lenses.forms import DownloadForm
+from bootstrap_modal_forms.generic import BSModalDeleteView, BSModalFormView
 
+# Local app imports
+from .forms import *  
+from lenses.forms import DownloadForm
 from lenses.models import Lenses, Paper
 
 
@@ -29,16 +31,18 @@ class PaperQueryView(TemplateView):
         search_term = cleaned_data['search_term']
         year_min = cleaned_data['year_min']
         year_max = cleaned_data['year_max']
-        
+        print(cleaned_data)
+        #I've changed this because it was not what I thought it would do
+        #and I want to keep it consistent with how the lens query max min fields work
         if year_min and year_max:
             papers = Paper.objects.filter(year__range=[year_min,year_max])
         elif year_min and not year_max:
-            papers = Paper.objects.filter(year=year_min)
+            papers = Paper.objects.filter(year__gte=year_min)
         elif year_max and not year_min:
-            papers = Paper.objects.filter(year=year_max)
+            papers = Paper.objects.filter(year__lte=year_max)
         else:
             papers = Paper.objects.all()
-        if search_term:
+        if search_term!='':
             papers = papers.filter(Q(first_author__icontains=search_term) | Q(title__icontains=search_term))
 
         paginator = Paginator(papers,50)
@@ -52,9 +56,12 @@ class PaperQueryView(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.GET:
             form = PaperSearchForm(request.GET)
+            print(request.GET)
         else:
-            form = PaperSearchForm(initial={'year_min':datetime.date.today().year})
-            
+            form = PaperSearchForm({'year_min':Paper.objects.all().aggregate(Min('year'))['year__min'],
+                                            'year_max':Paper.objects.all().aggregate(Max('year'))['year__max']})
+        #print(form, form.is_valid())
+       
         if form.is_valid():
             papers_page,papers_range,papers_count = self.paper_query(form.cleaned_data)
             context = {'N_papers_total': papers_count,
@@ -102,7 +109,7 @@ class PaperDetailView(DetailView):
         qset = self.object.lenses_in_paper.annotate(discovery=F('paperlensconnection__discovery'),
                                                     model=F('paperlensconnection__model'),
                                                     classification=F('paperlensconnection__classification'),
-                                                    redshift=F('paperlensconnection__redshift')
+                                                    #redshift=F('paperlensconnection__redshift' #no longer part of this model
                                                     ).values('discovery','model','redshift','classification')
         labels = []
         for lens in qset:

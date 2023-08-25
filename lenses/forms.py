@@ -373,12 +373,16 @@ class LensQueryForm(forms.Form):
     
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('LTG','Late-type Galaxy'),
         ('SPIRAL','Spiral galaxy'),
         ('GALAXY PAIR','Galaxy pair'),
         ('GROUP','Group of galaxies'),
         ('CLUSTER','Galaxy cluster'),
         ('CLUSTER MEMBER','Galaxy cluster member'),
-        ('QUASAR','Quasar')
+        ('QUASAR','Quasar'),
+        ('LRG','Luminous Red Galaxy'),
+        ('ETG', 'Early Type Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
     #lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, widget=forms.SelectMultiple(), required=False)
     #lens_type = forms.MultipleChoiceField(choices=LensTypeChoices, widget=forms.Select(attrs={'class':'my-select2 jb-myselect2','multiple':'multiple'}), required=False)
@@ -390,6 +394,8 @@ class LensQueryForm(forms.Form):
     
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('ETG','Early-type Galaxy'),
+        ('SMG','Sub-millimetre Galaxy'),
         ('QUASAR','Quasar'),
         ('DLA','DLA'),
         ('PDLA','PDLA'),
@@ -404,7 +410,10 @@ class LensQueryForm(forms.Form):
         ('GW','Gravitational Wave'),
         ('FRB','Fast Radio Burst'),
         ('GRB','Gamma Ray Burst'),
-        ('SN','Supernova')
+        ('SN','Supernova'),
+        ('LBG', 'Lyman Break Galaxy'),
+        ('ETG', 'Early Type Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
     #source_type = forms.MultipleChoiceField(choices=SourceTypeChoices, widget=forms.SelectMultiple(), required=False)
     source_type = forms.MultipleChoiceField(choices=SourceTypeChoices,

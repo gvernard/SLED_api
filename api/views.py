@@ -243,7 +243,7 @@ class UploadLenses(APIView):
             for key in lens.keys():
                 if type(lens[key])==str:
                     lens[key] = lens[key].strip()
-
+        print(lenses)
         serializer = LensesUploadSerializer(data=lenses, many=True)
         if serializer.is_valid():
             lenses = serializer.create(serializer.validated_data)
@@ -456,7 +456,7 @@ class UpdateLenses(APIView):
         updates = list(json.loads(request.body))
         for update in updates:
             ra, dec = float(update['ra']), float(update['dec'])
-            lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=10.)
+            lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=5.)
             
             lens = lenses[0]
             update_data = update.copy()

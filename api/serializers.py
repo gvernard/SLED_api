@@ -142,7 +142,7 @@ class LensesUploadListSerializer(serializers.ListSerializer):
                     proximal_lenses.append(j)
 
         if len(proximal_lenses) > 0:
-            message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission through the API is not allowed.'
+            message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission through the API is not allowed.'+str(proximal_lenses)
             raise serializers.ValidationError(message)
 
         ### Check that no two files are the same
@@ -176,7 +176,10 @@ class LensesUploadSerializer(serializers.ModelSerializer):
         ('GROUP','Group of galaxies'),
         ('CLUSTER','Galaxy cluster'),
         ('CLUSTER MEMBER','Galaxy cluster member'),
-        ('QUASAR','Quasar')
+        ('QUASAR','Quasar'),
+        ('LRG','Luminous Red Galaxy'),
+        ('ETG', 'Early Type Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
     lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
 
@@ -198,7 +201,9 @@ class LensesUploadSerializer(serializers.ModelSerializer):
         ('GW','Gravitational Wave'),
         ('FRB','Fast Radio Burst'),
         ('GRB','Gamma Ray Burst'),
-        ('SN','Supernova')
+        ('SN','Supernova'),
+        ('LBG', 'Lyman Break Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
     source_type = fields.MultipleChoiceField(choices=SourceTypeChoices, required=False)
 
@@ -237,12 +242,17 @@ class LensesUpdateSerializer(serializers.ModelSerializer):
         ('GROUP','Group of galaxies'),
         ('CLUSTER','Galaxy cluster'),
         ('CLUSTER MEMBER','Galaxy cluster member'),
-        ('QUASAR','Quasar')
+        ('QUASAR','Quasar'),
+        ('LRG','Luminous Red Galaxy'),
+        ('ETG', 'Early Type Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
     lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
     
     SourceTypeChoices = (
         ('GALAXY','Galaxy'),
+        ('ETG','Early-type Galaxy'),
+        ('SMG','Sub-millimetre Galaxy'),
         ('QUASAR','Quasar'),
         ('DLA','DLA'),
         ('PDLA','PDLA'),
@@ -257,7 +267,9 @@ class LensesUpdateSerializer(serializers.ModelSerializer):
         ('GW','Gravitational Wave'),
         ('FRB','Fast Radio Burst'),
         ('GRB','Gamma Ray Burst'),
-        ('SN','Supernova')
+        ('SN','Supernova'),
+        ('LBG', 'Lyman Break Galaxy'),
+        ('ELG', 'Emission Line Galaxy')
     )
     source_type = fields.MultipleChoiceField(choices=SourceTypeChoices, required=False)
 
@@ -458,7 +470,6 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                     {
                         "discovery": lens["discovery"],
                         "classification": lens["classification"],
-                        "redshift": lens["redshift"],
                         "model": lens["model"]
                     }
                 )
@@ -498,7 +509,7 @@ class PaperLensSerializer(serializers.Serializer):
     discovery = serializers.BooleanField()
     classification = serializers.BooleanField()
     model = serializers.BooleanField()
-    redshift = serializers.BooleanField()
+    #redshift = serializers.BooleanField()
 
     
 class PaperUploadSerializer(serializers.Serializer):
