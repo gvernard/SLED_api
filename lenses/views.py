@@ -777,13 +777,14 @@ class LensQueryView(TemplateView):
 
     def my_response(self,request,user):
         lens_form = forms.LensQueryForm(request,prefix="lens")
+        redshift_form = forms.RedshiftQueryForm(request,prefix="redshift")
         imaging_form = forms.ImagingQueryForm(request,prefix="imaging")
         spectrum_form = forms.SpectrumQueryForm(request,prefix="spectrum")
         catalogue_form = forms.CatalogueQueryForm(request,prefix="catalogue")
 
         forms_with_fields = []
         forms_with_errors = []
-        zipped = zip(['lenses','imaging','spectrum','catalogue'],[lens_form,imaging_form,spectrum_form,catalogue_form])
+        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form])
         for name,form in zipped:
             if form.is_valid():
                 if form.cleaned_data:
@@ -792,7 +793,7 @@ class LensQueryView(TemplateView):
                 forms_with_errors.append(name)
                 
         if len(forms_with_errors) == 0:
-            qset = query_utils.combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            qset = query_utils.combined_query(lens_form.cleaned_data,redshift_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
 
             # Paginator
             paginator = Paginator(qset,50)
@@ -804,9 +805,10 @@ class LensQueryView(TemplateView):
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
                        'lens_form':lens_form,
+                       'redshift_form':redshift_form,
+                       'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form,
                        'forms_with_fields': forms_with_fields,
                        'forms_with_errors': forms_with_errors,
                        }
@@ -815,10 +817,11 @@ class LensQueryView(TemplateView):
                        'lenses_range': [],
                        'lenses_count': 0,
                        'lens_form':lens_form,
+                       'redshift_form':redshift_form,
+                       'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
-                       'imaging_form':imaging_form,
-                       'forms_with_fields': forms_with_fields,
+                       'forms_with_fields':forms_with_fields,
                        'forms_with_errors':forms_with_errors,
                        }
         return context

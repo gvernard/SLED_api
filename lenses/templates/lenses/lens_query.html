@@ -34,6 +34,16 @@
 	  </button>
 	</li>
 	<li class="nav-item">
+	  <button class="nav-link {% get_tab_active fwe fwf 'redshift' %}" id="redshift-tab" data-toggle="tab" data-target="#redshift" type="button">
+	    Redshift
+	    {% if 'redshift' in fwe %}
+	    <span class="badge badge-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
+	    {% elif 'redshift' in fwf %}
+	    <span class="badge badge-pill badge-success"><img src="{% static 'icons/check.svg' %}"></span>
+	    {% endif %}
+	  </button>
+	</li>
+	<li class="nav-item">
 	  <button class="nav-link {% get_tab_active fwe fwf 'imaging' %}" id="imaging-tab" data-toggle="tab" data-target="#imaging" type="button">
 	    Imaging data
 	    {% if 'imaging' in fwe %}
@@ -177,26 +187,6 @@
                     <td>{{ form.image_sep_max.errors }}</td>
 		  </tr>
 		  <tr>
-                    <td>{{ form.z_lens_min.errors }}</td>
-                    <td>{{ form.z_lens_min }}</td>
-                    <td>
-		      <div class="sled-help-tooltip"><label>&lt; Z<sub>lens</sub> &lt;</label></div>
-		      <div class="sled-help-tooltip-content">Set the min. and max. lens redshift.</div>
-		    </td>
-                    <td>{{ form.z_lens_max }}</td>
-                    <td>{{ form.z_lens_max.errors }}</td>
-		  </tr>
-		  <tr>
-                    <td>{{ form.z_source_min.errors }}</td>
-                    <td>{{ form.z_source_min }}</td>
-                    <td>
-		      <div class="sled-help-tooltip"><label>&lt; Z<sub>source</sub> &lt;</label></div>
-		      <div class="sled-help-tooltip-content">Set the min. and max. source redshift.</div>
-		    </td>
-                    <td>{{ form.z_source_max }}</td>
-                    <td>{{ form.z_source_max.errors }}</td>
-		  </tr>
-		  <tr>
                     <td>{{ form.score_min.errors }}</td>
                     <td>{{ form.score_min }}</td>
                     <td>
@@ -268,6 +258,56 @@
 	  {{ form.page }}
 	  {% endwith %}
 	</div>
+
+
+	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'redshift' %}" id="redshift">
+	  {% with form=redshift_form %}
+	  
+	  {% if form.non_field_errors|length > 0 %}
+	  <div class="invalid jb-modal-field">
+	    <ul>
+	      {% for error in form.non_field_errors %}
+	      <li>{{ error }}</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	  {% endif %}
+
+	  <table class="data-form-table">
+	    <tr>
+              <td>{{ form.z_method.errors }}</td>
+              <td>
+		<div class="sled-help-tooltip"><label>Method</label></div>
+		<div class="sled-help-tooltip-content">Choose the method used to obtain the redshift.</div>
+	      </td>
+              <td>{{ form.z_method }}</td>
+              <td>&nbsp;</td>
+              <td>&nbsp;</td>
+	    </tr>
+	    <tr>
+              <td>{{ form.z_lens_min.errors }}</td>
+              <td>{{ form.z_lens_min }}</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Z<sub>lens</sub> &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. lens redshift.</div>
+	      </td>
+              <td>{{ form.z_lens_max }}</td>
+              <td>{{ form.z_lens_max.errors }}</td>
+	    </tr>
+	    <tr>
+              <td>{{ form.z_source_min.errors }}</td>
+              <td>{{ form.z_source_min }}</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Z<sub>source</sub> &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. source redshift.</div>
+	      </td>
+              <td>{{ form.z_source_max }}</td>
+              <td>{{ form.z_source_max.errors }}</td>
+	    </tr>
+	  </table>
+	  {% endwith %}
+	</div>
+
 	
 	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'imaging' %}" id="imaging">
 	  {% with form=imaging_form %}
