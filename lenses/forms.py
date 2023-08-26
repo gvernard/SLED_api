@@ -182,13 +182,34 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
 class ResolveDuplicatesForm(forms.Form):
     mychoices = (
         ('no','No, this is a duplicate, ignore it'),
-        ('yes','Yes, insert to the database anyway')
+        ('yes','Yes, insert to the database <b>as a new lens</b> anyway'),
     )
     insert = forms.ChoiceField(required=True,
                                label='Submit this lens?',
                                choices=mychoices,
                                widget=forms.RadioSelect(attrs={'class':'sled-dupl-yes-no'}))
     index = forms.CharField(widget=forms.HiddenInput())
+
+
+    def __init__(self, *args, **kwargs):
+        existing = kwargs.pop('existing',None)
+        existing_list = kwargs.pop('existing_list',None)
+        super().__init__(*args, **kwargs)
+
+        if existing:
+            choices = self.fields['insert'].choices
+            for lens in existing:
+                choices.append( (lens.pk,'Merge with '+lens.name) )
+            self.fields['insert'].choices = choices
+
+
+class ResolveDuplicatesFormSet(forms.BaseFormSet):
+
+    def get_form_kwargs(self,index):
+        kwargs = super().get_form_kwargs(index)
+        kwargs["existing"] = kwargs["existing_list"][index]
+        return kwargs
+
 
 
 class AddDataForm(forms.Form):

@@ -587,6 +587,7 @@ class LensResolveDuplicatesView(TemplateView):
 
         return objs,indices,existing
 
+    
     def get(self, request, *args, **kwargs):
         task_id = self.kwargs['pk']
         try:
@@ -601,8 +602,8 @@ class LensResolveDuplicatesView(TemplateView):
             for i,index in enumerate(indices):
                 formset_initial.append({'index':index})
 
-            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0)
-            myformset = FormSetFactory(initial=formset_initial)
+            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0,formset=forms.ResolveDuplicatesFormSet)
+            myformset = FormSetFactory(initial=formset_initial,form_kwargs={"existing_list":existing})
 
             form_array = [None]*len(objs)
             for i,index in enumerate(indices):
@@ -625,19 +626,19 @@ class LensResolveDuplicatesView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
         if referer == request.path and request.user == task.owner:
-            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0)
-            myformset = FormSetFactory(data=request.POST)
+            objs,indices,existing = self.get_objs_and_existing(task,request.user)
+            FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0,formset=forms.ResolveDuplicatesFormSet)
+            myformset = FormSetFactory(data=request.POST,form_kwargs={"existing_list":existing})
+            
             if myformset.is_valid():
                 # Hack to pass the insert_form responses to the task
                 my_response = json.dumps(myformset.cleaned_data)
                 task.responses_allowed = [my_response]
                 task.registerResponse(request.user,my_response,'Some comment')
-                task.finalizeTask()
-                task.delete()
-                return TemplateResponse(request,'simple_message.html',context={'message':'Duplicates resolved!'})
+                message = task.finalizeTask()
+                #task.delete()
+                return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
-                objs,indices,existing = self.get_objs_and_existing(task,request.user)
-
                 form_array = [None]*len(objs)
                 for i,index in enumerate(indices):
                     form_array[index] = myformset.forms[i]

@@ -57,6 +57,7 @@ class ConfirmationTask(SingleObject):
         ('MakePrivate','Make private'),
         ('DeleteObject','Delete public object'),
         ('ResolveDuplicates','Resolve duplicate objects'),
+        ('MergeLenses','Merge lenses'),
         ('AskPrivateAccess','Ask access to private objects'),
         ('AskToJoinGroup','Request to add to group'),
         ('AddData','Associate data to lens.'),
@@ -213,8 +214,9 @@ class ConfirmationTask(SingleObject):
         """
         if user not in self.recipients.all():
             raise ValueError(self.recipient_names,user.username) # Need custom exception here
-        if response not in self.allowed_responses(): 
-            raise ValueError(response) # Need custom exception here
+        if self.task_type != 'MergeLenses':
+            if response not in self.allowed_responses(): 
+                raise ValueError(response) # Need custom exception here
         self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response=response,response_comment=comment,created_at=timezone.now())
         #self.finalizeTask()
         #self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response='',response_comment=comment)
@@ -480,39 +482,48 @@ class ResolveDuplicates(ConfirmationTask):
         # First find the lenses that where selected as duplicates (to be rejected)
         obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
         responses = json.loads(obj_responses['response'])
-        reject_indices = []
-        for response in responses:
-            if response['insert'] == 'no':
-                reject_indices.append(int(response['index']))
-        #print(reject_indices)
-
+        objects = list(serializers.deserialize("json",self.cargo['objects']))
         mode = self.cargo['mode']
+
+        print(objects)
+        print(objects[0].object.ra)
         
-        if mode == "makePublic":
-            ids = []
-            for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
-                if i not in reject_indices:
-                    ids.append(obj.object.pk)
+        # Split objects according to response
+        objs_to_add = []
+        objs_to_make_public = []
+        objs_to_merge = []
+        objs_to_merge_in = []
+        for i in range(0,len(objects)):
+            if responses[i]['insert'] == 'yes':
+                if mode == "makePublic":
+                    objs_to_make_public.append(objects[i])
+                else:
+                    objs_to_add.append(objects[i])
+            elif responses[i]['insert'] == 'no':
+                # Remove uploaded image if the object is new
+                if not objects[i].object.pk:
+                    os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + objects[i].object.mugshot.name)
+            else:
+                objs_to_merge.append(objects[i])
+                objs_to_merge_in.append(responses[i]['insert'])
+
+            
+        if len(objs_to_make_public) > 0:
+            ids = [obj.object.pk for obj in objs_to_make_public]
             lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,ids)
             output = self.owner.makePublic(lenses)
-        else:
-            # Keep only lenses marked to save
+
+        if len(objs_to_add) > 0:
             pri = []
             pub = []
-            for i,obj in enumerate(serializers.deserialize("json",self.cargo['objects'])):
-                if i not in reject_indices:
-                    obj.object.owner = self.owner
-                    #obj.object.create_name() #commented out because we need for old lenses this name
-                    if not obj.object.pk:
-                        obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
-                    if obj.object.access_level == 'PRI':
-                        pri.append(obj.object)
-                    else:
-                        pub.append(obj.object)
+            for obj in objs_to_add:
+                obj.object.owner = self.owner
+                if not obj.object.pk:
+                    obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
+                if obj.object.access_level == 'PRI':
+                    pri.append(obj.object)
                 else:
-                    # Remove uploaded image
-                    if not obj.object.pk:
-                        os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + obj.object.mugshot.name)
+                    pub.append(obj.object)
 
             # Insert in the database
             for lens in (pri+pub):
@@ -520,13 +531,63 @@ class ResolveDuplicates(ConfirmationTask):
 
             if pri:
                 for obj in pri:
-                    assign_perm('view_lenses',request.user,obj)
+                    assign_perm('view_lenses',self.owner,obj)
             if pub:
                 # Main activity stream for public lenses
                 from . import Users
                 ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
                 action.send(self.owner,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
-            return TemplateResponse(request,'simple_message.html',context={'message':'Duplicates resolved successfully!'})
+
+
+        if len(objs_to_merge) > 0:
+            # Create merge task
+            print(objs_to_merge)
+            print(objs_to_merge_in)
+
+            # Fetch all the existing lenses
+            ids = [int(id) for id in objs_to_merge_in]
+            existing = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,ids)
+            
+            for i in range(0,len(objs_to_merge)):
+                if mode == "add":
+                    # Create a new PRI lens
+                    objs_to_merge[i].object.owner = self.owner
+                    objs_to_merge[i].object.mugshot.name = 'temporary/' + self.owner.username + '/' + objs_to_merge[i].object.mugshot.name
+                    objs_to_merge[i].object.access_level = 'PRI'
+                    objs_to_merge[i].object.save()
+                    assign_perm('view_lenses',self.owner,objs_to_merge[i].object)
+
+                cargo = {
+                    'new_lens': objs_to_merge[i].object.pk,
+                    'existing_lens': existing[i].pk
+                }
+                from . import Users
+                receiver = Users.objects.filter(id=existing[i].owner.id) # receiver must be a queryset
+                mytask = ConfirmationTask.create_task(self.owner,receiver,'MergeLenses',cargo)
+
+            
+        if len(objs_to_merge) == 0:
+            message = 'Duplicates resolved successfully!'
+        else:
+            # Create a more custom message informing about merge tasks etc. Maybe a new template is needed?
+            message = 'Merging %d lenses!' % len(objs_to_merge)
+        return message
+            
+
+
+class MergeLenses(ConfirmationTask):
+    class Meta:
+        proxy = True
+        
+    def allowed_responses(self):
+        return ['responses cannot be pre-defined']
+
+    def finalizeTask(self):
+        # Switch the selected data and all PRI data from the submitted lens to the existing one
+        # Update any fields of the existing lens from the submitted one
+        pass
+
+    
 
         
 class AskPrivateAccess(ConfirmationTask):
