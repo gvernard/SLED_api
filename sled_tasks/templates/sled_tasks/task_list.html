@@ -69,10 +69,16 @@
 		View
 	      </button>
 	      {% else %}
+	      {% if task.task_type == "MergeLenses" %}
+	      <a target="_blank" class="btn btn-info pull-right" href="{% url 'sled_tasks:tasks-detail-merge' task.id %}">
+		Merge
+	      </a>
+	      {% else %}
 	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
 		<img src="{% static 'icons/eye-fill.svg' %}">
 		View
 	      </button>
+	      {% endif %}
 	      {% endif %}
 	    </td>
           </tr>

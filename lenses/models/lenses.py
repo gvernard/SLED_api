@@ -471,3 +471,23 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         a = math.pow(math.sin(Ddec/2.0),2) + math.cos(dec1_rad)*math.cos(dec2_rad)*math.pow(math.sin(Dra/2.0),2);
         d = math.degrees( 2.0*math.atan2(math.sqrt(a),math.sqrt(1.0-a)) )
         return d*3600.0
+
+    
+    def compare(self, obj):
+        included_keys = 'alt_name', 'flag_confirmed', 'flag_candidate', 'flag_contaminant', 'score', 'image_sep','info', 'n_images', 'mugshot'
+        return self._compare(self, obj, included_keys)
+
+    def _compare(self, obj1, obj2, included_keys):
+        d1, d2 = obj1.__dict__, obj2.__dict__
+        old, new = {}, {}
+        for k,v in d1.items():
+            if k not in included_keys:
+                continue
+            try:
+                if v != d2[k]:
+                    old.update({k: v})
+                    new.update({k: d2[k]})
+            except KeyError:
+                old.update({k: v})
+        
+        return old, new

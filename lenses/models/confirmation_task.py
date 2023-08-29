@@ -2,6 +2,7 @@ from django.db import models,connection
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
+from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.core import serializers
 from django.urls import reverse
@@ -214,9 +215,8 @@ class ConfirmationTask(SingleObject):
         """
         if user not in self.recipients.all():
             raise ValueError(self.recipient_names,user.username) # Need custom exception here
-        if self.task_type != 'MergeLenses':
-            if response not in self.allowed_responses(): 
-                raise ValueError(response) # Need custom exception here
+        if response not in self.allowed_responses(): 
+            raise ValueError(response) # Need custom exception here
         self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response=response,response_comment=comment,created_at=timezone.now())
         #self.finalizeTask()
         #self.recipients.through.objects.filter(confirmation_task=self,recipient=user).update(response='',response_comment=comment)
@@ -255,7 +255,7 @@ class ConfirmationResponse(models.Model):
     confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
     recipient = models.ForeignKey('Users',on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
-    response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.") 
+    response = models.CharField(max_length=1000, help_text="The response of a given user to a given confirmation task.") 
     response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the recipient on the given response.") 
 
 class DeleteObject(ConfirmationTask):
@@ -485,8 +485,6 @@ class ResolveDuplicates(ConfirmationTask):
         objects = list(serializers.deserialize("json",self.cargo['objects']))
         mode = self.cargo['mode']
 
-        print(objects)
-        print(objects[0].object.ra)
         
         # Split objects according to response
         objs_to_add = []
@@ -541,8 +539,6 @@ class ResolveDuplicates(ConfirmationTask):
 
         if len(objs_to_merge) > 0:
             # Create merge task
-            print(objs_to_merge)
-            print(objs_to_merge_in)
 
             # Fetch all the existing lenses
             ids = [int(id) for id in objs_to_merge_in]
@@ -570,7 +566,7 @@ class ResolveDuplicates(ConfirmationTask):
             message = 'Duplicates resolved successfully!'
         else:
             # Create a more custom message informing about merge tasks etc. Maybe a new template is needed?
-            message = 'Merging %d lenses!' % len(objs_to_merge)
+            message = 'Merge tasks have been created for %d lenses, whose owners have been notified!' % len(objs_to_merge)
         return message
             
 
@@ -579,16 +575,116 @@ class MergeLenses(ConfirmationTask):
     class Meta:
         proxy = True
         
+    responses_allowed = []
+    
     def allowed_responses(self):
-        return ['responses cannot be pre-defined']
+        return self.responses_allowed
 
     def finalizeTask(self):
         # Switch the selected data and all PRI data from the submitted lens to the existing one
         # Update any fields of the existing lens from the submitted one
-        pass
+        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
+        response = json.loads(obj_responses['response'])
 
-    
+        if response['response'] == 'yes':
+            from . import Users
+            admin = Users.getAdmin().first()
 
+            target = Lenses.objects.get(id=self.cargo["existing_lens"])
+            new = Lenses.objects.get(id=self.cargo["new_lens"])
+
+            # First, transfer the data that were selected by the target lens owner to merge
+            flag = False
+            redshift_ids = []
+            imaging_ids = []
+            spectrum_ids = []
+            for item in response['items']:
+                dum = item.split('-')
+                obj_name = dum[0]
+                if obj_name == 'Field':
+                    field_name = dum[1]
+                    if field_name == 'info':
+                        new_value = getattr(new,field_name)
+                        old_value = getattr(target,field_name)
+                        setattr(target,field_name,old_value+'. '+new_value)
+                    elif field_name == 'mugshot':
+                        new_file = ContentFile(new.mugshot.read())
+                        new_file.name = 'tmp'
+                        target.mugshot = new_file
+                    else:
+                        new_value = getattr(new,field_name)
+                        setattr(target,field_name,new_value)
+                    flag = True
+                elif obj_name == 'Redshift':
+                    redshift_ids.append(dum[1])
+                elif obj_name == 'Imaging':
+                    imaging_ids.append(dum[1])
+                elif obj_name == 'Spectrum':
+                    spectrum_ids.append(dum[1])
+                else:
+                    # Raise error
+                    pass
+            if flag:
+                target.save()
+                ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=[target])
+                target_owner = self.get_all_recipients()[0]
+                action.send(target_owner,target=admin,verb='UpdateHome',level='info',action_object=ad_col)
+            
+
+            if redshift_ids:
+                redshifts = apps.get_model(app_label="lenses",model_name='Redshift').objects.filter(id__in=redshift_ids)
+                for redshift in redshifts:
+                    redshift.lens = target
+                    redshift._state.adding = True
+                    redshift.save()
+                ad_col = AdminCollection.objects.create(item_type=redshifts[0]._meta.model.__name__,myitems=redshifts)
+                action.send(self.owner,target=admin,verb='AddHome',level='success',action_object=ad_col)
+            if imaging_ids:
+                imagings = apps.get_model(app_label="lenses",model_name='Imaging').objects.filter(id__in=imaging_ids)
+                for imaging in imagings:
+                    imaging.lens = target
+                    imaging._state.adding = True
+                    imaging.save()
+                ad_col = AdminCollection.objects.create(item_type=imagings[0]._meta.model.__name__,myitems=imagings)
+                action.send(self.owner,target=admin,verb='AddHome',level='success',action_object=ad_col)
+            if spectrum_ids:
+                spectra = apps.get_model(app_label="lenses",model_name='Spectrum').objects.filter(id__in=spectrum_ids)
+                for spectrum in spectra:
+                    spectrum.lens = target
+                    spectrum._state.adding = True
+                    spectrum.save()
+                ad_col = AdminCollection.objects.create(item_type=spectra[0]._meta.model.__name__,myitems=spectra)
+                action.send(self.owner,target=admin,verb='AddHome',level='success',action_object=ad_col)
+            
+
+                
+            
+            # Second, transfer all the PRI data
+            redshifts = apps.get_model(app_label="lenses",model_name='Redshift').objects.filter(lens=new).filter(access_level='PRI')
+            for redshift in redshifts:
+                redshift.lens = target
+                redshift.save()
+            imagings = apps.get_model(app_label="lenses",model_name='Imaging').objects.filter(lens=new).filter(exists=True).filter(access_level='PRI')
+            for imaging in imagings:
+                imaging.lens = target
+                imaging.save()
+            spectra = apps.get_model(app_label="lenses",model_name='Spectrum').objects.filter(lens=new).filter(exists=True).filter(access_level='PRI')
+            for spectrum in spectra:
+                spectrum.lens = target
+                spectrum.save()
+
+
+
+
+
+
+                
+
+
+            
+
+
+            
         
 class AskPrivateAccess(ConfirmationTask):
     class Meta:
@@ -640,8 +736,6 @@ class AskToJoinGroup(ConfirmationTask):
                         action_object=self,
                         group_name=group.name,
                         group_url=group.get_absolute_url())
-
-
 
 
 class AddData(ConfirmationTask):

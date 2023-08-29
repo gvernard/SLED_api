@@ -38,6 +38,7 @@ class AdminCollection(models.Model):
         ('Users','Users'),
         ('Imaging','Imaging'),
         ('Spectrum','Spectrum'),
+        ('Redshift','Redshift'),
         ('Catalogue','Catalogue'),
         ('Scores','Scores'),
         ('Models','Models')

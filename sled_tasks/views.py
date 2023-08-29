@@ -19,8 +19,9 @@ from bootstrap_modal_forms.generic import (
 from bootstrap_modal_forms.utils import is_ajax
 
 import lenses
-from lenses.models import Users, ConfirmationTask
+from lenses.models import Users, ConfirmationTask, Lenses, Redshift, Imaging, Spectrum
 from urllib.parse import urlparse
+import json
 
 from .forms import *
 
@@ -186,3 +187,103 @@ class TaskDetailRecipientView(BSModalFormView):
                 return HttpResponseRedirect(reverse('sled_tasks:tasks-list'))
         else:
             return super(TaskDetailRecipientView,self).form_valid(form)
+
+
+@method_decorator(login_required,name='dispatch')
+class TaskMergeDetailView(TemplateView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_merge_detail.html'
+    context_object_name = 'task'
+
+    def get_context(self,new,target):
+        redshifts = Redshift.objects.filter(lens=new).filter(access_level='PUB')
+        imagings = Imaging.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
+        spectra = Spectrum.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
+    
+        # Get different lens fields
+        fields = {}
+        target_fields,new_fields = target.compare(new)
+        for key,val in target_fields.items():
+            if new_fields[key]:
+                fields[key] = {
+                    "existing": val,
+                    "new": new_fields[key]
+                }
+            
+        context = {
+            'target': target,
+            'new': new,
+            'redshifts': redshifts,
+            'imagings': imagings,
+            'spectra': spectra,
+            'fields': fields
+        }
+        return context
+
+    def get_allowed_choices(self,context):
+        choices = []
+        if context['redshifts']:
+            for redshift in context['redshifts']:
+                choices.append( 'Redshift-'+str(redshift.pk) )
+        if context['imagings']:
+            for imaging in context['imagings']:
+                choices.append( 'Imaging-'+str(imaging.pk) )
+        if context['spectra']:
+            for spectrum in context['spectra']:
+                choices.append( 'Spectrum-'+str(spectrum.pk) )
+        if context['fields']:
+            for key,field in context['fields'].items():
+                choices.append( 'Field-'+key )
+        return choices
+
+        
+    def get(self, request, *args, **kwargs):
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
+
+        target = Lenses.objects.get(id=task.cargo["existing_lens"])
+        new = Lenses.objects.get(id=task.cargo["new_lens"])
+        
+        if request.user == task.owner:
+            return TemplateResponse(request,'simple_message.html',context={'message':'You initiated a merge.'})
+        else:
+            context = self.get_context(new,target)
+            choices = self.get_allowed_choices(context)
+            context['form'] = MergeLensesForm(choices=choices)
+            context['task'] = task
+            return self.render_to_response(context)
+
+
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
+
+        if not task:
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
+
+        if referer == request.path:
+            target = Lenses.objects.get(id=task.cargo["existing_lens"])
+            new = Lenses.objects.get(id=task.cargo["new_lens"])
+            context = self.get_context(new,target)
+            choices = self.get_allowed_choices(context)
+            myform = MergeLensesForm(data=request.POST,choices=choices)
+            
+            if myform.is_valid():
+                # Hack to pass the insert_form responses to the task
+                my_response = json.dumps(myform.cleaned_data)
+                task.responses_allowed = [my_response]
+                task.registerAndCheck(request.user,my_response,myform.cleaned_data['response_comment'])
+                return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
+            else:
+                context['form'] = myform
+                context['task'] = task
+                return self.render_to_response(context)
+        else:
+            return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})

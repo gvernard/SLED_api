@@ -330,7 +330,7 @@
 	Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
       </div>
       <div class="container">
-	<img src="{{ spec.image.url }}">
+	<img src="{{ spec.image.url }}" height="170px">
 	<div class="overlay">
 	  <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spec.id %}">
 	    <img src="{% static 'icons/eye-fill.svg' %}">

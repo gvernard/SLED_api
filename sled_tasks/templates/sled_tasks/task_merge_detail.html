@@ -1,0 +1,249 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+<div class="jb-container">
+  
+
+  {% if task.status == "C" %}
+
+  <h1 class="jb-heading-1">Merge in lens {{ target }}</h1>
+  <strong>{{task.owner.username}}</strong> requested merging information in lens <a href="{{ target.get_absolute_url }}">{{target.name}}</a> on {{ task.created_at }}.
+
+  <br>
+
+  <strong>User owner</strong> responed on XXX:
+
+
+  and merged the following:
+
+  
+  {% else %}
+
+  {% if request.user == task.owner %}
+
+  Your request to merge lens <a href="{{ new.get_absolute_url }}">{{new.name}}</a> in <a href="{{ target.get_absolute_url }}">{{target.name}}</a> is pending.
+  
+  {% else %}
+  
+  <table class="jb-table-no-lines">
+    <tr>
+      <td>
+	<h1 class="jb-heading-1">Merge in lens {{ target }}</h1>
+	User <strong>{{task.owner.username}}</strong> would like to merge the following information to the lens <a href="{{ target.get_absolute_url }}">{{target.name}}</a>.
+      </td>
+      <td valign="bottom">
+	<img class="sled-mugshot-icon" src="{{target.mugshot.url}}">
+      </td>
+    </tr>
+  </table>
+  
+  
+  
+  <form method="POST">
+    {% csrf_token %}
+    
+    {{ form.non_field_errors }}
+    {{ form.items.errors }}
+    
+
+    {% if fields %}
+    <hr>
+    <div class="jb-section">
+      
+      <table class="choose jb-table-no-lines">
+	<thead>
+	  <tr>
+	    <th>&nbsp;</th>
+	    <th rowspan="4"><h1 class="jb-heading-2">System Information</h1></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for key,field in fields.items %}
+	  <tr>
+	    <td>
+	      <input type="checkbox" name="items" value="Field-{{key}}">
+	    </td>
+	    <td>
+	      {% if key == 'mugshot' %}
+
+	      New mughsot image
+	      <div class="jb-lens-mugshot">
+		<img src="{{ new.mugshot.url }}">
+	      </div>
+
+	      {% elif key == 'info' and field.existing %}
+
+	      Additional information: <i>{{ field.new }}</i><br>
+	      Existing information: <i>{{ field.existing }} </i>
+	      
+	      {% else %}
+
+	      {% if field.existing %}
+	      <b>{{key}}</b>: from <i>{{ field.existing }}</i> to <i>{{ field.new }}</i>
+	      {% else %}
+	      new value for <b>{{key}}</b>: <i>{{ field.new }}</i>
+	      {% endif %}
+
+	      {% endif %}
+	    </td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+    </div>
+    {% endif %}
+    
+    
+    {% if redshifts %}
+    <hr>
+    <div class="jb-section">
+
+      <table class="choose jb-table-no-lines">
+	<thead>
+	  <tr>
+	    <th>&nbsp;</th>
+	    <th rowspan="4"><h1 class="jb-heading-2">Redshifts</h1></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+	    <th>&nbsp;</th>
+	    <th>Value</th>
+	    <th>Method</th>
+	    <th>Linked Spectrum</th>
+	    <th>Info</th>
+	  </tr>
+
+	  {% for redshift in redshifts %}
+      	  <tr>
+	    <td>
+	      <input type="checkbox" name="items" value="Redshift-{{redshift.id}}">
+	    </td>
+	  
+	    <td style="padding-right:10px;">
+	      Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>
+	    </td>
+	    <td>
+	      {% if redshift.paper %}
+	      <a href="{{ redshift.paper }}">{{ redshift.method }}</a>
+	      {% else %}
+	      {{ redshift.method }}
+	      {% endif %}
+	    </td>
+	    <td>
+	      {% if redshift.spectrum %}
+	      <a href="{{ redshift.spectrum.get_absolute_url }}">
+		{{ redshift.spectrum }}
+	      </a>
+	      {% else %}
+	      -
+	      {% endif %}
+	    </td>
+	    <td>
+	      {{ redshift.info }}
+	    </td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
+    {% endif %}
+    
+
+    {% if imagings %}
+    <hr>
+    <div class="jb-section">
+      
+      <table class="choose jb-table-no-lines">
+	<thead>
+	  <th>&nbsp;</th>
+	  <th><h1 class="jb-heading-2">Imaging Data</h1></th>
+	</thead>
+	<tbody>
+	  {% for imaging in imagings %}
+	  <tr>
+	    <td>
+	      <input type="checkbox" name="items" value="Imaging-{{imaging.id}}">
+	    </td>
+	    <td>
+	      <div class="imaging-item">
+		<div class="header">
+		  {{imaging.instrument }} - {{ imaging.band }}
+		</div>
+		<div class="container">
+		  <img src="{{ imaging.image.url }}" width="170" height="170">
+		  <div class="overlay">
+		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:imaging-detail' imaging.id %}">
+		      <img src="{% static 'icons/eye-fill.svg' %}">
+		      View
+		    </button>
+		  </div>
+		</div>
+	      </div>
+	    </td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
+    {% endif %}
+    
+    
+    
+    {% if spectra %}
+    <hr>
+    <div class="jb-section">
+      <table class="choose jb-table-no-lines">
+	<thead>
+	  <th>&nbsp;</th>
+	  <th><h1 class="jb-heading-2">Spectroscopic Data</h1></th>
+	</thead>
+	<tbody>
+	  {% for spec in spectra %}
+	  <tr>
+	    <td>
+	      <input type="checkbox" name="items" value="Spectrum-{{spec.id}}">	    
+	    </td>
+	    <td>
+	      <div class="spectrum-item">
+		<div class="header">
+		  Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
+		</div>
+		<div class="container">
+		  <img src="{{ spec.image.url }}" height="170px">
+		  <div class="overlay">
+		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spec.id %}">
+		      <img src="{% static 'icons/eye-fill.svg' %}">
+		      View
+		    </button>
+		  </div>
+		</div>
+	      </div>
+	    </td>
+	  </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+    </div>
+    {% endif %}
+
+
+  <div>
+    {{ form.response }}
+  </div>
+
+  <div class="jb-modal-field">
+    {{ form.response_comment }}
+  </div>
+  
+  <button type="submit">Respond</button>
+  </form>
+  {% endif %}
+
+  
+  
+</div>
+{% endblock content %}
