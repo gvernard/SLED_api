@@ -825,3 +825,11 @@ class DownloadForm(BSModalForm):
                            widget=forms.NumberInput(attrs={"disabled": True}),
                            )
     
+
+
+class LensAskAccessForm(BSModalModelForm):
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the lens owner, justifying why you require access to the private lens.','rows':3,'cols':30}))
+
+    class Meta:
+        model = Lenses
+        fields = ['id']

@@ -1,6 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
-
+{% load sled_user_extras %}
 
 {% block content %}
 {% include "modal_container.html" %}
@@ -437,7 +437,16 @@
 		    <img class="sled-mugshot-icon" src="{{ imaging.image.url }}">
 		    {% endif %}
 		  </td>
-		  <td><a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a></td>
+		  <td>
+		    <a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a>
+		    {% can_access imaging.lens user as flag %}
+		    {% if not flag %}
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' imaging.lens.pk %}">
+		      <img src="{% static 'icons/send-fill.svg' %}">
+		      Ask access
+		    </button>
+		    {% endif %}
+		  </td>
 		  <td>{{ imaging.instrument.name }}</td>
 		  <td>{{ imaging.band.name }}</td>
 		  <td>{{ imaging.date_taken }}</td>
@@ -559,7 +568,16 @@
 		    <img class="sled-mugshot-icon" src="{{ spectrum.image.url }}">
 		    {% endif %}
 		  </td>
-		  <td><a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens.name }}</a></td>
+		  <td>
+		    <a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens.name }}</a>
+		    {% can_access spectrum.lens user as flag %}
+		    {% if not flag %}
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' spectrum.lens.pk %}">
+		      <img src="{% static 'icons/send-fill.svg' %}">
+		      Ask access
+		    </button>
+		    {% endif %}
+		  </td>
 		  <td>{{ spectrum.instrument.name }}</td>
 		  <td>{{ spectrum.date_taken }}</td>
 		  <td>{{ spectrum.access_level }}</td>
@@ -797,6 +815,14 @@
 		  <td><input name="ids" type="checkbox" value="{{ redshift.id }}"></td>
 		  <td>
 		    <a href="{{ redshift.lens.get_absolute_url }}">{{ redshift.lens }}</a>
+		    {% can_access redshift.lens user as flag %}
+		    {% if not flag %}
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' redshift.lens.pk %}">
+		      <img src="{% static 'icons/send-fill.svg' %}">
+		      Ask access
+		    </button>
+		    {% endif %}
+		  </td>
 		  </td>
 		  <td style="padding-right:10px;">
 		    Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>

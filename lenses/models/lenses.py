@@ -9,6 +9,7 @@ from multiselectfield import MultiSelectField
 
 from dirtyfields import DirtyFieldsMixin
 from actstream import action
+from guardian.shortcuts import get_users_with_perms
 
 import os
 import math
@@ -504,3 +505,13 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                 old.update({k: v})
         
         return old, new
+
+
+    def has_access(self,user):
+        if self.access_level == "PUB":
+            return True
+        else:
+            qset_users = get_users_with_perms(self,with_group_users=True,only_with_perms_in=['view_lenses'])
+            return qset_users.filter(id=user.id).exists()
+
+        

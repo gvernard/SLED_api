@@ -121,7 +121,7 @@ class CollectionCreateView(BSModalCreateView):
 
 
 @method_decorator(login_required,name='dispatch')
-class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view pass the object id automatically
+class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view passes the object id automatically
     model = Collection
     template_name = 'sled_collections/collection_ask_access.html'
     form_class = CollectionAskAccessForm

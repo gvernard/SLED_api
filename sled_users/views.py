@@ -144,7 +144,6 @@ class UserProfileView(TemplateView):
         N_owned = ConfirmationTask.accessible_objects.owned(user).count()
         N_recipient = ConfirmationTask.custom_manager.all_as_recipient(user).count()
         N_tasks_all = N_owned + N_recipient
-
         
         # Get unread notifications
         unread_notifications = user.notifications.unread()
@@ -246,7 +245,6 @@ class UserProfileView(TemplateView):
                 cols_groups_with_access[i] = ','.join(filter(None,[g.name for g in groups_with_access]))
             else:
                 cols_groups_with_access[i] = ''
-
 
 
         context={'user':user,

@@ -578,7 +578,7 @@ class Users(AbstractUser,GuardianUserMixin):
         self.checkOwnsList(obj_list)
 
         if obj_type == 'Lenses':
-            type_list = ['CedeOwnership', 'MakePrivate', 'DeleteObject', 'AskPrivateAccess']
+            type_list = ['CedeOwnership', 'MakePrivate', 'DeleteObject', 'AskPrivateAccess','MergeLenses']
         elif obj_type == 'SledGroup':
             type_list = ['CedeOwnership', 'MakePrivate', 'DeleteObject', 'AskPrivateAccess', 'AskToJoinGroup']
         else:

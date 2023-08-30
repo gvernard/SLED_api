@@ -257,6 +257,28 @@ class ExportToCSV(ModalIdsBaseMixin):
             writer.writerow([getattr(lens,field) for field in field_names])
         return response
 
+
+
+@method_decorator(login_required,name='dispatch')
+class LensAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view passes the object id automatically
+    model = Lenses
+    template_name = 'lenses/lens_ask_access.html'
+    form_class = forms.LensAskAccessForm
+    success_url = reverse_lazy('sled_users:user-profile')
+
+    def get_queryset(self):
+        return Lenses.objects.all()
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            lens = self.get_object()
+            cargo = {'object_type':'Lenses','object_ids': [lens.id],'comment':form.cleaned_data['justification']}
+            receiver = Users.objects.filter(id=lens.owner.id) # receiver must be a queryset
+            mytask = ConfirmationTask.create_task(self.request.user,receiver,'AskPrivateAccess',cargo)
+            messages.add_message(self.request,messages.WARNING,"Lens owner (%s) has been notified about your request." % lens.owner.username)
+        response = super().form_valid(form)
+        return response
+    
 #=============================================================================================================================
 ### END: Modal views
 #=============================================================================================================================
