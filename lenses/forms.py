@@ -25,7 +25,10 @@ class BaseLensForm(forms.ModelForm):
         for field_name,field in zip(self.fields,self.fields.values()):
             if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
-
+        
+    def clean(self):
+        pass
+                
             
 class BaseLensUpdateForm(BaseLensForm):
     class Meta:
@@ -49,7 +52,6 @@ class LensModalUpdateForm(BSModalModelForm):
             'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'owner': forms.HiddenInput(),
-            #'access_level': forms.HiddenInput(),
         }
         
     def __init__(self, *args, **kwargs):
@@ -61,7 +63,7 @@ class LensModalUpdateForm(BSModalModelForm):
 
     def clean(self):
         cleaned_data = super(LensModalUpdateForm,self).clean()
-
+        
         if not self.has_changed():
             self.add_error('__all__',"No changes detected!")
             return
@@ -69,13 +71,14 @@ class LensModalUpdateForm(BSModalModelForm):
         # Need to call model clean methods here to raise and catch any errors
         instance = Lenses(**cleaned_data)
         try:
-            instance.full_clean()
+            if self.instance.name == instance.name:
+                instance.full_clean(exclude=["name"])
+            else:
+                instance.full_clean()
         except ValidationError as e:
             self.add_error('__all__',"Please fix the errors below!")
-            return
 
-        if self.errors:
-            self.add_error('__all__',"Please fix the errors below!")
+
         
             
 class LensDeleteForm(BSModalForm):
@@ -181,8 +184,8 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
                     
 class ResolveDuplicatesForm(forms.Form):
     mychoices = (
-        ('no','No, this is a duplicate, ignore it'),
-        ('yes','Yes, insert to the database <b>as a new lens</b> anyway'),
+        ('no','Do nothing'),
+        ('yes','Treat this is as a distinct lens'),
     )
     insert = forms.ChoiceField(required=True,
                                label='Submit this lens?',

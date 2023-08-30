@@ -474,7 +474,20 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
     
     def compare(self, obj):
-        included_keys = 'alt_name', 'flag_confirmed', 'flag_candidate', 'flag_contaminant', 'score', 'image_sep','info', 'n_images', 'mugshot'
+        included_keys = ['alt_name',
+                         'flag_confirmed',
+                         'flag_candidate',
+                         'flag_contaminant',
+                         'score',
+                         'lens_type',
+                         'source_type',
+                         'contaminant_type',
+                         'image_conf',
+                         'image_sep',
+                         'info',
+                         'n_images',
+                         'mugshot'
+                         ]
         return self._compare(self, obj, included_keys)
 
     def _compare(self, obj1, obj2, included_keys):

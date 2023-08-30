@@ -2,7 +2,6 @@ from django.db import models,connection
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
-from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.core import serializers
 from django.urls import reverse
@@ -23,6 +22,9 @@ from actstream.models import followers,following
 import abc
 import json
 import os
+import string
+import random
+import shutil
 
 from . import Lenses, SingleObject, Collection, SledGroup, AdminCollection
 
@@ -547,6 +549,10 @@ class ResolveDuplicates(ConfirmationTask):
             for i in range(0,len(objs_to_merge)):
                 if mode == "add":
                     # Create a new PRI lens
+                    if objs_to_merge[i].object.name == objs_to_merge[i].object.create_name():
+                        letters = string.ascii_lowercase
+                        rand = ''.join(random.choice(letters) for i in range(3))
+                        objs_to_merge[i].object.name = 'tmp_'+rand+'_'+objs_to_merge[i].object.name
                     objs_to_merge[i].object.owner = self.owner
                     objs_to_merge[i].object.mugshot.name = 'temporary/' + self.owner.username + '/' + objs_to_merge[i].object.mugshot.name
                     objs_to_merge[i].object.access_level = 'PRI'
@@ -608,9 +614,12 @@ class MergeLenses(ConfirmationTask):
                         old_value = getattr(target,field_name)
                         setattr(target,field_name,old_value+'. '+new_value)
                     elif field_name == 'mugshot':
-                        new_file = ContentFile(new.mugshot.read())
-                        new_file.name = 'tmp'
-                        target.mugshot = new_file
+                        letters = string.ascii_lowercase
+                        rand = ''.join(random.choice(letters) for i in range(3))
+                        suffix = str(new.mugshot.name).split('.')[-1]
+                        dest_fname = '/lenses/'+rand+'.'+suffix                        
+                        shutil.copy(str(settings.MEDIA_ROOT)+new.mugshot.name,str(settings.MEDIA_ROOT)+dest_fname)
+                        target.mugshot.name = dest_fname
                     else:
                         new_value = getattr(new,field_name)
                         setattr(target,field_name,new_value)

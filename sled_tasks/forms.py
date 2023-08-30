@@ -58,7 +58,6 @@ class MergeLensesForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(MergeLensesForm,self).clean()
-        print(cleaned_data)
         response = cleaned_data.get('response')
         if  response == 'yes':
             items = cleaned_data.get('items')
