@@ -72,7 +72,8 @@ class Band(models.Model):
     
 class DataBase(models.Model):
     lens = models.ForeignKey(Lenses,
-                             on_delete=models.CASCADE,
+                             null=True,
+                             on_delete=models.SET_NULL,
                              related_name="%(class)s")
     instrument = models.ForeignKey(Instrument,
                                    verbose_name="Instrument",
@@ -99,7 +100,10 @@ class DataBase(models.Model):
 
 
     def is_orphan(self):
-        return not Lenses.objects.filter(id=self.lens.id).exists()
+        if self.lens is None:
+            return True
+        else:
+            return not Lenses.objects.filter(id=self.lens.id).exists()
         
         
         
@@ -385,7 +389,8 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
         
 class Redshift(SingleObject,DirtyFieldsMixin):
     lens = models.ForeignKey(Lenses,
-                             on_delete=models.CASCADE,
+                             null=True,
+                             on_delete=models.SET_NULL,
                              related_name="%(class)s")
 
     # This is if we want to link the redshift to any specific spectrum, TBD
@@ -493,4 +498,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
 
 
     def is_orphan(self):
-        return not Lenses.objects.filter(id=self.lens.id).exists()
+        if self.lens is None:
+            return True
+        else:
+            return not Lenses.objects.filter(id=self.lens.id).exists()
