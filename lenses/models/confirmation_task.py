@@ -268,11 +268,12 @@ class DeleteObject(ConfirmationTask):
         return ['yes','no']
 
     def finalizeTask(self):
-        # Here, only one recipient to get a response from
-        response = self.heard_from().get().response
+        responses = self.heard_from().annotate(name=F('recipient__username')).values_list('response',flat=True)
+        print(responses)
+        
         from . import Users
         admin = Users.getAdmin().first()
-        if response == 'yes':
+        if len(set(responses)) == 1 and responses[0] == 'yes':
             #cargo = json.loads(self.cargo)
             #getattr(.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids']).delete()
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
@@ -289,8 +290,42 @@ class DeleteObject(ConfirmationTask):
                 for u in users:
                     self.owner.remove_from_third_collections(objs,u)
 
-            objs.delete()
-            
+            if self.cargo['object_type'] != 'Lenses':
+                objs.delete()
+            else:
+
+                ### Unfollow lens ####################################################################
+                for lens in objs:
+                    lens_followers = followers(lens)
+                    for user in lens_followers:
+                        unfollow(user,lens,send_action=False)
+                    
+                ### Remove these lenses from any linked papers
+                qset = apps.get_model(app_label="lenses",model_name='Paper').objects.filter(lenses_in_paper__id__in=self.cargo['object_ids'])
+                for paper in qset:
+                    paper.lenses_in_paper.remove(*objs)
+                print(qset)
+                
+                ### Delete linked data: Redshifts, Imaging, Spectrum, and Catalogue
+                print(self.cargo['users_lenses'])
+                for user,lenses_ids in self.cargo['users_lenses'].items():
+                    print("For user: ",user)
+                    qset = apps.get_model(app_label="lenses",model_name='Redshift').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids) & Q(owner__username=user))
+                    print(qset)
+                    qset.delete()
+                    qset = apps.get_model(app_label="lenses",model_name='Imaging').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids) & Q(owner__username=user))
+                    print(qset)
+                    qset.delete()
+                    qset = apps.get_model(app_label="lenses",model_name='Spectrum').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids) & Q(owner__username=user))
+                    print(qset)
+                    qset.delete()
+                qset = apps.get_model(app_label="lenses",model_name='Catalogue').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids))
+                qset.delete()
+                print(qset)
+
+                objs.delete()
+                
+                    
         else:
             notify.send(sender=admin,
                         recipient=self.owner,

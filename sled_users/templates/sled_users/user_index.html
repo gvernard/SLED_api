@@ -439,12 +439,16 @@
 		  </td>
 		  <td>
 		    <a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a>
+		    {% if imaging.is_orphan %}
+		    DELETED
+		    {% else %}
 		    {% can_access imaging.lens user as flag %}
 		    {% if not flag %}
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' imaging.lens.pk %}">
 		      <img src="{% static 'icons/send-fill.svg' %}">
 		      Ask access
 		    </button>
+		    {% endif %}
 		    {% endif %}
 		  </td>
 		  <td>{{ imaging.instrument.name }}</td>
@@ -570,12 +574,16 @@
 		  </td>
 		  <td>
 		    <a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens.name }}</a>
+		    {% if spectrum.is_orphan %}
+		    DELETED
+		    {% else %}
 		    {% can_access spectrum.lens user as flag %}
 		    {% if not flag %}
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' spectrum.lens.pk %}">
 		      <img src="{% static 'icons/send-fill.svg' %}">
 		      Ask access
 		    </button>
+		    {% endif %}
 		    {% endif %}
 		  </td>
 		  <td>{{ spectrum.instrument.name }}</td>
@@ -815,12 +823,16 @@
 		  <td><input name="ids" type="checkbox" value="{{ redshift.id }}"></td>
 		  <td>
 		    <a href="{{ redshift.lens.get_absolute_url }}">{{ redshift.lens }}</a>
+		    {% if redshift.is_orphan %}
+		    DELETED
+		    {% else %}
 		    {% can_access redshift.lens user as flag %}
 		    {% if not flag %}
 		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' redshift.lens.pk %}">
 		      <img src="{% static 'icons/send-fill.svg' %}">
 		      Ask access
 		    </button>
+		    {% endif %}
 		    {% endif %}
 		  </td>
 		  </td>

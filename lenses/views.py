@@ -36,6 +36,7 @@ from bootstrap_modal_forms.utils import is_ajax
 from notifications.signals import notify
 from actstream import action
 from actstream.actions import follow,unfollow,is_following
+from actstream.models import followers,following
 
 import numpy as np
 from pprint import pprint
@@ -90,21 +91,48 @@ class LensDeleteView(ModalIdsBaseMixin):
         pub = qset.filter(access_level='PUB')
         if pub:
             # confirmation task to delete the public lenses
-            cargo = {'object_type': pub[0]._meta.model.__name__,
+            object_type = pub[0]._meta.model.__name__
+            cargo = {'object_type': object_type,
                      'object_ids': [],
+                     'users_lenses': {},
+                     'user_admin': Users.selectRandomAdmin()[0].username,
                      'comment': justification}
+
+            # Get object ids and all user-object pairs
+            all_users = []
+            lenses_users = {}
             for obj in pub:
-                cargo['object_ids'].append(obj.id)
-            cargo['user_admin_name']= Users.selectRandomAdmin()[0].username
-            mytask = ConfirmationTask.create_task(self.request.user,Users.getAdmin(),'DeleteObject',cargo)
-            message = "The admins have been notified of your request to delete <b>%d</b> public lenses." % (len(pub))
+                imaging_owners = Users.objects.filter(Q(imaging__access_level='PUB') & Q(imaging__lens=obj) & Q(imaging__exists=True))
+                spectra_owners = Users.objects.filter(Q(spectrum__access_level='PUB') & Q(spectrum__lens=obj) & Q(spectrum__exists=True))
+                redshift_owners = Users.objects.filter(Q(redshift__access_level='PUB') & Q(redshift__lens=obj))
+                users = imaging_owners | spectra_owners | redshift_owners
+                all_users = all_users + list(users.distinct().values_list("username",flat=True))
+                lenses_users[obj.id] = []
+                for user in all_users:
+                    lenses_users[obj.id].append(user)
+                
+            cargo['object_ids'] = list(lenses_users.keys())
+            all_users = list(set(all_users))
+
+            
+            # Gather all the lenses that are relevant to a user
+            for user in all_users:
+                cargo['users_lenses'][user] = []
+                for lens,users in lenses_users.items():
+                    if user in users:
+                        cargo['users_lenses'][user].append(lens)
+        
+            users = Users.objects.filter(username__in=all_users)
+            admin = Users.getAdmin()
+            recipients = users | admin
+            mytask = ConfirmationTask.create_task(self.request.user,recipients,'DeleteObject',cargo)
+            message = "The admins and all users with links to these <b>%d</b> public lenses have been notified of your request to delete them." % (len(pub))
             messages.add_message(self.request,messages.WARNING,message)
 
         pri = qset.filter(access_level='PRI')
         if pri:
             object_type = pri[0]._meta.model.__name__
-            model_ref = apps.get_model(app_label='lenses',model_name=object_type)
-            perm = "view_"+object_type
+            perm = "view_lenses"
 
             ### Notifications per user #####################################################
             users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
@@ -123,7 +151,7 @@ class LensDeleteView(ModalIdsBaseMixin):
                             object_type=object_type,
                             object_names=names)
 
-            ### Notifications per group #####################################################
+            ### Notifications per group ##########################################################
             groups_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'groups')
             id_list = [g.id for g in groups_with_access]
             gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
@@ -141,7 +169,13 @@ class LensDeleteView(ModalIdsBaseMixin):
             users = list(set( uqset.exclude(username=self.request.user.username) ))
             for u in users:
                 self.request.user.remove_from_third_collections(pri,u)
-            
+
+            ### Unfollow lens ####################################################################
+            for lens in pri:
+                lens_followers = followers(lens)
+                for user in lens_followers:
+                    unfollow(user,lens,send_action=False)
+                
             ### Finally, delete the private lenses
             for lens in pri:
                 lens.delete()

@@ -101,6 +101,7 @@
 	<img src="{% static 'icons/pencil.svg' %}" alt="pencil">
 	Update lens
       </button>
+      {% if lens.access_level == "PRI" %}
       <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
 	<img src="{% static 'icons/person-dash-fill.svg' %}">
 	Revoke access
@@ -113,12 +114,12 @@
 	<img src="{% static 'icons/people-fill.svg' %}" >
 	Make public
       </button>
-      
-      <!-- The buttons below should be hidden as extra actions -->
+      {% else %}
       <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
 	<img src="{% static 'icons/lock-fill.svg' %}" >
 	Make private
       </button>
+      {% endif %}
       <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
 	<img src="{% static 'icons/forward-fill.svg' %}" >
 	Cede ownership

@@ -98,6 +98,9 @@ class DataBase(models.Model):
         abstract = True
 
 
+    def is_orphan(self):
+        return not Lenses.objects.filter(id=self.lens.id).exists()
+        
         
         
 class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
@@ -487,3 +490,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
 
         super(Redshift,self).save(*args,**kwargs)
+
+
+    def is_orphan(self):
+        return not Lenses.objects.filter(id=self.lens.id).exists()
