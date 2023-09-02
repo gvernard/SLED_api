@@ -195,23 +195,13 @@ def lens_search(lenses,form,user):
                 args = {keywords[k].split('_max')[0]+'__lte':float(value)}
                 lenses = lenses.filter(**args).order_by('ra')
 
-            if keywords[k] in ['lens_type', 'source_type', 'image_conf']:
+            if keywords[k] in ['lens_type', 'source_type', 'image_conf', 'flag']:
                 if len(value) > 0:
                     search_params = Q()
                     for i in range(len(value)):
                         search_params = search_params | Q((keywords[k]+'__contains', value[i]))
                         if i==len(value)-1:
                             lenses = lenses.filter(search_params)
-                                
-            if 'flag_' in keywords[k]:
-                if 'flag_un' in keywords[k]:
-                    keywords[k] = 'flag_'+keywords[k].split('flag_un')[1]
-                    value = False
-                    args = {keywords[k]:value}
-                    lenses = lenses.filter(**args)
-                else:
-                    args = {keywords[k]:value}
-                    lenses = lenses.filter(**args)    
                         
     #come back to the special case where RA_min is less than 0hours
     if over_meridian:

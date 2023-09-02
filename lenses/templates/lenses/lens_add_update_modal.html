@@ -88,20 +88,12 @@ Update Lens {{ lens.name }}
                 <td>{{ form.z_source }}</td>
               </tr>
               <tr>
-                <td>{{ form.flag_confirmed.errors }}</td>
+                <td>{{ form.flag.errors }}</td>
 		<td>
-		  <div class="sled-help-tooltip">{{ form.flag_confirmed.label|safe }}</div>
-		  <div class="sled-help-tooltip-content">{{ form.flag_confirmed.help_text|safe }}</div>
+		  <div class="sled-help-tooltip">{{ form.flag.label|safe }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.flag.help_text|safe }}</div>
 		</td>
-                <td>{{ form.flag_confirmed }}</td>
-              </tr>
-              <tr>
-                <td>{{ form.flag_contaminant.errors }}</td>
-		<td>
-		  <div class="sled-help-tooltip">{{ form.flag_contaminant.label|safe }}</div>
-		  <div class="sled-help-tooltip-content">{{ form.flag_contaminant.help_text|safe }}</div>
-		</td>
-                <td>{{ form.flag_contaminant }}</td>
+                <td>{{ form.flag }}</td>
               </tr>
             </table>
           </div>
@@ -135,6 +127,14 @@ Update Lens {{ lens.name }}
 		  <div class="sled-help-tooltip-content">{{ form.source_type.help_text|safe }}</div>
 		</td>
                 <td>{{ form.source_type }}</td>
+              </tr>
+              <tr>
+                <td>{{ form.contaminant_type.errors }}</td>
+                <td>
+		  <div class="sled-help-tooltip">{{ form.contaminant_type.label|safe }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.contaminant_type.help_text|safe }}</div>
+		</td>
+                <td>{{ form.contaminant_type }}</td>
               </tr>
               <tr>
                 <td>{{ form.image_conf.errors }}</td>

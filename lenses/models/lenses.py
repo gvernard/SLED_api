@@ -186,19 +186,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 null=True,
                                 help_text="A list of comma-separated strings for the alternative names of the systems")
 
-    flag_confirmed = models.BooleanField(default=False,
-                                         blank=True,
-                                         verbose_name="Confirmed",
-                                         help_text="Set to true if the lens has been confirmed by a publication.")
-    flag_contaminant = models.BooleanField(default=False,
-                                           blank=True,
-                                           verbose_name="Contaminant",
-                                           help_text="Set to true if the object has been confirmed as NOT a lens by a publication.")
-    flag_candidate = models.BooleanField(default=False,
-                                           blank=True,
-                                           verbose_name="Candidate",
-                                           help_text="Set to true if the object is a candidate.")
-
     score = models.DecimalField(blank=True,
                              null=True,
                              max_digits=7,
@@ -229,6 +216,19 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
     mugshot = models.ImageField(upload_to='lenses')
+    
+    FlagChoices = (
+        ('CONFIRMED','Confirmed'),
+        ('CANDIDATE','Candidate'),
+        ('CONTAMINANT','Contaminant'),
+    )
+    flag = models.CharField(max_length=20,
+                            blank=False,
+                            null=False,
+                            default='CANDIDATE',
+                            verbose_name="Flag",
+                            help_text="Whether the system is a confirmed lens, a candidate, or a confirmed contaminant.",
+                            choices=FlagChoices)
     
     ImageConfChoices = (
         ('LONG-AXIS CUSP','Long-axis Cusp'),
@@ -319,14 +319,15 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         ('RING GALAXY', 'Ring Galaxy'),
         ('PLANETARY NEBULA', 'Ring Galaxy')
     )
-    contaminant_type = models.CharField(max_length=100,
+    contaminant_type = MultiSelectField(max_length=100,
                                    blank=True,
                                    null=True,
                                    verbose_name="Contaminant type",                                        
+                                   help_text="The type of contaminant, if known.",
                                    choices=ContaminantTypeChoices)
 
     # Fields to report updates on
-    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag_confirmed','flag_contaminant','flag_candidate','image_sep','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type','owner','access_level']
+    FIELDS_TO_CHECK = ['ra','dec','name','alt_name','flag','image_sep','image_conf','info','n_img','mugshot','lens_type','source_type','contaminant_type','owner','access_level']
 
     
     proximate = ProximateLensManager()
@@ -342,8 +343,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             CheckConstraint(check=Q(n_img__range=(2,20)),name='n_img_range'),
             CheckConstraint(check=Q(ra__range=(0,360)),name='ra_range'),
             CheckConstraint(check=Q(dec__range=(-90,90)),name='dec_range'),
-            CheckConstraint(check=Q(image_sep__range=(0,100)),name='image_sep_range'),
-            CheckConstraint(check=~(Q(flag_confirmed=True) & Q(flag_contaminant=True)),name='flag_check'),
+            CheckConstraint(check=Q(image_sep__range=(0,100)),name='image_sep_range')
         ]
 
 
@@ -360,9 +360,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
             
     def clean(self):
-        if self.flag_confirmed and self.flag_contaminant: # flag_check
-            raise ValidationError('The object cannot be both a lens and a contaminant.')
-
         jname = self.create_name()
         if not self.name:
             self.name = jname
@@ -374,7 +371,11 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                 if jname not in altnames:
                     altnames.append(jname)
                     self.alt_name = ', '.join(altnames)
+                    
+        if self.contaminant_type and self.flag != 'CONTAMINANT':
+            raise ValidationError("To set the Contaminant Type the lens must be flagged as a Contaminant.")
 
+                    
             
     def save(self,*args,**kwargs):
         if self._state.adding:
@@ -476,9 +477,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     
     def compare(self, obj):
         included_keys = ['alt_name',
-                         'flag_confirmed',
-                         'flag_candidate',
-                         'flag_contaminant',
+                         'flag',
                          'score',
                          'lens_type',
                          'source_type',

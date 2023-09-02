@@ -169,28 +169,24 @@
 	  <div class="sled-help-tooltip-content">{{ lens.get_source_type_help_text|safe }}</div>
 	</th>
         <th>
+	  <div class="sled-help-tooltip">{{ lens.get_contaminant_type_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_contaminant_type_help_text|safe }}</div>
+	</th>
+        <th>
 	  <div class="sled-help-tooltip">{{ lens.get_image_conf_label|safe }}</div>
 	  <div class="sled-help-tooltip-content">{{ lens.get_image_conf_help_text|safe }}</div>
 	</th>
         <th>
-	  <div class="sled-help-tooltip">{{ lens.get_flag_confirmed_label|safe }}</div>
-	  <div class="sled-help-tooltip-content">{{ lens.get_flag_confirmed_help_text|safe }}</div>
-	</th>
-        <th>
-	  Flag Candidate
-	</th>
-        <th>
-	  <div class="sled-help-tooltip">{{ lens.get_flag_contaminant_label|safe }}</div>
-	  <div class="sled-help-tooltip-content">{{ lens.get_flag_contaminant_help_text|safe }}</div>
+	  <div class="sled-help-tooltip">{{ lens.get_flag_label|safe }}</div>
+	  <div class="sled-help-tooltip-content">{{ lens.get_flag_help_text|safe }}</div>
 	</th>
       </tr>
       <tr>
         <td>{{lens.lens_type}}</td>
         <td>{{lens.source_type}}</td>
+        <td>{{lens.contaminant_type}}</td>
         <td>{{lens.image_conf}}</td>
-        <td>{{lens.flag_confirmed}}</td>
-        <td>{{lens.flag_candidate}}</td>
-        <td>{{lens.flag_contaminant}}</td>
+        <td>{{lens.flag}}</td>
       </tr>
     </table>
   </div>

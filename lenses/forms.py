@@ -17,13 +17,14 @@ class BaseLensForm(forms.ModelForm):
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'contaminant_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
         }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
         for field_name,field in zip(self.fields,self.fields.values()):
-            if field_name not in ['info','lens_type','source_type','image_conf','access_level','mugshot']:
+            if field_name not in ['info','lens_type','source_type','image_conf','contaminant_type','access_level','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
         
     def clean(self):
@@ -38,6 +39,7 @@ class BaseLensUpdateForm(BaseLensForm):
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'contaminant_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
         }
 
 
@@ -51,6 +53,7 @@ class LensModalUpdateForm(BSModalModelForm):
             'lens_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'source_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'image_conf': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
+            'contaminant_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
             'owner': forms.HiddenInput(),
         }
         
@@ -58,7 +61,7 @@ class LensModalUpdateForm(BSModalModelForm):
         super().__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
         for field_name,field in zip(self.fields,self.fields.values()):
-            if field_name not in ['info','lens_type','source_type','image_conf','access_level','owner','mugshot']:
+            if field_name not in ['info','lens_type','source_type','image_conf','contaminant_type','access_level','owner','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
 
     def clean(self):
@@ -341,27 +344,19 @@ class LensQueryForm(forms.Form):
                                    validators=[MinValueValidator(0.0,"Score must be positive."),
                                                MaxValueValidator(3.,"Score must be less than or equal to 3.")])
 
-
-    flag_confirmed     = forms.NullBooleanField(required=False,
-                                                label="Confirmed",
-                                                widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                                help_text="Select only confirmed lenses (confirmed field set to True).", initial=None)
-    flag_unconfirmed   = forms.NullBooleanField(required=False,
-                                                label="Unconfirmed",
-                                                widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                                help_text="Select only un-confirmed lenses (confirmed field set to False).", initial=None)
-    flag_contaminant   = forms.NullBooleanField(required=False,
-                                                label="Contaminant",
-                                                widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                                help_text="Select only confirmed contaminants (contaminant field set to True).", initial=None)
-    flag_uncontaminant = forms.NullBooleanField(required=False,
-                                                label="Non-contaminant",
-                                                widget=forms.CheckboxInput(attrs={"class":"jb-checkbox-input"}),
-                                                help_text="Select only unconfirmed contaminants (contaminant field set to False).", initial=None)
-    
     # Django-select2 widget for lens type, source type, and image_conf
     ds2_widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False})
-
+    
+    FlagChoices = (
+        ('CONFIRMED','Confirmed'),
+        ('CANDIDATE','Candidate'),
+        ('CONTAMINANT','Contaminant'),
+    )
+    flag = forms.MultipleChoiceField(choices=FlagChoices,
+                                     widget=ds2_widget,
+                                     required=False,
+                                     label="Flag",
+                                     help_text="Select whether the system is a confirmed lens, a candidate, or a confirmed contaminant (OR clause).")
     
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -441,12 +436,6 @@ class LensQueryForm(forms.Form):
         #if self.cleaned_data.get('ra_min') and self.cleaned_data.get('ra_max'):
         #    if float(self.cleaned_data.get('ra_min')) > float(self.cleaned_data.get('ra_max')):
         #        raise ValidationError('The maximum ra is lower than the minimum.')
-
-        # Change these fields' values from False to None
-        for flag in ['flag_confirmed', 'flag_unconfirmed', 'flag_contaminant', 'flag_uncontaminant']:
-            if not self.cleaned_data.get(flag):
-                self.cleaned_data = self.cleaned_data.copy()
-                self.cleaned_data[flag] = None
 
         if self.cleaned_data.get('dec_min') and self.cleaned_data.get('dec_max'):
             if float(self.cleaned_data.get('dec_min')) > float(self.cleaned_data.get('dec_max')):
