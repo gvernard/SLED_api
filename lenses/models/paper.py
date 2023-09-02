@@ -108,7 +108,7 @@ class PaperLensConnection(models.Model):
     discovery = models.BooleanField(help_text="A flag for a discovery paper. Must be unique per lens.")
     classification = models.BooleanField(help_text="A flag for a classication paper.")
     model = models.BooleanField(help_text="A flag for a modelling paper.")
-    redshift = models.BooleanField(help_text="A flag for a paper measuring the redshift.")
+    #redshift = models.BooleanField(help_text="A flag for a paper measuring the redshift.")
 
     #class Meta():
     #    constraints = [

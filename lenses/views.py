@@ -415,16 +415,15 @@ class LensDetailView(DetailView):
         # All papers are public, no need for the accessible_objects manager
         allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
                                                     model=F('paperlensconnection__model'),
-                                                    classification=F('paperlensconnection__classification'),
-                                                    redshift=F('paperlensconnection__redshift')
+                                                    classification=F('paperlensconnection__classification'), #redshift=F('paperlensconnection__redshift')
                                                     )
         labels = []
         for paper in allpapers:
             flags = []
             if paper.discovery:
                 flags.append('discovery')
-            if paper.redshift:
-                flags.append('redshift')
+            #if paper.redshift:
+            #    flags.append('redshift')
             if paper.model:
                 flags.append('model')
             if paper.classification:

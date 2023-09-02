@@ -48,7 +48,7 @@ def combined_query(lens_form,redshift_form,imaging_form,spectrum_form,catalogue_
 
 
 def catalogue_search(lenses,cleaned_form,user):
-    conditions = Q() #catalogue__exists=True)
+    conditions = Q(catalogue__exists=True)
     for key,value in cleaned_form.items():
         if key not in ['instrument','instrument_and'] and value != None:
             if '_min' in key:
@@ -77,7 +77,7 @@ def catalogue_search(lenses,cleaned_form,user):
 
     
 def spectrum_search(lenses,cleaned_form,user):
-    conditions = Q() #spectrum__exists=True)
+    conditions = Q(spectrum__exists=True)
     for key,value in cleaned_form.items():
         if key not in ['instrument','instrument_and','wavelength_min','wavelength_max'] and value != None:
             if '_min' in key:
@@ -118,7 +118,7 @@ def spectrum_search(lenses,cleaned_form,user):
 
     
 def imaging_search(lenses,cleaned_form,user):
-    conditions = Q() #imaging__exists=True)
+    conditions = Q(imaging__exists=True)
     for key,value in cleaned_form.items():
         print(key, value)
         if key not in ['instrument','instrument_and'] and value != None:

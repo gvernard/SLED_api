@@ -33,6 +33,6 @@ class PaperSearchForm(forms.Form):
                 print('min > max')
                 self.add_error('__all__',"Min. year should be less than Max. year!")
                 
-
+#can we delete this class?
 class PaperQuickQueryForm(BSModalForm):
     dum = forms.CharField(label='dum')
