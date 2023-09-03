@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.dispatch import receiver
 from django.db.models.signals import pre_delete
+from django.apps import apps
 
 import simplejson as json
 from guardian.shortcuts import get_objects_for_group,remove_perm,get_perms_for_model
@@ -18,6 +19,9 @@ from actstream.models import target_stream
 from dirtyfields import DirtyFieldsMixin
 
 import inspect
+
+objects_with_group_access = ["Lenses","Collection","Imaging","Spectrum","Catalogue","Redshift"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+
 
 class SledGroup(Group,SingleObject,DirtyFieldsMixin):
     """
@@ -149,8 +153,18 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
             ad_col = AdminCollection.objects.create(item_type="Users",myitems=sled_user_qset)
             action.send(owner,target=self,verb='RemovedFromGroup',level='error',action_object=ad_col)
 
-
-
+    def getAccessibleObjects(self,object_types=None):
+        if object_types == None:
+            filtered_object_types = objects_with_group_access
+        else:
+            filtered_object_types = [x for x in object_types if x in objects_with_group_access]
+        objects = {}
+        for table in filtered_object_types:
+            model_ref = apps.get_model(app_label='lenses',model_name=table)
+            perm = 'view_'+table.lower()
+            print(perm)
+            objects[model_ref._meta.verbose_name_plural.title()] = get_objects_for_group(self,perm,klass=model_ref)
+        return objects
 
 
 #@receiver(pre_delete,sender=SledGroup)

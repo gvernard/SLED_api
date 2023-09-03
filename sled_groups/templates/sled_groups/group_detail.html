@@ -2,6 +2,7 @@
 {% load static %}
 {% load sled_group_extras %}
 {% load activity_tags %}
+{% load sled_user_extras %}
 
 
 {% block content %}
@@ -16,7 +17,7 @@
 
   <!-- Recent activity div -->
   {% if request.user|has_group:group.name %}
-  <div class="jb-activity">
+  <div class="jb-activity jb-table-no-lines">
     {% activity_stream 'target' group %}
     {% include "activity_object.html" with stream=stream max_entries=5 %}
     {% if stream|length > 5 %}
@@ -91,7 +92,7 @@
 
   <!-- List sensitive group details (group members, activity stream, access to objects, etc) -->
   {% if user == group.owner or request.user|has_group:group.name %}
-  <div>
+  <div class="jb-table-no-lines">
     <h1 class="jb-heading-2">Group member list</h1>
     <table>
       <tr>
@@ -113,10 +114,184 @@
 
 
   <h1 class="jb-heading-2">Group access to various object types and collections</h1>
-  (coming soon)
+
+
+  {% for model,qset in objects.items %}
+  {% if qset %}
+  <h1 class="jb-heading-2">{{ model }}</h1>
+
+  {% if model == 'Lenses' %}
+  {% include "lenses/lens_query_list.html" with lenses=qset %}
+  
+  {% elif model == 'Collections' %}
+  <table>
+    <thead>
+      <tr>
+	<th>Name</th>
+	<th>Item type</th>
+	<th>Description</th>
+	<th>Number of items</th>
+	<th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for collection in qset %}
+      <tr>
+	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
+	<td>{{ collection.item_type }}</td>
+	<td>{{ collection.description }}</td>
+	<td>{{ collection.myitems.all|length }}</td>
+	<td>
+	  <a href="{{ collection.owner.get_absolute_url }}">{{ collection.owner }}</a>
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+  {% elif model == 'Redshifts' %}
+  <table>
+    <thead>
+      <tr>
+	<th>Lens</th>
+	<th>Value</th>
+	<th>Method</th>
+	<th>Info</th>
+	<th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for redshift in qset %}
+      <tr>
+	<td>
+	  <a href="{{ redshift.lens.get_absolute_url }}">{{ redshift.lens }}</a>
+	</td>
+	<td style="padding-right:10px;">
+	  Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>
+	</td>
+	<td>
+	  {% if redshift.paper %}
+	  <a href="{{ redshift.paper }}">{{ redshift.method }}</a>
+	  {% else %}
+	  {{ redshift.method }}
+	  {% endif %}
+	</td>
+	<td>
+	  {{ redshift.info }}
+	</td>
+	<td>
+	  <a href="{{ redshift.owner.get_absolute_url }}">{{ redshift.owner }}</a>
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  
+  {% elif model == 'Imaging Data Entries' %}
+  <table>
+    <thead>
+      <tr>
+	<th></th>
+	<th>Lens</th>
+	<th>Instrument</th>
+	<th>Band</th>
+	<th>Date taken</th>
+	<th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for imaging in qset %}
+      <tr>
+	<td style="text-align:center" valign="'middle">
+	  {% if imaging.future %}
+	  Future
+	  {% else %}
+	  <img class="sled-mugshot-icon" src="{{ imaging.image.url }}">
+	  {% endif %}
+	</td>
+	<td>
+	  <a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a>
+	  {% if imaging.is_orphan %}
+	  DELETED
+	  {% else %}
+	  {% can_access imaging.lens user as flag %}
+	  {% if not flag %}
+	  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' imaging.lens.pk %}">
+	    <img src="{% static 'icons/send-fill.svg' %}">
+	    Ask access
+	  </button>
+	  {% endif %}
+	  {% endif %}
+	</td>
+	<td>{{ imaging.instrument.name }}</td>
+	<td>{{ imaging.band.name }}</td>
+	<td>{{ imaging.date_taken }}</td>
+	<td>
+	  <a href="{{ imaging.owner.get_absolute_url }}">{{ imaging.owner }}</a>
+	</td>
+      </tr>
+      {% endfor %}
+  </table>
+  
+
+  
+  {% elif model == 'Spectra' %}
+  <table>
+    <thead>
+      <tr>
+	<th></th>
+	<th>Lens</th>
+	<th>Instrument</th>
+	<th>Date taken</th>
+	<th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for spectrum in qset %}
+      <tr>
+	<td style="text-align:center" valign="'middle">
+	  {% if spectrum.future %}
+	  Future
+	  {% else %}
+	  <img class="sled-mugshot-icon" src="{{ spectrum.image.url }}">
+	  {% endif %}
+	</td>
+	<td>
+	  <a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens.name }}</a>
+	  {% if spectrum.is_orphan %}
+	  DELETED
+	  {% else %}
+	  {% can_access spectrum.lens user as flag %}
+	  {% if not flag %}
+	  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' spectrum.lens.pk %}">
+	    <img src="{% static 'icons/send-fill.svg' %}">
+	    Ask access
+	  </button>
+	  {% endif %}
+	  {% endif %}
+	</td>
+	<td>{{ spectrum.instrument.name }}</td>
+	<td>{{ spectrum.date_taken }}</td>
+	<td>
+	  <a href="{{ spectrum.owner.get_absolute_url }}">{{ spectrum.owner }}</a>
+	</td>
+      </tr>
+      {% endfor %}
+  </table>
+  
+  {% elif model == 'Catalogue Data Entries' %}
+  {% for catalogue in qset %}
+  {{ catalogue }}
+  {% endfor %}
+
+  
   {% endif %}
-  <br></br>
-  <br></br>
+  {% endif %}
+  {% endfor %}
+
+  
+  {% endif %}
 </div>
 
 

@@ -31,6 +31,10 @@ class GroupDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['group'] = self.object
+
+        objects = self.object.getAccessibleObjects()
+        context['objects'] = objects
+
         return context
     
     
