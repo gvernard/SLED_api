@@ -38,7 +38,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
                                    blank=True,
                                    help_text="A description for your collection."
                                    )
-    myitems = GM2MField('Lenses')
+    myitems = GM2MField('Lenses',related_name='collections',related_query_name='items')
     ItemTypeChoices = (
         ('Lenses','Lenses'),
         ('Scores','Scores'),

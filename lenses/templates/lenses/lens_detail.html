@@ -92,6 +92,16 @@
 	  and accessible by: {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
 	  {% endif %}
 	</li>
+	{% if other_owners %}
+	<li>
+	  Other owners: {{ other_owners|join:"," }}
+	</li>
+	{% endif %}
+	{% if collections %}
+	<li>
+	  Collections: {{ collections|join:"," }}
+	</li>
+	{% endif %}
       </ul>
     </div>
     
@@ -237,6 +247,8 @@
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
 	    </button>	
+	    {% else %}
+	    {{ redshift.owner }}
 	    {% endif %}
 	  </td>
 	</tr>

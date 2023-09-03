@@ -333,7 +333,7 @@ class LensDetailView(DetailView):
         allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True).filter(future=False)
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allcataloguedata = list(Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True))
-
+        
         following = is_following(self.request.user,context['lens'])
         
         ## Imaging data
@@ -411,6 +411,22 @@ class LensDetailView(DetailView):
         redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])
 
 
+        other_owners = []
+        if self.request.user == context['lens'].owner:
+            for instrument,imaging in display_images.items():
+                for band,img in imaging.items():
+                    other_owners += list(img.values_list('owner__username',flat=True))
+            for redshift in redshifts:
+                other_owners.append(redshift.owner.username)
+            other_owners += allspectra.values_list('owner__username',flat=True)
+            other_owners = set(other_owners)
+            other_owners.remove(context['lens'].owner.username)
+
+        collections = []
+        if self.request.user == context['lens'].owner:
+            qset_cols = Collection.accessible_objects.all(self.request.user).filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk=context['lens'].id))
+
+
             
         # All papers are public, no need for the accessible_objects manager
         allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
@@ -432,6 +448,8 @@ class LensDetailView(DetailView):
         paper_labels = [ ','.join(x) for x in labels ]
 
         context['following'] = following
+        context['other_owners'] = list(other_owners)
+        context['collections'] = qset_cols
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra
