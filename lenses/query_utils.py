@@ -154,22 +154,24 @@ def redshift_search(lenses,cleaned_form,user):
     if cleaned_form.get('z_source_min') or cleaned_form.get('z_source_max'):
         conditions.add(Q(**{'redshift__tag':'SOURCE'}),Q.AND)        
         if cleaned_form.get('z_source_min'):
-            conditions.add(Q(**{'redshift__value__gte':cleaned_form.get('z_source_min')}),Q.AND)
+            conditions.add(Q(**{'redshift__value__gte':float(cleaned_form.get('z_source_min'))}),Q.AND)
         if cleaned_form.get('z_source_max'):
-            conditions.add(Q(**{'redshift__value__lte':cleaned_form.get('z_source_max')}),Q.AND)
+            conditions.add(Q(**{'redshift__value__lte':float(cleaned_form.get('z_source_max'))}),Q.AND)
             
     if cleaned_form.get('z_lens_min') or cleaned_form.get('z_lens_max'):
         conditions.add(Q(**{'redshift__tag':'LENS'}),Q.AND)        
         if cleaned_form.get('z_lens_min'):
-            conditions.add(Q(**{'redshift__value__gte':cleaned_form.get('z_lens_min')}),Q.AND)
+            conditions.add(Q(**{'redshift__value__gte':float(cleaned_form.get('z_lens_min'))}),Q.AND)
         if cleaned_form.get('z_lens_max'):
-            conditions.add(Q(**{'redshift__value__lte':cleaned_form.get('z_lens_max')}),Q.AND)
+            conditions.add(Q(**{'redshift__value__lte':float(cleaned_form.get('z_lens_max'))}),Q.AND)
 
     if cleaned_form.get('z_method'):
         conditions.add(Q(**{'redshift__method':cleaned_form.get('z_method')}),Q.AND)
 
     print(conditions)
+    print(lenses)
     lenses = lenses.filter(conditions).distinct()
+    print(lenses)
     return lenses
 
 

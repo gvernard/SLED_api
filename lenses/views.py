@@ -420,7 +420,8 @@ class LensDetailView(DetailView):
                 other_owners.append(redshift.owner.username)
             other_owners += allspectra.values_list('owner__username',flat=True)
             other_owners = set(other_owners)
-            other_owners.remove(context['lens'].owner.username)
+            if context['lens'].owner.username in other_owners:
+                other_owners.remove(context['lens'].owner.username)
 
         collections = []
         if self.request.user == context['lens'].owner:

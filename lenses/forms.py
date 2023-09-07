@@ -776,7 +776,7 @@ class RedshiftQueryForm(forms.Form):
     RedshiftMethodChoices = (
         ('','Any'),
         ('PHOTO-Z','Photometric'),
-        ('SPECTRO','Spectroscopic'),
+        ('SPECTROSCOPIC','Spectroscopic'),
         ('OTHER','Other'),
     )
     z_method = forms.ChoiceField(choices=RedshiftMethodChoices,
