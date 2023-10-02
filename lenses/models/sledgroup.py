@@ -162,7 +162,6 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         for table in filtered_object_types:
             model_ref = apps.get_model(app_label='lenses',model_name=table)
             perm = 'view_'+table.lower()
-            print(perm)
             objects[model_ref._meta.verbose_name_plural.title()] = get_objects_for_group(self,perm,klass=model_ref)
         return objects
 
