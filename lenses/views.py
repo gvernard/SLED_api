@@ -426,7 +426,8 @@ class LensDetailView(DetailView):
         collections = []
         if self.request.user == context['lens'].owner:
             qset_cols = Collection.accessible_objects.all(self.request.user).filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk=context['lens'].id))
-
+        else:
+            qset_cols = Collection.accessible_objects.none()
 
             
         # All papers are public, no need for the accessible_objects manager
