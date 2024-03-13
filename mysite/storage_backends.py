@@ -1,6 +1,7 @@
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.utils import clean_name
+from urllib.parse import urljoin
 from django.utils.encoding import force_text
 
 
@@ -16,7 +17,6 @@ def safe_join(base, *paths):
 
     Paths outside the base path indicate a possible security sensitive operation.
     """
-    from urlparse import urljoin
     base_path = force_text(base)
     paths = map(lambda p: force_text(p), paths)
     final_path = urljoin(base_path + ("/" if not base_path.endswith("/") else ""), *paths)
