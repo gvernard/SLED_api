@@ -422,6 +422,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             print(default_storage.location,sled_fname)
             myfile = self.mugshot.read()
             default_storage.save(default_storage.location+sled_fname,myfile)
+            default_storage.mapa('Geia sou')
             self.mugshot.close()
             default_storage.delete(fname)
             self.mugshot.name = sled_fname
