@@ -425,7 +425,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             default_storage.copy(fname,sled_fname)            
             self.mugshot.name = default_storage.location + sled_fname
             super(Lenses,self).save(*args,**kwargs)
-            default_storage.delete(default_storage.location + fname)
+            default_storage.mydelete(fname)
 
             
     def __str__(self):

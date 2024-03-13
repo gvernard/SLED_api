@@ -59,7 +59,9 @@ class DatabaseFileStorage(S3Boto3Storage):
             CopySource=self.bucket_name + "/" + self.location + from_path,
             Key=self.location + to_path)
 
-        if copy_result['ResponseMetadata']['HTTPStatusCode'] == 200:
-            print('It worked!')
-        else:
-            print('SKAAATAAAA')
+    def mydelete(self,path):
+        self.connection.meta.client.delete(
+            Bucket=self.bucket_name,
+            Key=self.location + path
+        )
+
