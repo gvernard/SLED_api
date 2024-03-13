@@ -5,6 +5,7 @@ from django.db.models import Q, F, Func, FloatField, CheckConstraint
 from django.urls import reverse
 from django.conf import settings
 from functools import partial as curry
+from django.core.files.storage import default_storage
 from multiselectfield import MultiSelectField
 
 from dirtyfields import DirtyFieldsMixin
@@ -409,13 +410,14 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         
         # Create new file and remove old one
         super(Lenses,self).save(*args,**kwargs)
-        self.mugshot.rename('mapa')
         fname = '/'+self.mugshot.name
         if not os.path.exists(settings.MEDIA_ROOT+'/lenses/'):
             os.mkdir(settings.MEDIA_ROOT+'/lenses/')
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
         if fname != sled_fname:
-            os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+            #os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+            default_storage.save(sled_fname,self.mugshot)
+            default_storage.delete(fname)
             self.mugshot.name = sled_fname
 
         super(Lenses,self).save(*args,**kwargs)
