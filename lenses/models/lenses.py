@@ -421,10 +421,11 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         if fname != sled_fname:
             #os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             print(default_storage.location,sled_fname)
-            myfile = self.mugshot.read()
-            default_storage.save(default_storage.location+sled_fname,myfile)
-            self.mugshot.close()
-            default_storage.delete(fname)
+            #myfile = self.mugshot.read()
+            #default_storage.save(default_storage.location+sled_fname,myfile)
+            #self.mugshot.close()
+            #default_storage.delete(fname)
+            default_storage.copy(fname,sled_fname)
             
             self.mugshot.name = sled_fname
             super(Lenses,self).save(*args,**kwargs)

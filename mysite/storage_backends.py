@@ -12,5 +12,12 @@ class DatabaseFileStorage(S3Boto3Storage):
     default_acl = 'public-read'
     file_overwrite = False
 
-    def mapa(self,inp):
-        print(inp)
+
+    def copy(self,from_path,to_path):
+        from_path = self._normalize_name(self._clean_name(from_path))
+        to_path = self._normalize_name(self._clean_name(to_path))
+
+        copy_result = self.connection.meta.client.copy_object(
+            Bucket=self.bucket_name,
+            CopySource=self.bucket_name + "/" + self.location + from_path,
+            Key=self.location + to_path)
