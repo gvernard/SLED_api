@@ -16,7 +16,8 @@ class DatabaseFileStorage(S3Boto3Storage):
     def copy(self,from_path,to_path):
         from_path = self._normalize_name(self._clean_name(from_path))
         to_path = self._normalize_name(self._clean_name(to_path))
-
+        print(from_path,to_path)
+        
         copy_result = self.connection.meta.client.copy_object(
             Bucket=self.bucket_name,
             CopySource=self.bucket_name + "/" + self.location + from_path,
