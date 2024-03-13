@@ -54,10 +54,12 @@ class DatabaseFileStorage(S3Boto3Storage):
         #to_path = self._normalize_name(to_path)
         print(from_path,to_path)
         
-        copy_result = self.connection.meta.client.copy_object(
-            Bucket=self.bucket_name,
-            CopySource=self.bucket_name + "/" + self.location + from_path,
-            Key=self.bucket_name + "/" + self.location + to_path)
+        copy_result = self.connection.meta.client.copy(
+            {'Bucket':self.bucket_name,
+             'Key': self.location + from_path},
+            self.bucket_name,
+            self.location + to_path
+        )
 
         if copy_result['ResponseMetadata']['HTTPStatusCode'] == 200:
             print('It worked!')
