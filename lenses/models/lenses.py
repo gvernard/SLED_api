@@ -407,21 +407,23 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                 
             if len(dirty) > 0:
                 action.send(self.owner,target=self,verb='UpdateLog',level='info',fields=json.dumps(dirty))
-        
+
+            super(Lenses,self).save(*args,**kwargs)
+
+                
         # Create new file and remove old one
-        super(Lenses,self).save(*args,**kwargs)
         fname = '/'+self.mugshot.name
-        if not os.path.exists(settings.MEDIA_ROOT+'/lenses/'):
-            os.mkdir(settings.MEDIA_ROOT+'/lenses/')
+        #if not os.path.exists(settings.MEDIA_ROOT+'/lenses/'):
+        #    os.mkdir(settings.MEDIA_ROOT+'/lenses/')
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
+        print(default_storage.location,fname,sled_fname)
         if fname != sled_fname:
             #os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             print(default_storage.location,sled_fname)
-            default_storage.save(sled_fname,self.mugshot.read())
+            default_storage.save(default_storage.location+sled_fname,self.mugshot.read())
             default_storage.delete(fname)
             self.mugshot.name = sled_fname
-
-        super(Lenses,self).save(*args,**kwargs)
+            super(Lenses,self).save(*args,**kwargs)
 
             
     def __str__(self):
