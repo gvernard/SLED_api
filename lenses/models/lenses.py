@@ -409,6 +409,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         
         # Create new file and remove old one
         super(Lenses,self).save(*args,**kwargs)
+        self.mugshot.rename('mapa')
         fname = '/'+self.mugshot.name
         if not os.path.exists(settings.MEDIA_ROOT+'/lenses/'):
             os.mkdir(settings.MEDIA_ROOT+'/lenses/')
