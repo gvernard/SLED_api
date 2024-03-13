@@ -1,6 +1,7 @@
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.utils import clean_name
+from django.utils.encoding import force_unicode
 
 
 def safe_join(base, *paths):
