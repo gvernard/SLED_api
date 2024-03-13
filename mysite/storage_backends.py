@@ -58,3 +58,8 @@ class DatabaseFileStorage(S3Boto3Storage):
             Bucket=self.bucket_name,
             CopySource=self.bucket_name + "/" + self.location + from_path,
             Key=self.bucket_name + "/" + self.location + to_path)
+
+        if copy_result['ResponseMetadata']['HTTPStatusCode'] == 200:
+            print('It worked!')
+        else:
+            print('SKAAATAAAA')
