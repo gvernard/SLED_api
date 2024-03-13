@@ -416,6 +416,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
         if fname != sled_fname:
             #os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
+            print(default_storage.location,sled_fname)
             default_storage.save(sled_fname,self.mugshot.read())
             default_storage.delete(fname)
             self.mugshot.name = sled_fname
