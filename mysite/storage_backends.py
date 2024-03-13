@@ -45,13 +45,6 @@ class DatabaseFileStorage(S3Boto3Storage):
     file_overwrite = False
 
 
-    def _normalize_name(self, name):
-        try:
-            return safe_join(self.location, name).lstrip('/')
-        except ValueError:
-            raise SuspiciousOperation("Attempted access to '%s' denied." % name)
-
-        
     def copy(self,from_path,to_path):
         #print(from_path,to_path)
         #from_path = clean_name(from_path)
