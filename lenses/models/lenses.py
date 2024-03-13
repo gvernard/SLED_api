@@ -417,7 +417,6 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         #    os.mkdir(settings.MEDIA_ROOT+'/lenses/')
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
         print(default_storage.location,fname,sled_fname)
-        default_storage.mapa('Geia sou')
         if fname != sled_fname:
             #os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
             print(default_storage.location,sled_fname)
