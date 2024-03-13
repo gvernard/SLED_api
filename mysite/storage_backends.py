@@ -12,5 +12,5 @@ class DatabaseFileStorage(S3Boto3Storage):
     default_acl = 'public-read'
     file_overwrite = False
 
-    def mapa(inp):
+    def mapa(self,inp):
         print(inp)
