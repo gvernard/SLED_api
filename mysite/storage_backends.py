@@ -17,6 +17,11 @@ class DatabaseFileStorage(S3Boto3Storage):
     default_acl = 'public-read'
     #file_overwrite = False # This adds extra random characters to the file name
 
+    def _normalize_name(self, name):
+        """
+        Get rid of this crap: http://stackoverflow.com/questions/12535123/django-storages-and-amazon-s3-suspiciousoperation
+        """
+        return name
 
     def copy(self,from_path,to_path):
         copy_result = self.connection.meta.client.copy_object(
