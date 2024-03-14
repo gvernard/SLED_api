@@ -412,7 +412,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
                 
         # Create new file and remove old one
-        fname = '/'+self.mugshot.name
+        fname = self.mugshot.name
         sled_fname = '/lenses/' + str( self.pk ) + '.png'
         print(fname,sled_fname)
         if fname != sled_fname:
