@@ -413,10 +413,10 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                 
         # Create new file and remove old one
         fname = '/'+self.mugshot.name
-        sled_fname = default_storage.location + '/lenses/' + str( self.pk ) + '.png'
+        sled_fname = '/lenses/' + str( self.pk ) + '.png'
         if fname != sled_fname:
             default_storage.copy(fname,sled_fname)            
-            self.mugshot.name = default_storage.location + sled_fname
+            self.mugshot.name = sled_fname
             super(Lenses,self).save(*args,**kwargs)
             default_storage.mydelete(fname)
 
