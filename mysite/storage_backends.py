@@ -42,22 +42,15 @@ class StaticStorage(S3Boto3Storage):
 class DatabaseFileStorage(S3Boto3Storage):
     location = settings.DATABASE_FILE_LOCATION
     default_acl = 'public-read'
-    file_overwrite = False
+    #file_overwrite = False # This adds extra random characters to the file name
 
 
     def copy(self,from_path,to_path):
-        #print(from_path,to_path)
-        #from_path = clean_name(from_path)
-        #to_path = clean_name(to_path)
-        #print(from_path,to_path)
-        #from_path = self._normalize_name(from_path)
-        #to_path = self._normalize_name(to_path)
-        print(from_path,to_path)
-        
         copy_result = self.connection.meta.client.copy_object(
             Bucket=self.bucket_name,
             CopySource=self.bucket_name + "/" + self.location + from_path,
             Key=self.location + to_path)
+
 
     def mydelete(self,path):
         delete_result = self.connection.meta.client.delete_object(
