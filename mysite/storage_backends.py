@@ -60,7 +60,7 @@ class DatabaseFileStorage(S3Boto3Storage):
             Key=self.location + to_path)
 
     def mydelete(self,path):
-        delete_result = self.connection.meta.client.delete(
+        delete_result = self.connection.meta.client.delete_object(
             Bucket=self.bucket_name,
             Key=self.location + path
         )
