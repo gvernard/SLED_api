@@ -14,13 +14,10 @@ class StaticStorage(S3Boto3Storage):
 
 
 class DatabaseFileStorage(S3Boto3Storage):
-    location = settings.DATABASE_FILE_LOCATION
+    location = settings.DATABASE_FILE_LOCATION + "/"
     default_acl = 'public-read'
     #file_overwrite = False # This adds extra random characters to the file name
 
-    def get_valid_name(self,name):
-        return os.path.join("/",name)
-    
     def _normalize_name(self, name):
         """
         Get rid of this crap: http://stackoverflow.com/questions/12535123/django-storages-and-amazon-s3-suspiciousoperation
