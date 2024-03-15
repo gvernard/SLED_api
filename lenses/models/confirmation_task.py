@@ -4,6 +4,7 @@ from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core import serializers
+from django.core.files.storage import default_storage
 from django.urls import reverse
 from django import forms
 from django.db.models import Q,F,Count,CharField
@@ -537,7 +538,7 @@ class ResolveDuplicates(ConfirmationTask):
             elif responses[i]['insert'] == 'no':
                 # Remove uploaded image if the object is new
                 if not objects[i].object.pk:
-                    os.remove(settings.MEDIA_ROOT+'/temporary/' + self.owner.username + '/' + objects[i].object.mugshot.name)
+                    default_storage.mydelete(objects[i].object.mugshot.name)
             else:
                 objs_to_merge.append(objects[i])
                 objs_to_merge_in.append(responses[i]['insert'])
@@ -553,8 +554,6 @@ class ResolveDuplicates(ConfirmationTask):
             pub = []
             for obj in objs_to_add:
                 obj.object.owner = self.owner
-                if not obj.object.pk:
-                    obj.object.mugshot.name = 'temporary/' + self.owner.username + '/' + obj.object.mugshot.name
                 if obj.object.access_level == 'PRI':
                     pri.append(obj.object)
                 else:
@@ -589,7 +588,7 @@ class ResolveDuplicates(ConfirmationTask):
                         rand = ''.join(random.choice(letters) for i in range(3))
                         objs_to_merge[i].object.name = 'tmp_'+rand+'_'+objs_to_merge[i].object.name
                     objs_to_merge[i].object.owner = self.owner
-                    objs_to_merge[i].object.mugshot.name = 'temporary/' + self.owner.username + '/' + objs_to_merge[i].object.mugshot.name
+                    objs_to_merge[i].object.mugshot.name = objs_to_merge[i].object.mugshot.name
                     objs_to_merge[i].object.access_level = 'PRI'
                     objs_to_merge[i].object.save()
                     assign_perm('view_lenses',self.owner,objs_to_merge[i].object)
@@ -810,7 +809,7 @@ class AddData(ConfirmationTask):
             if not obj.object.pk:
                 obj.object.lens = lens_match
                 if 'image' in obj.object._meta.fields:
-                    obj.object.image.name = 'temporary/' + self.owner.username + '/' + obj.object.image.name
+                    obj.object.image.name = obj.object.image.name
                 if obj.object.access_level == "PRI":
                     pri.append(obj.object)
                 else:

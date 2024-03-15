@@ -1,11 +1,11 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
 from django.urls import reverse
 from django.conf import settings
 from functools import partial as curry
-from django.core.files.storage import default_storage
 from multiselectfield import MultiSelectField
 
 from dirtyfields import DirtyFieldsMixin
