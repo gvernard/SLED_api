@@ -485,6 +485,7 @@ class LensAddView(TemplateView):
                 # Set the possible duplicate indices and call validate again to check the insert fields - this requires a new formset
                 instances = myformset.save(commit=False)
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
+                print(instances)
 
                 if len(indices) == 0:
                     # Set owner, name, and sort PRI and PUB
@@ -500,11 +501,11 @@ class LensAddView(TemplateView):
 
                     # Insert in the database
                     db_vendor = connection.vendor
+                    print("================= ",db_vendor)
                     if db_vendor == 'sqlite':
                         for lens in instances:
                             lens.save()
                     else:
-                        print(instances)
                         new_lenses = Lenses.objects.bulk_create(instances)
 
                     if pri:
