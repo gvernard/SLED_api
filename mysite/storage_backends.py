@@ -25,14 +25,16 @@ class DatabaseFileStorage(S3Boto3Storage):
         return self.location+name
 
     def copy(self,from_path,to_path):
+        print(self.bucket_name + "/" + self.location + from_path,self.location + to_path)
         copy_result = self.connection.meta.client.copy_object(
             Bucket=self.bucket_name,
-            CopySource=self.bucket_name + "/" + self.location + "/" + from_path,
-            Key=self.location + "/" + to_path)
+            CopySource=self.bucket_name + "/" + self.location + from_path,
+            Key=self.location + to_path)
 
 
     def mydelete(self,path):
+        print(self.location + path)
         delete_result = self.connection.meta.client.delete_object(
             Bucket=self.bucket_name,
-            Key=self.location + "/" + path
+            Key=self.location + path
         )
