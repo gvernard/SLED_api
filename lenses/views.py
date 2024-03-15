@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.apps import apps
 from django.core.paginator import Paginator
 from django.core.files import File
+from django.core.files.storage import default_storage
 
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
