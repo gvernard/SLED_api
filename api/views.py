@@ -6,7 +6,7 @@ from django.core import serializers
 from django.urls import reverse,reverse_lazy
 from django.forms.models import model_to_dict
 from django.apps import apps
-
+from django.core.files.storage import default_storage
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -90,14 +90,17 @@ class UploadData(APIView):
 
             # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
             if data_type != 'Catalogue':
-                path = settings.MEDIA_ROOT + '/temporary/' + request.user.username + '/'
-                if not os.path.exists(path):
-                    os.makedirs(path)
-                for i,datum in enumerate(data):
-                    with open(path + datum.image.name,'wb+') as destination:
-                        for chunk in datum.image.chunks():
-                            destination.write(chunk)
-            
+                #path = settings.MEDIA_ROOT + '/temporary/' + request.user.username + '/'
+                #if not os.path.exists(path):
+                #    os.makedirs(path)
+                #for i,datum in enumerate(data):
+                #    with open(path + datum.image.name,'wb+') as destination:
+                #        for chunk in datum.image.chunks():
+                #            destination.write(chunk)
+                print(type(datum),type(datum.image),datum.image)
+                default_storage.save('/temporary/' + request.user.username + '/' + datum.image.name,datum.image)
+
+                            
             cargo = {'ra':ra,'dec':dec,'objects':serializers.serialize('json',data)}
             receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
             mytask = ConfirmationTask.create_task(self.request.user,receiver,'AddData',cargo)

@@ -504,6 +504,7 @@ class LensAddView(TemplateView):
                         for lens in instances:
                             lens.save()
                     else:
+                        print(instances)
                         new_lenses = Lenses.objects.bulk_create(instances)
 
                     if pri:

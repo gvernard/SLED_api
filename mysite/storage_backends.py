@@ -4,7 +4,7 @@ from storages.utils import clean_name
 from urllib.parse import urljoin
 from django.utils.encoding import force_text
 from django.core.exceptions import SuspiciousOperation
-
+from botocore.exceptions import ClientError
 
 
 class StaticStorage(S3Boto3Storage):
@@ -35,4 +35,3 @@ class DatabaseFileStorage(S3Boto3Storage):
             Bucket=self.bucket_name,
             Key=self.location + path
         )
-
