@@ -216,7 +216,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
-    mugshot = models.ImageField(upload_to='lenses')
+    mugshot = models.ImageField(upload_to='/lenses')
     
     FlagChoices = (
         ('CONFIRMED','Confirmed'),
