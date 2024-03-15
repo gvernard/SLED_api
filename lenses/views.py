@@ -165,8 +165,9 @@ class LensDeleteView(ModalIdsBaseMixin):
                 action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=object_type,object_names=names)
 
             ### Notifications per collection #####################################################
-            uqset = self.request.user.get_collection_owners(pri)
-            users = list(set( uqset.exclude(username=self.request.user.username) ))
+            #uqset = self.request.user.get_collection_owners(pri)
+            #users = list(set( uqset.exclude(username=self.request.user.username) ))
+            users = []
             for u in users:
                 self.request.user.remove_from_third_collections(pri,u)
 
