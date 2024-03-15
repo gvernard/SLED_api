@@ -605,13 +605,6 @@ class LensUpdateView(TemplateView):
                         tmp_fname = 'temporary/' + self.request.user.username + '/' + name
                         default_storage.put_object(content,tmp_fname)
 
-                        #with open(path + name,'wb+') as destination:
-                        #    for chunk in f.chunks():
-                        #        destination.write(chunk)       
-                        #myformset.forms[i].instance.mugshot = tmp_fname
-                        #myformset.forms[i]['mugshot'].name = tmp_fname
-
-
                 context = {'lens_formset': myformset}
                 return self.render_to_response(context)
         else:
@@ -642,9 +635,6 @@ class LensResolveDuplicatesView(TemplateView):
             objs = []
             for obj in serializers.deserialize("json",task.cargo['objects']):
                 lens = obj.object
-                new_mugshot_name = 'temporary/' + user.username + '/' + lens.mugshot.name
-                if os.path.isfile(settings.MEDIA_ROOT + '/' + new_mugshot_name):
-                    lens.mugshot = new_mugshot_name
                 objs.append(lens)
 
         indices,neis = Lenses.proximate.get_DB_neighbours_many(objs)
@@ -726,10 +716,6 @@ class LensAddDataView(TemplateView):
         objs = []
         for obj in serializers.deserialize("json",task.cargo['objects']):
             datum = obj.object
-            if datum._meta.model.__name__ != 'Catalogue':
-                new_image_name = 'temporary/' + user.username + '/' + datum.image.name
-                if os.path.isfile(settings.MEDIA_ROOT + '/' + new_image_name):
-                    datum.image = new_image_name
             objs.append(datum)
 
         ras = task.cargo['ra']

@@ -88,18 +88,11 @@ class UploadData(APIView):
                 ra.append( float(raw_data[i].get('ra')) )
                 dec.append( float(raw_data[i].get('dec')) )
 
-            # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
+            # Move uploaded files to a temporary directory
             if data_type != 'Catalogue':
-                #path = settings.MEDIA_ROOT + '/temporary/' + request.user.username + '/'
-                #if not os.path.exists(path):
-                #    os.makedirs(path)
-                #for i,datum in enumerate(data):
-                #    with open(path + datum.image.name,'wb+') as destination:
-                #        for chunk in datum.image.chunks():
-                #            destination.write(chunk)
-                print(type(datum),type(datum.image),datum.image)
-                default_storage.save('/temporary/' + request.user.username + '/' + datum.image.name,datum.image)
-
+                content = datum.image.read()
+                tmp_fname = 'temporary/' + self.request.user.username + '/' + datum.image.name
+                default_storage.put_object(content,tmp_fname)
                             
             cargo = {'ra':ra,'dec':dec,'objects':serializers.serialize('json',data)}
             receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
@@ -275,14 +268,11 @@ class UploadLenses(APIView):
                 response = "Success! Lenses uploaded to the database successfully!"
                 return Response(response)
             else:
-                # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                path = settings.MEDIA_ROOT + '/temporary/' + request.user.username + '/'
-                if not os.path.exists(path):
-                    os.makedirs(path)
+                # Move uploaded files to a temporary directory
                 for i,lens in enumerate(lenses):
-                    with open(path + lens.mugshot.name,'wb+') as destination:
-                        for chunk in lens.mugshot.chunks():
-                            destination.write(chunk)
+                    content = lens.mugshot.read()
+                    tmp_fname = 'temporary/' + self.request.user.username + '/' + lens.mugshot.name
+                    default_storage.put_object(content,tmp_fname)
                 cargo = {'mode':'add','objects':serializers.serialize('json',lenses)}
                 receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
                 mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)

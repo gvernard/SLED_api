@@ -651,8 +651,8 @@ class MergeLenses(ConfirmationTask):
                         letters = string.ascii_lowercase
                         rand = ''.join(random.choice(letters) for i in range(3))
                         suffix = str(new.mugshot.name).split('.')[-1]
-                        dest_fname = '/lenses/'+rand+'.'+suffix                        
-                        shutil.copy(str(settings.MEDIA_ROOT)+new.mugshot.name,str(settings.MEDIA_ROOT)+dest_fname)
+                        dest_fname = 'lenses/'+rand+'.'+suffix                        
+                        default_storage.copy(new.mugshot.name,dest_fname)
                         target.mugshot.name = dest_fname
                     else:
                         new_value = getattr(new,field_name)

@@ -186,19 +186,17 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                 
             if len(dirty) > 0 and self.access_level == "PUB":
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
-            
-        if self.exists:
-            # Create new file and remove old one        
-            super(Imaging,self).save(*args,**kwargs)
-            fname = '/'+self.image.name
-            if not os.path.exists(settings.MEDIA_ROOT+'/imaging/'):
-                os.mkdir(settings.MEDIA_ROOT+'/imaging/')
-            sled_fname = '/imaging/' + str( self.pk ) + '.png'
-            if fname != sled_fname:
-                os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
-                self.image.name = sled_fname
 
-        super(Imaging,self).save(*args,**kwargs)
+            super(Imaging,self).save(*args,**kwargs)
+
+        # Create new file and remove old one
+        fname = self.image.name
+        sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + '.png'
+        if self.exists and fname != sled_fname:
+            default_storage.copy(fname,sled_fname)            
+            self.image.name = sled_fname
+            super(Imaging,self).save(*args,**kwargs)
+            default_storage.mydelete(fname)
 
             
         
@@ -283,18 +281,19 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
             if len(dirty) > 0 and self.access_level == "PUB":
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
 
-        if self.exists:
-            # Create new file and remove old one
             super(Spectrum,self).save(*args,**kwargs)
-            fname = '/'+self.image.name
-            if not os.path.exists(settings.MEDIA_ROOT+'/spectrum/'):
-                os.mkdir(settings.MEDIA_ROOT+'/spectrum/')
-            sled_fname = '/spectrum/' + str( self.pk ) + '.png'
-            if fname != sled_fname:
-                os.rename(settings.MEDIA_ROOT+fname,settings.MEDIA_ROOT+sled_fname)
-                self.image.name = sled_fname
+                
+        # Create new file and remove old one
+        fname = self.image.name
+        sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + '.png'
+        if self.exists and fname != sled_fname:
+            default_storage.copy(fname,sled_fname)            
+            self.image.name = sled_fname
+            super(Imaging,self).save(*args,**kwargs)
+            default_storage.mydelete(fname)
 
-        super(Spectrum,self).save(*args,**kwargs)
+                
+
 
 
     

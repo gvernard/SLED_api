@@ -415,7 +415,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
         fname = self.mugshot.name
         sled_fname = self.mugshot.field.upload_to + "/" + str( self.pk ) + '.png'
         if fname != sled_fname:
-            default_storage.copy(fname,sled_fname)            
+            default_storage.copy(fname,sled_fname)
             self.mugshot.name = sled_fname
             super(Lenses,self).save(*args,**kwargs)
             default_storage.mydelete(fname)

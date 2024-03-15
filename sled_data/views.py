@@ -10,6 +10,7 @@ from django.forms import inlineformset_factory
 from django.conf import settings
 from django.template.response import TemplateResponse
 from django.utils import timezone
+from django.core.files.storage import default_storage
 
 from urllib.parse import urlparse
 
@@ -364,21 +365,15 @@ class DataUpdateManyView(TemplateView):
             else:
                 print('NOT VALID')
 
-                # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory and replace image source in the formset 
-                path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                if not os.path.exists(path):
-                    os.makedirs(path)
+                # # Move uploaded files to a temporary directory and replace image source in the formset 
                 for i,form in enumerate(myformset.forms):
                     if 'image' in myformset.forms[i].changed_data:
                         input_field_name = myformset.forms[i]['image'].html_name
-                        name = myformset.forms[i].cleaned_data['image'].name
                         f = request.FILES[input_field_name]
-                        with open(path + name,'wb+') as destination:
-                            for chunk in f.chunks():
-                                destination.write(chunk)
-                                
-                        #myformset.forms[i].instance.image = 'temporary/' + self.request.user.username + '/'+name
-                        #myformset.forms[i]['image'].name = 'temporary/' + self.request.user.username + '/'+name
+                        content = f.read()
+                        name = myformset.forms[i].cleaned_data['mugshot'].name
+                        tmp_fname = 'temporary/' + self.request.user.username + '/' + name
+                        default_storage.put_object(content,tmp_fname)
                 context = {
                     'data_formset': myformset,
                     'model': obj_type,
