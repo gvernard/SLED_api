@@ -510,7 +510,7 @@ class Users(AbstractUser,GuardianUserMixin):
 
     def get_collection_owners(self,objects):
         print(objects)
-        col_ids = objects.annotate(col_ids=MyConcat('collection__id')).values_list('col_ids',flat=True)
+        col_ids = objects.annotate(col_ids=MyConcat('collection_relation__id')).values_list('col_ids',flat=True)
         cleaned = []
         for mystr in col_ids:
             if mystr:
