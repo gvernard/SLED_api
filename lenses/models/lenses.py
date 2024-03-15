@@ -177,7 +177,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                               help_text="The DEC of the lens [degrees].",
                               validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
                                           MaxValueValidator(90,"DEC must be below 90 degrees.")])
-    name = models.CharField(unique=True,
+    name = models.CharField(unique=False,
                             blank=True,
                             max_length=100,
                             help_text="An identification for the lens, e.g. the usual phone numbers.")
