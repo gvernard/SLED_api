@@ -1,3 +1,4 @@
+import os
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.utils import clean_name
@@ -17,6 +18,9 @@ class DatabaseFileStorage(S3Boto3Storage):
     default_acl = 'public-read'
     #file_overwrite = False # This adds extra random characters to the file name
 
+    def get_valid_name(self,name):
+        return os.path.join("/",name)
+    
     def _normalize_name(self, name):
         """
         Get rid of this crap: http://stackoverflow.com/questions/12535123/django-storages-and-amazon-s3-suspiciousoperation
