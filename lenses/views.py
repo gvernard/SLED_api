@@ -511,16 +511,14 @@ class LensAddView(TemplateView):
                         action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
                     return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                 else:
-                    # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                    path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                    if not os.path.exists(path):
-                        os.makedirs(path)
+                    # Move uploaded files to a temporary directory
                     for i,lens in enumerate(instances):
                         input_field_name = myformset.forms[i]['mugshot'].html_name
                         f = request.FILES[input_field_name]
-                        with open(path + lens.mugshot.name,'wb+') as destination:
-                            for chunk in f.chunks():
-                                destination.write(chunk)
+                        content = f.read()
+                        tmp_fname = 'temporary/' + self.request.user.username + '/' + lens.mugshot.name
+                        default_storage.put_object(content,tmp_fname)
+                        lens.mugshot.name = tmp_fname
                     cargo = {'mode':'add','objects':serializers.serialize('json',instances)}
                     receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
                     mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
@@ -574,18 +572,15 @@ class LensUpdateView(TemplateView):
                         message = 'Lens successfully updated!'
                     return TemplateResponse(request,'simple_message.html',context={'message':message})
                 else:
-                    # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory
-                    path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                    if not os.path.exists(path):
-                        os.makedirs(path)
+                    # Move uploaded files to a temporary directory
                     for i,lens in enumerate(instances):
                         if 'mugshot' in myformset.forms[i].changed_data:
                             input_field_name = myformset.forms[i]['mugshot'].html_name
                             f = request.FILES[input_field_name]
-                            with open(path + lens.mugshot.name,'wb+') as destination:
-                                for chunk in f.chunks():
-                                    destination.write(chunk)
-                            lens.mugshot.name = 'temporary/' + self.request.user.username + '/' + lens.mugshot.name
+                            content = f.read()
+                            tmp_fname = 'temporary/' + self.request.user.username + '/' + lens.mugshot.name
+                            default_storage.put_object(content,tmp_fname)
+                            lens.mugshot.name = tmp_fname
                     cargo = {'mode':'update','objects':serializers.serialize('json',instances)}
                     receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
                     mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
@@ -596,22 +591,22 @@ class LensUpdateView(TemplateView):
                         print("Field Error:", field.name,  field.errors)
                 print('NOT VALID')
                     
-                # # Move uploaded files to the MEDIA_ROOT/temporary/<username> directory and replace image source in the formset 
-                path = settings.MEDIA_ROOT + '/temporary/' + self.request.user.username + '/'
-                if not os.path.exists(path):
-                    os.makedirs(path)
+                # # Move uploaded files to the a temporary directory and replace image source in the formset 
                 for i,form in enumerate(myformset.forms):
                     if 'mugshot' in myformset.forms[i].changed_data:
                         #print(myformset.forms[i].cleaned_data['mugshot'])
                         input_field_name = myformset.forms[i]['mugshot'].html_name
-                        name = myformset.forms[i].cleaned_data['mugshot'].name
                         f = request.FILES[input_field_name]
-                        with open(path + name,'wb+') as destination:
-                            for chunk in f.chunks():
-                                destination.write(chunk)
-                                
-                        #myformset.forms[i].instance.mugshot = 'temporary/' + self.request.user.username + '/'+name
-                        #myformset.forms[i]['mugshot'].name = 'temporary/' + self.request.user.username + '/'+name
+                        content = f.read()
+                        name = myformset.forms[i].cleaned_data['mugshot'].name
+                        tmp_fname = 'temporary/' + self.request.user.username + '/' + name
+                        default_storage.put_object(content,tmp_fname)
+
+                        #with open(path + name,'wb+') as destination:
+                        #    for chunk in f.chunks():
+                        #        destination.write(chunk)       
+                        #myformset.forms[i].instance.mugshot = tmp_fname
+                        #myformset.forms[i]['mugshot'].name = tmp_fname
 
 
                 context = {'lens_formset': myformset}
