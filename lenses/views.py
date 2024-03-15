@@ -485,7 +485,8 @@ class LensAddView(TemplateView):
                 # Set the possible duplicate indices and call validate again to check the insert fields - this requires a new formset
                 instances = myformset.save(commit=False)
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
-
+                print(indices,neis)
+                
                 if len(indices) == 0:
                     # Set owner, name, and sort PRI and PUB
                     pri = []
