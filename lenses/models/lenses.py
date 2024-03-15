@@ -216,7 +216,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
-    mugshot = models.ImageField(upload_to='/lenses')
+    mugshot = models.ImageField(upload_to='lenses')
     
     FlagChoices = (
         ('CONFIRMED','Confirmed'),
@@ -412,8 +412,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
                 
         # Create new file and remove old one
-        fname = os.path.join("/",self.mugshot.name)
-        sled_fname = '/lenses/' + str( self.pk ) + '.png'
+        fname = self.mugshot.name
+        sled_fname = 'lenses/' + str( self.pk ) + '.png'
         print(fname,sled_fname)
         if fname != sled_fname:
             default_storage.copy(fname,sled_fname)            
