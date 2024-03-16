@@ -192,7 +192,8 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
 
         # Create new file and remove old one
         fname = self.image.name
-        sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + '.png'
+        dum,file_ext = os.path.splitext(fname)
+        sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + file_ext
         print(fname,sled_fname)
         if self.exists and fname != sled_fname:
             default_storage.copy(fname,sled_fname)            
@@ -287,7 +288,8 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                 
         # Create new file and remove old one
         fname = self.image.name
-        sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + '.png'
+        dum,file_ext = os.path.splitext(fname)
+        sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + file_ext
         if self.exists and fname != sled_fname:
             default_storage.copy(fname,sled_fname)            
             self.image.name = sled_fname
