@@ -233,7 +233,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                                      help_text="The resolution of the spectrum [nm].",
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
     image = models.ImageField(blank=True,
-                              upload_to='data/spectrum')
+                              upload_to='spectrum')
 
     FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future','access_level']
 
