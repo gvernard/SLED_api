@@ -25,6 +25,9 @@ class creationManager(models.Manager):
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
             raise
 
+        for obj in objects:
+            print(obj)
+        print(len(objects))
         col = super().create(**col_data)
         col.myitems.add(*objects)
         return col
