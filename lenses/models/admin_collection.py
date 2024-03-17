@@ -26,7 +26,7 @@ class creationManager(models.Manager):
             raise
 
         for obj in objects:
-            print(obj)
+            print(obj.pk,obj,obj.exists)
         print(len(objects))
         col = super().create(**col_data)
         col.myitems.add(*objects)
