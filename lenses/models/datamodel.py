@@ -295,7 +295,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
             if fname != sled_fname:
                 default_storage.copy(fname,sled_fname)            
                 self.image.name = sled_fname
-                super(Imaging,self).save(*args,**kwargs)
+                super(Spectrum,self).save(*args,**kwargs)
                 default_storage.mydelete(fname)
 
                 
