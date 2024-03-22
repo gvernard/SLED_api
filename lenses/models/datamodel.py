@@ -336,7 +336,7 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                                    decimal_places=3,
                                    verbose_name="Distance",
                                    help_text="Distance from the RA,dec of the lens [arcsec].",
-                                   validators=[MinValueValidator(0.0,"Distance must be positive."),])
+                                   validators=[MinValueValidator(0.0,"Distance must be positive or zero."),])
     band = models.ForeignKey(Band,
                              to_field='name',
                              verbose_name="Band",
@@ -346,7 +346,7 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
         
     class Meta():
         constraints = [
-            CheckConstraint(check=Q(distance__gt=0),name='distance'),
+            CheckConstraint(check=Q(distance__gte=0),name='distance'),
             CheckConstraint(check=Q(radet__range=(0,360)),name='radet_range'),
             CheckConstraint(check=Q(decdet__range=(-90,90)),name='decdet_range'),
         ]
