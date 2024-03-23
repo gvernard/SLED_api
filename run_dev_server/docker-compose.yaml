@@ -1,0 +1,41 @@
+version: '3'
+services:
+  db:
+    image: mysql:5.7
+    container_name: SLED_database
+    restart: always
+    command: --init-file /data/application/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: '54321'
+      MYSQL_DATABASE: 'strong_lenses_database'
+      MYSQL_USER: 'sled_root'
+      MYSQL_PASSWORD: '12345'
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p54321", "-D", "strong_lenses_database", "-e", "SELECT 1"]
+      timeout: 20s
+      retries: 10
+    volumes:
+      - data:/var/lib/mysql
+      - ./init.sql:/data/application/init.sql
+      
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: SLED_server
+    command: sh -c "cd SLED_api/ && cp run_dev/settings_development.py mysite/settings.py && python3 manage.py migrate --noinput && python3 manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
+    restart: always
+    volumes:
+      - /path/to/SLED_api:/SLED/SLED_api
+      - /path/to/media/root:/files
+      - /path/to/static/root:/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db:
+          condition: service_healthy
+
+volumes:
+  data:
