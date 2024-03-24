@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
       network: host
     container_name: SLED_server
-    command: sh -c "cd SLED_api/ && cp run_dev_server/settings_development.py mysite/settings.py && python3 manage.py runserver 0.0.0.0:8000"
+    command: sh -c "pwd && cd SLED_api/ && pwd && cp run_dev_server/settings_development.py mysite/settings.py && python3 manage.py runserver 0.0.0.0:8000"
     #python3 manage.py migrate --noinput && python3 manage.py collectstatic --noinput"
     #restart: always
     volumes:
