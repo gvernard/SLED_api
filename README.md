@@ -40,7 +40,7 @@ After this command is successful, you have an instance of SLED running, congratu
 cat setup_db.sql | docker exec -i SLED_database bash -c 'mysql -uroot -p${MYSQL_ROOT_PASSWORD} -D ${MYSQL_DATABASE}'
 cat <init_SLED>/database/strong_lenses_database.sql | docker exec -i SLED_database bash -c 'mysql -uroot -p${MYSQL_ROOT_PASSWORD} -D ${MYSQL_DATABASE}'
 ```
-where you need to replace *<init_SLED>* accordingly. These two commands can be ran again if you need to reset the database.
+where you need to replace **<init_SLED>** accordingly. These two commands can be ran again if you need to reset the database.
 
 4. Type [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser window and access the server.
 
@@ -51,7 +51,7 @@ where you need to replace *<init_SLED>* accordingly. These two commands can be r
 
 2. Note that you can restore the database in its original form at any time using the two commands from step 3 above.
 
-3. Note that you can restore the files (lens mugshots, imaging data, etc) by downloading the data from [this link]() and copying them at the same path in your system as before. You could also make your own backup.
+3. Note that you can restore the files (lens mugshots, imaging data, etc) by downloading again the data from [this link]() and copying them at the same **<init_SLED>** path in your system as before. You could also restore your own previsouly made backup.
 
 4. Once happy with your changes, submit a pull request.
 
