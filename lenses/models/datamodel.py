@@ -346,7 +346,7 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
         
     class Meta():
         constraints = [
-            CheckConstraint(check=Q(distance__gte=0),name='distance'),
+            CheckConstraint(check=Q(distance__range=(0,20)),name='distance'),
             CheckConstraint(check=Q(radet__range=(0,360)),name='radet_range'),
             CheckConstraint(check=Q(decdet__range=(-90,90)),name='decdet_range'),
         ]

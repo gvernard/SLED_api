@@ -1,7 +1,4 @@
-#
-###### Requirements with Version Specifiers ######
-#   See https://www.python.org/dev/peps/pep-0440/#version-specifiers
-django==3.2.24
+django==3.2.23
 django-activity-stream==1.4.0
 django-ajax-selects==1.3.5
 django-appconf==1.0.5
@@ -19,7 +16,7 @@ django-select2==7.7.3
 django-widget-tweaks==1.4.9
 djangorestframework==3.12.4
 django-storages[s3]
-boto3==1.26.59
+boto3==1.23.10
 astropy==4.1
 ads==0.12.3
 mysqlclient==2.0.3

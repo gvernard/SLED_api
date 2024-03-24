@@ -21,5 +21,11 @@ DATABASES = {
 
 FORCE_SCRIPT_NAME = '/'
 STATIC_URL = 'staticfiles/'
-MEDIA_ROOT = '/files'
 STATIC_ROOT = '/static'
+STATIC_LOCATION = 'static' # Not used
+
+DATABASE_FILE_LOCATION = '/files'
+MEDIA_URL = 'files/'
+MEDIA_ROOT = '/files'
+DEFAULT_FILE_STORAGE = 'mysite.storage_backends.LocalStorage'
+

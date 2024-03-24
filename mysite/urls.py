@@ -65,8 +65,9 @@ urlpatterns = [
 ]
 
 
-#if settings.DEBUG:
+# This is included by default only when DEBUG=True 
 #urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-#urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+#urlpatterns += static(settings.MEDIA_URL, document_root='/')
 
 handler404 = "mysite.views.page_not_found_view"

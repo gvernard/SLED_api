@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8
+FROM python:3.6
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -10,4 +10,4 @@ WORKDIR /SLED
 
 # Install dependencies
 COPY requirements.txt /SLED/
-RUN pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt
