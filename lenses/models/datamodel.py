@@ -15,6 +15,25 @@ from pprint import pprint
 from . import SingleObject, Lenses
 
 
+
+class GenericImage(SingleObject,DirtyFieldsMixin):
+    lens = models.ForeignKey(Lenses,
+                             null=True,
+                             on_delete=models.SET_NULL,
+                             related_name="%(class)s")
+    info = models.TextField(blank=True,
+                            null=True,
+                            default='',
+                            help_text="Description of any important aspects of the observation.")
+
+    def is_orphan(self):
+        if self.lens is None:
+            return True
+        else:
+            return not Lenses.objects.filter(id=self.lens.id).exists()
+
+
+
 class Instrument(models.Model):
     name = models.CharField(blank=False,
                             unique=True,
