@@ -1,4 +1,4 @@
-run_dev_server/docker-compose-mine.yaml
+run_dev_server/docker-compose-mine.yaml*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -21,11 +21,26 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                              null=True,
                              on_delete=models.SET_NULL,
                              related_name="%(class)s")
-    info = models.TextField(blank=True,
+    name = models.CharField(blank=False,
+                            null=True,
+                            max_length=100,
+                            help_text="A name for the generic image.")
+    info = models.TextField(blank=False,
                             null=True,
                             default='',
-                            help_text="Description of any important aspects of the observation.")
+                            help_text="Description of any important aspects of the image.")
+    image = models.ImageField(blank=False,
+                              upload_to='generic')
+    
+    class Meta():
+        ordering = ["name"]
+        db_table = "generic_image"
+        verbose_name = "GenericImage"
+        verbose_name_plural = "GenericImages"
 
+    def __str__(self):
+        return self.name
+    
     def is_orphan(self):
         if self.lens is None:
             return True
@@ -34,6 +49,7 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
 
 
 
+    
 class Instrument(models.Model):
     name = models.CharField(blank=False,
                             unique=True,

@@ -53,15 +53,43 @@ These two commands can be ran again if you need to reset the database.
 4. Type [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in your browser window and access the server.
 
 
+
 ### Development workflow
 
 1. Any changes you make in the Django files (within your cloned SLED_api repo) will automatically restart the server. 
 
-2. Note that you can restore the database in its original form at any time using the two commands from step 3 above.
+2. If you edit or add any new model, then django will need to edit or create a new database table accordingly. The best approach is to simply quit and restart the docker containers (with the `docker compose` command above).
 
-3. Note that you can restore the files (lens mugshots, imaging data, etc) by downloading again the data from [this link]() and copying them at the same **<init_SLED>** path in your system as before. You could also restore your own previsouly made backup.
+3. Once happy with your changes, submit a pull request. Note that this should include only software changes and all data injected in the database should be excluded. If the request is approved then the data can be re-injected in the production server. Developers should keep this in mind and plan accordingly.
 
-4. Once happy with your changes, submit a pull request.
+
+
+### Advanced commands
+
+It is important to know how to clean up the docker containers and all associated data. The following commands destroy the docker containers and associated volume and can allow for a fresh start:
+```
+docker compose down
+docker volume rm run_dev_server_data
+```
+
+Cleaning up all the django migrations may be required if having problems while editing the existing django models or adding new ones. It can be achieved via (in the *SLED_api/* directory):
+```
+find . -path "*/migrations/*.py" -not -name "__init__.py" -delete 
+find . -path "*/migrations/*.pyc"  -delete
+```
+
+If you need to inspect the running docker containers you can attach a shell to them via:
+```
+docker exec -it SLED_server bash
+docker exec -it SLED_database bash
+```
+
+If you need to access the database (e.g. run a custom MySQL query directly) then execute:
+```
+docker exec -it SLED_database bash -c 'mysql -h localhost -uroot -p${MYSQL_ROOT_PASSWORD} -D ${MYSQL_DATABASE}'
+```
+
+
 
 
 ### Contact
