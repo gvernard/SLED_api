@@ -13,7 +13,7 @@ The only requirement is `docker compose`. You can install it in all major OS (se
 
 
 
-### Get the code and some data
+## Get the code and some data
 
 1. Download the initialization data from [this link]().
 
@@ -28,7 +28,7 @@ tar xvf init_SLED.tar.gz
 
 
 
-### Launch a local development server
+## Launch a local development server
 
 1. Locate the file *SLED_api/run_dev_server/docker_compose.yaml* and replace the **<init_SLED>** and **<SLED_api>** within it with your actual paths.
 
@@ -54,7 +54,7 @@ These two commands can be ran again if you need to reset the database.
 
 
 
-### Development workflow
+## Development workflow
 
 1. Any changes you make in the Django files (within your cloned SLED_api repo) will automatically restart the server. 
 
@@ -64,7 +64,7 @@ These two commands can be ran again if you need to reset the database.
 
 
 
-### Advanced commands
+## Advanced commands
 
 It is important to know how to clean up the docker containers and all associated data. The following commands destroy the docker containers and associated volume and can allow for a fresh start:
 ```
@@ -92,12 +92,12 @@ docker exec -it SLED_database bash -c 'mysql -h localhost -uroot -p${MYSQL_ROOT_
 
 
 
-### Contact
+## Contact
 
-If you are seeking help, write to <sled-help@amnh.org>.
+Write to <sled-help@amnh.org> if everything else fails.
 
 
-### Acknowledgements
+## Acknowledgements
 
 Please cite [Vernardos et al. 2024]() if you are using SLED in your work.
 
