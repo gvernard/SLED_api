@@ -15,7 +15,7 @@ The only requirement is `docker compose`. You can install it in all major OS (se
 
 ## Get the code and some data
 
-1. Download the initialization data from [this link]().
+1. Download the initialization data from [this link](https://g-8d2beb.dde63.8540.data.globus.org/init_SLED.tar.gz).
 
 2. Copy the tarball anywhere in your system, untar, and unzip:
 ```
