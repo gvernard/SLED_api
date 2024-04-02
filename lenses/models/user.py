@@ -23,6 +23,8 @@ from . import SledGroup, SingleObject, ConfirmationTask, Collection, AdminCollec
 objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue","Redshift"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 
+
+'''
 from django.db.models import Aggregate
 
 class MyConcat(Aggregate):
@@ -30,12 +32,14 @@ class MyConcat(Aggregate):
     template = '%(function)s(%(distinct)s%(expressions)s)'
     
     def __init__(self, expression, distinct=False, **extra):
+        print(expression)
+        print(extra)
         super(MyConcat, self).__init__(
             expression,
             distinct='DISTINCT ' if distinct else '',
             output_field=CharField(),
             **extra)
-
+'''
 
 
 
@@ -509,51 +513,29 @@ class Users(AbstractUser,GuardianUserMixin):
 
 
     def get_collection_owners(self,objects):
-        print(objects)
-        col_ids = objects.annotate(col_ids=MyConcat('collections_relation__id')).values_list('col_ids',flat=True)
-        cleaned = []
-        for mystr in col_ids:
-            if mystr:
-                for id in mystr.split(','):
-                    cleaned.append(id)
-        cleaned = set(cleaned)
-        #users = list(set( Users.objects.filter(collection__id__in=cleaned).exclude(username=self.request.user.username) ))
-        if cleaned:
-            return Users.objects.filter(collection__id__in=cleaned)
-        else:
-            return Users.objects.none()
+        obj_ids = list(objects.values_list('id',flat=True))
+
+        #cols = Collection.objects.filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk__in=obj_ids)).values_list('owner__username')
+        #print(cols)
+        
+        object_type = objects.model.__name__
+        users = Users.objects.filter(Q(collection__item_type=object_type) & Q(collection__collection_myitems__gm2m_pk__in=obj_ids))
+        return users
 
         
     def remove_from_third_collections(self,objects,user):
         user_type = user._meta.model.__name__
         if user_type != 'SledGroup':
-            obj_col_ids = list(objects.filter(collection__owner=user).annotate(col_ids=MyConcat('collection__id')).values('id','col_ids'))
-            object_type = objects[0]._meta.model.__name__
-            model_ref = apps.get_model(app_label="lenses",model_name=object_type)
-            if len(obj_col_ids) > 0:
-                all_cols = list(Collection.accessible_objects.owned(user))
-                all_cols_ids = [col.id for col in all_cols]
-            
-                pairs = [] 
-                for tmp in obj_col_ids:
-                    for col_id in tmp['col_ids'].split(','):
-                        col_index = all_cols_ids.index(int(col_id))
-                        pairs.append((tmp['id'],col_index))
-                        col_index_obj_ids = {key: list(map(itemgetter(0), ele)) for key, ele in groupby(sorted(pairs,key=itemgetter(1)), key = itemgetter(1))}
-                    
-                final_cols = []
-                for index in col_index_obj_ids.keys():
-                    to_remove = model_ref.objects.filter(id__in=col_index_obj_ids[index])
-                    all_cols[index].removeItems(user,to_remove)
-                    final_cols.append(all_cols[index])
-                    # for i in range(0,len(col_index_obj_ids)):
-                    #     print(all_cols[i],col_index_obj_ids[i])
-                    #     to_remove = model_ref.accessible_objects.in_ids(user,list(col_index_obj_ids[i]))
-                    #     all_cols[i].removeItems(user,to_remove)
-                    #     final_col_ids.append(all_cols[i].id)
-                    # #print(final_col_ids)                    
+            obj_ids = list(objects.values_list('id',flat=True))
+            object_type = objects.model.__name__
+            cols = Collection.accessible_objects.owned(user).filter(Q(item_type=object_type) & Q(collection_myitems__gm2m_pk__in=obj_ids))
 
-                ad_col = AdminCollection.objects.create(item_type=final_cols[0]._meta.model.__name__,myitems=final_cols)    
+            if len(cols) > 0:
+                for col in cols:
+                    to_remove = col.myitems.filter(gm2m_pk__in=obj_ids)
+                    col.removeItems(user,to_remove)
+
+                ad_col = AdminCollection.objects.create(item_type=cols.model.__name__,myitems=cols)
                 notify.send(sender=self,
                             recipient=user,
                             verb='RemovedFromThirdCollectionNote',

@@ -24,6 +24,7 @@ from django.db.models import Max, Subquery, Q
 from django.db.models.query import QuerySet
 import json
 from urllib.parse import urlparse
+from itertools import chain
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift
 
@@ -103,11 +104,11 @@ class LensDeleteView(ModalIdsBaseMixin):
             all_users = []
             lenses_users = {}
             for obj in pub:
-                imaging_owners = Users.objects.filter(Q(imaging__access_level='PUB') & Q(imaging__lens=obj) & Q(imaging__exists=True))
-                spectra_owners = Users.objects.filter(Q(spectrum__access_level='PUB') & Q(spectrum__lens=obj) & Q(spectrum__exists=True))
-                redshift_owners = Users.objects.filter(Q(redshift__access_level='PUB') & Q(redshift__lens=obj))
-                users = imaging_owners | spectra_owners | redshift_owners
-                all_users = all_users + list(users.distinct().values_list("username",flat=True))
+                imaging_owners = Users.objects.filter(Q(imaging__access_level='PUB') & Q(imaging__lens=obj) & Q(imaging__exists=True)).distinct().values_list("username",flat=True)
+                spectra_owners = Users.objects.filter(Q(spectrum__access_level='PUB') & Q(spectrum__lens=obj) & Q(spectrum__exists=True)).distinct().values_list("username",flat=True)
+                redshift_owners = Users.objects.filter(Q(redshift__access_level='PUB') & Q(redshift__lens=obj)).distinct().values_list("username",flat=True)
+                users = list(set(chain(imaging_owners,spectra_owners,redshift_owners)))
+                all_users = all_users + users
                 lenses_users[obj.id] = []
                 for user in all_users:
                     lenses_users[obj.id].append(user)
@@ -166,9 +167,9 @@ class LensDeleteView(ModalIdsBaseMixin):
                 action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=object_type,object_names=names)
 
             ### Notifications per collection #####################################################
-            #uqset = self.request.user.get_collection_owners(pri)
-            #users = list(set( uqset.exclude(username=self.request.user.username) ))
-            users = []
+            uqset = self.request.user.get_collection_owners(pri)
+            users = list(set( uqset.exclude(username=self.request.user.username) ))
+            #users = []
             for u in users:
                 self.request.user.remove_from_third_collections(pri,u)
 
@@ -425,13 +426,11 @@ class LensDetailView(DetailView):
             if context['lens'].owner.username in other_owners:
                 other_owners.remove(context['lens'].owner.username)
 
-        collections = []
         if self.request.user == context['lens'].owner:
             qset_cols = Collection.accessible_objects.all(self.request.user).filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk=context['lens'].id))
         else:
             qset_cols = Collection.accessible_objects.none()
-
-            
+        
         # All papers are public, no need for the accessible_objects manager
         allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
                                                     model=F('paperlensconnection__model'),

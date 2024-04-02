@@ -320,9 +320,9 @@ class DeleteObject(ConfirmationTask):
                     qset = apps.get_model(app_label="lenses",model_name='Spectrum').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids) & Q(owner__username=user))
                     print(qset)
                     qset.delete()
-                qset = apps.get_model(app_label="lenses",model_name='Catalogue').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids))
-                qset.delete()
-                print(qset)
+                    qset = apps.get_model(app_label="lenses",model_name='Catalogue').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids))
+                    qset.delete()
+                    print(qset)
 
                 objs.delete()
                 
