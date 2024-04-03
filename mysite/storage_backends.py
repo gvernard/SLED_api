@@ -74,7 +74,7 @@ class LocalStorage(Storage):
         os.remove(self.location + fname)
 
     def put_object(self,content,fname):
-        with open(self.location + fname,'w') as writer:
+        with open(self.location + fname,'wb') as writer:
             writer.write(content)
 
     def exists(self,fname):

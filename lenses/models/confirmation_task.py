@@ -638,6 +638,7 @@ class MergeLenses(ConfirmationTask):
             redshift_ids = []
             imaging_ids = []
             spectrum_ids = []
+            generic_image_ids = []
             for item in response['items']:
                 dum = item.split('-')
                 obj_name = dum[0]
@@ -648,12 +649,12 @@ class MergeLenses(ConfirmationTask):
                         old_value = getattr(target,field_name)
                         setattr(target,field_name,old_value+'. '+new_value)
                     elif field_name == 'mugshot':
-                        letters = string.ascii_lowercase
-                        rand = ''.join(random.choice(letters) for i in range(3))
-                        suffix = str(new.mugshot.name).split('.')[-1]
-                        dest_fname = 'lenses/'+rand+'.'+suffix                        
-                        default_storage.copy(new.mugshot.name,dest_fname)
-                        target.mugshot.name = dest_fname
+                        # Create a GenericImage from the old mugshot
+                        model_ref = apps.get_model(app_label="lenses",model_name='GenericImage')
+                        old_mug = model_ref(lens=target,owner=target.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
+                        old_mug.save()
+
+                        target.mugshot.name = new.mugshot.name                        
                     else:
                         new_value = getattr(new,field_name)
                         setattr(target,field_name,new_value)
@@ -664,6 +665,8 @@ class MergeLenses(ConfirmationTask):
                     imaging_ids.append(dum[1])
                 elif obj_name == 'Spectrum':
                     spectrum_ids.append(dum[1])
+                elif obj_name == 'GenericImage':
+                    generic_image_ids.append(dum[1])
                 else:
                     # Raise error
                     pass
@@ -681,6 +684,14 @@ class MergeLenses(ConfirmationTask):
                     redshift._state.adding = True
                     redshift.save()
                 ad_col = AdminCollection.objects.create(item_type=redshifts[0]._meta.model.__name__,myitems=redshifts)
+                action.send(self.owner,target=admin,verb='AddHome',level='success',action_object=ad_col)
+            if generic_image_ids:
+                generic_images = apps.get_model(app_label="lenses",model_name='GenericImage').objects.filter(id__in=generic_image_ids)
+                for generic_image in generic_images:
+                    generic_image.lens = target
+                    generic_image._state.adding = True
+                    generic_image.save()
+                ad_col = AdminCollection.objects.create(item_type=generic_images[0]._meta.model.__name__,myitems=generic_images)
                 action.send(self.owner,target=admin,verb='AddHome',level='success',action_object=ad_col)
             if imaging_ids:
                 imagings = apps.get_model(app_label="lenses",model_name='Imaging').objects.filter(id__in=imaging_ids)
@@ -700,13 +711,16 @@ class MergeLenses(ConfirmationTask):
                 action.send(self.owner,target=admin,verb='AddHome',level='success',action_object=ad_col)
             
 
-                
-            
+
             # Second, transfer all the PRI data
             redshifts = apps.get_model(app_label="lenses",model_name='Redshift').objects.filter(lens=new).filter(access_level='PRI')
             for redshift in redshifts:
                 redshift.lens = target
                 redshift.save()
+            generic_images = apps.get_model(app_label="lenses",model_name='GenericImage').objects.filter(lens=new).filter(access_level='PRI')
+            for generic_image in generic_images:
+                generic_image.lens = target
+                generic_image.save()
             imagings = apps.get_model(app_label="lenses",model_name='Imaging').objects.filter(lens=new).filter(exists=True).filter(access_level='PRI')
             for imaging in imagings:
                 imaging.lens = target
@@ -718,7 +732,7 @@ class MergeLenses(ConfirmationTask):
 
 
 
-
+            # Delete the 'new' lens here?
 
 
                 
