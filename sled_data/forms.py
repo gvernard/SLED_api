@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
-from lenses.models import DataBase, Imaging, Spectrum, Catalogue, Redshift
+from lenses.models import DataBase, Imaging, Spectrum, Catalogue, Redshift, GenericImage
 
 
 
@@ -133,6 +133,22 @@ class RedshiftCreateFormModal(BSModalModelForm):
     def __init__(self, *args, **kwargs):
         super(RedshiftCreateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
+
+class GenericImageCreateFormModal(BSModalModelForm):
+    field_order = ['name','info','image']
+    
+    class Meta:
+        model = GenericImage
+        fields = "__all__"
+        widgets = {
+            'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
+            'owner': forms.HiddenInput(),
+            'lens': forms.HiddenInput(),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super(GenericImageCreateFormModal, self).__init__(*args, **kwargs)
+        self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text 
 ##############################################################################
 
 
@@ -188,6 +204,22 @@ class RedshiftUpdateFormModal(BSModalModelForm):
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
 
     
+class GenericImageUpdateFormModal(BSModalModelForm):
+    field_order = ['name','info','image']
+
+    class Meta:
+        model = GenericImage
+        exclude = ['owner','lens','access_level']
+        widgets = {
+            'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
+        }
+        
+    def __init__(self, *args, **kwargs):
+        super(GenericImageUpdateFormModal, self).__init__(*args, **kwargs)
+        self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text 
+
+
+        
         
 class DataUpdateManyFormSet(forms.BaseInlineFormSet):
     def __init__(self, *args, **kwargs):

@@ -33,22 +33,69 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                               upload_to='generic')
     
     class Meta():
-        ordering = ["name"]
+        ordering = ["created_at"]
         db_table = "generic_image"
         verbose_name = "GenericImage"
         verbose_name_plural = "GenericImages"
 
-    def __str__(self):
-        return self.name
-    
+        
     def is_orphan(self):
         if self.lens is None:
             return True
         else:
             return not Lenses.objects.filter(id=self.lens.id).exists()
 
+        
+    def __str__(self):
+        return self.lens.name + " - " + self.name
+
+    
+    def get_absolute_url(self):
+        return self.lens.get_absolute_url()
+
+    
+    def save(self,*args,**kwargs):
+        if self._state.adding:
+            # Creating object for the first time, calling save first to create a primary key
+            super(GenericImage,self).save(*args,**kwargs)
+            if self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+        else:
+            # Updating object
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            dirty.pop("owner",None) # Do not report ownership changes
+
+            ref_name = self.name
+            
+            if "access_level" in dirty.keys():
+                # Report only when making public
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='success',object_name=ref_name)
+                if dirty["access_level"]["saved"] == "PUB" and dirty["access_level"]["current"] == "PRI":
+                    action.send(self.owner,target=self.lens,verb='MadePrivateTargetLog',level='error',object_name=ref_name)
+                dirty.pop("access_level",None) # remove from any subsequent report
+
+            if "image" in dirty.keys():
+                action.send(self.owner,target=self.lens,verb='ImageChangeTargetLog',level='info',object_name=ref_name)
+                dirty.pop("image",None) # remove from any subsequent report
+                
+            if len(dirty) > 0 and self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
+
+            super(GenericImage,self).save(*args,**kwargs)
+                
+        # Create new file and remove old one
+        fname = self.image.name
+        dum,file_ext = os.path.splitext(fname)
+        sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + file_ext
+        if fname != sled_fname:
+            default_storage.copy(fname,sled_fname)            
+            self.image.name = sled_fname
+            super(GenericImage,self).save(*args,**kwargs)
+            default_storage.mydelete(fname)
 
 
+                
     
 class Instrument(models.Model):
     name = models.CharField(blank=False,

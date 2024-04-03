@@ -208,7 +208,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
                 try:
                     # Check that collection owner really has view access to the private lenses
                     has_perm = True
-                    perm = "view_" + private_objects[0]._meta.db_table
+                    perm = "view_" + private_objects[0]._meta.model_name
                     checker = ObjectPermissionChecker(user) # ObjectPermissionChecker here is fine because we care for either direct or group access
                     checker.prefetch_perms(private_objects)
                     for obj in private_objects:
@@ -346,6 +346,6 @@ def handle_new_collection(sender,**kwargs):
     created = kwargs.get('created')
     if created: # a new collection was added
         collection = kwargs.get('instance')
-        perm = 'view_'+collection._meta.db_table
+        perm = 'view_'+collection._meta.model_name
         assign_perm(perm,collection.owner,collection) # collection here is not a list, so giving permission ot the user is guaranteed 
 

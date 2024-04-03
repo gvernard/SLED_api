@@ -1,0 +1,22 @@
+{% extends "modal_base.html" %}
+{% load project_tags %}
+
+
+{% block title %}
+<a href="{{ generic_image.lens.get_absolute_url }}">{{ generic_image.lens }}</a>
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container-modal jb-table-no-lines">
+  
+  <table>
+    <tr><td>Owner:</td><td>{{ generic_image.owner.id|get_user_link|safe }}</td></tr>
+    <tr><td>Access level:</td><td>{{ generic_image.access_level }}</td></tr>
+    <tr><td>Info:</td><td>{{ generic_image.info|default:"-" }}</td></tr>
+  </table>
+  
+  <img src="{{ generic_image.image.url }}" style="width:100%">
+
+</div>
+{% endblock content %}

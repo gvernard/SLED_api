@@ -26,7 +26,7 @@ import json
 from urllib.parse import urlparse
 from itertools import chain
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift, GenericImage
 
 from . import forms
 from . import query_utils
@@ -413,7 +413,9 @@ class LensDetailView(DetailView):
         # Redshifts
         redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])
 
-
+        # Generic images
+        generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        
         other_owners = []
         if self.request.user == context['lens'].owner:
             for instrument,imaging in display_images.items():
@@ -459,6 +461,7 @@ class LensDetailView(DetailView):
         context['display_catalogues_plot'] = dict(catalogue_entries_plot)
         context['display_catalogues_table'] = all_results
         context["redshifts"] = redshifts
+        context["generic_images"] = generic_images
         return context
     
 

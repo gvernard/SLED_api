@@ -31,7 +31,7 @@ def delete_group(sender,instance,**kwargs):
 
     # Remove permissions
     for model_class in SingleObject.__subclasses__():
-        perm = 'view_'+model_class._meta.db_table
+        perm = 'view_'+model_class._meta.model_name
         pri_objs = model_class.objects.filter(access_level="PRI")
         objs = get_objects_for_group(instance,perm,klass=pri_objs)
         if objs:

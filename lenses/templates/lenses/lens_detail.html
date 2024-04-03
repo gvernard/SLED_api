@@ -202,6 +202,64 @@
   </div>
 
 
+
+  <!-- Div containing all the related papers -->
+  <div class="jb-section jb-table-no-lines">
+    <h1 class="jb-heading-2">Papers</h1>
+    <table class="jb-paper-table">
+      {% for paper,label in all_papers %}
+      <tr>
+	<td valign="top">{{ label }}</td>
+	<td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
+	<td><i>"{{ paper.title }}"</i></td>
+      </tr>
+      {% empty %}
+      No papers associated with this lens in the database
+      {% endfor %}
+    </table>
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-quick-query' %}">
+      <img src="{% static 'icons/search.svg' %}" alt="pencil">
+      Search paper
+    </button>    
+  </div>
+  
+  
+  <!-- Div containing all the generic images  -->  
+  <div class="jb-section">
+    <h1 class="jb-heading-2">Generic Images</h1>
+
+    <div style="overflow:hidden">
+      {% for generic_image in generic_images %}
+      <div class="imaging-item">
+	<div class="header">
+	  {{ generic_image.name }}
+	</div>
+	<div class="container">
+	  <img src="{{ generic_image.image.url }}" height="170px">
+	  <div class="overlay">
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:generic-image-detail' generic_image.id %}">
+	      <img src="{% static 'icons/eye-fill.svg' %}">
+	      View
+	    </button>
+	    {% if generic_image.owner == user %}
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:generic-image-update' generic_image.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}">
+	      Update
+	    </button>	
+	    {% endif %}
+	  </div>
+	</div>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:generic-image-create' lens=lens.id %}">
+      <img src="{% static 'icons/plus.svg' %}">
+      Add Generic Image
+    </button>
+  </div>
+  
+  
   <!-- Div containing all the redshift measurements  -->
   <div class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Redshifts</h1>
@@ -260,27 +318,6 @@
       <img src="{% static 'icons/plus.svg' %}">
       Add Redshift
     </button>
-  </div>
-
-
-  <!-- Div containing all the related papers -->
-  <div class="jb-section jb-table-no-lines">
-    <h1 class="jb-heading-2">Papers</h1>
-    <table class="jb-paper-table">
-      {% for paper,label in all_papers %}
-      <tr>
-	<td valign="top">{{ label }}</td>
-	<td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
-	<td><i>"{{ paper.title }}"</i></td>
-      </tr>
-      {% empty %}
-      No papers associated with this lens in the database
-      {% endfor %}
-    </table>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-quick-query' %}">
-      <img src="{% static 'icons/search.svg' %}" alt="pencil">
-      Search paper
-    </button>    
   </div>
 
   

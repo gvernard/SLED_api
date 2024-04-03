@@ -20,7 +20,7 @@ import inspect
 from . import SledGroup, SingleObject, ConfirmationTask, Collection, AdminCollection
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
-objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue","Redshift"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue","Redshift","GenericImage"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 
 
@@ -202,7 +202,7 @@ class Users(AbstractUser,GuardianUserMixin):
         objects_qset = model_ref.objects.filter(id__in=[obj.id for obj in objects])
         
         # User owns all objects, proceed with giving access
-        perm = "view_"+objects[0]._meta.db_table
+        perm = "view_"+objects[0]._meta.model_name
 
         # first loop over the target_users
         set1 = set(objects)
@@ -256,7 +256,7 @@ class Users(AbstractUser,GuardianUserMixin):
             target_users.remove(self)
             
         # User owns all objects, proceed with revoking access
-        perm = "view_"+objects[0]._meta.db_table
+        perm = "view_"+objects[0]._meta.model_name
 
         # Loop over the target_users
         for user in target_users:

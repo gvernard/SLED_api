@@ -384,7 +384,7 @@ class CollectionViewAccessView(BSModalReadView):
 
         groups = self.object.getGroupsWithAccessNoOwner()
         obj_model = apps.get_model(app_label='lenses',model_name=self.object.item_type)
-        perm = 'view_' + obj_model._meta.db_table
+        perm = 'view_' + obj_model._meta.model_name
         all_priv = self.object.getSpecificModelInstances(self.object.owner).filter(access_level='PRI')
         N_no_access = []
         names_no_access = []

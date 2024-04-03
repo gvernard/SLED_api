@@ -27,7 +27,7 @@ from guardian.shortcuts import assign_perm,remove_perm
 from notifications.signals import notify
 
 import lenses
-from lenses.models import Users, Lenses, SledGroup, Imaging, Spectrum, Catalogue, AdminCollection, Redshift
+from lenses.models import Users, Lenses, SledGroup, Imaging, Spectrum, Catalogue, AdminCollection, Redshift, GenericImage
 from . import forms
 
 
@@ -46,6 +46,8 @@ class DataDetailView(BSModalReadView):
             return ['sled_data/spectrum_detail.html']
         elif model_name == 'Catalogue':
             return ['sled_data/catalogue_detail.html']
+        elif model_name == 'GenericImage':
+            return ['sled_data/generic_image_detail.html']
         else:
             # Maybe return some default error template here
             pass
@@ -58,6 +60,8 @@ class DataDetailView(BSModalReadView):
             return 'spectrum'
         elif model_name == 'Catalogue':
             return 'catalogue'
+        elif model_name == 'GenericImage':
+            return 'generic_image'
         else:
             # Maybe return something default here
             pass
@@ -82,6 +86,8 @@ class DataCreateView(BSModalCreateView):
             return ['sled_data/catalogue_create.html']
         elif model_name == 'Redshift':
             return ['sled_data/redshift_create.html']
+        elif model_name == 'GenericImage':
+            return ['sled_data/generic_image_create.html']
         else:
             # Maybe return some default error template here
             pass
@@ -96,6 +102,8 @@ class DataCreateView(BSModalCreateView):
             return forms.CatalogueCreateFormModal
         elif model_name == 'Redshift':
             return forms.RedshiftCreateFormModal
+        elif model_name == 'GenericImage':
+            return forms.GenericImageCreateFormModal
         else:
             # Maybe return some default error template here
             pass
@@ -149,6 +157,8 @@ class DataUpdateView(BSModalUpdateView):
             return ['sled_data/catalogue_update.html']
         elif model_name == 'Redshift':
             return ['sled_data/redshift_update.html']
+        elif model_name == 'GenericImage':
+            return ['sled_data/generic_image_update.html']
         else:
             # Maybe return some default error template here
             pass
@@ -163,6 +173,8 @@ class DataUpdateView(BSModalUpdateView):
             return forms.CatalogueUpdateFormModal
         elif model_name == 'Redshift':
             return forms.RedshiftUpdateFormModal
+        elif model_name == 'GenericImage':
+            return forms.GenericImageUpdateFormModal
         else:
             # Maybe return some default error template here
             pass
@@ -253,12 +265,14 @@ class DataDeleteManyView(ModalIdsBaseMixin):
         ids = form.cleaned_data['ids'].split(',')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
         items = model_ref.accessible_objects.in_ids(self.request.user,ids)
-
+        
         pub = items.filter(access_level='PUB')
         if pub:
             for item in pub:
-                if model_ref == 'Spectrum':
+                if obj_type == 'Spectrum':
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument=item.instrument.name)
+                elif obj_type == 'GenericImage':
+                    action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument='Generic Image')
                 else:
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument=item.instrument.name,band=item.band.name)
                 item.delete()
@@ -270,7 +284,7 @@ class DataDeleteManyView(ModalIdsBaseMixin):
             
         pri = items.filter(access_level='PRI')
         if pri:
-            perm = "view_"+obj_type
+            perm = "view_"+obj_type.lower()
 
             ### Notifications per user #####################################################
             users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')

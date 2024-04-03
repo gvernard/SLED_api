@@ -764,7 +764,7 @@
 	      Delete
 	    </button>
 	  </div>
-
+	  
 	</form>
 	{% endif %}
 	<br>
@@ -774,9 +774,9 @@
 	<br>
       </div>
     </div>
-
-
-
+    
+    
+    
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="redshifts">
       <h1 class="jb-heading-2">
@@ -801,7 +801,7 @@
 	  
 	  <div>
 	    {% include "pagination_top.html" with qset=redshifts request=request qset_range=redshifts_range qset_total=N_redshifts_total target="redshifts" %}
-
+	    
 	    <input name="obj_type" type="hidden" value="Redshift" />
 	    <table>
 	      <thead>
@@ -834,7 +834,6 @@
 		    </button>
 		    {% endif %}
 		    {% endif %}
-		  </td>
 		  </td>
 		  <td style="padding-right:10px;">
 		    Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>
@@ -877,8 +876,8 @@
 	    </table>
 	    <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
 	  </div>	 
-	  {% include "pagination_bottom.html" with qset=redshifts request=request qset_range=sredshifts_range qset_total=N_redshifts_total target="redshifts" %}
-
+	  {% include "pagination_bottom.html" with qset=redshifts request=request qset_range=redshifts_range qset_total=N_redshifts_total target="redshifts" %}
+	  
 	  <div>
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
@@ -905,18 +904,152 @@
 	      Delete
 	    </button>
 	  </div>
-
-	</form>
-	{% endif %}
-	<br>
-	<br>
-	
-	{% endif %}
-	<br>
       </div>
+      </form>
+      {% endif %}
+      <br>
+      <br>
+      
+      {% endif %}
+      <br>
     </div>
-
+  </div>
+  
+  
+  
+  
+  
+  <div class="c c-user">
+    <input class="accordion-checkbox" type="checkbox" id="generic-images">
+    <h1 class="jb-heading-2">
+      <label for="generic-images">
+	My Generic Images ({{ N_generic_image_total }})
+      </label>
+    </h1>
+    <div class="p">
+      <br>
+      {% if user.is_superuser %}
+      <p>
+	The admin owns all the automatically fetched data, which are too many to display here.
+	Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
+      </p>
+      {% else %}
+      
+      {% if generic_images|length == 0 %}
+      No Generic Images owned
+      {% else %}
+      <form id="generic-images-form" class="ids-form" method="POST">
+        {% csrf_token %}
 	
+	<div>
+	  {% include "pagination_top.html" with qset=generic_images request=request qset_range=generic_images_range qset_total=N_generic_images_total target="generic-images" %}
+	  
+	  <input name="obj_type" type="hidden" value="GenericImage" />
+	  <table>
+	    <thead>
+	      <tr>
+		<th></th>
+		<th></th>
+		<th>Lens</th>
+		<th>Name</th>
+		<th>Info</th>
+		<th>Access level</th>
+		<th>Accessible by</th>
+		<th>&nbsp;</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {% for generic_image in generic_images %}
+	      <tr>
+		<td><input name="ids" type="checkbox" value="{{ generic_image.id }}"></td>
+		<td><img class="sled-mugshot-icon" src="{{ generic_image.image.url }}"></td>
+		<td>
+		  <a href="{{ generic_image.lens.get_absolute_url }}">{{ generic_image.lens }}</a>
+		  {% if generic_image.is_orphan %}
+		  DELETED
+		  {% else %}
+		  {% can_access generic_image.lens user as flag %}
+		  {% if not flag %}
+		  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' generic_image.lens.pk %}">
+		    <img src="{% static 'icons/send-fill.svg' %}">
+		    Ask access
+		  </button>
+		  {% endif %}
+		  {% endif %}
+		</td>
+		<td>
+		  {{ generic_image.name }}
+		</td>
+		<td>
+		  {{ generic_image.info }}
+		</td>
+		<td>
+		  {{ generic_image.access_level }}
+		</td>
+		<td>
+		  {{ generic_image.getUsersWithAccessNoOwner|join:"," }} - <em>{{ generic_image.getGroupsWithAccessNoOwner|join:"," }}</em>
+		</td>
+		<td>
+		  {% if generic_image.owner == user %}
+		  <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:generic-image-update' generic_image.id %}">
+		    <img src="{% static 'icons/pencil.svg' %}">
+		    Update
+		  </button>	
+		  {% endif %}
+		</td>
+	      </tr>
+	      {% endfor %}
+	  </table>
+	  <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+	</div>	 
+	{% include "pagination_bottom.html" with qset=generic_images request=request qset_range=generic_image_range qset_total=N_generic_image_total target="generic-images" %}
+	
+	<div>
+	  <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <img src="{% static 'icons/person-dash-fill.svg' %}" >
+	    Revoke access
+	  </button>
+	  <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <img src="{% static 'icons/person-plus-fill.svg' %}" >
+	    Give access
+	  </button>
+	  <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
+	    <img src="{% static 'icons/people-fill.svg' %}" >
+	    Make public
+	  </button>
+	  <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	    <img src="{% static 'icons/lock-fill.svg' %}" >
+	    Make private
+	  </button>
+	  <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <img src="{% static 'icons/forward-fill.svg' %}" >
+	    Cede ownership
+	  </button>
+	  <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
+	    <img src="{% static 'icons/trash.svg' %}" >
+	    Delete
+	  </button>
+	</div>
+	
+      </form>
+      {% endif %}
+      <br>
+      <br>
+      
+      {% endif %}
+      <br>
+    </div>
+  </div>
+  
+	
+
+
+
+
+
+    
+  </div>
+  
 
 
     

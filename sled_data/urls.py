@@ -18,4 +18,7 @@ urlpatterns = [
     path('catalogue-update/<int:pk>',views.DataUpdateView.as_view(),kwargs={'model':'Catalogue'},name='catalogue-update'),
     path('redshift-create/<int:lens>',views.DataCreateView.as_view(),kwargs={'model':'Redshift'},name='redshift-create'),
     path('redshift-update/<int:pk>',views.DataUpdateView.as_view(),kwargs={'model':'Redshift'},name='redshift-update'),
+    path('generic-image-detail/<int:pk>',views.DataDetailView.as_view(),kwargs={'model':'GenericImage'},name='generic-image-detail'),
+    path('generic-image-create/<int:lens>',views.DataCreateView.as_view(),kwargs={'model':'GenericImage'},name='generic-image-create'),
+    path('generic-image-update/<int:pk>',views.DataUpdateView.as_view(),kwargs={'model':'GenericImage'},name='generic-image-update'),
 ]

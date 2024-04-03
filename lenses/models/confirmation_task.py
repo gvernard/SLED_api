@@ -387,7 +387,7 @@ class CedeOwnership(ConfirmationTask):
                     
             # Handle private objects
             if pri:
-                perm = 'view_' + model_ref._meta.db_table
+                perm = 'view_' + model_ref._meta.model_name
                 # Below I have to loop over each object individually because of the way assign_perm is coded.
                 # If the given obj is a list, the it calls bulk_assign_perms that checks for any permission (including through a group) using ObjectPermissionChecker.
                 # As a result, if a user already has access through a group explicit permission (user-object pair) is not created.
@@ -458,7 +458,7 @@ class MakePrivate(ConfirmationTask):
             #cargo = json.loads(self.cargo)
             #objs = getattr(lenses.models,self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
 
-            perm = "view_"+objs[0]._meta.db_table
+            perm = "view_"+objs[0]._meta.model_name
             assign_perm(perm,self.owner,objs) # objs here can be a list because public objects should not have any permissions associated with them anyway
             notify.send(sender=admin,
                         recipient=self.owner,
@@ -824,7 +824,7 @@ class AddData(ConfirmationTask):
             # The name of 'perm' depends on the object type
             for obj in pri:
                 model_ref = pri.__class__
-                perm = 'view_' + model_ref._meta.db_table
+                perm = 'view_' + model_ref._meta.model_name
                 assign_perm(perm,self.owner,obj)
         if pub:
             from . import Users

@@ -1,0 +1,60 @@
+{% extends "modal_base.html" %}
+{% load static %}
+
+
+{% block title %}
+Update Generic Image
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container">
+  <p>
+    Update Generic Image for this lens.
+  </p>
+
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  
+  <div class="jb-modal-field jb-table-no-lines">
+    <table>
+      <tbody>
+	{% for field in form %}
+	<tr>
+	  <td>{{ field.error }}</td>
+          <td>
+	    <div class="sled-help-tooltip">{{ field.label|safe }}</div>
+	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
+	  </td>
+	  <td>{{ field }}</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock content %}
+
+
+{% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
+<script type="text/javascript">
+  set_help();
+</script>
+{% endblock extrascripts %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/pencil.svg' %}" >
+  Update
+</button>
+{% endblock action_button %}

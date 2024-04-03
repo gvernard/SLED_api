@@ -48,7 +48,8 @@ class AccessManager(models.Manager):
         # Attention: all this should result to no hits to the DB because it is supposed to work with querysets only...to check!
         public  = super().get_queryset().filter(access_level='PUB')
         private = super().get_queryset().filter(access_level='PRI')
-        perm = 'view_'+self.model._meta.db_table
+        perm = 'view_'+self.model._meta.model_name
+        print(perm)
         accessible_private = get_objects_for_user(user,perm,klass = private,with_superuser=False)
         qset = public | accessible_private # merge querysets
         return qset
@@ -66,7 +67,7 @@ class AccessManager(models.Manager):
         """
         public  = super().get_queryset().filter(access_level='PUB').filter(id__in=id_list)
         private = super().get_queryset().filter(access_level='PRI').filter(id__in=id_list)
-        perm = 'view_'+self.model._meta.db_table        
+        perm = 'view_'+self.model._meta.model_name
         accessible_private = get_objects_for_user(user,perm,klass = private,with_superuser=False)
         return public | accessible_private # merge and return querysets
 
@@ -108,7 +109,7 @@ class AccessManager(models.Manager):
         Returns:
             object_ugs (List[dict]): The output of '_arrange_by_object' - a list of dictionaries, each containing an "object" and "ugs" keys. The "object" contains only one object and the "ugs" a list of User and Group objects.
         """
-        perm = "view_"+objects[0]._meta.db_table
+        perm = "view_"+objects[0]._meta.model_name
         pairs = []
         for j,ug in enumerate(ugs):
             checker = ObjectPermissionChecker(ug) # ObjectPermissionChecker here is fine because we want users or groups without permissions
@@ -130,7 +131,7 @@ class AccessManager(models.Manager):
         Returns:
             object_ugs (List[dict]): The output of '_arrange_by_object' - a list of dictionaries, each containing an "object" and "ugs" keys. The "object" contains only one object and the "ugs" a list of User and Group objects.
         """
-        perm = "view_"+objects[0]._meta.db_table
+        perm = "view_"+objects[0]._meta.model_name
         pairs = []
         for j,ug in enumerate(ugs):
             #checker = ObjectPermissionChecker(ug)
@@ -189,7 +190,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
             gwa = self.getGroupsWithAccessNoOwner()
 
             # Remove persmissions and notify users and groups with access to the object
-            perm = 'view_'+self._meta.db_table
+            perm = 'view_'+self._meta.model_name
             for user in uwa:
                 remove_perm(perm,user,self)
                 notify.send(sender=self.owner,
@@ -277,7 +278,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
             #"Object is already public, no point to fetch users with access to it."
             return []
         else:
-            perm = "view_"+self._meta.db_table
+            perm = "view_"+self._meta.model_name
             users = get_users_with_perms(self,with_group_users=False,only_with_perms_in=[perm])
             if users:
                 return list(users.exclude(username=self.owner.username).order_by('username')) # exclude the owner

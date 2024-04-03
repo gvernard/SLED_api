@@ -21,7 +21,7 @@ from actstream.models import following, target_stream, Action
 from operator import attrgetter
 from itertools import chain
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift, GenericImage
 from .forms import UserUpdateForm,UsersSearchForm
 
 
@@ -213,6 +213,12 @@ class UserProfileView(TemplateView):
         redshifts_page_number = request.GET.get('redshifts-page',1)
         redshifts_page = redshifts_paginator.get_page(redshifts_page_number)
 
+        # Paginator for Redshift
+        generic_image_paginator = Paginator(owned_objects["GenericImage"],50)
+        generic_image_page_number = request.GET.get('generic-images-page',1)
+        generic_image_page = generic_image_paginator.get_page(generic_image_page_number)
+
+
         #recipient = ConfirmationTask.custom_manager.all_as_recipient(self.request.user)
 
         
@@ -278,6 +284,9 @@ class UserProfileView(TemplateView):
                  'N_redshifts_total': redshifts_paginator.count,
                  'redshifts_range': redshifts_paginator.page_range,
                  'redshifts': redshifts_page,
+                 'N_generic_image_total': generic_image_paginator.count,
+                 'generic_image_range': generic_image_paginator.page_range,
+                 'generic_images': generic_image_page,
                  'collections': qset_cols,
                  'collections_users': cols_users_with_access,
                  'collections_groups': cols_groups_with_access,
