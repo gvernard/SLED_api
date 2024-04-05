@@ -653,7 +653,7 @@ class MergeLenses(ConfirmationTask):
                     elif field_name == 'mugshot':
                         # Create a GenericImage from the old mugshot
                         model_ref = apps.get_model(app_label="lenses",model_name='GenericImage')
-                        old_mug = model_ref(lens=target,owner=target.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
+                        old_mug = model_ref(lens=target,owner=new.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
                         old_mug.save()
 
                         target.mugshot.name = new.mugshot.name                        

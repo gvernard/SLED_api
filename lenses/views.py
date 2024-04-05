@@ -416,17 +416,24 @@ class LensDetailView(DetailView):
         # Generic images
         generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
         
-        other_owners = []
+        other_owners = {"Generic Images": [], "Redshifts": [], "Imaging Data": [], "Spectroscopic Data": [], "Models": []}
         if self.request.user == context['lens'].owner:
             for instrument,imaging in display_images.items():
                 for band,img in imaging.items():
-                    other_owners += list(img.values_list('owner__username',flat=True))
+                    other_owners["Imaging Data"] += list(img.values_list('owner__username',flat=True))
             for redshift in redshifts:
-                other_owners.append(redshift.owner.username)
-            other_owners += allspectra.values_list('owner__username',flat=True)
-            other_owners = set(other_owners)
-            if context['lens'].owner.username in other_owners:
-                other_owners.remove(context['lens'].owner.username)
+                other_owners["Redshifts"].append(redshift.owner.username)
+            for generic_image in generic_images:
+                other_owners["Generic Images"].append(generic_image.owner.username)
+            other_owners["Spectroscopic Data"] += allspectra.values_list('owner__username',flat=True)
+            other_owners["Models"] = []
+
+            for label,others in other_owners.items():
+                if len(others) > 0:
+                    my_dict = {i:others.count(i) for i in others}
+                    new_others = [ name + " ("+str(freq)+")" for name,freq in my_dict.items() ]
+                    other_owners[label] = new_others
+
 
         if self.request.user == context['lens'].owner:
             qset_cols = Collection.accessible_objects.all(self.request.user).filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk=context['lens'].id))
@@ -453,7 +460,7 @@ class LensDetailView(DetailView):
         paper_labels = [ ','.join(x) for x in labels ]
 
         context['following'] = following
-        context['other_owners'] = list(other_owners)
+        context['other_owners'] = other_owners
         context['collections'] = qset_cols
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images

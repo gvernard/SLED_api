@@ -84,25 +84,41 @@
     </form>
 
     <div>
-      Some summary of who has access, who else owns data etc.
-      <ul>
-	<li>
-	  This lens is <b>{{ lens.access_level }}</b>
-	  {% if lens.access_level == 'PRI' %}
-	  and accessible by: {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
-	  {% endif %}
-	</li>
-	{% if other_owners %}
-	<li>
-	  Other owners: {{ other_owners|join:"," }}
-	</li>
+      This lens is <b>{{ lens.access_level }}</b>
+      <table class="lens-summary">
+	{% if lens.access_level == 'PRI' %}
+	<tr>
+	  <td>User Access:</td>
+	  <td>{{ lens.getUsersWithAccessNoOwner|join:"," }}</td>
+	</tr>
+	<tr>
+	  <td>Group Access:</td>
+	  <td>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</td>
+	</tr>
 	{% endif %}
-	{% if collections %}
-	<li>
-	  Collections: {{ collections|join:"," }}
-	</li>
-	{% endif %}
-      </ul>
+	{% for label,others in other_owners.items %}
+	<tr>
+	  <td>{{ label }}:</td>
+	  <td>
+	    {% if others %}
+	    {{ others|join:"," }}
+	    {% else %}
+	    -
+	    {% endif %}
+	  </td>
+	</tr>
+	{% endfor %}
+	<tr>
+	  <td>Collections:</td>
+	  <td>
+	    {% if collections %}
+	    {{ collections|join:"," }}
+	    {% else %}
+	    -
+	    {% endif %}
+	  </td>
+	</tr>
+      </table>
     </div>
     
     
