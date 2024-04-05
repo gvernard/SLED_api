@@ -95,13 +95,33 @@ class LensMakePublicForm(BSModalForm):
     def clean(self):
         # All lenses MUST be private
         ids = self.cleaned_data.get('ids').split(',')
-        qset = Lenses.objects.filter(id__in=ids).filter(access_level='PUB')
-        if qset.count() > 0:
+        qset = Lenses.objects.filter(id__in=ids)
+        if qset.filter(access_level='PUB').count() > 0:
             self.add_error('__all__',"You are selecting already public lenses!")
 
-            
-        
 
+        ### Very important: check for proximity within the submitted objects
+        #####################################################            
+        check_radius = 16 # arcsec
+        dupls = []
+        target_objs = list(qset)
+        for i in range(0,len(target_objs)-1):
+            ra1 = target_objs[i].ra
+            dec1 = target_objs[i].dec
+
+            for j in range(i+1,len(target_objs)):
+                ra2 = target_objs[j].ra
+                dec2 = target_objs[j].dec
+
+                if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
+                    dupls.append(target_objs[i].name + ' - ' + target_objs[j].name)
+
+        if len(dupls) > 0:
+            message = 'The following lenses are located too close to each other, indicating possible duplicates. Making them public is not allowed: \n'
+            self.add_error('__all__',message)
+            for pair in dupls:
+                self.add_error('__all__',pair)
+                
 
             
 class LensMakeCollectionForm(BSModalModelForm):

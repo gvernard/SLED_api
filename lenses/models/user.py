@@ -365,7 +365,8 @@ class Users(AbstractUser,GuardianUserMixin):
 
         # Loop over the list, act only on those objects that are private
         target_objs = qset.filter(access_level__exact='PRI')
-        
+
+    
         if target_objs.count() == 0:
             output = {'success':False,'message':"All objects are already public!",'duplicates':[]}
             return output
@@ -375,16 +376,6 @@ class Users(AbstractUser,GuardianUserMixin):
             perm = "view_"+object_type.lower()
             target_objs = list(target_objs)
                         
-            ### Very important: check for proximity before making public.
-            #####################################################            
-            # if object_type == 'Lenses':
-            #     indices,neis = model_ref.proximate.get_DB_neighbours_many(target_objs)
-            #     if indices:
-            #         # Possible duplicates, return them
-            #         to_check = [target_objs[i] for i in indices]
-            #         output = {'success':False,'message':'Existing public lenses too close - possible duplicates.','duplicates':to_check}
-            #         return output
-            
             ### Per user
             #####################################################            
             users_with_access,accessible_objects = self.accessible_per_other(target_objs,'users')
