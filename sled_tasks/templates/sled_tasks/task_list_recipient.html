@@ -63,10 +63,17 @@
         {% else %}
         
         {% if task.status == 'C' %}
+	{% if task.task_type == 'MergeLenses' %}
+	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-merge-complete-recipient' task.id %}">
+          <img src="{% static 'icons/eye-fill.svg' %}">
+          View
+	</button>
+	{% else %}
 	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
           <img src="{% static 'icons/eye-fill.svg' %}">
           View
 	</button>
+	{% endif %}
         {% else %}
 	{% if task.task_type == 'MergeLenses' %}
 	<form action="{% url 'sled_tasks:tasks-detail-merge' task.id %}">

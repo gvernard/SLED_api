@@ -595,7 +595,9 @@ class ResolveDuplicates(ConfirmationTask):
 
                 cargo = {
                     'new_lens': objs_to_merge[i].object.pk,
-                    'existing_lens': existing[i].pk
+                    'existing_lens': existing[i].pk,
+                    'object_type': 'Lenses',
+                    'object_ids': [existing[i].pk,objs_to_merge[i].object.pk]
                 }
                 from . import Users
                 receiver = Users.objects.filter(id=existing[i].owner.id) # receiver must be a queryset

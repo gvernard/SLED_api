@@ -41,7 +41,7 @@ class TaskListView(ListView):
             recipient = self.model.custom_manager.all_as_recipient(admin)
         else:
             owner = self.model.accessible_objects.owned(self.request.user).exclude(task_type__exact='AcceptNewUser')
-            recipient = self.model.custom_manager.all_as_recipient(self.request.user)
+            recipient = self.model.custom_manager.all_as_recipient(self.request.user).exclude(task_type__exact='ResolveDuplicates')
 
         o_paginator = Paginator(owner,50)
         o_page_number = self.request.GET.get('tasks_owned-page',1)
@@ -87,6 +87,25 @@ class TaskDetailOwnerView(BSModalReadView):
         context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
         context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
         return context
+
+
+@method_decorator(login_required,name='dispatch')
+class TaskMergeCompleteDetailRecipientView(BSModalReadView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_detail_owner.html'
+    context_object_name = 'task'
+
+    def get_queryset(self):
+        return self.model.custom_manager.all_as_recipient(self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['allowed'] = ' or '.join( self.object.allowed_responses() )
+        context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+        context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
+        return context
+
+
 
     
 @method_decorator(login_required,name='dispatch')

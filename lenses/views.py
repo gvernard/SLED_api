@@ -695,6 +695,8 @@ class LensResolveDuplicatesView(TemplateView):
                 task.responses_allowed = [my_response]
                 task.registerResponse(request.user,my_response,'Some comment')
                 message = task.finalizeTask()
+                task.status = "C"
+                task.save()
                 #task.delete()
                 return TemplateResponse(request,'simple_message.html',context={'message':message})
             else:
