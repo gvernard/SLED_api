@@ -733,8 +733,8 @@ class MergeLenses(ConfirmationTask):
                 spectrum.save()
 
 
-
-            # Delete the 'new' lens here?
+            # Delete the 'new' lens here
+            new.delete()
 
 
                 
@@ -865,6 +865,7 @@ class AcceptNewUser(ConfirmationTask):
         site = Site.objects.get_current()
         if response == 'yes':
             task_owner.is_active = True
+            default_storage.create_dir('temporary/'+task_owner.username)
             task_owner.save()
             action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUserHome',level='success',action_object=task_owner)
             subject = 'Welcome to SLED'

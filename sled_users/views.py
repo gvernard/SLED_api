@@ -139,7 +139,7 @@ class UserProfileView(TemplateView):
         papers = papers[:5]
 
         # get pending confirmation tasks
-        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__exact='AcceptNewUser'))
+        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__in=['AcceptNewUser','ResolveDuplicates']))
         N_tasks = len(pending_tasks)
         N_owned = ConfirmationTask.accessible_objects.owned(user).count()
         N_recipient = ConfirmationTask.custom_manager.all_as_recipient(user).count()

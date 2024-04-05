@@ -48,7 +48,12 @@ class DatabaseFileStorage(S3Boto3Storage):
             Key=self.location + fname
         )
 
-        
+    def create_dir(self,dname):
+        response = self.connection.meta.client.put_object(
+            Body='',
+            Bucket=self.bucket_name,
+            Key=os.path.join(self.location,dname,'')
+        )
 
 
 class LocalStorage(Storage):
@@ -71,8 +76,13 @@ class LocalStorage(Storage):
         shutil.copyfile(self.location + from_path,self.location + to_path)
 
     def mydelete(self,fname):
-        os.remove(self.location + fname)
+        if self.exists(fname):
+            os.remove(self.location + fname)
 
+    def create_dir(self,dname):
+        if not os.path.exists(self.location + dname):
+            os.makedirs(self.location + dname)
+            
     def put_object(self,content,fname):
         with open(self.location + fname,'wb') as writer:
             writer.write(content)
