@@ -680,6 +680,7 @@ class LensResolveDuplicatesView(TemplateView):
         else:
             return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
+
     def post(self, request, *args, **kwargs):
         referer = urlparse(request.META['HTTP_REFERER']).path
         task_id = self.kwargs['pk']

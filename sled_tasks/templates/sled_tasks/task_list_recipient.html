@@ -50,7 +50,6 @@
           <img src="{% static 'icons/eye-fill.svg' %}">
           View
         </button>
-
         {% else %}
         {% if task.cargo.user_admin == request.user.username %}
         <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
@@ -63,17 +62,10 @@
         {% else %}
         
         {% if task.status == 'C' %}
-	{% if task.task_type == 'MergeLenses' %}
-	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-merge-complete-recipient' task.id %}">
-          <img src="{% static 'icons/eye-fill.svg' %}">
-          View
-	</button>
-	{% else %}
 	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
           <img src="{% static 'icons/eye-fill.svg' %}">
           View
 	</button>
-	{% endif %}
         {% else %}
 	{% if task.task_type == 'MergeLenses' %}
 	<form action="{% url 'sled_tasks:tasks-detail-merge' task.id %}">
@@ -81,6 +73,13 @@
             <img src="{% static 'icons/union.svg' %}">
 	    Merge
 	  </button>
+	</form>
+	{% elif task.task_type == 'ResolveDuplicates' %}
+	<form action="{% url 'lenses:resolve-duplicates' task.id %}" method="GET">
+	  <button type="submit" id="submit" class="jb-submit-button-1">
+	    <img src="{% static 'icons/eye-fill.svg' %}">
+	    Resolve
+	  </button>	
 	</form>
 	{% else %}
         <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
@@ -91,7 +90,6 @@
         {% endif %}
 	
         {% endif %}
-	
       </td>
       
     </tr>

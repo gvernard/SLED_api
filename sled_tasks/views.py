@@ -40,8 +40,14 @@ class TaskListView(ListView):
             owner = self.model.accessible_objects.owned(admin)
             recipient = self.model.custom_manager.all_as_recipient(admin)
         else:
-            owner = self.model.accessible_objects.owned(self.request.user).exclude(task_type__exact='AcceptNewUser')
-            recipient = self.model.custom_manager.all_as_recipient(self.request.user).exclude(task_type__exact='ResolveDuplicates')
+            #owner = self.model.accessible_objects.owned(self.request.user).exclude(task_type__exact='AcceptNewUser')
+            #recipient = self.model.custom_manager.all_as_recipient(self.request.user).exclude(task_type__exact='ResolveDuplicates')
+            owner_only = self.model.custom_manager.all_as_owner_only(self.request.user).exclude(task_type__exact='AcceptNewUser')
+            recipient_only = self.model.custom_manager.all_as_recipient_only(self.request.user)
+            both = self.model.custom_manager.both_owner_recipient(self.request.user)
+            owner = owner_only|both.filter(status="C")
+            recipient = recipient_only|both.filter(status="P")
+            
 
         o_paginator = Paginator(owner,50)
         o_page_number = self.request.GET.get('tasks_owned-page',1)
@@ -96,7 +102,7 @@ class TaskMergeCompleteDetailRecipientView(BSModalReadView):
     context_object_name = 'task'
 
     def get_queryset(self):
-        return self.model.custom_manager.all_as_recipient(self.request.user)
+        return self.model.custom_manager.all_as_recipient_only(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -133,10 +139,12 @@ class TaskDetailRecipientView(BSModalFormView):
        
     def get_form_class(self):
         task_id = self.kwargs['pk']
+        
         if self.kwargs.get('admin'):
             self.task = ConfirmationTask.custom_manager.all_as_recipient(Users.getAdmin().first()).get(id=task_id)
         else:
             self.task = ConfirmationTask.custom_manager.all_as_recipient(self.request.user).get(id=task_id)
+            
         if self.task.task_type == "CedeOwnership":
             return CedeOwnershipForm
         elif self.task.task_type == "MakePrivate":
@@ -266,14 +274,11 @@ class TaskMergeDetailView(TemplateView):
         target = Lenses.objects.get(id=task.cargo["existing_lens"])
         new = Lenses.objects.get(id=task.cargo["new_lens"])
         
-        if request.user == task.owner:
-            return TemplateResponse(request,'simple_message.html',context={'message':'You initiated a merge.'})
-        else:
-            context = self.get_context(new,target)
-            choices = self.get_allowed_choices(context)
-            context['form'] = MergeLensesForm(choices=choices)
-            context['task'] = task
-            return self.render_to_response(context)
+        context = self.get_context(new,target)
+        choices = self.get_allowed_choices(context)
+        context['form'] = MergeLensesForm(choices=choices)
+        context['task'] = task
+        return self.render_to_response(context)
 
 
     def post(self, request, *args, **kwargs):

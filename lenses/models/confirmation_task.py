@@ -41,6 +41,17 @@ class ConfirmationTaskManager(models.Manager):
     def all_as_recipient(self,user):
         return super().get_queryset().filter(Q(recipients__username=user.username))
 
+    def all_as_owner_only(self,user):
+        return super().get_queryset().filter(owner=user).exclude(Q(recipients__username=user.username))
+    
+    def all_as_recipient_only(self,user):
+        return super().get_queryset().filter(Q(recipients__username=user.username)).exclude(owner=user)
+
+    def both_owner_recipient(self,user):
+        return super().get_queryset().filter( Q(recipients__username=user.username) & Q(owner=user) )
+
+    
+
 class ConfirmationTask(SingleObject):
     """
     The Confirmation task object.

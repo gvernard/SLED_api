@@ -139,11 +139,18 @@ class UserProfileView(TemplateView):
         papers = papers[:5]
 
         # get pending confirmation tasks
-        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__in=['AcceptNewUser','ResolveDuplicates']))
+        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(user).exclude(task_type__in=['AcceptNewUser']))
         N_tasks = len(pending_tasks)
-        N_owned = ConfirmationTask.accessible_objects.owned(user).count()
-        N_recipient = ConfirmationTask.custom_manager.all_as_recipient(user).count()
-        N_tasks_all = N_owned + N_recipient
+        #owner_only = self.model.custom_manager.all_as_owner_only(self.request.user).exclude(task_type__exact='AcceptNewUser')
+        #recipient_only = self.model.custom_manager.all_as_recipient_only(self.request.user)
+        #both = self.model.custom_manager.both_owner_recipient(self.request.user)
+        #owner = owner_only|both.filter(status="C")
+        #recipient = recipient_only|both.filter(status="P")
+        #N_owned = owner.count()
+        #N_recipient = recipient.count()
+        #N_tasks_all = N_owned + N_recipient
+
+
         
         # Get unread notifications
         unread_notifications = user.notifications.unread()
@@ -266,7 +273,7 @@ class UserProfileView(TemplateView):
                  'N_queries': N_queries,
                  'pending_tasks':pending_tasks,
                  'N_tasks': N_tasks,
-                 'N_tasks_all': N_tasks_all,
+                 #'N_tasks_all': N_tasks_all,
                  'unread_notifications':unread_notifications,
                  'N_note_unread': N_note_unread,
                  'N_lenses_total': lenses_paginator.count,

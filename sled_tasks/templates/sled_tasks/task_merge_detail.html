@@ -4,28 +4,6 @@
 {% block content %}
 <div class="jb-container">
   
-
-  {% if task.status == "C" %}
-
-  <h1 class="jb-heading-1">Merge in lens {{ target }}</h1>
-  <strong>{{task.owner.username}}</strong> requested merging information in lens <a href="{{ target.get_absolute_url }}">{{target.name}}</a> on {{ task.created_at }}.
-
-  <br>
-
-  <strong>User owner</strong> responed on XXX:
-
-
-  and merged the following:
-
-  
-  {% else %}
-
-  {% if request.user == task.owner %}
-
-  Your request to merge lens <a href="{{ new.get_absolute_url }}">{{new.name}}</a> in <a href="{{ target.get_absolute_url }}">{{target.name}}</a> is pending.
-  
-  {% else %}
-  
   <table class="jb-table-no-lines">
     <tr>
       <td>
@@ -37,7 +15,6 @@
       </td>
     </tr>
   </table>
-  
   
   
   <form method="POST">
@@ -243,9 +220,8 @@
     Respond
   </button>
   </form>
-  {% endif %}
 
-  {% endif %}
+
   
   
 </div>

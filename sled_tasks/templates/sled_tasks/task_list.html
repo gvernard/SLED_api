@@ -69,19 +69,10 @@
 		View
 	      </button>
 	      {% else %}
-	      {% if task.task_type == "ResolveDuplicates" and task.status != "C" %}
-	      <form action="{% url 'lenses:resolve-duplicates' task.id %}" method="GET">
-	      <button type="submit" id="submit" class="jb-submit-button-1">
-		<img src="{% static 'icons/eye-fill.svg' %}">
-		View
-	      </button>	
-	      </form>
-	      {% else %}
 	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
 		<img src="{% static 'icons/eye-fill.svg' %}">
 		View
 	      </button>
-	      {% endif %}
 	      {% endif %}
 	    </td>
           </tr>
