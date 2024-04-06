@@ -35,8 +35,8 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
     class Meta():
         ordering = ["created_at"]
         db_table = "generic_image"
-        verbose_name = "GenericImage"
-        verbose_name_plural = "GenericImages"
+        verbose_name = "Generic image"
+        verbose_name_plural = "Generic images"
 
         
     def is_orphan(self):

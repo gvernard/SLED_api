@@ -232,8 +232,53 @@
 	</td>
       </tr>
       {% endfor %}
+    </tbody>
   </table>
   
+
+
+
+  {% elif model == 'Generic Images' %}
+  <table>
+    <thead>
+      <tr>
+	<th></th>
+	<th>Lens</th>
+	<th>Name</th>
+	<th>Info</th>
+	<th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for generic_image in qset %}
+      <tr>
+	<td style="text-align:center" valign="'middle">
+	  <img class="sled-mugshot-icon" src="{{ generic_image.image.url }}">
+	</td>
+	<td>
+	  <a href="{{ generic_image.lens.get_absolute_url }}">{{ generic_image.lens.name }}</a>
+	  {% if generic_image.is_orphan %}
+	  DELETED
+	  {% else %}
+	  {% can_access generic_image.lens user as flag %}
+	  {% if not flag %}
+	  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' generic_image.lens.pk %}">
+	    <img src="{% static 'icons/send-fill.svg' %}">
+	    Ask access
+	  </button>
+	  {% endif %}
+	  {% endif %}
+	</td>
+	<td>{{ generic_image.name }}</td>
+	<td>{{ generic_image.info }}</td>
+	<td>
+	  <a href="{{ generic_image.owner.get_absolute_url }}">{{ generic_image.owner }}</a>
+	</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
 
   
   {% elif model == 'Spectra' %}
@@ -278,6 +323,7 @@
 	</td>
       </tr>
       {% endfor %}
+    </tbody>
   </table>
   
   {% elif model == 'Catalogue Data Entries' %}

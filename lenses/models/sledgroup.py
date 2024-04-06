@@ -20,7 +20,7 @@ from dirtyfields import DirtyFieldsMixin
 
 import inspect
 
-objects_with_group_access = ["Lenses","Collection","Imaging","Spectrum","Catalogue","Redshift"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+objects_with_group_access = ["Lenses","Collection","Imaging","Spectrum","Catalogue","Redshift","GenericImage"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
 
 
 class SledGroup(Group,SingleObject,DirtyFieldsMixin):

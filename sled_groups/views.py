@@ -34,7 +34,7 @@ class GroupDetailView(DetailView):
 
         objects = self.object.getAccessibleObjects()
         context['objects'] = objects
-
+        
         return context
     
     
