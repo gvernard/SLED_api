@@ -252,36 +252,65 @@
 	  </div>
 	  {% endif %}
 
-	  <table class="data-form-table">
+	  <table class="data-form-table redshift-table">
 	    <tr>
-              <td>{{ form.z_method.errors }}</td>
+              <td>Lens:</td>
+              <td>{{ form.z_lens_method.errors }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>Method</label></div>
+		<div class="sled-help-tooltip">
+		  <label>
+		    {{ form.z_lens_method }}
+		  </label>
+		</div>
 		<div class="sled-help-tooltip-content">Choose the method used to obtain the redshift.</div>
 	      </td>
-              <td>{{ form.z_method }}</td>
-              <td>&nbsp;</td>
-              <td>&nbsp;</td>
-	    </tr>
-	    <tr>
-              <td>{{ form.z_lens_min.errors }}</td>
               <td>{{ form.z_lens_min }}</td>
               <td>
 		<div class="sled-help-tooltip"><label>&lt; Z<sub>lens</sub> &lt;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. lens redshift.</div>
 	      </td>
               <td>{{ form.z_lens_max }}</td>
-              <td>{{ form.z_lens_max.errors }}</td>
+              <td>{{ form.z_lens_min.errors }} {{ form.z_lens_max.errors }}</td>
 	    </tr>
+
 	    <tr>
-              <td>{{ form.z_source_min.errors }}</td>
+              <td>Source:</td>
+              <td>{{ form.z_source_method.errors }}</td>
+              <td>
+		<div class="sled-help-tooltip">
+		  <label>
+		    {{ form.z_source_method }}
+		  </label>
+		</div>
+		<div class="sled-help-tooltip-content">Choose the method used to obtain the redshift.</div>
+	      </td>
               <td>{{ form.z_source_min }}</td>
               <td>
 		<div class="sled-help-tooltip"><label>&lt; Z<sub>source</sub> &lt;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. source redshift.</div>
 	      </td>
               <td>{{ form.z_source_max }}</td>
-              <td>{{ form.z_source_max.errors }}</td>
+              <td>{{ form.z_source_min.errors }} {{ form.z_source_max.errors }}</td>
+	    </tr>
+
+	    <tr>
+              <td>Line-of-sight:</td>
+              <td>{{ form.z_los_method.errors }}</td>
+              <td>
+		<div class="sled-help-tooltip">
+		  <label>
+		    {{ form.z_los_method }}
+		  </label>
+		</div>
+		<div class="sled-help-tooltip-content">Choose the method used to obtain the redshift.</div>
+	      </td>
+              <td>{{ form.z_los_min }}</td>
+              <td>
+		<div class="sled-help-tooltip"><label>&lt; Z<sub>los</sub> &lt;</label></div>
+		<div class="sled-help-tooltip-content">Set the min. and max. redshift along the line-of-sight.</div>
+	      </td>
+              <td>{{ form.z_los_max }}</td>
+              <td>{{ form.z_los_min.errors }} {{ form.z_los_max.errors }}</td>
 	    </tr>
 	  </table>
 	  {% endwith %}

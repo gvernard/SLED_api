@@ -118,3 +118,13 @@ input:checked + .slider:before {
   height: 130px;
   width: 350px;
 }
+
+
+.redshift-table {
+    width: fit-content;
+    margin: 0px auto;
+}
+.redshift-table td {
+    width: 1%;
+    white-space: nowrap;
+}
