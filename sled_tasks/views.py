@@ -19,7 +19,7 @@ from bootstrap_modal_forms.generic import (
 from bootstrap_modal_forms.utils import is_ajax
 
 import lenses
-from lenses.models import Users, ConfirmationTask, Lenses, Redshift, Imaging, Spectrum
+from lenses.models import Users, ConfirmationTask, Lenses, Redshift, Imaging, Spectrum, GenericImage
 from urllib.parse import urlparse
 import json
 
@@ -226,7 +226,7 @@ class TaskMergeDetailView(TemplateView):
         redshifts = Redshift.objects.filter(lens=new).filter(access_level='PUB')
         imagings = Imaging.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
         spectra = Spectrum.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
-        generic_images = GenericImage.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
+        generic_images = GenericImage.objects.filter(lens=new).filter(access_level='PUB')
     
         # Get different lens fields
         fields = {}
