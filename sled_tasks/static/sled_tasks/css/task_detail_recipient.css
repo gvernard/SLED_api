@@ -1,0 +1,11 @@
+.user-details {
+    display: block;
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+.user-details td {
+    padding: 2px;
+}
+.user-details td:first-child {
+    color: #ACACAC; 
+}

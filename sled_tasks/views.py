@@ -96,13 +96,13 @@ class TaskDetailOwnerView(BSModalReadView):
 
 
 @method_decorator(login_required,name='dispatch')
-class TaskMergeCompleteDetailRecipientView(BSModalReadView):
+class TaskMergeCompleteDetailView(BSModalReadView):
     model = ConfirmationTask
     template_name = 'sled_tasks/task_detail_owner.html'
     context_object_name = 'task'
 
     def get_queryset(self):
-        return self.model.custom_manager.all_as_recipient_only(self.request.user)
+        return self.model.custom_manager.completed_for_user(self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -226,6 +226,7 @@ class TaskMergeDetailView(TemplateView):
         redshifts = Redshift.objects.filter(lens=new).filter(access_level='PUB')
         imagings = Imaging.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
         spectra = Spectrum.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
+        generic_images = GenericImage.objects.filter(lens=new).filter(exists=True).filter(access_level='PUB')
     
         # Get different lens fields
         fields = {}
@@ -243,6 +244,7 @@ class TaskMergeDetailView(TemplateView):
             'redshifts': redshifts,
             'imagings': imagings,
             'spectra': spectra,
+            'generic_images': generic_images,
             'fields': fields
         }
         return context
@@ -258,6 +260,9 @@ class TaskMergeDetailView(TemplateView):
         if context['spectra']:
             for spectrum in context['spectra']:
                 choices.append( 'Spectrum-'+str(spectrum.pk) )
+        if context['generic_images']:
+            for generic_image in context['generic_images']:
+                choices.append( 'GenericImage-'+str(generic_image.pk) )
         if context['fields']:
             for key,field in context['fields'].items():
                 choices.append( 'Field-'+key )

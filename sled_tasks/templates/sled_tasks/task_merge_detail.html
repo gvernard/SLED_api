@@ -206,23 +206,30 @@
 
     </div>
     {% endif %}
-
-
-  <div>
-    {{ form.response }}
-  </div>
-
-  <div class="jb-modal-field">
-    {{ form.response_comment }}
-  </div>
-  
-  <button type="submit" class="jb-submit-button-1">
-    Respond
-  </button>
+    
+    
+    <div class="response">
+      <div>
+	{{ form.response }}
+      </div>
+      
+      <div class="jb-modal-field">
+	{{ form.response_comment }}
+      </div>
+      
+      <button type="submit" class="jb-submit-button-1">
+	Respond
+      </button>
+    </div>
   </form>
-
-
+  
+  
   
   
 </div>
 {% endblock content %}
+
+
+{% block extrastyles %}
+<link href="{% static 'sled_tasks/css/task_merge_detail.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}

@@ -1,4 +1,6 @@
 {% extends "modal_base.html" %}
+{% load static %}
+
 
 {% block title %}
 <span class="highlight">{{task.task_type}}</span> -
@@ -20,9 +22,9 @@
 
   {% if db_response.response %}
   <p>
-    <strong>
-      You have responded to this task at: {{ db_response.created_at }}
-    </strong>
+    <span style="color:green">
+      You have responded to this task at: <b>{{ db_response.created_at }}</b>
+    </span>
   </p>
   {% endif %}
   
@@ -33,25 +35,50 @@
     <p>
       A new user would like to register. Here are their details:
     </p>
-    
-    {{ task.owner }}
-    {{ task.owner.email }}
-    
+    <table class="user-details">
+      <tr>
+	<td>First name:</td>
+	<td>{{ task.owner.first_name }}</td>
+      </tr>
+      <tr>
+	<td>Last name:</td>
+	<td>{{ task.owner.last_name }}</td>
+      </tr>
+      <tr>
+	<td>Username:</td>
+	<td>{{ task.owner.username }}</td>
+      </tr>
+      <tr>
+	<td>Email:</td>
+	<td><a href="mailto:{{ task.owner.email }}">{{ task.owner.email }}</a></td>
+      </tr>
+      <tr>
+	<td>Affiliation:</td>
+	<td>{{ task.owner.affiliation }}</td>
+      </tr>
+    </table>
 
     
     {% else %}
+
     
     <p>
       User <strong>{{task.owner.username}}</strong> is saying:
+      <br>
       <br>
       <span style="text-align:center;font-style:italic;">
 	&ldquo;{{ comment }}&rdquo;
       </span>
       <br>
+      <br>
       {% if task.task_type == "CedeOwnership" %}
       and would like to cede the ownership of the following <strong>{{object_type}}</strong> to you:
       {% elif task.task_type == "MakePrivate" %}
       and would like to make the following <strong>{{object_type}}</strong> private:
+      {% elif task.task_type == "AskToJoinGroup" %}
+      and would like to join the following <strong>{{object_type}}</strong>:
+      {% elif task.task_type == "DeleteObject" %}
+      and would like to delete the following <strong>{{object_type}}</strong>:
       {% endif %}
     </p>
     
@@ -71,10 +98,16 @@
   </div>
   
   <p>
-    {% if task.task_type == "CedeOwnership" %}
+    {% if task.task_type == "AcceptNewUser" %}
+    Do you accept this new user in SLED?
+    {% elif task.task_type == "CedeOwnership" %}
     Would you like to accept or refuse taking up the ownership?
     {% elif task.task_type == "MakePrivate" %}
     Do you authorize this action?
+    {% elif task.task_type == "AskToJoinGroup" %}
+    Would you like to accept this user as a group member?
+    {% elif task.task_type == "DeleteObject" %}
+    Do you approve deleting {{objects|pluralize:"this,these"}} <strong>{{object_type}}</strong>?
     {% endif %}
   </p>
   
@@ -97,3 +130,8 @@
 <button type="submit" class="jb-submit-button-1">Respond</button>
 {% endif %}
 {% endblock action_button %}
+
+
+{% block extrascripts %}
+<link href="{% static 'sled_tasks/css/task_detail_recipient.css' %}" rel="stylesheet" />
+{% endblock extrascripts %}

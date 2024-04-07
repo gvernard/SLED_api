@@ -273,6 +273,8 @@ class DataDeleteManyView(ModalIdsBaseMixin):
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument=item.instrument.name)
                 elif obj_type == 'GenericImage':
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument='Generic Image')
+                elif obj_type == 'Redshift':
+                    action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument='Redshift')
                 else:
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument=item.instrument.name,band=item.band.name)
                 item.delete()

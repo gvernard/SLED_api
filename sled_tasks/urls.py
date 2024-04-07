@@ -13,5 +13,5 @@ urlpatterns = [
     path('detail-recipient/<int:pk>', views.TaskDetailRecipientView.as_view(),name='tasks-detail-recipient'),
     path('detail-admin-recipient/<int:pk>', views.TaskDetailRecipientView.as_view(),kwargs={'admin':True},name='tasks-detail-admin-recipient'),
     path('detail-merge/<int:pk>', views.TaskMergeDetailView.as_view(),name='tasks-detail-merge'),
-    path('detail-recipient-complete/<int:pk>', views.TaskMergeCompleteDetailRecipientView.as_view(),name='tasks-detail-merge-complete-recipient'),
+    path('detail-merge-complete/<int:pk>', views.TaskMergeCompleteDetailView.as_view(),name='tasks-detail-merge-complete'),
 ]

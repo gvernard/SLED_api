@@ -1,0 +1,81 @@
+{% load static %}
+
+<table>
+  <thead>
+    <tr>
+      <th>Status</th>
+      <th>Task type</th>
+      <th>Created at</th>
+      <th>From</th>
+      <th>To</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for task in pending %}
+    <tr>
+      <td>
+        <span style="font-weight:bold;color:red">
+          {{ task.status }}
+        </span>
+      </td>
+      <td>{{ task.task_type }}</td>
+      <td>{{ task.created_at }}</td>
+      <td>{{ task.owner }}</td>
+      <td>
+	{% if user == task.owner %}
+	{{ task.recipients.all|join:", " }}
+	{% else %}
+	{{ user }}
+	{% endif %}
+      </td>
+      <td>
+	{% if task.task_type == 'MergeLenses' %}
+
+	{% if user == task.owner %}
+	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
+	  <img src="{% static 'icons/eye-fill.svg' %}">
+	  View
+	</button>
+	{% else %}
+	<form action="{% url 'sled_tasks:tasks-detail-merge' task.id %}">
+	  <button type="submit" class="jb-submit-button-1"> 
+            <img src="{% static 'icons/union.svg' %}">
+	    Merge
+	  </button>
+	</form>
+	{% endif %}
+	
+	{% elif task.task_type == 'ResolveDuplicates' %}
+	
+	<form action="{% url 'lenses:resolve-duplicates' task.id %}" method="GET">
+	  <button type="submit" id="submit" class="jb-submit-button-1">
+	    <img src="{% static 'icons/send-fill.svg' %}">
+	    Resolve
+	  </button>	
+	</form>
+	
+	{% else %}
+
+	{% if user == task.owner %}
+	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
+	  <img src="{% static 'icons/eye-fill.svg' %}">
+	  View
+	</button>
+	{% else %}
+	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
+          <img src="{% static 'icons/send-fill.svg' %}">
+          Respond
+	</button>
+	{% endif %}
+	
+	{% endif %}
+      </td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="6">No tasks</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

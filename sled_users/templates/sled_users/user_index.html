@@ -98,7 +98,7 @@
       <div class="p">
 	<br>
 	{% if N_tasks > 0 %}
-	{% include 'sled_tasks/task_list_recipient.html' with recipient=pending_tasks %}
+	{% include 'sled_tasks/task_list_pending.html' with pending=pending_tasks user=user %}
 	{% else %}
 	<p class="jb-paragraph-2">No pending tasks</p>
 	{% endif %}

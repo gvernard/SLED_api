@@ -20,12 +20,15 @@ Request to join group
   </div>
   {% endif %}
 
-  <div>
-    Send request to join the group named <strong>{{ sledgroup.name }}</strong>?
-  </div>
+  <div class="jb-modal-field jb-table-no-lines">
+
+    <p>
+      Send request to join the group named <strong>{{ sledgroup.name }}</strong>?
+    </p>
   
-  <div>
-    {{ form.justification }}
+    <div>
+      {{ form.justification }}
+    </div>
   </div>
   
 </div>
