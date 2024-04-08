@@ -1,6 +1,9 @@
 {% extends "modal_base.html" %}
+{% load static %}
+
 
 {% block title %}
+<span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
 <span style="font-weight:bold;color:red">
     Pending
@@ -13,61 +16,67 @@
 {% endblock title %}
 
 
-
 {% block content %}
+{% include "modal_container_wide.html" %}
+
 <div class="jb-container-modal">
 
-  <div class="details jb-modal-field jb-table-no-lines">
-    <table>
-      <tr><td>Task:</td><td>{{ task.task_type }}</td></tr>
-      <tr><td>Cargo:</td><td>
-	  {{ task.cargo }}
+  <div class="jb-modal-field jb-table-no-lines">    
+    On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> said:
+    <div class="original-message">
+      <span style="text-align:center;font-style:italic;">
+	&ldquo;{{ task.cargo.comment }}&rdquo;
+      </span>
+    </div>
+
+    <p>
+      {% if task.task_type == "CedeOwnership" %}
+      and requested from {{ task.recipients.all|pluralize:"user,users" }} <strong>{{ task.recipients.all|join:"," }}</strong> to take up the ownership of the following <strong>{{object_type}}</strong>:
+      {% elif task.task_type == "MakePrivate" %}
+      and requested from the <strong>administrators</strong> to make the following <strong>{{object_type}}</strong> private:
+      {% elif task.task_type == "AskToJoinGroup" %}
+      and requested to join the following <strong>{{object_type}}</strong>:
+      {% elif task.task_type == "DeleteObject" %}
+      and requested from the <strong>administrators</strong> to delete the following <strong>{{object_type}}</strong>:
+      {% endif %}
+    </p>
+
+    <div class="jb-modal-field jb-table-no-lines">
+      <table>
+	{% for obj in objects %}
+	<tr>
+	  <td class="padded">
+	    <a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a>
+	  </td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>    
+  </div>
+
+  <div class="jb-modal-field jb-table-no-lines">
+    <table class="responses">
+      {% for response in responses %}
+      {% if response.response != '' %}
+      <tr><td>&bull; <strong>{{ response.name }}</strong> responded on <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) with:</td></tr>
+      <tr><td class="padded">
+	  {{ response.response|upper }} - 
+	  <span style="text-align:right;font-style:italic;">
+	    &ldquo;{{ response.response_comment }}&rdquo;
+	  </span>
       </td></tr>
-      <tr><td>Created at:</td><td>{{ task.created_at }}</td></tr>
-      <tr><td>Modified at:</td><td>{{ task.modified_at }}</td></tr>
-      <tr><td>Allowed responses:</td><td>{{ allowed }}</td></tr>
-      <tr><td>Sender comment:</td><td>{{ task.cargo.comment }}</td></tr>
+      {% else %}
+      <tr><td>&bull; <strong>{{ response.name }}</strong> <span style="color:red">has not responded yet</span></td></tr>
+      {% endif %}
+      {% endfor %}
     </table>
   </div>
 
-  
-  <div class="jb-modal-field jb-table-no-lines">
-    <p>
-      Heard from:
-    </p>
-    {% for response in hf %}
-    <table>
-      <thead>
-	<tr><th>User name</th><th>Response</th><th>At</th><th>Comment</th><tr>
-      </thead>
-      <tbody>
-	<tr>
-	  <td>{{ response.name }}</td>
-	  <td>{{ response.response }}</td>
-	  <td>{{ response.created_at }}</td>
-	  <td>{{ response.response_comment }}</td>
-	</tr>
-      </tbody>
-    </table>
-    {% empty %}
-    <p>Nobody</p>
-    {% endfor %}
-  </div>
-  
-  
-  <div class="jb-modal-field jb-table-no-lines">
-    <p>
-      Not heard from:
-    </p>
-    {% for receiver in nhf %}
-    <table>
-      <tr><td>{{ receiver }}</td></tr>
-    </table>
-    {% empty %}
-    <p>
-      Everybody responded
-    </p>
-    {% endfor %}
-  </div>
-  
+
+</div>  
 {% endblock content %}
+
+
+{% block extrascripts %}
+<link href="{% static 'sled_tasks/css/task_detail.css' %}" rel="stylesheet" />
+{% endblock extrascripts %}

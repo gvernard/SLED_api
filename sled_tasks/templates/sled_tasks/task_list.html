@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-{% include "modal_container.html" %}
+{% include "modal_container_medium.html" %}
 
 <div class="jb-container">
 
@@ -72,8 +72,13 @@
 
 	      {% else %}
 
-	      {% if task.task_type == 'MergeLenses' and task.status == "C" %}
-	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-merge-complete' task.id %}">
+	      {% if task.task_type == 'MergeLenses' %}
+	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-merge-owner' task.id %}">
+		<img src="{% static 'icons/eye-fill.svg' %}">
+		View
+	      </button>
+	      {% elif task.task_type == 'ResolveDuplicates' and task.status == "C" %}
+	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-resolve-duplicates-complete' task.id %}">
 		<img src="{% static 'icons/eye-fill.svg' %}">
 		View
 	      </button>
@@ -116,7 +121,7 @@
       $(".sled-modal").each(function() {
           $(this).modalForm({
               formURL: $(this).data("form-url"),
-              modalID: "#id-modal"
+              modalID: "#id-modal-wide"
           });
       });
   });

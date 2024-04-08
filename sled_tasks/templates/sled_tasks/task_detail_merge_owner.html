@@ -1,0 +1,97 @@
+{% extends "modal_base.html" %}
+{% load static %}
+{% load project_tags %}
+
+
+{% block title %}
+<span class="highlight">{{task.task_type}}</span> -
+{% if task.status == "P" %}
+<span style="font-weight:bold;color:red">
+  Pending
+</span>
+{% else %}
+<span style="font-weight:bold;color:green">
+  Completed
+</span>
+{% endif %}
+{% endblock title %}
+
+
+{% block content %}
+{% include "modal_container_wide.html" %}
+
+<div class="jb-container-modal">
+
+  <div class="jb-modal-field jb-table-no-lines">
+    <p>
+      On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> initiated a <strong>Merge</strong> on the lens:
+    </p>
+    
+    <div class="jb-modal-field padded">
+      <a href="{{ existing_lens.get_absolute_url }}" target="_blank">{{ existing_lens }}</a>
+    </div>
+
+    <p>
+      located at RA,DEC={{existing_lens.ra}},{{existing_lens.dec}} and owned by user <strong>{{task.recipients.all|join:","}}</strong> (current owner: {{existing_lens.owner}}).
+    </p>
+
+
+    <div class="jb-modal-field jb-table-no-lines">
+      {% if response.response == '' %}
+      &bull; <strong>{{ response.name }}</strong> <span style="color:red">has not responded yet</span>
+      {% else  %}
+
+      <table class="responses">
+	<tr><td>&bull; <strong>{{ response.name }}</strong> responded on <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) with:</td></tr>
+	<tr><td class="padded">
+	    {{ response.response|upper }} - 
+	    <span style="text-align:right;font-style:italic;">
+	      &ldquo;{{ response.response_comment }}&rdquo;
+	    </span>
+	</td></tr>
+      </table>
+
+      {% if response.response != 'no' %}
+      {% if response.fields %}
+      The following fields were updated:
+      <br>
+      <br>
+      <ul class="padded">
+      {% for field in response.fields %}
+      <li>{{field}}</li>
+      {% endfor %}
+      </ul>
+      {% endif %}
+      {% if response.items %}
+      The following items were merged:
+      <br>
+      <br>
+      <table class="summary">
+      {% for object_type,items in response.items.items %}
+      <tr>
+	<td style="text-align:right">{{object_type}}</td>
+	<td>
+	  <ul>
+	  {% for item in items %}
+	  <li>{{ item|stringformat:"s"|split:"-"|slice:"1:"|join:" - " }}</li>
+	  {% endfor %}
+	  </ul>
+	</td>
+      </tr>
+      {% endfor %}
+      </table>
+      {% endif %}
+      {% endif %}
+      
+      {% endif %}
+    </div>
+
+    
+  </div>
+</div>  
+{% endblock content %}
+
+
+{% block extrascripts %}
+<link href="{% static 'sled_tasks/css/task_detail.css' %}" rel="stylesheet" />
+{% endblock extrascripts %}

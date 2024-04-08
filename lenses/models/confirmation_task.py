@@ -203,7 +203,7 @@ class ConfirmationTask(SingleObject):
         Returns:
             A QuerySet with User objects.
         """
-        return self.recipients.all()
+        return self.recipients.through.objects.filter(confirmation_task__exact=self.id)
 
     def not_heard_from(self):
          """

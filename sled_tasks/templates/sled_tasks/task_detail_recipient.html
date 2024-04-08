@@ -16,7 +16,6 @@
 {% endblock title %}
 
 
-
 {% block content %}
 <div class="jb-container-modal">
 
@@ -35,7 +34,7 @@
     <p>
       A new user would like to register. Here are their details:
     </p>
-    <table class="user-details">
+    <table class="summary">
       <tr>
 	<td>First name:</td>
 	<td>{{ task.owner.first_name }}</td>
@@ -62,15 +61,14 @@
     {% else %}
 
     
-    <p>
-      User <strong>{{task.owner.username}}</strong> is saying:
-      <br>
-      <br>
+    User <strong>{{task.owner.username}}</strong> is saying:
+    <div class="original-message">
       <span style="text-align:center;font-style:italic;">
 	&ldquo;{{ comment }}&rdquo;
       </span>
-      <br>
-      <br>
+    </div>
+
+    <p>
       {% if task.task_type == "CedeOwnership" %}
       and would like to cede the ownership of the following <strong>{{object_type}}</strong> to you:
       {% elif task.task_type == "MakePrivate" %}
@@ -86,7 +84,7 @@
       <table>
 	{% for obj in objects %}
 	<tr>
-	  <td>
+	  <td class="padded">
 	    <a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a>
 	  </td>
 	</tr>
@@ -113,11 +111,11 @@
   
   <input type="hidden" name="task_id" value="{{ task.id }}">
   
-  <div>
+  <div class="padded">
     {{ form.response }}
   </div>
 
-  <div class="jb-modal-field">
+  <div class="jb-modal-field padded">
     {{ form.response_comment }}
   </div>
 
@@ -133,5 +131,5 @@
 
 
 {% block extrascripts %}
-<link href="{% static 'sled_tasks/css/task_detail_recipient.css' %}" rel="stylesheet" />
+<link href="{% static 'sled_tasks/css/task_detail.css' %}" rel="stylesheet" />
 {% endblock extrascripts %}

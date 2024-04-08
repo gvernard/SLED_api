@@ -1,0 +1,34 @@
+{% extends "modal_base.html" %}
+{% load static %}
+
+
+{% block title %}
+<span class="highlight">{{task.task_type}}</span> -
+{% if task.status == "P" %}
+<span style="font-weight:bold;color:red">
+    Pending
+</span>
+{% else %}
+<span style="font-weight:bold;color:green">
+  Completed
+</span>
+{% endif %}
+{% endblock title %}
+
+
+{% block content %}
+{% include "modal_container_wide.html" %}
+
+<div class="jb-container-modal">
+
+  <div class="jb-modal-field jb-table-no-lines">    
+
+    ResolveDuplicates
+  </div>
+</div>  
+{% endblock content %}
+
+
+{% block extrascripts %}
+<link href="{% static 'sled_tasks/css/task_detail.css' %}" rel="stylesheet" />
+{% endblock extrascripts %}

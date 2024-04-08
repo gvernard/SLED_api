@@ -1,0 +1,40 @@
+.user-details {
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+
+.original-message {
+    padding: 20px 0px 20px 100px;
+}
+
+.summary {
+}
+.summary td {
+    padding: 2px;
+}
+.summary td:first-child {
+    color: #ACACAC;
+    vertical-align: top;
+}
+.summary td:nth-child(2) {
+    padding-left: 40px;
+}
+
+
+.responses {
+    display:block;
+    width: 100%;
+}
+
+.responses td {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+/*.responses td:nth-child(2) {
+    padding-left: 40px;
+}*/
+
+.padded {
+    padding-left: 100px;
+    padding-right: 100px;
+}

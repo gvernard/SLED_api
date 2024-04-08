@@ -89,30 +89,113 @@ class TaskDetailOwnerView(BSModalReadView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['allowed'] = ' or '.join( self.object.allowed_responses() )
-        context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
-        context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
+        task = self.object
+        
+        context['allowed'] = ' or '.join( map(str.upper,task.allowed_responses()) )
+
+        # Queryset of objects in the task
+        objects = getattr(lenses.models,task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"])
+        context['objects'] = objects
+
+        # Object type (singular or plural) for the objects in the task
+        if objects.count() > 1:
+            object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name_plural.title()
+        else:
+            object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
+        context['object_type'] = object_type
+
+        #context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+        #context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
+        context['responses'] = task.get_all_recipients().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
         return context
 
 
 @method_decorator(login_required,name='dispatch')
-class TaskMergeCompleteDetailView(BSModalReadView):
+class TaskMergeDetailOwnerView(BSModalReadView):
     model = ConfirmationTask
-    template_name = 'sled_tasks/task_detail_owner.html'
+    template_name = 'sled_tasks/task_detail_merge_owner.html'
+    context_object_name = 'task'
+
+    def get_queryset(self):
+        qset1 = self.model.custom_manager.completed_for_user(self.request.user)
+        qset2 = self.model.custom_manager.pending_for_user(self.request.user)
+        return qset1|qset2
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Queryset of objects in the task
+        existing_lens = getattr(lenses.models,self.object.cargo["object_type"]).objects.get(pk=self.object.cargo["existing_lens"])
+        context['existing_lens'] = existing_lens
+
+        #context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+        #context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
+        responses = list(self.object.get_all_recipients().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment'))
+        context['response'] = {}
+        if responses[0]['response'] == '':
+            context['response']['response'] = ''
+            context['response']['name'] = responses[0]['name']
+        else:
+            response = json.loads(responses[0]['response'])
+            context['response']['response'] = response['response']
+            context['response']['response_comment'] = response['response_comment']
+            context['response']['name'] = responses[0]['name']
+            context['response']['created_at'] = responses[0]['created_at']
+
+            context['response']['fields'] = []
+            context['response']['items'] = {}
+            items = response['items']
+            # Queryset of merged objects
+            for item in items:
+                object_type = item.split('-')[0]
+                if object_type != 'Field':
+                    model_ref = getattr(lenses.models,object_type)
+                    object_id = item.split('-')[1]
+                    try:
+                        myobject = model_ref.objects.get(id=object_id)
+                    except model_ref.DoesNotExist:
+                        pass
+                    else:
+                        #final_obj_label = myobject.__str__().split('-')[1:]
+                        final_obj_label = myobject
+                
+                        if object_type not in context['response']['items']:
+                            context['response']['items'][object_type] = []
+                        context['response']['items'][object_type].append(final_obj_label)
+                else:
+                    field_name = item.split('-')[1]
+                    verbose_name = getattr(lenses.models,'Lenses')._meta.get_field(field_name).verbose_name
+                    context['response']['fields'].append(verbose_name)
+
+            # Object type (singular or plural) for the objects in the task
+            new_items = {}
+            keys = context['response']['items'].keys()
+            for key in keys:
+                if len(context['response']['items'][key]) > 1:
+                    new_key = getattr(lenses.models,key)._meta.verbose_name_plural.title()
+                else:
+                    new_key = getattr(lenses.models,key)._meta.verbose_name.title()
+                new_items[new_key] = context['response']['items'][key]
+            context['response']['items'] = new_items
+                    
+                
+        return context
+
+
+@method_decorator(login_required,name='dispatch')
+class TaskResolveDuplicatesCompleteDetailView(BSModalReadView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_detail_complete_resolve_duplicates.html'
     context_object_name = 'task'
 
     def get_queryset(self):
         return self.model.custom_manager.completed_for_user(self.request.user)
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['allowed'] = ' or '.join( self.object.allowed_responses() )
-        context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
-        context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
         return context
 
-
-
+    
     
 @method_decorator(login_required,name='dispatch')
 class TaskDetailRecipientView(BSModalFormView):
