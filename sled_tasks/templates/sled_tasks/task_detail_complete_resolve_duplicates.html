@@ -22,8 +22,23 @@
 <div class="jb-container-modal">
 
   <div class="jb-modal-field jb-table-no-lines">    
+    You responded to this task on <strong>{{ responded_at }}</strong> ({{ task.created_at|timesince }} ago) and decided to:
 
-    ResolveDuplicates
+    <ul class="padded">
+      {% for ra,dec,choice in responses %}
+      {% if choice == 'no' %}
+      <li>do nothing for your lens at ({{ra}},{{dec}})</li>
+      {% elif choice == 'yes' %}
+      <li>treat your lens at ({{ra}},{{dec}}) as a distinct new entry</li>
+      {% else %}
+      <li>merge your lens at ({{ra}},{{dec}}) with an existing one</li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+
+    <p style="text-align:center;font-weight:bold;color:green">
+	You can now safely delete this task.
+    </p>
   </div>
 </div>  
 {% endblock content %}

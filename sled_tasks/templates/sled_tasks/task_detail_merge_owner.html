@@ -86,6 +86,21 @@
       {% endif %}
     </div>
 
+
+    {% if request.user == task.owner and task.status == "C" %}
+    <div class="jb-modal-field jb-table-no-lines">
+      <p>
+	<span style="font-weight:bold;color:red">
+	  Important!
+	</span>
+	If you are happy with the result of the merger then delete this task and your associated lens:
+      </p>
+      
+      <div class="jb-modal-field padded">
+	<a href="{{ new_lens.get_absolute_url }}" target="_blank">{{ new_lens }}</a>
+      </div>
+    </div>
+    {% endif %}
     
   </div>
 </div>  

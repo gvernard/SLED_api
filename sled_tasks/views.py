@@ -106,7 +106,7 @@ class TaskDetailOwnerView(BSModalReadView):
 
         #context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
         #context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
-        context['responses'] = task.get_all_recipients().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+        context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
         return context
 
 
@@ -127,10 +127,12 @@ class TaskMergeDetailOwnerView(BSModalReadView):
         # Queryset of objects in the task
         existing_lens = getattr(lenses.models,self.object.cargo["object_type"]).objects.get(pk=self.object.cargo["existing_lens"])
         context['existing_lens'] = existing_lens
+        new_lens = getattr(lenses.models,self.object.cargo["object_type"]).objects.get(pk=self.object.cargo["new_lens"])
+        context['new_lens'] = new_lens
 
         #context['hf'] = self.object.heard_from().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
         #context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
-        responses = list(self.object.get_all_recipients().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment'))
+        responses = list(self.object.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment'))
         context['response'] = {}
         if responses[0]['response'] == '':
             context['response']['response'] = ''
@@ -193,6 +195,31 @@ class TaskResolveDuplicatesCompleteDetailView(BSModalReadView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        mode = self.object.cargo["mode"]
+        ras = []
+        decs = []
+        cargo_objects = json.loads(self.object.cargo["objects"])
+
+        for i in range(0,len(cargo_objects)):
+            ras.append( cargo_objects[i]["fields"]["ra"] )
+            decs.append( cargo_objects[i]["fields"]["dec"] )
+
+        response = self.object.get_all_responses().values('response','created_at').first()
+        context["responded_at"] = response["created_at"]
+        
+        choices = [None]*len(ras)
+        insert_dict = json.loads(response["response"])
+        for i in range(0,len(insert_dict)):
+            index = int(insert_dict[i]["index"])
+            choice = insert_dict[i]["insert"]
+            if choice == "no":
+                choices[index] = 'no'
+            elif choice == "yes":
+                choices[index] = 'yes'
+            else:
+                choices[index] = 'merge'
+
+        context["responses"] = zip(ras,decs,choices)
         return context
 
     

@@ -195,13 +195,22 @@ class ConfirmationTask(SingleObject):
             plain_message = strip_tags(html_message)
             recipient_email = user.email
             send_mail(subject,plain_message,from_email,[recipient_email],html_message=html_message)
-        
+            
     def get_all_recipients(self):
         """
         Gets all the recipients of the confirmation task. 
          
         Returns:
             A QuerySet with User objects.
+        """
+        return self.recipients.all()
+
+    def get_all_responses(self):
+        """
+        Gets all the responses for the confirmation task. 
+         
+        Returns:
+            A QuerySet with ConfirmationResponse objects.
         """
         return self.recipients.through.objects.filter(confirmation_task__exact=self.id)
 
@@ -667,7 +676,10 @@ class MergeLenses(ConfirmationTask):
                         old_mug = model_ref(lens=target,owner=new.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
                         old_mug.save()
 
-                        target.mugshot.name = new.mugshot.name                        
+                        dum,file_ext = os.path.splitext(new.mugshot.name)
+                        tmp_name = os.path.join('temporary',new.owner.username,str(self.id)+file_ext)
+                        default_storage.copy(new.mugshot.name,tmp_name)
+                        target.mugshot.name = tmp_name
                     else:
                         new_value = getattr(new,field_name)
                         setattr(target,field_name,new_value)
@@ -744,18 +756,11 @@ class MergeLenses(ConfirmationTask):
                 spectrum.save()
 
 
-            # Delete the 'new' lens here
-            new.delete()
-
-
+            # DON'T Delete the 'new' lens here
+            # It should already be PRI and should remain accessible for the owner to delete.
                 
 
 
-            
-
-
-            
-        
 class AskPrivateAccess(ConfirmationTask):
     class Meta:
         proxy = True
@@ -767,6 +772,7 @@ class AskPrivateAccess(ConfirmationTask):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
         objs_owner = self.get_all_recipients()[0]
+        print(objs_owner)
         task_owner = self.owner
         if response == 'yes':
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])
