@@ -38,6 +38,8 @@
       and requested to join the following <strong>{{object_type}}</strong>:
       {% elif task.task_type == "DeleteObject" %}
       and requested from the <strong>administrators</strong> to delete the following <strong>{{object_type}}</strong>:
+      {% elif task.task_type == "AskPrivateAccess" %}
+      and requested from {{ task.recipients.all|pluralize:"user,users" }} <strong>{{ task.recipients.all|join:"," }}</strong> access to the following <strong>{{object_type}}</strong>:
       {% endif %}
     </p>
 
