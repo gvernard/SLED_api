@@ -426,3 +426,16 @@ class TaskMergeDetailView(TemplateView):
                 return self.render_to_response(context)
         else:
             return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
+
+
+
+@method_decorator(login_required,name='dispatch')
+class TaskDeleteView(BSModalDeleteView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_delete.html'
+    success_message = 'Success: Task was deleted.'
+    context_object_name = 'task'
+    success_url = reverse_lazy('sled_tasks:tasks-list')
+
+    def get_queryset(self):
+        return self.model.objects.filter( Q(owner=self.request.user) and Q(status='C') )

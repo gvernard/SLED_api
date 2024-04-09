@@ -15,4 +15,5 @@ urlpatterns = [
     path('detail-merge/<int:pk>', views.TaskMergeDetailView.as_view(),name='tasks-detail-merge'),
     path('detail-merge-owner/<int:pk>', views.TaskMergeDetailOwnerView.as_view(),name='tasks-detail-merge-owner'),
     path('detail-duplicates-complete/<int:pk>', views.TaskResolveDuplicatesCompleteDetailView.as_view(),name='tasks-detail-resolve-duplicates-complete'),
+    path('delete-task/<int:pk>', views.TaskDeleteView.as_view(),name='tasks-delete'),
 ]

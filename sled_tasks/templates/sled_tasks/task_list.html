@@ -89,6 +89,13 @@
 	      </button>
 	      {% endif %}
 
+	      {% if task.status == 'C' %}
+	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-delete' task.id %}">
+		<img src="{% static 'icons/trash.svg' %}">
+		Delete
+	      </button>
+	      {% endif %}
+	      
 	      {% endif %}
 	    </td>
           </tr>

@@ -1,0 +1,27 @@
+{% extends "modal_base.html" %}
+{% load static %}
+
+
+{% block title %}
+Delete <strong>{{ task.task_type }}</strong> task
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container-modal">
+  <p style="color:green">
+    This task was completed on <strong>{{task.modified_at}}</strong>.
+  </p>
+  <p>
+    Are you sure you want to delete it?
+  </p>
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/trash.svg' %}" >
+  Delete
+</button>
+{% endblock action_button %}
