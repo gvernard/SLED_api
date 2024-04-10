@@ -16,19 +16,7 @@
       <tr>
 	<td>
 	  <div>
-            <h1 class="jb-heading-1">{{lens.name}}
-	    {% if lens.owner != user %}
-	    <button id="follow-button" class="jb-submit-button-1" style="margin-left:10px;">
-	      {% if following %}
-	      <img src="{% static 'icons/person-x-fill.svg' %}" >
-	      Unfollow
-	      {% else %}	      
-	      <img src="{% static 'icons/person-fill-add.svg' %}" >
-	      Follow
-	      {% endif %}
-	    </button>
-	    {% endif %}
-	    </h1>
+            <h1 class="jb-heading-1">{{lens.name}}</h1>
 	  </div>
 	  {% if lens.alt_name %}
 	  <p>
@@ -39,14 +27,6 @@
             Created at: {{ lens.created_at }}
 	    <br>
 	    Managed by: <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
-	    {% if lens.owner != user %}
-	    <a href="mailto:{{lens.owner.email}}?subject=Re:SLED lens {{ lens.name }}&body=The message">
-	      <button class="jb-submit-button-1">
-		<img src="{% static 'icons/send-fill.svg' %}" >
-		Contact
-	      </button>
-	    </a>
-	    {% endif %}
 	  </p>
 	  <!-- Recent activity div -->
 	  <div class="jb-activity">
@@ -57,9 +37,11 @@
 	    {% include "activity_object_modal.html" with stream=stream %}
 	    {% endif %}
 	  </div>
+	  {% if lens.info %}
 	  <p>
             Uploader information: {{lens.info}}
 	  </p>
+	  {% endif %}
 	</td>
 	<td>
 	  <div class="jb-lens-mugshot">
@@ -72,9 +54,8 @@
 
 
 
-  {% if lens.owner == user %}
+
   <div class="jb-section">
-    <h1 class="jb-heading-2">Admin actions</h1>
 
     <form id="ids-form" method="POST">
       {% csrf_token %}
@@ -83,44 +64,82 @@
       <input name="redirect" type="hidden" value="{{ request.get_full_path }}">
     </form>
     
-    <div>
-      <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}">
-	<img src="{% static 'icons/pencil.svg' %}" alt="pencil">
-	Update lens
-      </button>
-      {% if lens.access_level == "PRI" %}
-      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
-	<img src="{% static 'icons/person-dash-fill.svg' %}">
-	Revoke access
-      </button>
-      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
-	<img src="{% static 'icons/person-plus-fill.svg' %}">
-	Give access
-      </button>
-      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
-	<img src="{% static 'icons/people-fill.svg' %}" >
-	Make public
-      </button>
-      {% else %}
-      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
-	<img src="{% static 'icons/lock-fill.svg' %}" >
-	Make private
-      </button>
-      {% endif %}
-      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
-	<img src="{% static 'icons/forward-fill.svg' %}" >
-	Cede ownership
-      </button>
-      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-connections'  lens.id %}">
-	<img src="{% static 'icons/share-fill.svg' %}" >
-	Connections
-      </button>
-    </div>
+  
+    <table class="jb-table-no-lines">
+      <tr>
+	<td>
+	  <h1 class="jb-heading-2">Actions</h1>
+	  
+	  <div>
+	    <button type="button" id="add-to-collection" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-add-items' 'Lenses' %}">
+	      <img src="{% static 'icons/folder-plus.svg' %}">
+	      Add to collection
+	    </button>	    
+	    {% if lens.owner != user %}
+	    <button id="follow-button" class="jb-submit-button-1" style="margin-left:10px;">
+	      {% if following %}
+	      <img src="{% static 'icons/person-x-fill.svg' %}" >
+	      Unfollow
+	      {% else %}	      
+	      <img src="{% static 'icons/person-fill-add.svg' %}" >
+	      Follow
+	      {% endif %}
+	    </button>
+	    <a href="mailto:{{lens.owner.email}}?subject=Re:SLED lens {{ lens.name }}&body=The message">
+	      <button class="jb-submit-button-1">
+		<img src="{% static 'icons/send-fill.svg' %}" >
+		Contact Owner
+	      </button>
+	    </a>
+	    {% endif %}
+	  </div>
+	</td>
+
+	{% if lens.owner == user %}
+	<td>
+	  <h1 class="jb-heading-2">Admin actions</h1>
+	  
+	  <div>
+	    <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
+	      Update lens
+	    </button>
+	    {% if lens.access_level == "PRI" %}
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}">
+	      Revoke access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}">
+	      Give access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-make-public' %}">
+	      <img src="{% static 'icons/people-fill.svg' %}" >
+	      Make public
+	    </button>
+	    {% else %}
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	      <img src="{% static 'icons/lock-fill.svg' %}" >
+	      Make private
+	    </button>
+	    {% endif %}
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	      <img src="{% static 'icons/forward-fill.svg' %}" >
+	      Cede ownership
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-connections'  lens.id %}">
+	      <img src="{% static 'icons/share-fill.svg' %}" >
+	      Connections
+	    </button>
+	  </div>
     
+	</td>
+	{% endif %}
+      </tr>
+    </table>
   </div>
-  {% endif %}
-
-
+  
+  
   
   <div class="jb-section">
     <h1 class="jb-heading-2">System Information</h1>
