@@ -115,7 +115,7 @@
 			  <td>{{ form.ra_min.errors }}</td>
 			  <td>{{ form.ra_min }}</td>
                           <td>
-			    <div class="sled-help-tooltip"><label>&lt; RA &lt;</label></div>
+			    <div class="sled-help-tooltip"><label>&leq; RA &leq;</label></div>
 			    <div class="sled-help-tooltip-content">Set the min. and max. RA [degrees]</div>
 			  </td>
 			  <td>{{ form.ra_max }}</td>
@@ -125,7 +125,7 @@
 			  <td>{{ form.dec_min.errors }}</td>
 			  <td>{{ form.dec_min }}</td>
                           <td>
-			    <div class="sled-help-tooltip"><label>&lt; DEC &lt;</label></div>
+			    <div class="sled-help-tooltip"><label>&leq; DEC &leq;</label></div>
 			    <div class="sled-help-tooltip-content">Set the min. and max. DEC [degrees]</div>
 			  </td>
 			  <td>{{ form.dec_max }}</td>
@@ -170,7 +170,7 @@
                     <td>{{ form.n_img_min.errors }}</td>
                     <td>{{ form.n_img_min }}</td>
                     <td>
-		      <div class="sled-help-tooltip"><label>&lt; N<sub>images</sub> &lt;</label></div>
+		      <div class="sled-help-tooltip"><label>&leq; N<sub>images</sub> &leq;</label></div>
 		      <div class="sled-help-tooltip-content">Set the min. and max. number of images.</div>
 		    </td>
                     <td>{{ form.n_img_max }}</td>
@@ -180,7 +180,7 @@
                     <td>{{ form.image_sep_min.errors }}</td>
                     <td>{{ form.image_sep_min }}</td>
                     <td>
-		      <div class="sled-help-tooltip"><label>&lt; Separation &lt;</label></div>
+		      <div class="sled-help-tooltip"><label>&leq; Separation &leq;</label></div>
 		      <div class="sled-help-tooltip-content">Set the min. and max. image separation [arcsec].</div>
 		    </td>
                     <td>{{ form.image_sep_max }}</td>
@@ -190,7 +190,7 @@
                     <td>{{ form.score_min.errors }}</td>
                     <td>{{ form.score_min }}</td>
                     <td>
-		      <div class="sled-help-tooltip"><label>&lt; Score &lt;</label></div>
+		      <div class="sled-help-tooltip"><label>&leq; Score &leq;</label></div>
 		      <div class="sled-help-tooltip-content">Set the min. and max. score (between 0 and 3).</div>
 		    </td>
                     <td>{{ form.score_max }}</td>
@@ -266,7 +266,7 @@
 	      </td>
               <td>{{ form.z_lens_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Z<sub>lens</sub> &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Z<sub>lens</sub> &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. lens redshift.</div>
 	      </td>
               <td>{{ form.z_lens_max }}</td>
@@ -286,7 +286,7 @@
 	      </td>
               <td>{{ form.z_source_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Z<sub>source</sub> &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Z<sub>source</sub> &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. source redshift.</div>
 	      </td>
               <td>{{ form.z_source_max }}</td>
@@ -306,7 +306,7 @@
 	      </td>
               <td>{{ form.z_los_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Z<sub>los</sub> &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Z<sub>los</sub> &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. redshift along the line-of-sight.</div>
 	      </td>
               <td>{{ form.z_los_max }}</td>
@@ -374,7 +374,7 @@
 	      <td>{{ form.date_taken_min.errors }}</td>
 	      <td>{{ form.date_taken_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Date taken &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Date taken &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set a date range.</div>
 	      </td>
 	      <td>{{ form.date_taken_max }}</td>
@@ -384,7 +384,7 @@
 	      <td>{{ form.exposure_time_min.errors }}</td>
 	      <td>{{ form.exposure_time_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Exposure time &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Exposure time &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. exposure time [s].</div>
 	      </td>
 	      <td>{{ form.exposure_time_max }}</td>
@@ -394,7 +394,7 @@
 	      <td>{{ form.pixel_size_min.errors }}</td>
 	      <td>{{ form.pixel_size_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Pixel size &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Pixel size &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. pixel size [arcsec].</div>
 	      </td>
 	      <td>{{ form.pixel_size_max }}</td>
@@ -454,7 +454,7 @@
 	      <td>{{ form.date_taken_min.errors }}</td>
 	      <td>{{ form.date_taken_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Date taken &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Date taken &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set a date range.</div>
 	      </td>
 	      <td>{{ form.date_taken_max }}</td>
@@ -464,7 +464,7 @@
 	      <td>{{ form.exposure_time_min.errors }}</td>
 	      <td>{{ form.exposure_time_min }}</td>
 	      <td>
-		<div class="sled-help-tooltip"><label>&lt; Exposure time &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Exposure time &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. exposure time [s].</div>
 	      </td>
 	      <td>{{ form.exposure_time_max }}</td>
@@ -474,7 +474,7 @@
 	      <td>{{ form.wavelength_min.errors }}</td>
 	      <td>{{ form.wavelength_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; &lambda; &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; &lambda; &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set a wavelength range [nm].</div>
 	      </td>
 	      <td>{{ form.wavelength_max }}</td>
@@ -484,7 +484,7 @@
 	      <td>{{ form.resolution_min.errors }}</td>
 	      <td>{{ form.resolution_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Resolution &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Resolution &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. resolution [arcsec].</div>
 	      </td>
 	      <td>{{ form.resolution_max }}</td>
@@ -551,7 +551,7 @@
 	      <td>{{ form.date_taken_min.errors }}</td>
 	      <td>{{ form.date_taken_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Date taken &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Date taken &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set a date range.</div>
 	      </td>
 	      <td>{{ form.date_taken_max }}</td>
@@ -561,7 +561,7 @@
 	      <td>{{ form.distance_min.errors }}</td>
 	      <td>{{ form.distance_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Distance &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Distance &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. distance from the lens [arcsec].</div>
 	      </td>
 	      <td>{{ form.distance_max }}</td>
@@ -571,7 +571,7 @@
 	      <td>{{ form.mag_min.errors }}</td>
 	      <td>{{ form.mag_min }}</td>
               <td>
-		<div class="sled-help-tooltip"><label>&lt; Mag &lt;</label></div>
+		<div class="sled-help-tooltip"><label>&leq; Mag &leq;</label></div>
 		<div class="sled-help-tooltip-content">Set the min. and max. magnitudes.</div>
 	      </td>
 	      <td>{{ form.mag_max }}</td>

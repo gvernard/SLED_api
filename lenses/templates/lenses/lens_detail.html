@@ -225,7 +225,7 @@
   
   
   <!-- Div containing all the generic images  -->  
-  <div class="jb-section">
+  <div id="genericimage" class="jb-section">
     <h1 class="jb-heading-2">Generic Images</h1>
 
     <div style="overflow:hidden">
@@ -261,7 +261,7 @@
   
   
   <!-- Div containing all the redshift measurements  -->
-  <div class="jb-section jb-table-no-lines">
+  <div id="redshift" class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Redshifts</h1>
     {% if redshifts %}
     <table>
@@ -323,7 +323,7 @@
   
   
   <!-- Div containing all the imaging data  -->
-  <div class="jb-section jb-table-no-lines">
+  <div id="imaging" class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Imaging Data</h1>
     <table>
       {% for instrument, imaging in display_imagings.items %}
@@ -367,7 +367,7 @@
 
   
   <!-- Div containing all the spectroscopic data  -->  
-  <div class="jb-section">
+  <div id="spectrum" class="jb-section">
     <h1 class="jb-heading-2">Spectroscopic Data</h1>
 
     {% for spec in display_spectra %}
@@ -401,7 +401,7 @@
 
   
   <!-- Div containing all the catalogue data  -->  
-  <div class="jb-section jb-table-no-lines">
+  <div id="catalogue" class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Catalogue Data</h1>
 
     <div style="width:75%;margin:auto">

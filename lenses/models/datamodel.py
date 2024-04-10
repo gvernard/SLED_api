@@ -51,7 +51,7 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url()
+        return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
@@ -233,7 +233,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url()
+        return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
@@ -336,7 +336,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url()
+        return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
@@ -443,7 +443,7 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url()
+        return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
@@ -561,7 +561,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url()
+        return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
