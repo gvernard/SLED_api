@@ -575,8 +575,21 @@ class Users(AbstractUser,GuardianUserMixin):
         
             
 
+    def get_roles(self):
+        roles = []
+        if self.limitsandroles.is_inspector:
+            roles.append('inspector') 
+        if self.limitsandroles.is_admin:
+            roles.append('admin') 
+        if self.limitsandroles.is_super_admin:
+            roles.append('super admin') 
+        if len(roles) > 0:
+            return ','.join(roles)
+        else:
+            return ''
 
 
+    
 
     
     ####################################################################

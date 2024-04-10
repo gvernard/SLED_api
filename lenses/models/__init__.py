@@ -9,5 +9,6 @@ from .sledquery import SledQuery
 from .datamodel import Instrument, Band, DataBase, Imaging, Spectrum, Catalogue, Redshift, GenericImage
 from .paper import Paper
 from .persistent_message import PersistentMessage
+from .limits_and_roles import LimitsAndRoles
 
 default_app_config = 'lenses.apps.SledActstreamConfig'

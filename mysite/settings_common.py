@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'sled_data',
     'sled_single_objects',
     'sled_persistent_message',
+    'sled_limits',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'sled_home.apps.HomeConfig',

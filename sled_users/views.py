@@ -21,7 +21,7 @@ from actstream.models import following, target_stream, Action
 from operator import attrgetter
 from itertools import chain
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift, GenericImage
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift, GenericImage, LimitsAndRoles
 from .forms import UserUpdateForm,UsersSearchForm
 
 
@@ -33,12 +33,11 @@ class UserQueryView(TemplateView):
     def user_query(self,cleaned_data):
         search_term = cleaned_data['search_term']
         if search_term:
-            users = Users.objects.filter(Q(first_name__icontains=search_term) | Q(last_name__icontains=search_term) | Q(email__icontains=search_term))
+            users = Users.objects.filter(Q(first_name__icontains=search_term) | Q(last_name__icontains=search_term) | Q(email__icontains=search_term)).select_related("limitsandroles")
         else:
             users = Users.objects.all()
         users = users.exclude(username__in=['admin','AnonymousUser'])
         
-
         paginator = Paginator(users,50)
         users_page = paginator.get_page(cleaned_data['page'])
         users_count = paginator.count

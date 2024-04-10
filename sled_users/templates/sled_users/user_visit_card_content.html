@@ -7,21 +7,20 @@
       <td>
 	<h1 class="jb-heading-1">
 	  {{ sled_user.first_name }} {{ sled_user.last_name }} ({{ sled_user.username }})
-	  {% if sled_user.is_staff %}
-	  <span class="jb-important-text">
-	    - Admin
-	  </span>
-	  {% endif %}
 	</h1>
-	{{sled_user.email|urlize}}
-	  <button class="jb-submit-button-1">
-	    <img src="{% static 'icons/send-fill.svg' %}" >
-	    Contact
-	  </button>
-	</a>
 	<p>
 	  Joined on {{ sled_user.date_joined }}, last login {{ sled_user.last_login|timesince }} ago
 	</p>
+	<span class="jb-important-text" style="font-weight:bold;font-size:40px">
+	  {{ sled_user.get_roles }}
+	</span>
+
+	{% if request.user.limitsandroles.is_super_admin %}
+	<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_limits:limits-and-roles-update' sled_user.pk %}">
+	  <img src="{% static 'icons/cloud-arrow-down-fill.svg' %}">
+	  Change limits and roles
+	</button>
+	{% endif %}
       </td>
       <td valign="bottom" align="right">
 	<img src="{{ sled_user.avatar }}" loading="lazy" width="100" alt="" class="jb-avatar" />
@@ -47,8 +46,8 @@
           <td>{{ sled_user.first_name }}</td>
           <td>{{ sled_user.last_name }}</td>
           <td>{{ sled_user.affiliation }}</td>
-          <td>{{ sled_user.email }}</td>
-          <td><a href="{{ sled_user.homepage }}">{{ sled_user.homepage }}</a></td>
+          <td>{{ sled_user.email|urlize }}</td>
+          <td>{{ sled_user.homepage|urlize }}</td>
         </tr>
       </tbody>
     </table>
