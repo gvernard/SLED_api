@@ -54,6 +54,29 @@ $(document).ready(function() {
 	    e.currentTarget.setAttribute('value', 'select');
 	}
     });
+
+
+    $('.sled-toggle-access').click(function(e){
+	var value = e.currentTarget.getAttribute('value');
+	console.log(value);
+	var table = $(this).siblings('.items-list').children('tbody');
+	if( value == "PUB" ){
+	    table.find('td.access-level:contains(PUB)').parent('tr').animate({ opacity: 100 });
+	    table.find('td.access-level:contains(PRI)').parent('tr').animate({ opacity: 0 });
+	    e.currentTarget.setAttribute('value','PRI');
+	    $(e.target).html('Show PRI');
+	} else if( value == "PRI" ){
+	    table.find('td.access-level:contains(PUB)').parent('tr').animate({ opacity: 0 });
+	    table.find('td.access-level:contains(PRI)').parent('tr').animate({ opacity: 100 });
+	    e.currentTarget.setAttribute('value','');
+	    $(e.target).html('Show All');
+	} else {
+	    table.find('td.access-level').parent('tr').animate({ opacity: 100 });
+	    e.currentTarget.setAttribute('value','PUB');
+	    $(e.target).html('Show PUB');
+	}
+    });
+
     
     // Modals
     $(".sled-modal").each(function() {

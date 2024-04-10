@@ -2,7 +2,7 @@
 
 <div>
   <input name="obj_type" type="hidden" value="Lenses" />
-  <table>
+  <table class="items-list">
     <thead>
       <tr>
         <th></th>
@@ -24,7 +24,7 @@
         <td>{{ lens.ra }}</td>
         <td>{{ lens.dec }}</td>
         <td>{{ lens.image_sep }}</td>
-        <td>{{ lens.access_level }}</td>
+        <td class="access-level">{{ lens.access_level }}</td>
         <td>
           {{ lens.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</em>
         </td>
@@ -33,4 +33,5 @@
     </tbody>
   </table>
   <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+  <button type="button" class="sled-toggle-access btn btn-sm btn-light" value="PUB">Show PUB</button>
 </div>
