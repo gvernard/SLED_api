@@ -31,7 +31,7 @@ from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection
 from . import forms
 from . import query_utils
 
-from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView,BSModalCreateView
+from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView,BSModalCreateView,BSModalReadView
 
 from bootstrap_modal_forms.utils import is_ajax
 
@@ -43,6 +43,8 @@ from actstream.models import followers,following
 import numpy as np
 from pprint import pprint
 import csv
+
+
 #=============================================================================================================================
 ### BEGIN: Modal views
 #=============================================================================================================================
@@ -313,6 +315,51 @@ class LensAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but
             messages.add_message(self.request,messages.WARNING,"Lens owner (%s) has been notified about your request." % lens.owner.username)
         response = super().form_valid(form)
         return response
+
+
+@method_decorator(login_required,name='dispatch')
+class LensConnectionsSummaryView(BSModalReadView):
+    model = Lenses
+    template_name = 'lenses/lens_detail_connections.html'
+    context_object_name = 'lens'
+    
+    def get_queryset(self):
+        return self.model.accessible_objects.owned(self.request.user)
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        other_owners = {"Generic Images": [], "Redshifts": [], "Imaging Data": [], "Spectroscopic Data": [], "Models": []}
+        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True).filter(future=False)
+        allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        
+        for image in allimages:
+            other_owners["Imaging Data"] += list(image.values_list('owner__username',flat=True))
+        for redshift in redshifts:
+            other_owners["Redshifts"].append(redshift.owner.username)
+        for generic_image in generic_images:
+            other_owners["Generic Images"].append(generic_image.owner.username)
+        other_owners["Spectroscopic Data"] += allspectra.values_list('owner__username',flat=True)
+        other_owners["Models"] = []
+
+        for label,others in other_owners.items():
+            if len(others) > 0:
+                my_dict = {i:others.count(i) for i in others}
+                new_others = [ name + " ("+str(freq)+")" for name,freq in my_dict.items() ]
+                other_owners[label] = new_others
+        context['other_owners'] = other_owners
+
+
+
+        qset_cols = Collection.accessible_objects.all(self.request.user).filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk=context['lens'].id))
+        context['collections'] = qset_cols
+
+        
+        return context
+
     
 #=============================================================================================================================
 ### END: Modal views
@@ -416,30 +463,6 @@ class LensDetailView(DetailView):
         # Generic images
         generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
         
-        other_owners = {"Generic Images": [], "Redshifts": [], "Imaging Data": [], "Spectroscopic Data": [], "Models": []}
-        if self.request.user == context['lens'].owner:
-            for instrument,imaging in display_images.items():
-                for band,img in imaging.items():
-                    other_owners["Imaging Data"] += list(img.values_list('owner__username',flat=True))
-            for redshift in redshifts:
-                other_owners["Redshifts"].append(redshift.owner.username)
-            for generic_image in generic_images:
-                other_owners["Generic Images"].append(generic_image.owner.username)
-            other_owners["Spectroscopic Data"] += allspectra.values_list('owner__username',flat=True)
-            other_owners["Models"] = []
-
-            for label,others in other_owners.items():
-                if len(others) > 0:
-                    my_dict = {i:others.count(i) for i in others}
-                    new_others = [ name + " ("+str(freq)+")" for name,freq in my_dict.items() ]
-                    other_owners[label] = new_others
-
-
-        if self.request.user == context['lens'].owner:
-            qset_cols = Collection.accessible_objects.all(self.request.user).filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk=context['lens'].id))
-        else:
-            qset_cols = Collection.accessible_objects.none()
-        
         # All papers are public, no need for the accessible_objects manager
         allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
                                                     model=F('paperlensconnection__model'),
@@ -460,8 +483,6 @@ class LensDetailView(DetailView):
         paper_labels = [ ','.join(x) for x in labels ]
 
         context['following'] = following
-        context['other_owners'] = other_owners
-        context['collections'] = qset_cols
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
         context['display_spectra'] = allspectra

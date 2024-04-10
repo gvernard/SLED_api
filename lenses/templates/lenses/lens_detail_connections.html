@@ -1,0 +1,58 @@
+{% extends "modal_base.html" %}
+{% load static %}
+
+{% block title %}
+Connections to other users and objects
+{% endblock title %}
+
+
+{% block content %}
+<div class="jb-container-modal">
+
+
+  This lens is <b>{{ lens.access_level }}</b>
+  <table class="lens-summary">
+    {% if lens.access_level == 'PRI' %}
+    <tr>
+      <td>User Access:</td>
+      <td>{{ lens.getUsersWithAccessNoOwner|join:"," }}</td>
+    </tr>
+    <tr>
+      <td>Group Access:</td>
+      <td>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</td>
+    </tr>
+    {% endif %}
+    {% for label,others in other_owners.items %}
+    <tr>
+      <td>{{ label }}:</td>
+      <td>
+	{% if others %}
+	{{ others|join:"," }}
+	{% else %}
+	-
+	{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td>Collections:</td>
+      <td>
+	{% if collections %}
+	{{ collections|join:"," }}
+	{% else %}
+	-
+	{% endif %}
+      </td>
+    </tr>
+  </table>
+
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+{% endblock action_button %}
+
+
+{% block extrascripts %}
+{% endblock extrascripts %}

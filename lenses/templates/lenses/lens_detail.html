@@ -82,45 +82,6 @@
       <input name="ids" type="hidden" value="{{ lens.id }}">
       <input name="redirect" type="hidden" value="{{ request.get_full_path }}">
     </form>
-
-    <div>
-      This lens is <b>{{ lens.access_level }}</b>
-      <table class="lens-summary">
-	{% if lens.access_level == 'PRI' %}
-	<tr>
-	  <td>User Access:</td>
-	  <td>{{ lens.getUsersWithAccessNoOwner|join:"," }}</td>
-	</tr>
-	<tr>
-	  <td>Group Access:</td>
-	  <td>{{ lens.getGroupsWithAccessNoOwner|join:"," }}</td>
-	</tr>
-	{% endif %}
-	{% for label,others in other_owners.items %}
-	<tr>
-	  <td>{{ label }}:</td>
-	  <td>
-	    {% if others %}
-	    {{ others|join:"," }}
-	    {% else %}
-	    -
-	    {% endif %}
-	  </td>
-	</tr>
-	{% endfor %}
-	<tr>
-	  <td>Collections:</td>
-	  <td>
-	    {% if collections %}
-	    {{ collections|join:"," }}
-	    {% else %}
-	    -
-	    {% endif %}
-	  </td>
-	</tr>
-      </table>
-    </div>
-    
     
     <div>
       <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}">
@@ -149,6 +110,10 @@
       <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
 	<img src="{% static 'icons/forward-fill.svg' %}" >
 	Cede ownership
+      </button>
+      <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'lenses:lens-connections'  lens.id %}">
+	<img src="{% static 'icons/share-fill.svg' %}" >
+	Connections
       </button>
     </div>
     
