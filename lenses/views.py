@@ -505,19 +505,20 @@ class LensAddView(TemplateView):
         context = {'lens_formset': myformset}
         return self.render_to_response(context)
 
+
     def post(self, request, *args, **kwargs):
         referer = urlparse(request.META['HTTP_REFERER']).path
 
         if referer == request.path:
             # Submitting to itself, perform all the checks
             LensFormSet = inlineformset_factory(Users,Lenses,formset=forms.BaseLensAddUpdateFormSet,form=forms.BaseLensForm,extra=0)
-            myformset = LensFormSet(data=request.POST,files=request.FILES)
-            if myformset.is_valid():
+            myformset = LensFormSet(data=request.POST,files=request.FILES,instance=request.user)
 
+            if myformset.is_valid():
                 # Set the possible duplicate indices and call validate again to check the insert fields - this requires a new formset
                 instances = myformset.save(commit=False)
                 indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
-                print(indices,neis)
+                #print(indices,neis)
                 
                 if len(indices) == 0:
                     # Set owner, name, and sort PRI and PUB

@@ -38,7 +38,7 @@ class QueryListView(ListView):
         return context
 
     def get(self, *args, **kwargs):
-        if self.kwargs.get('admin') and not self.request.user.is_staff:
+        if self.kwargs.get('admin') and not self.request.user.limitsandroles.is_admin:
             return TemplateResponse(self.request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
         return super(QueryListView,self).get(*args, **kwargs)
 

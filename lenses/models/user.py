@@ -595,19 +595,21 @@ class Users(AbstractUser,GuardianUserMixin):
     ####################################################################
     # Below this point lets put actions relevant only to the admin users
     def getAdmin():
-        return Users.objects.filter(is_superuser=True)
+        return Users.objects.filter(is_superuser=True) # This refers to the django user 'admin'
     
 
-    def selectRandomAdmin():
+    def selectRandomAdmin(exclude_usernames=None):
         # Returns a queryset
-        #user_id = Users.objects.filter(Q(is_staff=True) & Q(is_superuser=False)).order_by('?').first().id
-        #qset = Users.objects.filter(id=user_id)
-        qset = Users.objects.filter(username='Giorgos')
+        if exclude_usernames is None:
+            exclude_usernames = []
+        user_id = Users.objects.filter(limitsandroles__is_admin=True).exclude(username__in=exclude_usernames).order_by('?').first().id
+        qset = Users.objects.filter(id=user_id)
+        #qset = Users.objects.filter(username='Giorgos')
         return qset
 
     
     def get_admin_pending_tasks(self):
-        if self.is_staff:
+        if self.limitsandroles.is_admin:
             admin = Users.getAdmin()[0]
             pending_tasks = list(ConfirmationTask.objects.filter(status='P').filter(Q(owner=admin)|Q(recipients__username=admin.username)))
             return pending_tasks
@@ -616,11 +618,33 @@ class Users(AbstractUser,GuardianUserMixin):
 
         
     def get_admin_notifications(self):
-        if self.is_staff:
+        if self.limitsandroles.is_admin:
             admin = Users.getAdmin()[0]
             return admin.notifications.unread()
         else:
             return []
+
+
+
+    def check_limit_owned(self,N,obj_type='all'):
+        owned_objects = self.getOwnedObjects()
+        N_owned = 0
+        for model_type,qset in owned_objects.items():
+            N_owned = N_owned + qset.count()
+        remaining = self.limitsandroles.limit_total_owned - N_owned - N
+        return remaining
+
+        
+    def check_limit_add_week(self,N,obj_type='all'):
+        owned_objects = self.getOwnedObjects()
+        N_week = 0
+        last_seven_days = timezone.now() - timezone.timedelta(days=7)
+        for model_type,qset in owned_objects.items():
+            N_week = N_week + qset.filter(created_at__gt=last_seven_days).count()
+        remaining = self.limitsandroles.limit_add_per_week - N_week - N
+        return remaining
+        
+
 
         
     # def deactivateUser(self,user):

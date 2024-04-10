@@ -108,7 +108,7 @@
 	      {% endif %}
 	    </td>
 	    {% endif %}
-	    {% if user.is_staff %}
+	    {% if user.limitsandroles.is_admin %}
 	    <td>
 	      <a href="{% url 'sled_users:user-admin' %}">Admin</a>
 	      {% if user.get_admin_pending_tasks|length > 0 or user.get_admin_notifications|length > 0 %}

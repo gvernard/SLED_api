@@ -188,7 +188,6 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
         for i in range(0,len(self.forms)-1):
             form1 = self.forms[i]
             if 'mugshot' in form1.changed_data:
-                print(i)
                 name1 = form1.cleaned_data['mugshot'].name
                 size1 = form1.cleaned_data['mugshot'].size
                 
@@ -204,7 +203,16 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
         if len(duplicate_files) > 0:
             raise ValidationError('More than one files have the same name and size which could indicate duplicates!')            
         
-                    
+        ### Check user limits
+        N_remaining_owned = self.instance.check_limit_owned(len(self.forms))
+        if N_remaining_owned < 0:
+            raise ValidationError('You have exceeded the limit of owned objects! Contact the admins.')
+        
+        N_remaining_week = self.instance.check_limit_add_week(len(self.forms))
+        if N_remaining_week < 0:
+            raise ValidationError('You have exceeded the weekly limit of adding objects! Wait for a max. of 7 days, or contact the admins.')
+
+        
 class ResolveDuplicatesForm(forms.Form):
     mychoices = (
         ('no','Do nothing'),

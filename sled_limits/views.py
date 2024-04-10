@@ -8,8 +8,9 @@ from bootstrap_modal_forms.generic import (
     BSModalUpdateView,
     BSModalReadView,
 )
+from bootstrap_modal_forms.utils import is_ajax
 
-from lenses.models import Users, LimitsAndRoles
+from lenses.models import Users, LimitsAndRoles, ConfirmationTask
 from .forms import *
 
 # Create your views here.
@@ -27,6 +28,19 @@ class LimitsAndRolesUpdateView(BSModalUpdateView):
         else:
             return LimitsAndRoles.objects.none()
 
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            # Reassigning admin tasks
+            if 'is_admin' in form.changed_data and not form.cleaned_data["is_admin"]:
+                new_admin = Users.selectRandomAdmin(exclude_usernames=[self.object.user.username]).get().username
+                admin = Users.getAdmin().first()
+                tasks = ConfirmationTask.custom_manager.pending_for_user(admin).filter(cargo__user_admin=self.object.user.username)
+                for task in tasks:
+                    task.cargo['user_admin'] = new_admin
+                    task.save()
+        response = super().form_valid(form)
+        return response
+        
     def get_success_url(self):
         return reverse('sled_users:user-visit-card',kwargs={'username':self.object.user.username})
 

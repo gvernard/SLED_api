@@ -321,47 +321,52 @@ class UserAdminView(TemplateView):
     
     def get(self, request, *args, **kwargs):
         user = request.user
-        admin = Users.getAdmin().first()
-        
-        # get pending confirmation tasks
-        pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(admin))
-        N_tasks = len(pending_tasks)
-        N_owned = ConfirmationTask.accessible_objects.owned(admin).count()
-        N_recipient = ConfirmationTask.custom_manager.all_as_recipient(admin).count()
-        N_tasks_all = N_owned + N_recipient
-        
-        # Get unread notifications
-        unread_notifications = admin.notifications.unread()
-        N_note_unread = unread_notifications.count()
 
-        # Get queries
-        queries = SledQuery.accessible_objects.owned(admin)
-        N_queries = queries.count()
-        queries = queries[:5]
-        
-        # All admin collections are public
-        owned_objects = admin.getOwnedObjects()
-        qset_cols = owned_objects["Collection"]
+        if not (user.limitsandroles.is_admin or user.limitsandroles.is_super_admin):
+            return render(request,'404.html',status=404)
+        else:
 
-        # Get bands and instruments (all of them, they are few anyway
-        bands = Band.objects.all().order_by('wavelength')
-        instruments = Instrument.objects.all()
-
-        # Current and future persistent messages
-        valid_messages = PersistentMessage.timeline.current() | PersistentMessage.timeline.future()
-        context={'user': user,
-                 'hash': self.kwargs.get('hash'),        # Open accordion div
-                 'queries': queries,
-                 'N_queries': N_queries,
-                 'pending_tasks':pending_tasks,
-                 'N_tasks': N_tasks,
-                 'N_tasks_all': N_tasks_all,
-                 'unread_notifications':unread_notifications,
-                 'N_note_unread': N_note_unread,
-                 'collections': qset_cols,
-                 'bands':bands,
-                 'instruments':instruments,
-                 'valid_messages': valid_messages,
-                 'admin_page': True,
-                 }
-        return render(request, self.template_name, context=context)
+            admin = Users.getAdmin().first()
+            
+            # get pending confirmation tasks
+            pending_tasks = list(ConfirmationTask.custom_manager.pending_for_user(admin))
+            N_tasks = len(pending_tasks)
+            N_owned = ConfirmationTask.accessible_objects.owned(admin).count()
+            N_recipient = ConfirmationTask.custom_manager.all_as_recipient(admin).count()
+            N_tasks_all = N_owned + N_recipient
+            
+            # Get unread notifications
+            unread_notifications = admin.notifications.unread()
+            N_note_unread = unread_notifications.count()
+            
+            # Get queries
+            queries = SledQuery.accessible_objects.owned(admin)
+            N_queries = queries.count()
+            queries = queries[:5]
+            
+            # All admin collections are public
+            owned_objects = admin.getOwnedObjects()
+            qset_cols = owned_objects["Collection"]
+            
+            # Get bands and instruments (all of them, they are few anyway
+            bands = Band.objects.all().order_by('wavelength')
+            instruments = Instrument.objects.all()
+            
+            # Current and future persistent messages
+            valid_messages = PersistentMessage.timeline.current() | PersistentMessage.timeline.future()
+            context={'user': user,
+                     'hash': self.kwargs.get('hash'),        # Open accordion div
+                     'queries': queries,
+                     'N_queries': N_queries,
+                     'pending_tasks':pending_tasks,
+                     'N_tasks': N_tasks,
+                     'N_tasks_all': N_tasks_all,
+                     'unread_notifications':unread_notifications,
+                     'N_note_unread': N_note_unread,
+                     'collections': qset_cols,
+                     'bands':bands,
+                     'instruments':instruments,
+                     'valid_messages': valid_messages,
+                     'admin_page': True,
+                     }
+            return render(request, self.template_name, context=context)

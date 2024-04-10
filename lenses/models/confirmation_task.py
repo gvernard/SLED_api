@@ -124,7 +124,7 @@ class ConfirmationTask(SingleObject):
         return '%s_%s' % (self.task_type,str(self.id))
 
     def get_absolute_url(self):
-        if self.owner.is_superuser:
+        if self.owner.is_superuser: # This refers to the django user 'admin'
             return reverse('sled_tasks:tasks-detail-admin-owner',kwargs={'pk':self.id})
         else:
             return reverse('sled_tasks:tasks-detail-owner',kwargs={'pk':self.id})
@@ -882,6 +882,8 @@ class AcceptNewUser(ConfirmationTask):
         site = Site.objects.get_current()
         if response == 'yes':
             task_owner.is_active = True
+            limits_ref = apps.get_model(app_label="lenses",model_name='LimitsAndRoles')
+            limits_ref.objects.create(user=task_owner)
             default_storage.create_dir('temporary/'+task_owner.username)
             task_owner.save()
             action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUserHome',level='success',action_object=task_owner)
