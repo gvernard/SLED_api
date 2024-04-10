@@ -13,7 +13,7 @@
 	  </span>
 	  {% endif %}
 	</h1>
-	<a href="mailto:{{sled_user.email}}?subject=SLED communication:&body=The message">
+	{{sled_user.email|urlize}}
 	  <button class="jb-submit-button-1">
 	    <img src="{% static 'icons/send-fill.svg' %}" >
 	    Contact

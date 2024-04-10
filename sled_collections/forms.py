@@ -19,6 +19,7 @@ class CollectionCreateForm(BSModalModelForm):
         }
 
     def clean(self):
+        super(CollectionCreateForm,self).clean()
         col_acc = self.cleaned_data.get('access_level')
         ids = self.cleaned_data['ids'].split(',')
         obj_model = apps.get_model(app_label='lenses',model_name=self.cleaned_data['item_type'])

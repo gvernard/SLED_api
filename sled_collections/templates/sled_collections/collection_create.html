@@ -30,14 +30,22 @@ Make a collection of {{ form.item_type.value }}?
     </table>
   </div>
 
+  
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.name.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
   <div class="jb-modal-field">
     {{ form.name }}
   </div>
-
+  
   <div class="jb-modal-field">
     {{ form.description }}
   </div>
-
+  
   <div class="jb-modal-field">
     {{ form.access_level }}
   </div>
