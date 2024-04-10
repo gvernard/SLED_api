@@ -3,8 +3,6 @@
 {% block content %}
 
 
-
-
 <div class="jb-container">
   <h1 class="jb-heading-1">Standardized queries</h1>
   {% if queries %}
@@ -13,23 +11,21 @@
       <tr>
         <th>Name</th>
         <th>Description</th>
-  <th>Created at</th>
-  <th></th>
+	<th></th>
       </tr>
     </thead>
-
+    
     <tbody>
       {% for query in queries %}
       <tr>
         <td><a href="{{ group.get_absolute_url }}">{{query.name}}</td>
         <td>{{ query.description }}</td>
-  <td> {{ query.created_at }} </td>
-  <td>
-    <button type="button" class="sled-view-query btn btn-sm btn-primary" onclick="location.href='{{ query.get_GET_url }}'">
-      <img src="{% static 'icons/eye-fill.svg' %}" alt="trash">
-      View
-    </button>
-  </td>
+	<td>
+	  <button type="button" class="sled-view-query jb-submit-button-1" onclick="location.href='{{ query.get_GET_url }}'">
+	    <img src="{% static 'icons/eye-fill.svg' %}" alt="trash">
+	    View
+	  </button>
+	</td>
       </tr>
       {% endfor %}
     </tbody>
