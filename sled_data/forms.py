@@ -45,15 +45,11 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
                 self.add_error('__all__','Date must be in the past!')
 
         ### Check user limits
-        N_remaining_owned = self.user.check_limit_owned(1,self._meta.model.__name__)
-        if N_remaining_owned < 0:
-            self.add_error('__all__','You have exceeded the limit of owned objects! Contact the admins.')
-        
-        N_remaining_week = self.user.check_limit_add_week(1,self._meta.model.__name__)
-        if N_remaining_week < 0:
-            self.add_error('__all__','You have exceeded the weekly limit of adding objects! Wait for a max. of 7 days, or contact the admins.')
-                
-        self.add_error('__all__',"Dummy error!")
+        check = self.user.check_all_limits(1,self._meta.model.__name__)
+        if check["errors"]:
+            for error in check["errors"]:
+                self.add_error('__all__',error)
+
         return
 
 
@@ -143,8 +139,17 @@ class RedshiftCreateFormModal(BSModalModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(RedshiftCreateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
+
+    def clean(self):
+        super(RedshiftCreateFormModal,self).clean()
+        check = self.user.check_all_limits(1,self._meta.model.__name__)
+        if check["errors"]:
+            for error in check["errors"]:
+                self.add_error('__all__',error)
+        return
 
 class GenericImageCreateFormModal(BSModalModelForm):
     field_order = ['name','info','image']
@@ -159,10 +164,20 @@ class GenericImageCreateFormModal(BSModalModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(GenericImageCreateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text 
-##############################################################################
+ 
 
+    def clean(self):
+        super(GenericImageCreateFormModal,self).clean()
+        check = self.user.check_all_limits(1,self._meta.model.__name__)
+        if check["errors"]:
+            for error in check["errors"]:
+                self.add_error('__all__',error)
+        return
+##############################################################################
+        
 
 
 

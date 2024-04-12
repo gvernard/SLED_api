@@ -58,7 +58,11 @@ class QuerySaveView(BSModalCreateView):
         print('Within get_initial function:', self.initialcargo)
         return {'cargo': cargo}
 
-
+    def get_form_kwargs(self):
+        kwargs = super(QuerySaveView,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
     def form_valid(self, form):
         print(self.request)
         if not is_ajax(self.request.META):

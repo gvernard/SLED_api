@@ -626,6 +626,27 @@ class Users(AbstractUser,GuardianUserMixin):
 
 
 
+
+    def check_all_limits(self,N,obj_type='all'):
+        remaining = {
+            "errors": []
+        }
+        print(N,obj_type)
+        N_remaining_owned = self.check_limit_owned(N,obj_type)
+        if N_remaining_owned < 0:
+            remaining["errors"].append('You have exceeded the limit of owned objects! Contact the admins.')
+        else:
+            remaining["N_remaining_owned"] = N_remaining_owned
+        
+        N_remaining_week = self.check_limit_add_week(N,obj_type)
+        if N_remaining_week < 0:
+            remaining["errors"].append('You have exceeded the weekly limit of adding objects! Wait for a max. of 7 days, or contact the admins.')
+        else:
+            remaining["N_remaining_week"] = N_remaining_week
+
+        return remaining
+    
+        
     def check_limit_owned(self,N,obj_type='all'):
         owned_objects = self.getOwnedObjects()
         N_owned = 0

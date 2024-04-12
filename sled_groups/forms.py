@@ -46,6 +46,10 @@ class GroupCreateForm(BSModalModelForm):
             'access_level': forms.Select()
         }
     
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(GroupCreateForm, self).__init__(*args, **kwargs)
+
     def clean(self):
         # At least one User must be selected
         users = self.cleaned_data.get('users')
@@ -54,6 +58,11 @@ class GroupCreateForm(BSModalModelForm):
 
         if self.request.user in users:
             self.add_error('__all__',"The group contains the owner as a member by default.")
+
+        check = self.user.check_all_limits(1,self._meta.model.__name__)
+        if check["errors"]:
+            for error in check["errors"]:
+                self.add_error('__all__',error)
 
 
 class GroupAddRemoveMembersForm(BSModalModelForm):

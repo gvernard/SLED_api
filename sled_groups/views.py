@@ -134,6 +134,11 @@ class GroupCreateView(BSModalFormView):
     form_class = GroupCreateForm
     success_url = reverse_lazy('sled_groups:group-list')
 
+    def get_form_kwargs(self):
+        kwargs = super(GroupCreateView,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self,form):
         if not is_ajax(self.request.META):
             add_user_names = form.cleaned_data['users']

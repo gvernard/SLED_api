@@ -18,6 +18,10 @@ class CollectionCreateForm(BSModalModelForm):
             'item_type': forms.HiddenInput()
         }
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(CollectionCreateForm, self).__init__(*args, **kwargs)
+        
     def clean(self):
         super(CollectionCreateForm,self).clean()
         col_acc = self.cleaned_data.get('access_level')
@@ -26,6 +30,12 @@ class CollectionCreateForm(BSModalModelForm):
         priv = obj_model.accessible_objects.in_ids(self.request.user,ids).filter(access_level='PRI').count()
         if priv > 0 and col_acc == 'PUB':
             self.add_error('__all__',"Public collection cannot contain private items.")
+
+        check = self.user.check_all_limits(1,self._meta.model.__name__)
+        if check["errors"]:
+            for error in check["errors"]:
+                self.add_error('__all__',error)
+                
         return
 
 
