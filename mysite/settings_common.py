@@ -33,10 +33,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django.forms',
     'storages',
     'guardian',
     'sled_registration.apps.RegistrationConfig',  
     'crispy_forms',
+    'crispy_bootstrap4',
     'notifications',
     'api',
     'rest_framework',
@@ -64,6 +66,7 @@ INSTALLED_APPS = [
     'multiselectfield',
     'django_select2',
     'nolastlogin',
+    'captcha',
 ]
 
 SITE_ID = 1
@@ -109,7 +112,7 @@ TEMPLATES = [
         },
     },
 ]
-
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
@@ -175,7 +178,8 @@ REDIS_PORT = '6379'
 BROKER_URL = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 3600} 
 CELERY_RESULT_BACKEND = 'redis://' + REDIS_HOST + ':' + REDIS_PORT + '/0'
-
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

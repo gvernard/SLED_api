@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, UsernameField
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from captcha.fields import CaptchaField, CaptchaTextInput
 
 import re
 import os
@@ -10,12 +11,16 @@ import time
 from lenses.models.user import Users
 from sled_core.slack_api_calls import get_slack_avatar
 
+class CustomCaptchaTextInput(CaptchaTextInput):
+    template_name = 'captcha_field.html'
 
+    
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=100, required=True)
     last_name = forms.CharField(max_length=100, required=True)
-
+    captcha = CaptchaField(widget=CustomCaptchaTextInput)
+    
     class Meta:
         model = Users
         fields = ["username", "first_name", "last_name", "email", "password1", "password2", "affiliation", "slack_display_name", "avatar"]
@@ -34,6 +39,8 @@ class RegisterForm(UserCreationForm):
         self.fields['password2'].widget.attrs['class'] = 'field-label'
         self.fields['affiliation'].widget.attrs['class'] = 'field-label'
         self.fields['slack_display_name'].widget.attrs['class'] = 'field-label'
+        self.fields['captcha'].widget.attrs['class'] = 'field-label'
+        self.fields['captcha'].widget.attrs['placeholder'] = 'Type in the characters from above'
 
     def clean_username(self):
         value = self.cleaned_data['username']
@@ -69,6 +76,7 @@ class RegisterForm(UserCreationForm):
         # Need to call model clean methods here to raise and catch any errors
         dum = self.cleaned_data.copy()
         dum.pop('password1')
+        dum.pop('captcha')
         dum["password"] = dum.pop('password2')
         instance = Users(**dum)
         try:

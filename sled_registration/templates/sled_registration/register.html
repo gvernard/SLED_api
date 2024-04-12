@@ -1,15 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
 
-<!-- {% block title %}Create an Account{% endblock %}
-{% load crispy_forms_tags %} -->
-
-{% block extrastyles %}
-{% endblock extrastyles %}
-
-{% block extrascripts %}
-{% endblock extrascripts %}
-
 
 {% block content %}
 <div class="jb-sign-up-wrap jb-container">
@@ -18,10 +9,6 @@
     <form id="email-form" class="jb-form-1" method="post" action="{% url 'register' %}">
       <img src="{% static 'images/JB_Login_SLED-Logo.png' %}" loading="lazy" width="40" alt="" class="jb-image-1">
       {% csrf_token %}
-
-
-      <!--{{ form.as_p }}-->
-
 
       {{ form.non_field_errors }}
       <div class="jb-form">
@@ -71,6 +58,12 @@
         {{ form.slack_display_name }}
         {{ form.slack_display_name.errors }}
       </div>
+
+      <div class="jb-form jb-table-no-lines">
+        <label for="{{ form.captcha.id_for_label }}">I am human:</label>
+        {{ form.captcha }}
+        {{ form.captcha.errors }}
+      </div>
       
       <div style="text-align:center">
 	<input type="submit" value="Register" data-wait="Please wait..." class="jb-submit-button-1 w-button">
@@ -78,30 +71,31 @@
     </form>
   </div>
 </div>
-
-<!--<div class="sign-up-wrap w-container">
-      <div class="w-form">
-
-        <form id="email-form" name="email-form" data-name="Email Form" method="post" class="form-2">
-          <img src="{% static 'images/0SLED_Logo-Login.png' %}" loading="lazy" width="40" alt="" class="image-7"><label for="name" class="field-label">Username*</label><input type="text" class="text-field w-input" maxlength="256" name="name" data-name="Name" placeholder="" id="name" required=""><label for="email" class="field-label-2">Email Address*</label><input type="email" class="text-field-2 w-input" maxlength="256" name="email" data-name="Email" placeholder="" id="email" required=""><label for="email-2" class="field-label-2">Password*</label><input type="password" class="text-field-2 w-input" maxlength="256" name="email-2" data-name="Email 2" placeholder="" id="email-2" required=""><label for="email-2" class="field-label-2">Password Confirmation*</label><input type="password" class="text-field-2 w-input" maxlength="256" name="email-2" data-name="Email 2" placeholder="" id="email-2" required=""><label for="email-3" class="field-label-2">Affiliation*</label><input type="text" class="text-field-2 w-input" maxlength="256" name="email-2" data-name="Email 2" placeholder="" id="email-2" required=""><input type="submit" value="Register" data-wait="Please wait..." class="submit-button-2 w-button">
-        {% csrf_token %}
-      </form>
-        <div class="success-message w-form-done">
-          <div class="text-block">Thank you! You've now registered for SLED.</div>
-        </div>
-        <div class="error-message w-form-fail">
-          <div class="text-block-2">Oops! Something went wrong while submitting the form.</div>
-        </div>
-      </div>
-    </div>-->
-
-<script type="text/javascript">
-  $('form').each(function() {
-    if (!$(this).is('[action]')) {
-      $(this).attr('action', '/');
-    }
-  });
-  // $('#id_username').addClass('text-field',"w-input").attr({"data-name":'Name'});
-</script>
-
 {% endblock %}
+
+
+{% block extrastyles %}
+<style>
+  .captcha {width:300px; height:100px;}
+</style>
+{% endblock extrastyles %}
+
+{% block extrascripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('.js-captcha-refresh').click(function(){
+	  $form = $(this).parents('form');
+	  //$.getJSON($(this).data('url'), {}, function(json) {
+          //    // This should update your captcha image src and captcha hidden input
+	  //});
+	  $.getJSON("/captcha/refresh/", function (result) {
+              $('.captcha').attr('src', result['image_url']);
+              $('#id_captcha_0').val(result['key'])
+	  });
+	  return false;
+      });
+  });
+</script>
+{% endblock extrascripts %}
+
+

@@ -62,6 +62,7 @@ urlpatterns = [
     path('sled_single_objects/', include('sled_single_objects.urls'), name='sled_single_objects'),
     path('sled_persistent_message/', include('sled_persistent_message.urls'), name='sled_persistent_message'),
     path('sled_limits/', include('sled_limits.urls'), name='sled_limits'),
+    path('captcha/', include('captcha.urls')),
 #    path('sled_core/', include('sled_core.urls'), name='sled_core'),
 ]
 

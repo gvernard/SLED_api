@@ -1,0 +1,27 @@
+{% load i18n %}
+{% load static %}
+
+{% spaceless %}
+<div class="form-group">
+  <table>
+    <tr>
+      <td>
+	<div class="input-group-prepend">
+          <img src="{{ image }}" alt="captcha" class="captcha" />
+	</div>
+      </td>
+      <td>
+	<button class="js-captcha-refresh jb-submit-button-1">
+	  <img src="{% static 'icons/arrow-clockwise.svg' %}">
+	  Refresh
+	</button>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+	{% include "django/forms/widgets/multiwidget.html" %}
+      </td>
+    </tr>
+  </table>
+</div>
+{% endspaceless %}
