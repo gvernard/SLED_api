@@ -17,6 +17,7 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(BaseCreateUpdateDataForm, self).__init__(*args, **kwargs)
         if 'owner' in self.fields:
             self.fields['owner'].widget = forms.HiddenInput()
@@ -29,7 +30,7 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
         self.fields['info'].widget.attrs['rows'] = 3
         self.fields['info'].widget.attrs['cols'] = 30
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
-
+            
     def clean(self):
         if not self.has_changed():
             self.add_error('__all__',"No changes detected!")
@@ -42,6 +43,17 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
         else:
             if now < date_taken:
                 self.add_error('__all__','Date must be in the past!')
+
+        ### Check user limits
+        N_remaining_owned = self.user.check_limit_owned(1,self._meta.model.__name__)
+        if N_remaining_owned < 0:
+            self.add_error('__all__','You have exceeded the limit of owned objects! Contact the admins.')
+        
+        N_remaining_week = self.user.check_limit_add_week(1,self._meta.model.__name__)
+        if N_remaining_week < 0:
+            self.add_error('__all__','You have exceeded the weekly limit of adding objects! Wait for a max. of 7 days, or contact the admins.')
+                
+        self.add_error('__all__',"Dummy error!")
         return
 
 

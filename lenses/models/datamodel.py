@@ -522,7 +522,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
                              choices=RedshiftTagChoices)
     
     RedshiftMethodChoices = (
-        ('PHOTO-Z','Photometric'),
+        ('PHOTO','Photometric'),
         ('SPECTRO','Spectroscopic'),
         ('OTHER','Other'),
     )

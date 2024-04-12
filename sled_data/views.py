@@ -113,6 +113,11 @@ class DataCreateView(BSModalCreateView):
         lens = Lenses.objects.get(id=self.kwargs.get('lens'))
         return {'owner': owner,'lens': lens}
 
+    def get_form_kwargs(self):
+        kwargs = super(DataCreateView,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self,form):
         if not is_ajax(self.request.META):
             new_object = form.save(commit=False)

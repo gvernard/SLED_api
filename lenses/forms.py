@@ -204,11 +204,11 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
             raise ValidationError('More than one files have the same name and size which could indicate duplicates!')            
         
         ### Check user limits
-        N_remaining_owned = self.instance.check_limit_owned(len(self.forms))
+        N_remaining_owned = self.instance.check_limit_owned(len(self.forms),'Lenses')
         if N_remaining_owned < 0:
             raise ValidationError('You have exceeded the limit of owned objects! Contact the admins.')
         
-        N_remaining_week = self.instance.check_limit_add_week(len(self.forms))
+        N_remaining_week = self.instance.check_limit_add_week(len(self.forms),'Lenses')
         if N_remaining_week < 0:
             raise ValidationError('You have exceeded the weekly limit of adding objects! Wait for a max. of 7 days, or contact the admins.')
 
@@ -769,7 +769,7 @@ class CatalogueQueryForm(DataBaseQueryForm):
 class RedshiftQueryForm(forms.Form):
     RedshiftMethodChoices = (
         ('','Any'),
-        ('PHOTO-Z','Photometric'),
+        ('PHOTO','Photometric'),
         ('SPECTRO','Spectroscopic'),
         ('OTHER','Other'),
     )
