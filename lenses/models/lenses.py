@@ -165,13 +165,15 @@ class ProximateLensManager(models.Manager):
     
 
 class Lenses(SingleObject,DirtyFieldsMixin):
-    ra = models.DecimalField(max_digits=10,
+    ra = models.DecimalField(blank=False,
+                             max_digits=10,
                              decimal_places=6,
                              verbose_name="RA",
                              help_text="The RA of the lens [degrees].",
                              validators=[MinValueValidator(0.0,"RA must be positive."),
                                          MaxValueValidator(360,"RA must be less than 360 degrees.")])
-    dec = models.DecimalField(max_digits=10,
+    dec = models.DecimalField(blank=False,
+                              max_digits=10,
                               decimal_places=6,
                               verbose_name="DEC",
                               help_text="The DEC of the lens [degrees].",
@@ -367,17 +369,18 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
             
     def clean(self):
-        jname = self.create_name()
-        if not self.name:
-            self.name = jname
-        else:
-            if not self.alt_name:
-                self.alt_name = jname
+        if self.ra and self.dec:
+            jname = self.create_name()
+            if not self.name:
+                self.name = jname
             else:
-                altnames = [name.strip() for name in self.alt_name.split(',')]
-                if jname not in altnames:
-                    altnames.append(jname)
-                    self.alt_name = ', '.join(altnames)
+                if not self.alt_name:
+                    self.alt_name = jname
+                else:
+                    altnames = [name.strip() for name in self.alt_name.split(',')]
+                    if jname not in altnames:
+                        altnames.append(jname)
+                        self.alt_name = ', '.join(altnames)
                     
         if self.contaminant_type and self.flag != 'CONTAMINANT':
             raise ValidationError("To set the Contaminant Type the lens must be flagged as a Contaminant.")

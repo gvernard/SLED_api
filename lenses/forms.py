@@ -28,7 +28,9 @@ class BaseLensForm(forms.ModelForm):
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
         
     def clean(self):
-        pass
+        if not self.has_changed():
+            self.add_error('__all__',"No changes detected!")
+
                 
             
 class BaseLensUpdateForm(BaseLensForm):
