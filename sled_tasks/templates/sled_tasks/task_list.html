@@ -32,6 +32,12 @@
       {% endif %}
     </h1>
 
+    {% if N_old > 0 %}
+    <p style="color:red">
+      You have {{N_old}} completed tasks that are more than 10 days old - please consider deleting them
+    </p>
+    {% endif %}
+    
     {% include "pagination_top.html" with qset=owner request=request qset_range=owner_range qset_total=N_owner target="tasks_owned" %}
 
     <div>

@@ -4,6 +4,7 @@ from django.template.response import TemplateResponse
 from django.contrib.auth.decorators import login_required
 from django.db.models import F,Q,Count
 from django.utils.decorators import method_decorator
+from django.utils import timezone
 from django.views.generic import TemplateView, DetailView, ListView
 from django.urls import reverse,reverse_lazy
 from django.contrib import messages
@@ -49,6 +50,10 @@ class TaskListView(ListView):
             recipient = recipient_only|both.filter(status="P")
             
 
+        date_check = timezone.now() - timezone.timedelta(days=10)
+        N_old = owner.filter( Q(status='C') & Q(modified_at__lt=date_check) ).count()
+        print(date_check,N_old)
+        
         o_paginator = Paginator(owner,50)
         o_page_number = self.request.GET.get('tasks_owned-page',1)
 
@@ -65,7 +70,8 @@ class TaskListView(ListView):
                    'N_recipient': r_paginator.count,
                    'recipient_range': r_paginator.page_range,
                    'recipient': r_paginator.get_page(r_page_number),
-                   'admin_page': admin_page
+                   'admin_page': admin_page,
+                   'N_old': N_old
                    }
         return context
 
