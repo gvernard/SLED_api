@@ -631,7 +631,7 @@ class Users(AbstractUser,GuardianUserMixin):
         remaining = {
             "errors": []
         }
-        print(N,obj_type)
+        #print(N,obj_type)
         N_remaining_owned = self.check_limit_owned(N,obj_type)
         if N_remaining_owned < 0:
             remaining["errors"].append('You have exceeded the limit of owned objects! Contact the admins.')

@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.6
+FROM python:3.12
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -9,5 +9,5 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /SLED
 
 # Install dependencies
-COPY requirements.txt /SLED/
-RUN python3 -m pip install -r requirements.txt
+COPY requirements_4.2.txt /SLED/
+RUN python3 -m pip install -r requirements_4.2.txt

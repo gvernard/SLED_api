@@ -21,7 +21,7 @@ from bootstrap_modal_forms.generic import (
     BSModalDeleteView,
     BSModalReadView,
 )
-from bootstrap_modal_forms.utils import is_ajax
+from bootstrap_modal_forms.mixins import is_ajax
 from actstream import action
 from guardian.shortcuts import assign_perm,remove_perm
 from notifications.signals import notify
@@ -127,17 +127,17 @@ class DataCreateView(BSModalCreateView):
                 perm = 'view_' + self.kwargs.get('model').lower()
                 print(perm)
                 assign_perm(perm,self.request.user,new_object) # new_object here is not a list, so giving permission to the user is guaranteed
-        response = super().form_valid(form)
+        response = super(DataCreateView,self).form_valid(form)
         return response
 
     def form_invalid(self,form):
-        response = super().form_invalid(form)
+        response = super(DataCreateView,self).form_invalid(form)
         return response
 
     def get_success_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.kwargs.get('lens')})
 
-    def get_success_message(self,cleaned_data):
+    def get_success_message(self):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return self.success_message % dict(obj_type=model._meta.verbose_name.title())
 
@@ -184,6 +184,11 @@ class DataUpdateView(BSModalUpdateView):
             # Maybe return some default error template here
             pass
 
+    def get_form_kwargs(self):
+        kwargs = super(DataUpdateView,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+        
     def form_valid(self,form):
         if not is_ajax(self.request.META):
             self.object.save()
@@ -193,7 +198,7 @@ class DataUpdateView(BSModalUpdateView):
     def get_success_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
 
-    def get_success_message(self,cleaned_data):
+    def get_success_message(self):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return self.success_message % dict(obj_type=model._meta.verbose_name.title())
 

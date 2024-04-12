@@ -14,7 +14,7 @@ from bootstrap_modal_forms.generic import (
     BSModalDeleteView,
     BSModalReadView,
 )
-from bootstrap_modal_forms.utils import is_ajax
+from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.models import Users, SledQuery, Collection
 from .forms import *

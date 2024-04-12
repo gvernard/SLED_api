@@ -6,7 +6,7 @@ from django.urls import reverse,reverse_lazy
 from django.apps import apps
 
 from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView
-from bootstrap_modal_forms.utils import is_ajax
+from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Imaging, Spectrum, Catalogue
 

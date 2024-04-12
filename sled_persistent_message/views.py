@@ -12,7 +12,7 @@ from bootstrap_modal_forms.generic import (
     BSModalDeleteView,
     BSModalCreateView,
 )
-from bootstrap_modal_forms.utils import is_ajax
+from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.models import PersistentMessage
 from .forms import *

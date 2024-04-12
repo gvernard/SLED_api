@@ -4,7 +4,6 @@ from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.utils import clean_name
 from urllib.parse import urljoin
-from django.utils.encoding import force_text
 from django.core.exceptions import SuspiciousOperation
 from botocore.exceptions import ClientError
 from django.core.files.storage import Storage

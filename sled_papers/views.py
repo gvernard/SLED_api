@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.core.paginator import Paginator
 
 # Third party app imports 
-from bootstrap_modal_forms.utils import is_ajax
+from bootstrap_modal_forms.mixins import is_ajax
 from bootstrap_modal_forms.generic import BSModalDeleteView, BSModalFormView
 
 # Local app imports

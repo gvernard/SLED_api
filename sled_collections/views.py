@@ -20,7 +20,7 @@ from bootstrap_modal_forms.generic import (
     BSModalReadView,
     BSModalDeleteView
 )
-from bootstrap_modal_forms.utils import is_ajax
+from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.forms import LensQueryForm,DownloadForm
 from lenses.query_utils import get_combined_qset
