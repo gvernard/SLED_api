@@ -45,11 +45,6 @@
   
   <!-- different actions for users or the owner -->
   <div>
-    <button type="button" id="export-csv" disabled class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:export-csv' collection.pk %}">
-      <img src="{% static 'icons/cloud-arrow-down-fill.svg' %}">
-      Export to csv
-    </button>
-
     {% if collection.owner == user %}
     <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-update' collection.pk %}">
       <img src="{% static 'icons/pencil.svg' %}">
