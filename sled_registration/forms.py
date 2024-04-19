@@ -19,7 +19,7 @@ class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=100, required=True)
     last_name = forms.CharField(max_length=100, required=True)
-    captcha = CaptchaField(widget=CustomCaptchaTextInput)
+    #captcha = CaptchaField(widget=CustomCaptchaTextInput)
     
     class Meta:
         model = Users
@@ -39,8 +39,8 @@ class RegisterForm(UserCreationForm):
         self.fields['password2'].widget.attrs['class'] = 'field-label'
         self.fields['affiliation'].widget.attrs['class'] = 'field-label'
         self.fields['slack_display_name'].widget.attrs['class'] = 'field-label'
-        self.fields['captcha'].widget.attrs['class'] = 'field-label'
-        self.fields['captcha'].widget.attrs['placeholder'] = 'Type in the characters from above'
+        #self.fields['captcha'].widget.attrs['class'] = 'field-label'
+        #self.fields['captcha'].widget.attrs['placeholder'] = 'Type in the characters from above'
 
     def clean_username(self):
         value = self.cleaned_data['username']
@@ -75,8 +75,8 @@ class RegisterForm(UserCreationForm):
 
         # Need to call model clean methods here to raise and catch any errors
         dum = self.cleaned_data.copy()
-        dum.pop('password1')
-        dum.pop('captcha')
+        dum.pop('password1',None)
+        dum.pop('captcha',None)
         dum["password"] = dum.pop('password2')
         instance = Users(**dum)
         try:
