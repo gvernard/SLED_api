@@ -77,22 +77,3 @@ def password_reset_request(request):
     password_reset_form = PasswordResetForm()
     return render(request=request, template_name="password/password_reset.html", context={"password_reset_form":password_reset_form})
 
-
-'''
-# Create your views here.
-def login(response):
-    print('shit')
-    #if someone is posting their form data, redirect them to (home for now)
-    if response.method == "POST":
-        print('SOMEONE IS TRYING TO LOGIN')
-        form = UserLoginForm(response.POST)
-        if form.is_valid():
-            form.save()
-            print('form validated')
-            return redirect('../') #render(response, "login.html", {"form":form}) #HttpResponseRedirect("../")
-    else:
-        print('someone is on the login page')
-        form = UserLoginForm()
-
-    return render(response, "login.html", {"form":form}) 
-'''
