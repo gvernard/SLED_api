@@ -524,6 +524,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
     RedshiftMethodChoices = (
         ('PHOTO','Photometric'),
         ('SPECTRO','Spectroscopic'),
+        ('SINGLE','Single-Line'),
         ('OTHER','Other'),
     )
     method = models.CharField(max_length=100,
