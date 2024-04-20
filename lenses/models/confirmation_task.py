@@ -885,6 +885,8 @@ class AcceptNewUser(ConfirmationTask):
             limits_ref = apps.get_model(app_label="lenses",model_name='LimitsAndRoles')
             limits_ref.objects.create(user=task_owner)
             default_storage.create_dir('temporary/'+task_owner.username)
+            content = bytes('dummy text to create the user directory','utf-8')
+            default_storage.put_object(content,'temporary/'+task_owner.username+'/dummy.txt')
             task_owner.save()
             action.send(self.owner,target=Users.getAdmin().first(),verb='AcceptNewUserHome',level='success',action_object=task_owner)
             subject = 'Welcome to SLED'
