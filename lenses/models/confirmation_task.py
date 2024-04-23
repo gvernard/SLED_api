@@ -77,6 +77,7 @@ class ConfirmationTask(SingleObject):
         ('AskToJoinGroup','Request to add to group'),
         ('AddData','Associate data to lens.'),
         ('AcceptNewUser','Accept new user'),
+        ('InspectImages','Inspect images before making them PUB'),
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -269,10 +270,6 @@ class ConfirmationTask(SingleObject):
         pass
 
 
-
-
-
-
     
 class ConfirmationResponse(models.Model):
     confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
@@ -280,6 +277,9 @@ class ConfirmationResponse(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     response = models.CharField(max_length=1000, help_text="The response of a given user to a given confirmation task.") 
     response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the recipient on the given response.") 
+
+
+
 
 class DeleteObject(ConfirmationTask):
     class Meta:
@@ -917,5 +917,26 @@ class AcceptNewUser(ConfirmationTask):
         from_email = 'no-reply@%s' % site.domain
         send_mail(subject,plain_message,from_email,[user_email],html_message=html_message)
             
+
+class InspectImages(ConfirmationTask):
+    class Meta:
+        proxy = True
+
+    responses_allowed = []
+    
+    def allowed_responses(self):
+        return self.responses_allowed
+
+    def finalizeTask(self):
+        # This is modeled after the MergeLenses task
+        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
+        response = json.loads(obj_responses['response'])
+
+        qset = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=response['items'])
+        if qset.count() > 0:
+            self.owner.makePublic(qset)
+
+
+
 ### END: Confirmation task specific code
 ################################################################################################################################################

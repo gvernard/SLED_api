@@ -60,14 +60,15 @@
     
     {% else %}
 
-    
+    {% if task.task_type != "InspectImages" %}
     User <strong>{{task.owner.username}}</strong> is saying:
     <div class="original-message">
       <span style="text-align:center;font-style:italic;">
 	&ldquo;{{ comment }}&rdquo;
       </span>
     </div>
-
+    {% endif %}
+    
     <p>
       {% if task.task_type == "CedeOwnership" %}
       and would like to cede the ownership of the following <strong>{{object_type}}</strong> to you:
@@ -79,6 +80,8 @@
       and would like to delete the following <strong>{{object_type}}</strong>:
       {% elif task.task_type == "AskPrivateAccess" %}
       and would like to access the following <strong>{{object_type}}</strong>:
+      {% elif task.task_type == "InspectImages" %}
+      User <strong>{{task.owner.username}}</strong> requires you to inspect the following <strong>{{object_type}}</strong>:
       {% endif %}
     </p>
     

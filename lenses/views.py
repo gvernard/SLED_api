@@ -530,19 +530,24 @@ class LensAddView(TemplateView):
                         if lens.access_level == 'PRI':
                             pri.append(lens)
                         else:
+                            lens.access_level = 'PRI' # Save all lenses as PRI, create a InspectImage task for PUB lenses
                             pub.append(lens)
 
                     # Insert in the database
                     for lens in instances:
                         lens.save()
                     #new_lenses = Lenses.objects.bulk_create(instances)
-
-                    if pri:
-                        assign_perm('view_lenses',request.user,pri) # pri being a list here is fine because new lenses are added (no existing permissions)
+                    assign_perm('view_lenses',request.user,instances)
+                    
                     if pub:
-                        # Main activity stream for public lenses
-                        ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                        action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
+                        # Create a InspectImages task
+                        object_type = pub[0]._meta.model.__name__
+                        cargo = {'object_type': object_type,
+                                 'object_ids': [ lens.id for lens in pub ],
+                                 }
+                        receiver = Users.selectRandomInspector()
+                        mytask = ConfirmationTask.create_task(self.request.user,receiver,'InspectImages',cargo)
+
                     return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
                 else:
                     # Move uploaded files to a temporary directory

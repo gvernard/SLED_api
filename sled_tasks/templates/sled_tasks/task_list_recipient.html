@@ -68,6 +68,11 @@
           <img src="{% static 'icons/eye-fill.svg' %}">
           View
 	</button>
+	{% elif task.task_type == 'InspectImages' %}
+	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-inspect-owner' task.id %}">
+          <img src="{% static 'icons/eye-fill.svg' %}">
+          View
+	</button>
 	{% else %}	
 	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">
           <img src="{% static 'icons/eye-fill.svg' %}">
@@ -82,6 +87,13 @@
 	  <button type="submit" class="jb-submit-button-1"> 
             <img src="{% static 'icons/union.svg' %}">
 	    Merge
+	  </button>
+	</form>
+	{% elif task.task_type == 'InspectImages' %}
+	<form action="{% url 'sled_tasks:tasks-detail-inspect' task.id %}">
+	  <button type="submit" class="jb-submit-button-1">
+            <img src="{% static 'icons/search.svg' %}">
+            Inspect
 	  </button>
 	</form>
 	{% elif task.task_type == 'ResolveDuplicates' %}

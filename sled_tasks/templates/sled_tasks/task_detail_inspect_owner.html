@@ -1,12 +1,13 @@
 {% extends "modal_base.html" %}
 {% load static %}
+{% load project_tags %}
 
 
 {% block title %}
 <span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
 <span style="font-weight:bold;color:red">
-    Pending
+  Pending
 </span>
 {% else %}
 <span style="font-weight:bold;color:green">
@@ -20,29 +21,9 @@
 {% include "modal_container_wide.html" %}
 
 <div class="jb-container-modal">
-
+  
   <div class="jb-modal-field jb-table-no-lines">    
-    On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> said:
-    <div class="original-message">
-      <span style="text-align:center;font-style:italic;">
-	&ldquo;{{ task.cargo.comment }}&rdquo;
-      </span>
-    </div>
-    
-    <p>
-      {% if task.task_type == "CedeOwnership" %}
-      and requested from {{ task.recipients.all|pluralize:"user,users" }} <strong>{{ task.recipients.all|join:"," }}</strong> to take up the ownership of the following <strong>{{object_type}}</strong>:
-      {% elif task.task_type == "MakePrivate" %}
-      and requested from the <strong>administrators</strong> to make the following <strong>{{object_type}}</strong> private:
-      {% elif task.task_type == "AskToJoinGroup" %}
-      and requested to join the following <strong>{{object_type}}</strong>:
-      {% elif task.task_type == "DeleteObject" %}
-      and requested from the <strong>administrators</strong> to delete the following <strong>{{object_type}}</strong>:
-      {% elif task.task_type == "AskPrivateAccess" %}
-      and requested from {{ task.recipients.all|pluralize:"user,users" }} <strong>{{ task.recipients.all|join:"," }}</strong> access to the following <strong>{{object_type}}</strong>:
-      {% endif %}
-    </p>
-    {% endif %}
+    On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> submitted the following <strong>{{object_type}}</strong> to user <strong>{{ task.recipients.all|join:"," }}</strong> for inspection:
     
     <div class="jb-modal-field jb-table-no-lines">
       <table>
@@ -75,7 +56,7 @@
     </table>
   </div>
 
-
+  
 </div>  
 {% endblock content %}
 

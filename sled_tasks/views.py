@@ -117,6 +117,38 @@ class TaskDetailOwnerView(BSModalReadView):
 
 
 @method_decorator(login_required,name='dispatch')
+class TaskInspectDetailOwnerView(BSModalReadView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_detail_inspect_owner.html'
+    context_object_name = 'task'
+
+    def get_queryset(self):
+        qset1 = self.model.custom_manager.completed_for_user(self.request.user)
+        qset2 = self.model.custom_manager.pending_for_user(self.request.user)
+        return qset1|qset2
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = self.object
+        
+        # Queryset of objects in the task
+        objects = getattr(lenses.models,task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"])
+        context['objects'] = objects
+
+        # Object type (singular or plural) for the objects in the task
+        if objects.count() > 1:
+            object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name_plural.title()
+        else:
+            object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
+        context['object_type'] = object_type
+
+        context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+        return context
+
+    
+    
+    
+@method_decorator(login_required,name='dispatch')
 class TaskMergeDetailOwnerView(BSModalReadView):
     model = ConfirmationTask
     template_name = 'sled_tasks/task_detail_merge_owner.html'
@@ -410,9 +442,6 @@ class TaskMergeDetailView(TemplateView):
         except ConfirmationTask.DoesNotExist:
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
-        if not task:
-            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
-
         if referer == request.path:
             target = Lenses.objects.get(id=task.cargo["existing_lens"])
             new = Lenses.objects.get(id=task.cargo["new_lens"])
@@ -434,7 +463,93 @@ class TaskMergeDetailView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
 
+        
+@method_decorator(login_required,name='dispatch')
+class TaskInspectDetailView(TemplateView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_inspect_detail.html'
+    context_object_name = 'task'
 
+
+    def get_context(self,object_type,objects):
+        ids = []
+        names = []
+        image_urls = []
+        if object_type == "Lenses":
+            for lens in objects:
+                ids.append(lens.pk)
+                names.append(lens.name)
+                image_urls.append(lens.mugshot.url)
+        elif object_type == "Imaging":
+            pass
+        elif object_type == "Spectrum":
+            pass
+        elif object_type == "GenericImage":
+            pass
+        else:
+            # PROBLEM
+            pass
+
+        context = {
+            'images': list(zip(names,ids,image_urls)),
+        }
+        return context
+
+    
+    def get_allowed_choices(self,context):
+        choices = []
+        for name,pk,image_url in context['images']:
+            choices.append(pk)
+        return choices
+
+    
+    def get(self, request, *args, **kwargs):
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
+
+        object_type = task.cargo["object_type"]
+        objects = getattr(lenses.models,object_type).objects.filter(pk__in=task.cargo["object_ids"])
+
+        context = self.get_context(object_type,objects)
+        choices = self.get_allowed_choices(context)
+        context['form'] = InspectImagesForm(choices=choices)
+        context['task'] = task
+        return self.render_to_response(context)
+
+
+    def post(self, request, *args, **kwargs):
+        referer = urlparse(request.META['HTTP_REFERER']).path
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
+
+        if referer == request.path:
+            object_type = task.cargo["object_type"]
+            objects = getattr(lenses.models,object_type).objects.filter(pk__in=task.cargo["object_ids"])
+            context = self.get_context(object_type,objects)
+            choices = self.get_allowed_choices(context)
+            myform = InspectImagesForm(data=request.POST,choices=choices)
+            if myform.is_valid():
+                # Hack to pass the insert_form responses to the task
+                my_response = json.dumps(myform.cleaned_data)
+                task.responses_allowed = [my_response]
+                task.registerAndCheck(request.user,my_response,myform.cleaned_data['response_comment'])
+                return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
+            else:
+                context['form'] = myform
+                context['task'] = task
+                return self.render_to_response(context)
+            return self.render_to_response(context)
+        else:
+            return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
+
+    
+    
 @method_decorator(login_required,name='dispatch')
 class TaskDeleteView(BSModalDeleteView):
     model = ConfirmationTask

@@ -1,0 +1,85 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+{% include "modal_container.html" %}
+<div class="jb-container">
+  
+  <h1 class="jb-heading-1">Inspect Images</h1>
+  <p>
+    User <strong>{{task.owner.username}}</strong> has submitted the following <strong>{{ task.cargo.object_type }}</strong> for inspection:
+  </p>
+  
+  
+  <form method="POST">
+    {% csrf_token %}
+    
+    {{ form.non_field_errors }}
+    {{ form.items.errors }}
+    
+    <br>
+    <br>
+
+    <div class="parent">
+
+      {% for name,id,image_url in images %}
+      <div class="inspect-image">
+	
+	<div class="imaging-item">
+	  <div class="mycheckbox">
+	    Reject? <input type="checkbox" name="items" value="{{id}}">
+	  </div>
+	  <div class="header">
+	    {{ name }}
+	  </div>
+	  <img src="{{ image_url }}" width="170" height="170">
+	</div>
+      </div>
+      {% endfor %}
+      
+    </div>
+    
+
+    <br>
+    <br>
+
+
+    
+    <div class="response">
+      <div>
+	{{ form.response }}
+      </div>
+      
+      <div class="jb-modal-field">
+	{{ form.response_comment }}
+      </div>
+      
+      <button type="submit" class="jb-submit-button-1">
+	Respond
+      </button>
+    </div>
+  </form>
+  
+  
+  
+  
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+<link href="{% static 'sled_tasks/css/task_inspect_detail.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script type="text/javascript">
+  $(document).ready(function(){
+      
+      $("input[type='checkbox']").change(function() {
+          $(this).parents(".inspect-image").toggleClass('sled-duplicate-required');
+      });
+      
+  });
+</script>
+{% endblock extrascripts %}

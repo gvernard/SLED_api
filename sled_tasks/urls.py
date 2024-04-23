@@ -12,6 +12,8 @@ urlpatterns = [
     path('detail-admin-owner/<int:pk>', views.TaskDetailOwnerView.as_view(),kwargs={'admin':True},name='tasks-detail-admin-owner'),
     path('detail-recipient/<int:pk>', views.TaskDetailRecipientView.as_view(),name='tasks-detail-recipient'),
     path('detail-admin-recipient/<int:pk>', views.TaskDetailRecipientView.as_view(),kwargs={'admin':True},name='tasks-detail-admin-recipient'),
+    path('detail-inspect/<int:pk>', views.TaskInspectDetailView.as_view(),name='tasks-detail-inspect'),
+    path('detail-inspect-owner/<int:pk>', views.TaskInspectDetailOwnerView.as_view(),name='tasks-detail-inspect-owner'),
     path('detail-merge/<int:pk>', views.TaskMergeDetailView.as_view(),name='tasks-detail-merge'),
     path('detail-merge-owner/<int:pk>', views.TaskMergeDetailOwnerView.as_view(),name='tasks-detail-merge-owner'),
     path('detail-duplicates-complete/<int:pk>', views.TaskResolveDuplicatesCompleteDetailView.as_view(),name='tasks-detail-resolve-duplicates-complete'),

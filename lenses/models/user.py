@@ -604,7 +604,15 @@ class Users(AbstractUser,GuardianUserMixin):
             exclude_usernames = []
         user_id = Users.objects.filter(limitsandroles__is_admin=True).exclude(username__in=exclude_usernames).order_by('?').first().id
         qset = Users.objects.filter(id=user_id)
-        #qset = Users.objects.filter(username='Giorgos')
+        return qset
+
+    
+    def selectRandomInspector(exclude_usernames=None):
+        # Returns a queryset
+        if exclude_usernames is None:
+            exclude_usernames = []
+        user_id = Users.objects.filter(limitsandroles__is_inspector=True).exclude(username__in=exclude_usernames).order_by('?').first().id
+        qset = Users.objects.filter(id=user_id)
         return qset
 
     
