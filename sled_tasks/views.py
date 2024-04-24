@@ -9,6 +9,7 @@ from django.views.generic import TemplateView, DetailView, ListView
 from django.urls import reverse,reverse_lazy
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.forms import formset_factory
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -471,15 +472,23 @@ class TaskInspectDetailView(TemplateView):
     context_object_name = 'task'
 
 
-    def get_context(self,object_type,objects):
-        ids = []
-        names = []
-        image_urls = []
+    def get(self, request, *args, **kwargs):
+        task_id = self.kwargs['pk']
+        try:
+            task = ConfirmationTask.objects.get(pk=task_id)
+        except ConfirmationTask.DoesNotExist:
+            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
+
+        object_type = task.cargo["object_type"]
+        objects = getattr(lenses.models,object_type).objects.filter(pk__in=task.cargo["object_ids"])
+        initial = []
         if object_type == "Lenses":
             for lens in objects:
-                ids.append(lens.pk)
-                names.append(lens.name)
-                image_urls.append(lens.mugshot.url)
+                dum = {}
+                dum["obj_id"] = lens.id
+                dum["name"] = lens.name
+                dum["image_url"] = lens.mugshot.url
+                initial.append(dum)
         elif object_type == "Imaging":
             pass
         elif object_type == "Spectrum":
@@ -490,32 +499,12 @@ class TaskInspectDetailView(TemplateView):
             # PROBLEM
             pass
 
-        context = {
-            'images': list(zip(names,ids,image_urls)),
-        }
-        return context
-
-    
-    def get_allowed_choices(self,context):
-        choices = []
-        for name,pk,image_url in context['images']:
-            choices.append(pk)
-        return choices
-
-    
-    def get(self, request, *args, **kwargs):
-        task_id = self.kwargs['pk']
-        try:
-            task = ConfirmationTask.objects.get(pk=task_id)
-        except ConfirmationTask.DoesNotExist:
-            return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
-
-        object_type = task.cargo["object_type"]
-        objects = getattr(lenses.models,object_type).objects.filter(pk__in=task.cargo["object_ids"])
-
-        context = self.get_context(object_type,objects)
-        choices = self.get_allowed_choices(context)
-        context['form'] = InspectImagesForm(choices=choices)
+        ImagesFormSet = formset_factory(InspectImagesBaseForm,extra=0)
+        formset = ImagesFormSet(initial=initial)
+        
+        context = {}
+        context['formset'] = formset
+        context['final_form'] = InspectImagesForm()
         context['task'] = task
         return self.render_to_response(context)
 
@@ -529,19 +518,37 @@ class TaskInspectDetailView(TemplateView):
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
         if referer == request.path:
-            object_type = task.cargo["object_type"]
-            objects = getattr(lenses.models,object_type).objects.filter(pk__in=task.cargo["object_ids"])
-            context = self.get_context(object_type,objects)
-            choices = self.get_allowed_choices(context)
-            myform = InspectImagesForm(data=request.POST,choices=choices)
-            if myform.is_valid():
-                # Hack to pass the insert_form responses to the task
-                my_response = json.dumps(myform.cleaned_data)
-                task.responses_allowed = [my_response]
-                task.registerAndCheck(request.user,my_response,myform.cleaned_data['response_comment'])
-                return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
+            ImagesFormSet = formset_factory(InspectImagesBaseForm,extra=0)
+            formset = ImagesFormSet(data=request.POST)
+            if formset.is_valid():
+                rejected = []
+                for form in formset.cleaned_data:
+                    if form["rejected"]:
+                        dum = {}
+                        dum["id"] = form["obj_id"]
+                        dum["comment"] = form["comment"]
+                        rejected.append(dum)
+
+                form = InspectImagesForm(data=request.POST,N_rejected=len(rejected))
+
+                if form.is_valid():
+                    # Hack to pass the insert_form responses to the task
+                    #my_response = json.dumps(myform.cleaned_data)
+                    #task.responses_allowed = [my_response]
+                    #task.registerAndCheck(request.user,my_response,myform.cleaned_data['response_comment'])
+                    #return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
+                    print('mapa')
+                else:
+                    context = {}
+                    context['formset'] = formset
+                    context['final_form'] = form
+                    context['task'] = task
+                    return self.render_to_response(context)
             else:
-                context['form'] = myform
+                form = InspectImagesForm(data=request.POST)
+                context = {}
+                context['formset'] = formset
+                context['final_form'] = form
                 context['task'] = task
                 return self.render_to_response(context)
             return self.render_to_response(context)

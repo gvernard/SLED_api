@@ -13,26 +13,34 @@
   
   <form method="POST">
     {% csrf_token %}
-    
-    {{ form.non_field_errors }}
-    {{ form.items.errors }}
+    {{ formset.management_form }}
+    {{ formset.non_form_errors }}
+    {{ final_form.non_field_errors }}
     
     <br>
     <br>
 
     <div class="parent">
 
-      {% for name,id,image_url in images %}
+      {% for form in formset %}
       <div class="inspect-image">
-	
+	{{ form.non_field_errors }}
+
 	<div class="imaging-item">
+	  {{ form.obj_id }}
+	  {{ form.name }}
+	  {{ form.image_url }}
 	  <div class="mycheckbox">
-	    Reject? <input type="checkbox" name="items" value="{{id}}">
+	    Reject? {{ form.rejected }}
 	  </div>
 	  <div class="header">
-	    {{ name }}
+	    {{ form.name.value }}
 	  </div>
-	  <img src="{{ image_url }}" width="170" height="170">
+	  <img src="{{ form.image_url.value }}" width="170" height="170">
+	  <div>
+	    {{ form.comment.errors }}
+	    {{ form.comment }}
+	  </div>
 	</div>
       </div>
       {% endfor %}
@@ -47,11 +55,11 @@
     
     <div class="response">
       <div>
-	{{ form.response }}
+	{{ final_form.response }}
       </div>
       
       <div class="jb-modal-field">
-	{{ form.response_comment }}
+	{{ final_form.response_comment }}
       </div>
       
       <button type="submit" class="jb-submit-button-1">
@@ -75,6 +83,12 @@
 {% block extrascripts %}
 <script type="text/javascript">
   $(document).ready(function(){
+
+      $("input[type='checkbox']").each(function() {
+	  if( $(this).attr('checked') ){
+	      $(this).parents(".inspect-image").toggleClass('sled-duplicate-required');
+	  }
+      });
       
       $("input[type='checkbox']").change(function() {
           $(this).parents(".inspect-image").toggleClass('sled-duplicate-required');
