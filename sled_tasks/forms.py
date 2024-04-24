@@ -93,21 +93,17 @@ class InspectImagesForm(forms.Form):
     def clean(self):
         cleaned_data = super(InspectImagesForm,self).clean()
         response = cleaned_data.get('response')
-        comment = cleaned_data.get('response_comment')
+        response_comment = cleaned_data.get('response_comment')
         if response == 'All':
             if self.N_rejected != 0:
                 self.add_error('__all__',"You have selected some images, make sure nothing is wrong!")
-            cleaned_data["response_comment"] = 'All images are accepted'
         elif response == "None":
             if self.N_rejected != 0:
                 self.add_error('__all__',"You have selected some images, make sure nothing is wrong!")
-            if not comment:
-                self.add_error('__all__',"You need to give a description of the problem!")
+            if not response_comment:
+                self.add_error('__all__',"You need to provide an explanation for rejecting all the images!")
         else: # Partial
             if self.N_rejected == 0:
                 self.add_error('__all__',"You have to select at least one image, make sure nothing is wrong!")
-            if not comment:
-                self.add_error('__all__',"You need to give a description of the problem!")
 
-        self.add_error('__all__',"DUM!")                
         return

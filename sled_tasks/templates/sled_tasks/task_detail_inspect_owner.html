@@ -23,44 +23,79 @@
 <div class="jb-container-modal">
   
   <div class="jb-modal-field jb-table-no-lines">    
-    On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> submitted the following <strong>{{object_type}}</strong> to user <strong>{{ task.recipients.all|join:"," }}</strong> for inspection:
+    On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> submitted the following <strong>{{object_type}}</strong>.
+    <br>
+    <br>
     
-    <div class="jb-modal-field jb-table-no-lines">
-      <table>
-	{% for obj in objects %}
+    {% if task.status == "P" %}
+
+    Inspector <strong>{{ task.recipients.all|join:"," }}</strong> <span style="color:red">has not responded yet</span></td></tr>
+    
+    {% else %}
+    
+    On <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) user <strong>{{ task.recipients.all|join:"," }}</strong> responded with:
+    <div class="original-message">
+      {% if actual_response.response == 'All' %}
+      <span style="font-weight:bold;color:green">
+	All images are accepted
+      </span>
+      {% elif actual_response.response == 'Partial' %}
+      <span style="font-weight:bold;color:red">
+	Some of the images are rejected
+      </span>
+      {% else %}
+      <span style="font-weight:bold;color:red">
+	None of the images is accepted
+      </span>
+      {% endif %}
+      
+      {% if actual_response.response_comment %}
+      <span style="text-align:center;font-style:italic;">
+	- &ldquo;{{ response.response_comment }}&rdquo;
+      </span>
+      {% endif %}
+    </div>
+    
+    {% endif %}
+
+
+    
+    <div>
+      <table class="inspect-table">
+	{% if task.status == "C" and actual_response.response == 'Partial' %}
+	
+	{% for obj,message in objects %}
 	<tr>
-	  <td class="padded">
-	    <a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a>
+	  {% if message == '' %}
+	  <td><img src="{% static 'icons/check-circle-fill.svg' %}" class="filter-success2 jb-alert-icon"></td>
+	  {% else %}
+	  <td><img src="{% static 'icons/x-circle-fill.svg' %}" class="filter-error2 jb-alert-icon"></td>
+	  {% endif %}
+	  <td><a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a></td>
+	  {% if message != '' %}
+	  <td>
+	    <span style="text-align:center;font-style:italic;">
+	      - &nbsp; &nbsp;  &ldquo;{{ message }}&rdquo;
+	    </span>
 	  </td>
+	  {% else %}
+	  <td></td>
+	  {% endif %}
 	</tr>
 	{% endfor %}
+
+	{% else %}
+
+	{% for obj in objects %}
+	<tr><td><a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a></td></tr>
+	{% endfor %}
+	
+	{% endif %}
       </table>
-    </div>    
+    </div>
+    
   </div>
 
-  <div class="jb-modal-field jb-table-no-lines">
-    <table class="responses">
-      {% for response in responses %}
-      {% if response.response != '' %}
-      <tr><td>&bull; <strong>{{ response.name }}</strong> responded on <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) with:</td></tr>
-      <tr><td class="padded">
-	  {{ response.response|upper }} - 
-	  <span style="text-align:right;font-style:italic;">
-	    &ldquo;{{ response.response_comment }}&rdquo;
-	  </span>
-      </td></tr>
-      {% else %}
-      <tr><td>&bull; <strong>{{ response.name }}</strong> <span style="color:red">has not responded yet</span></td></tr>
-      {% endif %}
-      {% endfor %}
-    </table>
-  </div>
-
-  
 </div>  
 {% endblock content %}
 
-
-{% block extrascripts %}
-<link href="{% static 'sled_tasks/css/task_detail.css' %}" rel="stylesheet" />
-{% endblock extrascripts %}

@@ -932,7 +932,11 @@ class InspectImages(ConfirmationTask):
         obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
         response = json.loads(obj_responses['response'])
 
-        qset = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=response['items'])
+        ids = set([ str(id) for id in self.cargo['object_ids'] ])
+        excluded = set(response["rejected"].keys())
+        to_make_public = ids.difference(excluded)
+        
+        qset = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=to_make_public)
         if qset.count() > 0:
             self.owner.makePublic(qset)
 

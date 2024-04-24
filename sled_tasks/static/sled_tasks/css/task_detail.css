@@ -38,3 +38,24 @@
     padding-left: 100px;
     padding-right: 100px;
 }
+
+.inspect-table {
+    table-layout: auto;
+}
+
+.inspect-table td:first-child {
+    padding-left: 20px;
+    width: 50px;
+}
+
+.inspect-table tr td:nth-child(2) {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.inspect-table tr td:last-child {
+    padding-left: 20px;
+}
+
+
+

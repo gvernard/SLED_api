@@ -134,7 +134,6 @@ class TaskInspectDetailOwnerView(BSModalReadView):
         
         # Queryset of objects in the task
         objects = getattr(lenses.models,task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"])
-        context['objects'] = objects
 
         # Object type (singular or plural) for the objects in the task
         if objects.count() > 1:
@@ -143,7 +142,22 @@ class TaskInspectDetailOwnerView(BSModalReadView):
             object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
         context['object_type'] = object_type
 
-        context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+        response = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment').first()
+
+        if response["response"]:
+            actual_response = json.loads(response["response"])
+            context["actual_response"] = actual_response
+            if actual_response['response'] == 'Partial':
+                messages = []
+                for obj in objects:
+                    messages.append( actual_response["rejected"].get(str(obj.id),'') )
+                    context["objects"] = zip(objects,messages)
+            else:
+                context["objects"] = objects
+        else:
+            context["objects"] = objects
+        
+        context["response"] = response
         return context
 
     
@@ -521,23 +535,24 @@ class TaskInspectDetailView(TemplateView):
             ImagesFormSet = formset_factory(InspectImagesBaseForm,extra=0)
             formset = ImagesFormSet(data=request.POST)
             if formset.is_valid():
-                rejected = []
+                rejected = {}
                 for form in formset.cleaned_data:
                     if form["rejected"]:
-                        dum = {}
-                        dum["id"] = form["obj_id"]
-                        dum["comment"] = form["comment"]
-                        rejected.append(dum)
+                        rejected[form["obj_id"]] = form["comment"]
 
                 form = InspectImagesForm(data=request.POST,N_rejected=len(rejected))
 
                 if form.is_valid():
                     # Hack to pass the insert_form responses to the task
-                    #my_response = json.dumps(myform.cleaned_data)
-                    #task.responses_allowed = [my_response]
-                    #task.registerAndCheck(request.user,my_response,myform.cleaned_data['response_comment'])
-                    #return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
-                    print('mapa')
+                    mydict = {
+                        "response": form.cleaned_data["response"],
+                        "response_comment": form.cleaned_data["response_comment"],
+                        "rejected": rejected
+                    }
+                    my_response = json.dumps(mydict)
+                    task.responses_allowed = [my_response]                    
+                    task.registerAndCheck(request.user,my_response,form.cleaned_data['response_comment'])
+                    return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
                 else:
                     context = {}
                     context['formset'] = formset

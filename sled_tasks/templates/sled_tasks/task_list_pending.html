@@ -58,7 +58,7 @@
 	{% elif task.task_type == 'InspectImages' %}
 
 	{% if user == task.owner %}
-	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-owner' task.id %}">
+	<button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-inspect-owner' task.id %}">
 	  <img src="{% static 'icons/eye-fill.svg' %}">
 	  View
 	</button>
