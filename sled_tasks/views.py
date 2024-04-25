@@ -504,11 +504,26 @@ class TaskInspectDetailView(TemplateView):
                 dum["image_url"] = lens.mugshot.url
                 initial.append(dum)
         elif object_type == "Imaging":
-            pass
+            for imaging in objects:
+                dum = {}
+                dum["obj_id"] = imaging.id
+                dum["name"] = str(imaging)
+                dum["image_url"] = imaging.image.url
+                initial.append(dum)
         elif object_type == "Spectrum":
-            pass
+            for spectrum in objects:
+                dum = {}
+                dum["obj_id"] = spectrum.id
+                dum["name"] = str(spectrum)
+                dum["image_url"] = spectrum.image.url
+                initial.append(dum)
         elif object_type == "GenericImage":
-            pass
+            for generic_image in objects:
+                dum = {}
+                dum["obj_id"] = generic_image.id
+                dum["name"] = str(generic_image)
+                dum["image_url"] = generic_image.image.url
+                initial.append(dum)
         else:
             # PROBLEM
             pass

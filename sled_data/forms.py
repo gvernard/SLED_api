@@ -45,10 +45,11 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
                 self.add_error('__all__','Date must be in the past!')
 
         ### Check user limits
-        check = self.user.check_all_limits(1,self._meta.model.__name__)
-        if check["errors"]:
-            for error in check["errors"]:
-                self.add_error('__all__',error)
+        if self.user:
+            check = self.user.check_all_limits(1,self._meta.model.__name__)
+            if check["errors"]:
+                for error in check["errors"]:
+                    self.add_error('__all__',error)
 
         return
 
@@ -203,7 +204,6 @@ class SpectrumUpdateFormModal(BSModalModelForm,SpectrumBaseForm):
     class Meta(SpectrumBaseForm):
         model = Spectrum
         exclude = ['lens','owner','access_level','exists']
-
         
 class CatalogueUpdateForm(CatalogueBaseForm):
     class Meta(CatalogueBaseForm):
@@ -227,6 +227,7 @@ class RedshiftUpdateFormModal(BSModalModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(RedshiftUpdateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
 
@@ -242,6 +243,7 @@ class GenericImageUpdateFormModal(BSModalModelForm):
         }
         
     def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(GenericImageUpdateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text 
 

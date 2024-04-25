@@ -27,7 +27,7 @@ from guardian.shortcuts import assign_perm,remove_perm
 from notifications.signals import notify
 
 import lenses
-from lenses.models import Users, Lenses, SledGroup, Imaging, Spectrum, Catalogue, AdminCollection, Redshift, GenericImage
+from lenses.models import Users, Lenses, ConfirmationTask, SledGroup, Imaging, Spectrum, Catalogue, AdminCollection, Redshift, GenericImage
 from . import forms
 
 
@@ -122,11 +122,29 @@ class DataCreateView(BSModalCreateView):
         if not is_ajax(self.request.META):
             new_object = form.save(commit=False)
             new_object.exists = True
-            new_object.save()
+
+            model_name = self.kwargs.get('model')
+            if model_name in ["Imaging","Spectrum","GenericImage"] and new_object.access_level == 'PUB':
+                print("Submitting Inspect image")
+                new_object.access_level = 'PRI'
+                new_object.save()
+                # Create a InspectImages task
+                cargo = {'object_type': model_name,
+                         'object_ids': [ new_object.id ],
+                         }
+                receiver = Users.selectRandomInspector()
+                mytask = ConfirmationTask.create_task(self.request.user,receiver,'InspectImages',cargo)
+            else:
+                print("save PRI object or PUB object without image")
+                new_object.save()
+
+                
             if new_object.access_level == 'PRI':
+                print("Giving permission to PRI")
                 perm = 'view_' + self.kwargs.get('model').lower()
-                print(perm)
                 assign_perm(perm,self.request.user,new_object) # new_object here is not a list, so giving permission to the user is guaranteed
+
+
         response = super(DataCreateView,self).form_valid(form)
         return response
 
