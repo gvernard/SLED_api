@@ -290,7 +290,6 @@ class DeleteObject(ConfirmationTask):
 
     def finalizeTask(self):
         responses = self.heard_from().annotate(name=F('recipient__username')).values_list('response',flat=True)
-        print(responses)
         
         from . import Users
         admin = Users.getAdmin().first()
@@ -325,10 +324,8 @@ class DeleteObject(ConfirmationTask):
                 qset = apps.get_model(app_label="lenses",model_name='Paper').objects.filter(lenses_in_paper__id__in=self.cargo['object_ids'])
                 for paper in qset:
                     paper.lenses_in_paper.remove(*objs)
-                print(qset)
                 
                 ### Delete linked data: Redshifts, Imaging, Spectrum, and Catalogue
-                print(self.cargo['users_lenses'])
                 for user,lenses_ids in self.cargo['users_lenses'].items():
                     print("For user: ",user)
                     qset = apps.get_model(app_label="lenses",model_name='Redshift').objects.filter(Q(access_level="PUB") & Q(lens__id__in=lenses_ids) & Q(owner__username=user))
@@ -539,10 +536,13 @@ class ResolveDuplicates(ConfirmationTask):
     def finalizeTask(self):
         # First find the lenses that where selected as duplicates (to be rejected)
         obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
-        responses = json.loads(obj_responses['response'])
         objects = list(serializers.deserialize("json",self.cargo['objects']))
         mode = self.cargo['mode']
-
+        messages = []
+        responses = json.loads(obj_responses['response'])
+        index_insert = {}
+        for response in responses:
+            index_insert[response["index"]] = response["insert"]
         
         # Split objects according to response
         objs_to_add = []
@@ -550,24 +550,38 @@ class ResolveDuplicates(ConfirmationTask):
         objs_to_merge = []
         objs_to_merge_in = []
         for i in range(0,len(objects)):
-            if responses[i]['insert'] == 'yes':
+            index = str(i)
+            if index in index_insert.keys():
+                if index_insert[index] == 'yes':
+                    if mode == "makePublic":
+                        objs_to_make_public.append(objects[i])
+                    else:
+                        objs_to_add.append(objects[i])
+                elif index_insert[index] == 'no':
+                    # Remove uploaded image if the object is new
+                    if not objects[i].object.pk:
+                        default_storage.mydelete(objects[i].object.mugshot.name)
+                else:
+                    objs_to_merge.append(objects[i])
+                    objs_to_merge_in.append(index_insert[index])
+            else:
                 if mode == "makePublic":
                     objs_to_make_public.append(objects[i])
                 else:
                     objs_to_add.append(objects[i])
-            elif responses[i]['insert'] == 'no':
-                # Remove uploaded image if the object is new
-                if not objects[i].object.pk:
-                    default_storage.mydelete(objects[i].object.mugshot.name)
-            else:
-                objs_to_merge.append(objects[i])
-                objs_to_merge_in.append(responses[i]['insert'])
-
-            
+                
+                    
         if len(objs_to_make_public) > 0:
             ids = [obj.object.pk for obj in objs_to_make_public]
             lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,ids)
-            output = self.owner.makePublic(lenses)
+            cargo = {'object_type': 'Lenses',
+                     'object_ids': ids,
+                     }
+            from . import Users
+            receiver = Users.selectRandomInspector()
+            mytask = ConfirmationTask.create_task(self.owner,receiver,'InspectImages',cargo)
+            messages.append("An <strong>InspectImages</strong> task has been submitted!")
+            
 
         if len(objs_to_add) > 0:
             pri = []
@@ -577,21 +591,22 @@ class ResolveDuplicates(ConfirmationTask):
                 if obj.object.access_level == 'PRI':
                     pri.append(obj.object)
                 else:
+                    obj.object.access_level = 'PRI' # Save all lenses as PRI, create a InspectImage task for PUB lenses
                     pub.append(obj.object)
 
             # Insert in the database
             for lens in (pri+pub):
                 lens.save()
+            assign_perm('view_lenses',self.owner,(pri+pub))
 
-            if pri:
-                for obj in pri:
-                    assign_perm('view_lenses',self.owner,obj)
             if pub:
-                # Main activity stream for public lenses
+                # Create a InspectImages task
+                cargo = {'object_type': 'Lenses',
+                         'object_ids': [ lens.id for lens in pub ],
+                         }
                 from . import Users
-                ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                action.send(self.owner,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
-
+                receiver = Users.selectRandomInspector()
+                mytask = ConfirmationTask.create_task(self.owner,receiver,'InspectImages',cargo)
 
         if len(objs_to_merge) > 0:
             # Create merge task
@@ -625,11 +640,11 @@ class ResolveDuplicates(ConfirmationTask):
 
             
         if len(objs_to_merge) == 0:
-            message = 'Duplicates resolved successfully!'
+            messages.append('Duplicates resolved successfully!')
         else:
             # Create a more custom message informing about merge tasks etc. Maybe a new template is needed?
-            message = 'Merge tasks have been created for %d lenses, whose owners have been notified!' % len(objs_to_merge)
-        return message
+            messages.append( 'Merge tasks have been created for %d lenses, whose owners have been notified!' % len(objs_to_merge) )
+        return '<br>'.join(messages)
             
 
 
@@ -772,7 +787,6 @@ class AskPrivateAccess(ConfirmationTask):
         # Here, only one recipient to get a response from
         response = self.heard_from().get().response
         objs_owner = self.get_all_recipients()[0]
-        print(objs_owner)
         task_owner = self.owner
         if response == 'yes':
             objs = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=self.cargo['object_ids'])

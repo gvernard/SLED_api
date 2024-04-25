@@ -526,6 +526,9 @@ class LensAddView(TemplateView):
                 
                 if len(indices) == 0:
                     # Set owner, name, and sort PRI and PUB
+                    messages = []
+                    messages.append('Lenses successfully added to the database!')
+
                     pri = []
                     pub = []
                     for i,lens in enumerate(instances):
@@ -551,8 +554,10 @@ class LensAddView(TemplateView):
                                  }
                         receiver = Users.selectRandomInspector()
                         mytask = ConfirmationTask.create_task(self.request.user,receiver,'InspectImages',cargo)
+                        messages.append("An <strong>InspectImages</strong> task has been submitted!")
 
-                    return TemplateResponse(request,'simple_message.html',context={'message':'Lenses successfully added to the database!'})
+                    message = '<br>'.join(messages)
+                    return TemplateResponse(request,'simple_message.html',context={'message': message})
                 else:
                     # Move uploaded files to a temporary directory
                     for i,lens in enumerate(instances):
@@ -688,7 +693,7 @@ class LensResolveDuplicatesView(TemplateView):
     def get(self, request, *args, **kwargs):
         task_id = self.kwargs['pk']
         try:
-            task = ConfirmationTask.objects.get(pk=task_id)
+            task = ConfirmationTask.custom_manager.both_owner_recipient(self.request.user).filter(status="P").get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
@@ -716,7 +721,7 @@ class LensResolveDuplicatesView(TemplateView):
         referer = urlparse(request.META['HTTP_REFERER']).path
         task_id = self.kwargs['pk']
         try:
-            task = ConfirmationTask.objects.get(pk=task_id)
+            task = ConfirmationTask.custom_manager.both_owner_recipient(self.request.user).filter(status="P").get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 

@@ -28,28 +28,40 @@
         </thead>
         <tbody>
           {% for new_lens,form,existing in new_form_existing %}
+	  {% if existing %}
           <tr class="sled-main-row sled-duplicate-required">
             <td>
               {% include 'lenses/lens_visit_card.html' with lens=new_lens %}
             </td>
-            <td>
+	    <td>
               {% for lens in existing %}
               {% include 'lenses/lens_visit_card.html' with lens=lens %}
-              {% empty %}
-              No duplicates!
-              {% endfor %}
-            </td>
-          </tr>
+              {% endfor %}	      
+	    </td>
+	  </tr>
           <tr>
             <td colspan="2">
-              {% if form %}
               {{ form.insert.errors }}
               {{ form.insert.label|safe }}
               {{ form.insert }}
               {{ form.index }}
-              {% endif %}
             </td>
           </tr>
+	  {% else %}
+          <tr class="sled-main-row sled-duplicate-yes">	  
+            <td>
+              {% include 'lenses/lens_visit_card.html' with lens=new_lens %}
+            </td>
+            <td style="text-align:center;vertical-align:center;">
+              No duplicates!
+	    </td>
+	  </tr>
+	  <tr>
+	    <td colspan="2">
+	      &nbsp;
+	    </td>
+	  </tr>
+	  {% endif %}
           {% endfor %}
         </tbody>
       </table>

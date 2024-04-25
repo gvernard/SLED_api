@@ -1,9 +1,15 @@
 {% load static %}
+{% load project_tags %}
+
 <div>
   <table>
     <tr>
-      <td>
+      <td colspan="2">
         <h3>{{ lens.name }}</h3>
+      </td>
+    </tr>
+    <tr>
+      <td>
         <table>
           <tr>
             <td>RA:</td>
@@ -18,15 +24,15 @@
             <td>{{ lens.created_at }}</td>
           </tr>
           <tr>
+            <td>Owner:</td>
+	    <td>{{ lens.owner.id|get_user_link|safe }}</td>
+          </tr>
+	  {% if lens.info %}
+          <tr>
             <td>Info:</td>
             <td>{{ lens.info }}</td>
           </tr>
-          <tr>
-            <td colspan="2">Contact owner</td>
-          </tr>
-          <tr>
-            <td colspan="2">Linked papers</td>
-          </tr>
+	  {% endif %}
         </table>
       </td>
       <td>

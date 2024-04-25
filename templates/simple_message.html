@@ -2,7 +2,7 @@
 {% block content %}
 <div class="jb-container">
   <div class="jb-simple-message">
-    {{ message }}
+    {{ message|safe|urlize }}
   </div>
 </div>
 {% endblock content %}

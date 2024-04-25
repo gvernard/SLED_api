@@ -71,7 +71,8 @@ class DataDetailView(BSModalReadView):
 @method_decorator(login_required,name='dispatch')
 class DataCreateView(BSModalCreateView):
     success_message = 'Success: %(obj_type)s was successfully added.'
-
+    inspect = False
+    
     def get_queryset(self):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return model.accessible_objects.owned(self.request.user)
@@ -125,6 +126,7 @@ class DataCreateView(BSModalCreateView):
 
             model_name = self.kwargs.get('model')
             if model_name in ["Imaging","Spectrum","GenericImage"] and new_object.access_level == 'PUB':
+                self.inspect = True
                 new_object.access_level = 'PRI'
                 new_object.save()
                 # Create a InspectImages task
@@ -136,7 +138,6 @@ class DataCreateView(BSModalCreateView):
             else:
                 new_object.save()
 
-                
             if new_object.access_level == 'PRI':
                 perm = 'view_' + self.kwargs.get('model').lower()
                 assign_perm(perm,self.request.user,new_object) # new_object here is not a list, so giving permission to the user is guaranteed
@@ -154,8 +155,12 @@ class DataCreateView(BSModalCreateView):
 
     def get_success_message(self):
         # HERE
-        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
-        return self.success_message % dict(obj_type=model._meta.verbose_name.title())
+        if self.inspect:
+            message = "An <strong>InspectImages</strong> task has been submitted!"
+            messages.add_message(self.request,messages.WARNING,message)
+        else:
+            model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+            return self.success_message % dict(obj_type=model._meta.verbose_name.title())
 
 
 
