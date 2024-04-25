@@ -152,8 +152,17 @@ class SingleObjectMakePublicView(ModalIdsBaseMixin):
         ids = form.cleaned_data['ids'].split(',')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
         items = model_ref.accessible_objects.in_ids(self.request.user,ids)
-        output = self.request.user.makePublic(items)
-        if output['success']:
-            messages.add_message(self.request,messages.SUCCESS,output['message'])
+
+        if obj_type in ["Imaging","Spectrum","GenericImage"]:
+            cargo = {'object_type': obj_type,
+                     'object_ids': ids,
+                     }
+            receiver = Users.selectRandomInspector()
+            mytask = ConfirmationTask.create_task(self.request.user,receiver,'InspectImages',cargo)
+            messages.add_message(self.request,messages.WARNING,"An <strong>InspectImages</strong> task has been submitted!")
         else:
-            messages.add_message(self.request,messages.ERROR,output['message'])
+            output = self.request.user.makePublic(items)
+            if output['success']:
+                messages.add_message(self.request,messages.SUCCESS,output['message'])
+            else:
+                messages.add_message(self.request,messages.ERROR,output['message'])

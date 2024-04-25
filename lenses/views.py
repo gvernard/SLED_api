@@ -207,11 +207,12 @@ class LensMakePublicView(ModalIdsBaseMixin):
         indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
 
         if len(indices) == 0:
-            output = self.request.user.makePublic(lenses)
-            if output['success']:
-                messages.add_message(self.request,messages.SUCCESS,output['message'])
-            else:
-                messages.add_message(self.request,messages.ERROR,output['message'])
+            cargo = {'object_type': 'Lenses',
+                     'object_ids': ids,
+                     }
+            receiver = Users.selectRandomInspector()
+            mytask = ConfirmationTask.create_task(self.request.user,receiver,'InspectImages',cargo)
+            messages.add_message(self.request,messages.WARNING,"An <strong>InspectImages</strong> task has been submitted!")
         else:
             # Create ResolveDuplicates task here
             for lens in lenses:

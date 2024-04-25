@@ -125,7 +125,6 @@ class DataCreateView(BSModalCreateView):
 
             model_name = self.kwargs.get('model')
             if model_name in ["Imaging","Spectrum","GenericImage"] and new_object.access_level == 'PUB':
-                print("Submitting Inspect image")
                 new_object.access_level = 'PRI'
                 new_object.save()
                 # Create a InspectImages task
@@ -135,12 +134,10 @@ class DataCreateView(BSModalCreateView):
                 receiver = Users.selectRandomInspector()
                 mytask = ConfirmationTask.create_task(self.request.user,receiver,'InspectImages',cargo)
             else:
-                print("save PRI object or PUB object without image")
                 new_object.save()
 
                 
             if new_object.access_level == 'PRI':
-                print("Giving permission to PRI")
                 perm = 'view_' + self.kwargs.get('model').lower()
                 assign_perm(perm,self.request.user,new_object) # new_object here is not a list, so giving permission to the user is guaranteed
 
@@ -156,6 +153,7 @@ class DataCreateView(BSModalCreateView):
         return reverse('lenses:lens-detail',kwargs={'pk':self.kwargs.get('lens')})
 
     def get_success_message(self):
+        # HERE
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return self.success_message % dict(obj_type=model._meta.verbose_name.title())
 
