@@ -336,14 +336,17 @@ class LensConnectionsSummaryView(BSModalReadView):
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])
         generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+
+        print(other_owners)
         
         for image in allimages:
-            other_owners["Imaging Data"] += list(image.values_list('owner__username',flat=True))
+            other_owners["Imaging Data"].append(image.owner.username)
         for redshift in redshifts:
             other_owners["Redshifts"].append(redshift.owner.username)
         for generic_image in generic_images:
             other_owners["Generic Images"].append(generic_image.owner.username)
-        other_owners["Spectroscopic Data"] += allspectra.values_list('owner__username',flat=True)
+        for spectrum in allspectra:
+            other_owners["Spectroscopic Data"].append(spectrum.owner.username)
         other_owners["Models"] = []
 
         for label,others in other_owners.items():
