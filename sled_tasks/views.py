@@ -435,7 +435,7 @@ class TaskMergeDetailView(TemplateView):
     def get(self, request, *args, **kwargs):
         task_id = self.kwargs['pk']
         try:
-            task = ConfirmationTask.objects.get(pk=task_id)
+            task = ConfirmationTask.custom_manager.all_as_recipient(self.request.user).filter(status="P").get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
@@ -453,7 +453,7 @@ class TaskMergeDetailView(TemplateView):
         referer = urlparse(request.META['HTTP_REFERER']).path
         task_id = self.kwargs['pk']
         try:
-            task = ConfirmationTask.objects.get(pk=task_id)
+            task = ConfirmationTask.custom_manager.all_as_recipient(self.request.user).filter(status="P").get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
@@ -489,7 +489,7 @@ class TaskInspectDetailView(TemplateView):
     def get(self, request, *args, **kwargs):
         task_id = self.kwargs['pk']
         try:
-            task = ConfirmationTask.objects.get(pk=task_id)
+            task = ConfirmationTask.custom_manager.all_as_recipient(self.request.user).filter(status="P").get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
@@ -542,7 +542,7 @@ class TaskInspectDetailView(TemplateView):
         referer = urlparse(request.META['HTTP_REFERER']).path
         task_id = self.kwargs['pk']
         try:
-            task = ConfirmationTask.objects.get(pk=task_id)
+            task = ConfirmationTask.custom_manager.all_as_recipient(self.request.user).filter(status="P").get(pk=task_id)
         except ConfirmationTask.DoesNotExist:
             return TemplateResponse(request,'simple_message.html',context={'message':'This task does not exist.'})
 
