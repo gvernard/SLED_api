@@ -2,7 +2,32 @@ from django import forms
 from django.core.exceptions import ValidationError
 from lenses.models import Collection, Lenses, Users, SledGroup
 from django.apps import apps
-from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
+from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
+from langdetect import detect_langs
+from profanity_check import predict
+
+
+def check_english_likely(text):
+    if len(text.split(' ')) < 2:
+        # very unlikely we can tell, let it slide.
+        return True
+    # check what the possible languages are:
+    langs = detect_langs(text)
+    langs = [lang_obj.lang for lang_obj in langs if lang_obj.prob > 0.1]
+    return 'en' in langs
+
+
+def validate_profanity(text):
+    # 1 check that the text is in english
+    if not check_english_likely(text):
+        raise ValidationError("Please stick to English for SLED content.")
+    # 2 check for profanities
+    is_profane = bool(predict([text])[0])
+    if is_profane:
+        raise ValidationError(
+            "Please avoid profanities in SLED contents."
+            "If this is a mistake, try adding a few more words."
+        )
 
 
 class CollectionCreateForm(BSModalModelForm):
@@ -10,10 +35,11 @@ class CollectionCreateForm(BSModalModelForm):
 
     class Meta:
         model = Collection
-        fields = ['name','description','access_level','item_type']
+        fields = ['name', 'description', 'access_level', 'item_type']
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder':'The name of your collection.'}),
-            'description': forms.Textarea(attrs={'placeholder':'Please provide a description for your collection.','rows':3,}),
+            'name': forms.TextInput(attrs={'placeholder': 'The name of your collection.'}),
+            'description': forms.Textarea(
+                attrs={'placeholder': 'Please provide a description for your collection.', 'rows': 3}),
             'access_level': forms.Select(),
             'item_type': forms.HiddenInput()
         }
@@ -21,21 +47,28 @@ class CollectionCreateForm(BSModalModelForm):
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(CollectionCreateForm, self).__init__(*args, **kwargs)
-        
+
+    def check_profanity_field(self, field_name):
+        text = self.cleaned_data.get(field_name)
+        if text:
+            validate_profanity(text)
+        return text
+
     def clean(self):
-        super(CollectionCreateForm,self).clean()
+        super(CollectionCreateForm, self).clean()
+        self.check_profanity_field('description')
         col_acc = self.cleaned_data.get('access_level')
         ids = self.cleaned_data['ids'].split(',')
-        obj_model = apps.get_model(app_label='lenses',model_name=self.cleaned_data['item_type'])
-        priv = obj_model.accessible_objects.in_ids(self.request.user,ids).filter(access_level='PRI').count()
+        obj_model = apps.get_model(app_label='lenses', model_name=self.cleaned_data['item_type'])
+        priv = obj_model.accessible_objects.in_ids(self.user, ids).filter(access_level='PRI').count()
         if priv > 0 and col_acc == 'PUB':
-            self.add_error('__all__',"Public collection cannot contain private items.")
+            self.add_error('__all__', "Public collection cannot contain private items.")
 
-        check = self.user.check_all_limits(1,self._meta.model.__name__)
+        check = self.user.check_all_limits(1, self._meta.model.__name__)
         if check["errors"]:
             for error in check["errors"]:
-                self.add_error('__all__',error)
-                
+                self.add_error('__all__', error)
+
         return
 
 
