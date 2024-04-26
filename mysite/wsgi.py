@@ -1,11 +1,12 @@
 import os
 from django.core.wsgi import get_wsgi_application
+import dotenv
 
-#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
-#application = get_wsgi_application()
+#exec(open("./sled-production-envvars.py").read())
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
+if os.path.exists('sled-envvars.env'):
+    dotenv.read_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
-exec(open("./sled-production-envvars.py").read())
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
 
 application = get_wsgi_application()

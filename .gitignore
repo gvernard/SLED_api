@@ -1,4 +1,5 @@
 run_dev_server/docker-compose-mine.yaml*
+mysite/sled-envvars.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
