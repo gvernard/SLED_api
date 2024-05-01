@@ -10,8 +10,6 @@ class HomePageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         stream = target_stream(Users.objects.get(username='admin'))[:15]
-        for act in stream:
-            print(act)
         context = {'stream': stream}
         return context
 
