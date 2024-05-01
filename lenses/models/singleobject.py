@@ -74,6 +74,13 @@ class AccessManager(models.Manager):
         qset = super().get_queryset().filter(owner=user)
         return qset
 
+    def owned_in_ids(self,user,id_list):
+        qset = super().get_queryset().filter(id__in=id_list).filter(owner=user)
+        return qset
+        
+
+
+    
     def _arrange_by_object(self,ugs_objects_pairs,ugs,objects):
         """
         Takes a list of tuples matching a User/Group to an object and returns the Users/Groups per object.

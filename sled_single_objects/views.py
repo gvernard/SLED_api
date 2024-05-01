@@ -33,7 +33,7 @@ class ModalIdsBaseMixin(BSModalFormView):
         context = super().get_context_data(**kwargs)
         obj_type = self.request.GET.get('obj_type')
         ids = self.request.GET.getlist('ids')
-        context['items'] = apps.get_model(app_label='lenses',model_name=obj_type).accessible_objects.in_ids(self.request.user,ids)
+        context['items'] = apps.get_model(app_label='lenses',model_name=obj_type).accessible_objects.owned_in_ids(self.request.user,ids)
         return context
 
     def form_invalid(self,form):
@@ -61,8 +61,8 @@ class SingleObjectCedeOwnershipView(ModalIdsBaseMixin):
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']
-        ids = form.cleaned_data['ids'].split(',')
-        items = apps.get_model(app_label='lenses',model_name=obj_type).accessible_objects.in_ids(self.request.user,ids)
+        ids = [ int(id) for id in form.cleaned_data.get('ids').split(',') ]
+        items = apps.get_model(app_label='lenses',model_name=obj_type).accessible_objects.owned_in_ids(self.request.user,ids)
         heir = form.cleaned_data['heir']
         heir = Users.objects.filter(id=heir.id)
         justification = form.cleaned_data['justification']
@@ -78,9 +78,9 @@ class SingleObjectMakePrivateView(ModalIdsBaseMixin):
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']
-        ids = form.cleaned_data['ids'].split(',')
+        ids = [ int(id) for id in form.cleaned_data.get('ids').split(',') ]
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
-        items = model_ref.accessible_objects.in_ids(self.request.user,ids)
+        items = model_ref.accessible_objects.owned_in_ids(self.request.user,ids)
         justification = form.cleaned_data['justification']
         self.request.user.makePrivate(items,justification)
         if len(items) > 1:
@@ -102,9 +102,9 @@ class SingleObjectGiveRevokeAccessView(ModalIdsBaseMixin):
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']
-        ids = form.cleaned_data['ids'].split(',')
+        ids = [ int(id) for id in form.cleaned_data.get('ids').split(',') ]
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
-        items = model_ref.accessible_objects.in_ids(self.request.user,ids)
+        items = model_ref.accessible_objects.owned_in_ids(self.request.user,ids)
         users = form.cleaned_data['users']
         user_ids = [u.id for u in users]
         users = Users.objects.filter(id__in=user_ids)
@@ -149,9 +149,9 @@ class SingleObjectMakePublicView(ModalIdsBaseMixin):
 
     def my_form_valid(self,form):
         obj_type = form.cleaned_data['obj_type']
-        ids = form.cleaned_data['ids'].split(',')
+        ids = [ int(id) for id in form.cleaned_data.get('ids').split(',') ]
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
-        items = model_ref.accessible_objects.in_ids(self.request.user,ids)
+        items = model_ref.accessible_objects.owned_in_ids(self.request.user,ids)
 
         if obj_type in ["Imaging","Spectrum","GenericImage"]:
             cargo = {'object_type': obj_type,

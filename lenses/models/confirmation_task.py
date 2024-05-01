@@ -50,8 +50,60 @@ class ConfirmationTaskManager(models.Manager):
     def both_owner_recipient(self,user):
         return super().get_queryset().filter( Q(recipients__username=user.username) & Q(owner=user) )
 
-    
+    def check_pending_tasks(self,obj_type,obj_ids,task_types=None):
+        """
+        Provides access to all the objects that the user owns, arranged by type.
 
+        Args:
+            obj_type: the model name 
+            obj_ids: A list of object ids
+            task_types: A list of task types to search for (see below)
+
+        Returns:
+            list: A list of dictionaries containing each task and the list of objects in it.
+            str: A corresponding html ul element with the links to each task and objects it contains.
+        """
+        model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
+        qset = model_ref.objects.filter(id__in=obj_ids)
+        obj_list = list(qset)
+        set_ids = set(obj_ids)
+        dictionary = dict(zip(obj_ids,obj_list))
+
+        if task_types:
+            tasks = super().get_queryset().filter(status='P').filter(cargo__object_type=obj_type).filter(cargo__object_ids__contained_by=obj_ids).filter(task_type__in=task_types)
+        else:
+            tasks = super().get_queryset().filter(status='P').filter(cargo__object_type=obj_type).filter(cargo__object_ids__contained_by=obj_ids)
+            
+        tasks_objects = []
+        for task in tasks:
+            json = task.cargo
+            set_task_ids = set(json["object_ids"])
+            intersection = list(set_task_ids.intersection(set_ids))
+            if len(intersection) > 0:
+                objs_in_task = [ dictionary[key] for key in intersection ]
+                tasks_objects.append( {"task":task,"objs":objs_in_task} )
+
+        errors = []
+        if len(tasks_objects) > 0:
+            for item in tasks_objects:
+                error_txt = 'Existing <a href="'+item["task"].get_absolute_url()+'">'+item["task"].task_type+' task</a> contains '
+                if len(item["objs"]) > 1:
+                    error_txt += model_ref._meta.verbose_name_plural.title()
+                else:
+                    error_txt += model_ref._meta.verbose_name.title()
+                error_txt += ': '
+                error_txt += '<ul>'
+                for obj in item["objs"]:
+                    error_txt += '<li><a href="'+obj.get_absolute_url()+'">'+obj.__str__()+'</a></li>'
+                error_txt += '</ul>'
+                errors.append(error_txt)
+                
+        return tasks_objects,errors
+                
+        
+
+                
+                
 class ConfirmationTask(SingleObject):
     """
     The Confirmation task object.

@@ -6,7 +6,7 @@ from django.db.models import QuerySet
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from django_select2 import forms as s2forms
 from pprint import pprint
-from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band
+from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band, ConfirmationTask
 
 class BaseLensForm(forms.ModelForm):
     class Meta:
@@ -96,7 +96,7 @@ class LensMakePublicForm(BSModalForm):
 
     def clean(self):
         # All lenses MUST be private
-        ids = self.cleaned_data.get('ids').split(',')
+        ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]
         qset = Lenses.objects.filter(id__in=ids)
         if qset.filter(access_level='PUB').count() > 0:
             self.add_error('__all__',"You are selecting already public lenses!")
@@ -123,6 +123,14 @@ class LensMakePublicForm(BSModalForm):
             self.add_error('__all__',message)
             for pair in dupls:
                 self.add_error('__all__',pair)
+
+        # Check for other tasks
+        task_list = ['CedeOwnership','MakePrivate','InspectImages','DeleteObject','ResolveDuplicates','MergeLenses']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks('Lenses',ids,task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)
+
                 
 
             
