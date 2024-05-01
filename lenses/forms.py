@@ -90,6 +90,17 @@ class LensDeleteForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
     justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for deleting these lenses.','rows':3,'cols':30}))
 
+    def clean(self):
+        ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]
+        qset = Lenses.objects.filter(id__in=ids)
+
+        # Check for other tasks
+        task_list = ['CedeOwnership','MakePrivate','InspectImages','DeleteObject','ResolveDuplicates','MergeLenses']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks('Lenses',ids,task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)
+
     
 class LensMakePublicForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
@@ -120,9 +131,11 @@ class LensMakePublicForm(BSModalForm):
 
         if len(dupls) > 0:
             message = 'The following lenses are located too close to each other, indicating possible duplicates. Making them public is not allowed: \n'
-            self.add_error('__all__',message)
+            message += '<ul>'
             for pair in dupls:
-                self.add_error('__all__',pair)
+                message += '<li>'+pair+'</li>'
+            message += '</ul>'
+            self.add_error('__all__',message)
 
         # Check for other tasks
         task_list = ['CedeOwnership','MakePrivate','InspectImages','DeleteObject','ResolveDuplicates','MergeLenses']

@@ -70,9 +70,19 @@ class ConfirmationTaskManager(models.Manager):
         dictionary = dict(zip(obj_ids,obj_list))
 
         if task_types:
-            tasks = super().get_queryset().filter(status='P').filter(cargo__object_type=obj_type).filter(cargo__object_ids__contained_by=obj_ids).filter(task_type__in=task_types)
+            tmp = ConfirmationTask.objects.none()
+            for id in obj_ids:
+                tasks = super().get_queryset().filter(status='P').filter(cargo__object_type=obj_type).filter(cargo__object_ids__contains=id).filter(task_type__in=task_types)
+                if tasks:
+                    tmp = tmp|tasks
+            tasks = tmp
         else:
-            tasks = super().get_queryset().filter(status='P').filter(cargo__object_type=obj_type).filter(cargo__object_ids__contained_by=obj_ids)
+            tmp = ConfirmationTask.objects.none()
+            for id in obj_ids:
+                tasks = super().get_queryset().filter(status='P').filter(cargo__object_type=obj_type).filter(cargo__object_ids__contains=id)
+                if tasks:
+                    tmp = tmp|tasks
+            tasks = tmp
             
         tasks_objects = []
         for task in tasks:
@@ -997,15 +1007,16 @@ class InspectImages(ConfirmationTask):
         # This is modeled after the MergeLenses task
         obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
         response = json.loads(obj_responses['response'])
-
+        print(response)
+        
         ids = set([ str(id) for id in self.cargo['object_ids'] ])
         excluded = set(response["rejected"].keys())
-        to_make_public = ids.difference(excluded)
-        
-        qset = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=to_make_public)
-        if qset.count() > 0:
-            self.owner.makePublic(qset)
 
+        if response["response"] != 'None':
+            to_make_public = ids.difference(excluded)
+            qset = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.filter(pk__in=to_make_public)
+            if qset.count() > 0:
+                self.owner.makePublic(qset)
 
 
 ### END: Confirmation task specific code

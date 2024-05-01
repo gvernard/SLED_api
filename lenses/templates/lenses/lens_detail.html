@@ -367,31 +367,35 @@
 
   
   <!-- Div containing all the spectroscopic data  -->  
-  <div id="spectrum" class="jb-section">
+  <div id="spectrum" class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Spectroscopic Data</h1>
 
-    {% for spec in display_spectra %}
-    <div class="spectrum-item">
-      <div class="header">
-	Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
-      </div>
-      <div class="container">
-	<img src="{{ spec.image.url }}" height="170px">
-	<div class="overlay">
-	  <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spec.id %}">
-	    <img src="{% static 'icons/eye-fill.svg' %}">
-	    View
-	  </button>
-	  {% if spec.owner == user %}
-	  <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-update' spec.id %}">
-	    <img src="{% static 'icons/pencil.svg' %}">
-	    Update
-	  </button>	
-	  {% endif %}
+    <table>
+      {% for spec in display_spectra %}
+      <tr><td>
+      <div class="imaging-item">
+	<div class="header">
+	  Spectrograph = {{ spec.instrument.name }}, Date = {{ spec.date_taken }}, Exptime = {{ spec.exposure_time }}
+	</div>
+	<div class="container">
+	  <img src="{{ spec.image.url }}" height="170px">
+	  <div class="overlay">
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-detail' spec.id %}">
+	      <img src="{% static 'icons/eye-fill.svg' %}">
+	      View
+	    </button>
+	    {% if spec.owner == user %}
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-update' spec.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}">
+	      Update
+	    </button>	
+	    {% endif %}
+	  </div>
 	</div>
       </div>
-    </div>
-    {% endfor %}
+      </td></tr>
+      {% endfor %}
+    </table>
     
     <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-create' lens=lens.id %}">
       <img src="{% static 'icons/plus.svg' %}">

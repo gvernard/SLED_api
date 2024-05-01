@@ -47,7 +47,10 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
 
         
     def __str__(self):
-        return self.lens.name + " - " + self.name
+        if self.lens == None:
+            return self.name
+        else:
+            return self.lens.name + " - " + self.name
 
     
     def get_absolute_url(self):
