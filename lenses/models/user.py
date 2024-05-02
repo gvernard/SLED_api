@@ -18,6 +18,7 @@ from itertools import groupby
 import inspect
 
 from . import SledGroup, SingleObject, ConfirmationTask, Collection, AdminCollection
+from mysite.language_check import validate_language
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
 objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue","Redshift","GenericImage"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
@@ -68,7 +69,8 @@ class Users(AbstractUser,GuardianUserMixin):
     info = models.TextField(
         blank=True,
         default='',
-        help_text="A short description of your work and interests.")
+        help_text="A short description of your work and interests.",
+        validators=[validate_language])
     avatar = models.URLField(
         blank=True,
         max_length=300)

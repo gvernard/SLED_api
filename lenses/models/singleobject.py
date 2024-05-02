@@ -30,10 +30,6 @@ class Users(Base):
         none = 3
 
 
-
-
-
-
 class AccessManager(models.Manager):
     def all(self,user):
         """

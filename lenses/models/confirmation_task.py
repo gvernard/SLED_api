@@ -28,6 +28,7 @@ import random
 import shutil
 
 from . import Lenses, SingleObject, Collection, SledGroup, AdminCollection
+from mysite.language_check import validate_language
 
 
 
@@ -109,10 +110,7 @@ class ConfirmationTaskManager(models.Manager):
                 errors.append(error_txt)
                 
         return tasks_objects,errors
-                
-        
 
-                
                 
 class ConfirmationTask(SingleObject):
     """
@@ -145,13 +143,13 @@ class ConfirmationTask(SingleObject):
                                  choices=TaskTypeChoices,
                                  help_text="The name of the task to perform.") 
     StatusTypeChoices = (
-        ("P",'Pending'),
+        ("P", 'Pending'),
         ("C",'Completed')
     )
     status = models.CharField(max_length=1,
                               choices=StatusTypeChoices,
                               default="P",
-                              help_text="Status of the task: 'Pending' (P) or 'Completed' (C).")
+                              help_text="Status of the task: 'Pending' (P) or 'Completed' (C).",)
     cargo = models.JSONField(help_text="A json object holding any variables that will be executed upon completion of the task.")
     recipients = models.ManyToManyField(
         'Users',
@@ -337,8 +335,13 @@ class ConfirmationResponse(models.Model):
     confirmation_task = models.ForeignKey(ConfirmationTask, on_delete=models.CASCADE)
     recipient = models.ForeignKey('Users',on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
-    response = models.CharField(max_length=1000, help_text="The response of a given user to a given confirmation task.") 
-    response_comment = models.CharField(max_length=100, help_text="A comment (optional) from the recipient on the given response.") 
+    response = models.CharField(max_length=1000, help_text="The response of a given user to a given confirmation task.",
+                                validators=[validate_language],
+                                )
+    response_comment = models.CharField(max_length=100,
+                                        help_text="A comment (optional) from the recipient on the given response.",
+                                        validators=[validate_language],
+                                        )
 
 
 
@@ -462,7 +465,8 @@ class CedeOwnership(ConfirmationTask):
             if pub and object_type != 'SledGroup':
                 from . import Users
                 ad_col = AdminCollection.objects.create(item_type=object_type,myitems=pub)
-                action.send(self.owner,target=Users.getAdmin().first(),verb='CedeOwnershipHome',level='info',action_object=ad_col,previous_id=self.owner.id,next_id=heir.id)
+                action.send(self.owner,target=Users.getAdmin().first(),verb='CedeOwnershipHome',
+                            level='info',action_object=ad_col,previous_id=self.owner.id,next_id=heir.id)
                     
             # Handle private objects
             if pri:

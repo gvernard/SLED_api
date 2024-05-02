@@ -3,6 +3,7 @@ from lenses.models import Collection, Users, SledGroup
 from django.apps import apps
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
 
+
 class CollectionCreateForm(BSModalModelForm):
     ids = forms.CharField(widget=forms.HiddenInput())
 
@@ -12,7 +13,7 @@ class CollectionCreateForm(BSModalModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'The name of your collection.'}),
             'description': forms.Textarea(
-                attrs={'placeholder': 'Please provide a description for your collection.', 'rows': 3}
+                attrs={'placeholder': 'Please provide a description for your collection.', 'rows': 3},
             ),
             'access_level': forms.Select(),
             'item_type': forms.HiddenInput()
@@ -42,7 +43,7 @@ class CollectionCreateForm(BSModalModelForm):
 class CollectionUpdateForm(BSModalModelForm):
     class Meta:
         model = Collection
-        fields = ['name','description']
+        fields = ['name', 'description']
         widgets = {
             'description': forms.Textarea({'placeholder':'Provide a description for your collection.','rows':3,'cols':30})
         }

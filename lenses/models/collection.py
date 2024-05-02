@@ -18,10 +18,10 @@ from itertools import groupby
 from operator import itemgetter
 
 from . import SingleObject, AdminCollection
+from mysite.language_check import validate_language
 
 
-
-class Collection(SingleObject,DirtyFieldsMixin):
+class Collection(SingleObject, DirtyFieldsMixin):
     """
     Describes collections of SingleObjects, e.g. lenses, through a many-to-many relationship.
 
@@ -32,25 +32,27 @@ class Collection(SingleObject,DirtyFieldsMixin):
         myitems (): A generic many-to-many field
     """
     name = models.CharField(max_length=30,
-                            help_text="A name for your collection.", unique=True)
+                            help_text="A name for your collection.", unique=True,
+                            validators=[validate_language],
+                            )
     description = models.CharField(max_length=250,
                                    null=True,
                                    blank=True,
-                                   help_text="A description for your collection."
+                                   help_text="A description for your collection.",
+                                   validators=[validate_language],
                                    )
-    myitems = GM2MField('Lenses',related_name='collections',related_query_name='items')
+    myitems = GM2MField('Lenses', related_name='collections', related_query_name='items')
     ItemTypeChoices = (
-        ('Lenses','Lenses'),
-        ('Scores','Scores'),
-        ('Models','Models')
+        ('Lenses', 'Lenses'),
+        ('Scores', 'Scores'),
+        ('Models', 'Models')
     )
     item_type = models.CharField(max_length=101,
                                  choices=ItemTypeChoices,
                                  help_text="The type of items that should be in the collection.")
 
     # Fields to report updates on
-    FIELDS_TO_CHECK = ['name','description','owner','access_level']
-
+    FIELDS_TO_CHECK = ['name', 'description', 'owner', 'access_level']
     
     class Meta(SingleObject.Meta):
         db_table = "collection"
@@ -59,8 +61,7 @@ class Collection(SingleObject,DirtyFieldsMixin):
         ordering = ["modified_at"]
         # Constrain the number of objects in a collection?
 
-        
-    def save(self,*args,**kwargs):
+    def save(self, *args, **kwargs):
         if not self._state.adding:
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
             
@@ -80,17 +81,13 @@ class Collection(SingleObject,DirtyFieldsMixin):
 
         super().save(*args,**kwargs)
 
-   
-    
     def __str__(self):
         return self.name
 
-    
     def get_absolute_url(self):
         return reverse('sled_collections:collections-detail',kwargs={'pk':self.id})
-
     
-    def itemsOfWrongType(self,objects):
+    def itemsOfWrongType(self, objects):
         """
         Ensures that the given items are all of the collection type.
 
@@ -107,7 +104,6 @@ class Collection(SingleObject,DirtyFieldsMixin):
             caller = inspect.getouterframes(inspect.currentframe(),2)
             print(error,"The operation of '"+caller[1][3]+"' should not proceed")
             raise
-
 
     def getSpecificModelInstances(self,user):
         """
@@ -337,7 +333,6 @@ class Collection(SingleObject,DirtyFieldsMixin):
                 owners_ids[key] = tmp
             
             return owners_ids
-
 
 
 # Assign view permission to the owner of a new collection

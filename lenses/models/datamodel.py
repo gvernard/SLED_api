@@ -13,7 +13,8 @@ import simplejson as json
 from pprint import pprint
 
 from . import SingleObject, Lenses
-
+from mysite.language_check import validate_language
+from mysite.image_check import validate_image_size
 
 
 class GenericImage(SingleObject,DirtyFieldsMixin):
@@ -21,16 +22,24 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                              null=True,
                              on_delete=models.SET_NULL,
                              related_name="%(class)s")
+
+    # validate language for this one: likely english check will fail if weird filename.
+    # not including it.
+    # language check skipped for this one until more relaxed english check
     name = models.CharField(blank=False,
                             null=True,
                             max_length=100,
                             help_text="A name for the generic image.")
+
     info = models.TextField(blank=False,
                             null=True,
                             default='',
-                            help_text="Description of any important aspects of the image.")
+                            help_text="Description of any important aspects of the image.",
+                            validators=[validate_language],
+                            )
     image = models.ImageField(blank=False,
-                              upload_to='generic')
+                              upload_to='generic',
+                              validators=[validate_image_size])
     
     class Meta():
         ordering = ["created_at"]
@@ -101,16 +110,23 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                 
     
 class Instrument(models.Model):
+
+    # language check skipped for this one until more relaxed english check
     name = models.CharField(blank=False,
                             unique=True,
                             max_length=100,
                             help_text="A name for the instrument.")
+
+    # language check skipped for this one until more relaxed english check
     extended_name = models.CharField(blank=False,
                             max_length=100,
-                            help_text="The extended name for the instrument.")    
+                            help_text="The extended name for the instrument.")
+
     info = models.TextField(blank=True,
                             default='',
-                            help_text="Any important note about the instrument.")
+                            help_text="Any important note about the instrument.",
+                            validators=[validate_language],
+                            )
 
     BaseTypeChoices = (
         ('Spectrum','Spectrum'),
@@ -133,13 +149,16 @@ class Instrument(models.Model):
 
     
 class Band(models.Model):
+    # language check skipped for this one
     name = models.CharField(blank=False,
                             unique=True,
                             max_length=100,
                             help_text="A name for the band.")
     info = models.TextField(blank=True,
                             default='',
-                            help_text="Any important note about the band.")
+                            help_text="Any important note about the band.",
+                            validators=[validate_language],
+                            )
 
     wavelength = models.FloatField(blank=False,
                                    default=0,
@@ -179,7 +198,9 @@ class DataBase(models.Model):
     info = models.TextField(blank=True,
                             null=True,
                             default='',
-                            help_text="Description of any important aspects of the observation.")
+                            help_text="Description of any important aspects of the observation.",
+                            validators=[validate_language],
+                            )
 
     class Meta():
         abstract = True
@@ -214,7 +235,8 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                              verbose_name="Band",
                              on_delete=models.PROTECT)
     image = models.ImageField(blank=True,
-                              upload_to='imaging')
+                              upload_to='imaging',
+                              validators=[validate_image_size])
     url = models.URLField(blank=True,
                           max_length=300)
 
@@ -290,7 +312,6 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                 super(Imaging,self).save(*args,**kwargs)
                 default_storage.mydelete(fname)
 
-            
         
 class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     lambda_min = models.DecimalField(blank=True,
@@ -322,7 +343,8 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                                      help_text="The resolution of the spectrum [nm].",
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
     image = models.ImageField(blank=True,
-                              upload_to='spectrum')
+                              upload_to='spectrum',
+                              validators=[validate_image_size])
 
     FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future','access_level']
 
@@ -547,7 +569,9 @@ class Redshift(SingleObject,DirtyFieldsMixin):
     info = models.TextField(blank=True,
                             null=True,
                             default='',
-                            help_text="Description of any important aspects of the measurement.")
+                            help_text="Description of any important aspects of the measurement.",
+                            validators=[validate_language],
+                            )
 
     
     reference = models.TextField(blank=True,

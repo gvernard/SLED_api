@@ -11,7 +11,7 @@ import simplejson as json
 from guardian.shortcuts import get_objects_for_group,remove_perm,get_perms_for_model
 
 from . import SingleObject, AdminCollection
-
+from mysite.language_check import validate_language
 from notifications.models import Notification
 from notifications.signals import notify
 from actstream import action
@@ -35,7 +35,9 @@ class SledGroup(Group,SingleObject,DirtyFieldsMixin):
         - Related to the above, it doesn't make sense to have collections of groups, so no need to use the addToCollection, etc, functions.
 
     """
-    description = models.CharField(max_length=200,null=True, blank=True)
+    description = models.CharField(max_length=200,null=True, blank=True,
+                                   validators=[validate_language],
+                                   )
 
     # Fields to report updates on
     FIELDS_TO_CHECK = ['name','description','owner','access_level']
