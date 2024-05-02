@@ -13,7 +13,7 @@ Make {% singular_or_plural 'Lenses' lenses|length %} public?
   <div class="invalid jb-modal-field">
     <ul>
       {% for error in form.non_field_errors %}
-      <li>{{ error }}</li>
+      <li>{{ error|safe }}</li>
       {% endfor %}
     </ul>
   </div>

@@ -47,7 +47,10 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
 
         
     def __str__(self):
-        return self.lens.name + " - " + self.name
+        if self.lens == None:
+            return self.name
+        else:
+            return self.lens.name + " - " + self.name
 
     
     def get_absolute_url(self):
@@ -229,7 +232,10 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
 
 
     def __str__(self):
-        return self.lens.name + " - " + self.instrument.name + " " + self.band.name
+        if self.lens == None:
+            return self.instrument.name + " " + self.band.name
+        else:
+            return self.lens.name + " - " + self.instrument.name + " " + self.band.name
 
     
     def get_absolute_url(self):
@@ -332,7 +338,10 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
 
         
     def __str__(self):
-        return self.lens.name + " - " + self.instrument.name
+        if self.lens == None:
+            return self.instrument.name
+        else:
+            return self.lens.name + " - " + self.instrument.name
 
     
     def get_absolute_url(self):
@@ -439,7 +448,10 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
 
         
     def __str__(self):
-        return self.lens.name + " - " + self.instrument.name + " - " + self.band.name
+        if self.lens == None:
+            return self.instrument.name + " - " + self.band.name
+        else:
+            return self.lens.name + " - " + self.instrument.name + " - " + self.band.name
 
     
     def get_absolute_url(self):
@@ -558,7 +570,10 @@ class Redshift(SingleObject,DirtyFieldsMixin):
 
         
     def __str__(self):
-        return self.lens.name + " - " + self.method + " - " + self.tag
+        if self.lens == None:
+            return self.method + " - " + self.tag
+        else:
+            return self.lens.name + " - " + self.method + " - " + self.tag
 
     
     def get_absolute_url(self):

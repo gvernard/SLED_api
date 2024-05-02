@@ -9,6 +9,16 @@ Delete {% singular_or_plural 'Lenses' lenses|length %}?
 {% block content %}
 <div class="jb-container-modal">
 
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  
   <div class="jb-modal-field jb-table-no-lines">
     <table>
       {% for lens in lenses %}

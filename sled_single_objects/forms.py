@@ -7,31 +7,7 @@ from django.db.models import Count
 from guardian.shortcuts import get_objects_for_user,get_objects_for_group,get_perms_for_model
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
-from lenses.models import Lenses, Users, SledGroup
-
-
-
-def check_for_other_tasks(user,obj_type,ids):
-    model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
-    qset = model_ref.objects.filter(id__in=ids)
-    object_list = list(qset)
-    tasks_objects = user.pending_tasks_for_object_list(obj_type,object_list)
-    error_txt = ''
-    if len(tasks_objects) > 0:
-        error_txt = '<ul>'
-        for item in tasks_objects:
-            error_txt += '<li>'
-            error_txt += 'Existing <a href="'+item["task"].get_absolute_url()+'">'+item["task"].task_type+' task</a> contains '
-            if len(item["objs"]) > 1:
-                error_txt += model_ref._meta.verbose_name_plural.title()
-            else:
-                error_txt += model_ref._meta.verbose_name.title()
-            error_txt += ': '
-            error_txt += ' , '.join( [ '<a href="'+obj.get_absolute_url()+'">'+obj.__str__()+'</a>' for obj in item["objs"] ])
-            error_txt += '</li>'
-        error_txt += '</ul>'
-    return error_txt
-
+from lenses.models import Lenses, Users, SledGroup, ConfirmationTask
 
 
 class SingleObjectCedeOwnershipForm(BSModalForm):
@@ -50,11 +26,12 @@ class SingleObjectCedeOwnershipForm(BSModalForm):
 
         # Check for other tasks
         obj_type = self.cleaned_data.get('obj_type')
-        ids = self.cleaned_data.get('ids').split(',')
-        error_txt = check_for_other_tasks(self.request.user,obj_type,ids)
-        if error_txt != '':
-            self.add_error('__all__',error_txt)
-
+        ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]
+        task_list = ['CedeOwnership','MakePrivate','InspectImages','DeleteObject','ResolveDuplicates','MergeLenses']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks(obj_type,ids,task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)
 
         
 class SingleObjectMakePrivateForm(BSModalForm):
@@ -65,14 +42,14 @@ class SingleObjectMakePrivateForm(BSModalForm):
     def clean(self):
         obj_type = self.cleaned_data.get('obj_type')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
-        ids = self.cleaned_data.get('ids').split(',')
+        ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]
         qset = model_ref.objects.filter(id__in=ids)
         dum = len(qset) # this is just to evaluate the queryset
         
         # All items MUST be public
         if qset.filter(access_level='PRI').count() > 0:
             self.add_error('__all__',"You are selecting already private items!")
-
+            
         # None of the items can be associated with a paper
         if obj_type == 'Lenses':
             with_papers = qset.annotate(paper_count=Count('papers')).filter(paper_count__gt=0)
@@ -83,10 +60,11 @@ class SingleObjectMakePrivateForm(BSModalForm):
                 self.add_error('__all__',"The following %d lenses cannot be made private because they are associated with papers: %s" % (len(names),','.join(names)) )
 
         # Check for other tasks
-        error_txt = check_for_other_tasks(self.request.user,obj_type,ids)
-        if error_txt != '':
-            self.add_error('__all__',error_txt)
-            
+        task_list = ['CedeOwnership','MakePrivate','InspectImages','DeleteObject','ResolveDuplicates','MergeLenses']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks(obj_type,ids,task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)
             
 
             
@@ -98,14 +76,20 @@ class SingleObjectMakePublicForm(BSModalForm):
         # All items MUST be private
         obj_type = self.cleaned_data.get('obj_type')
         model_ref = apps.get_model(app_label='lenses',model_name=obj_type)
-        ids = self.cleaned_data.get('ids').split(',')
+        ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]
         qset = model_ref.objects.filter(id__in=ids).filter(access_level='PUB')
         if qset.count() > 0:
             self.add_error('__all__',"You are selecting already public items!")
 
+        # Check for other tasks
+        task_list = ['CedeOwnership','MakePrivate','InspectImages','DeleteObject','ResolveDuplicates','MergeLenses']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks(obj_type,ids,task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)
 
 
-            
+
 class SingleObjectGiveRevokeAccessForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())

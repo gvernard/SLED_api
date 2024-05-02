@@ -90,7 +90,7 @@ class LensDeleteView(ModalIdsBaseMixin):
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
         justification = form.cleaned_data['justification']
-        qset = Lenses.accessible_objects.in_ids(self.request.user,ids)
+        qset = Lenses.accessible_objects.owned_in_ids(self.request.user,ids)
 
         pub = qset.filter(access_level='PUB')
         if pub:
@@ -202,7 +202,7 @@ class LensMakePublicView(ModalIdsBaseMixin):
         return success_url
     
     def my_form_valid(self,form):
-        ids = form.cleaned_data['ids'].split(',')
+        ids = [ int(id) for id in form.cleaned_data.get('ids').split(',') ]
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
 

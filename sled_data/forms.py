@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
-from lenses.models import DataBase, Imaging, Spectrum, Catalogue, Redshift, GenericImage
+from lenses.models import DataBase, Imaging, Spectrum, Catalogue, Redshift, GenericImage, ConfirmationTask
 
 
 
@@ -297,6 +297,18 @@ class DataUpdateManyFormSet(forms.BaseInlineFormSet):
 class DataDeleteManyForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
+
+
+    def clean(self):
+        obj_type = self.cleaned_data.get('obj_type')
+        ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]
+
+        # Check for other tasks
+        task_list = ['CedeOwnership','MakePrivate','InspectImages','DeleteObject','ResolveDuplicates','MergeLenses']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks(obj_type,ids,task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)    
 ##############################################################################
 
 

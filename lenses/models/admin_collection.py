@@ -42,6 +42,7 @@ class AdminCollection(models.Model):
         ('Imaging','Imaging'),
         ('Spectrum','Spectrum'),
         ('Redshift','Redshift'),
+        ('GenericImage','GenericImage'),
         ('Catalogue','Catalogue'),
         ('Scores','Scores'),
         ('Models','Models')
