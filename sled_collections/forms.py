@@ -1,34 +1,7 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from lenses.models import Collection, Lenses, Users, SledGroup
+from lenses.models import Collection, Users, SledGroup
 from django.apps import apps
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
-from langdetect import detect_langs
-from profanity_check import predict
-
-
-def check_english_likely(text):
-    if len(text.split(' ')) < 2:
-        # very unlikely we can tell, let it slide.
-        return True
-    # check what the possible languages are:
-    langs = detect_langs(text)
-    langs = [lang_obj.lang for lang_obj in langs if lang_obj.prob > 0.1]
-    return 'en' in langs
-
-
-def validate_profanity(text):
-    # 1 check that the text is in english
-    if not check_english_likely(text):
-        raise ValidationError("Please stick to English for SLED content.")
-    # 2 check for profanities
-    is_profane = bool(predict([text])[0])
-    if is_profane:
-        raise ValidationError(
-            "Please avoid profanities in SLED contents."
-            "If this is a mistake, try adding a few more words."
-        )
-
 
 class CollectionCreateForm(BSModalModelForm):
     ids = forms.CharField(widget=forms.HiddenInput())
@@ -39,7 +12,8 @@ class CollectionCreateForm(BSModalModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'The name of your collection.'}),
             'description': forms.Textarea(
-                attrs={'placeholder': 'Please provide a description for your collection.', 'rows': 3}),
+                attrs={'placeholder': 'Please provide a description for your collection.', 'rows': 3}
+            ),
             'access_level': forms.Select(),
             'item_type': forms.HiddenInput()
         }
@@ -48,20 +22,13 @@ class CollectionCreateForm(BSModalModelForm):
         self.user = kwargs.pop('user', None)
         super(CollectionCreateForm, self).__init__(*args, **kwargs)
 
-    def check_profanity_field(self, field_name):
-        text = self.cleaned_data.get(field_name)
-        if text:
-            validate_profanity(text)
-        return text
-
     def clean(self):
         super(CollectionCreateForm, self).clean()
-        self.check_profanity_field('description')
         col_acc = self.cleaned_data.get('access_level')
         ids = self.cleaned_data['ids'].split(',')
         obj_model = apps.get_model(app_label='lenses', model_name=self.cleaned_data['item_type'])
-        priv = obj_model.accessible_objects.in_ids(self.user, ids).filter(access_level='PRI').count()
-        if priv > 0 and col_acc == 'PUB':
+        private_count = obj_model.accessible_objects.in_ids(self.user, ids).filter(access_level='PRI').count()
+        if private_count > 0 and col_acc == 'PUB':
             self.add_error('__all__', "Public collection cannot contain private items.")
 
         check = self.user.check_all_limits(1, self._meta.model.__name__)
@@ -97,11 +64,11 @@ class CollectionAskAccessForm(BSModalModelForm):
 class CollectionGiveRevokeAccessForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
     groups = forms.ModelMultipleChoiceField(label='Groups',queryset=SledGroup.objects.all(),required=False)
-    mode = 'dum' # necessary to define self.mode
+    mode = 'dum'  # necessary to define self.mode
 
     class Meta:
         model = Collection
-        fields = ['id'] # Not really used, but 'fields' is required
+        fields = ['id']  # Not really used, but 'fields' is required
 
     def __init__(self, *args, **kwargs):
         self.mode = kwargs.pop('mode')
@@ -109,8 +76,8 @@ class CollectionGiveRevokeAccessForm(BSModalModelForm):
 
     def clean(self):
         # At least one User or Group must be selected
-        users = self.cleaned_data.get('users') # queryset
-        groups = self.cleaned_data.get('groups') # queryset
+        users = self.cleaned_data.get('users')  # queryset
+        groups = self.cleaned_data.get('groups')  # queryset
         if not users and not groups:
             self.add_error('__all__',"Select at least one User and/or Group.")
             return
@@ -143,7 +110,7 @@ class CollectionGiveRevokeAccessForm(BSModalModelForm):
                     else:
                         usernames = [user.username for user in intersection]
                         self.add_error('__all__',"Users "+','.join(usernames)+" already have access to the collection.")
-                else: # mode == revoke
+                else:  # mode == revoke
                     non_access = list(set_users - uwa)
                     if len(non_access) == 1:
                         self.add_error('__all__',"User "+non_access[0].username+" does not have access to the collection anyway.")
@@ -190,7 +157,7 @@ class CollectionAddItemsForm(BSModalForm):
                                                queryset=Collection.accessible_objects.none(),
                                                widget=forms.RadioSelect(attrs={'class':'jb-select-radio'})
                                                )
-    obj_type = 'dum' # necessary to define self.obj_type
+    obj_type = 'dum'  # necessary to define self.obj_type
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
