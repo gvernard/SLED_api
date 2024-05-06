@@ -8,13 +8,14 @@ from guardian.shortcuts import get_objects_for_user,get_objects_for_group,get_pe
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
 from lenses.models import Lenses, Users, SledGroup, ConfirmationTask
+from mysite.language_check import validate_language
 
 
 class SingleObjectCedeOwnershipForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
     heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}),validators=[validate_language])
                 
     class Meta:
         fields = ['obj_type','ids','heir','justification']
@@ -37,7 +38,7 @@ class SingleObjectCedeOwnershipForm(BSModalForm):
 class SingleObjectMakePrivateForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for making these items private.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for making these items private.','rows':3,'cols':30}),validators=[validate_language])
                 
     def clean(self):
         obj_type = self.cleaned_data.get('obj_type')
@@ -95,7 +96,7 @@ class SingleObjectGiveRevokeAccessForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
     groups = forms.ModelMultipleChoiceField(label='Groups',queryset=SledGroup.objects.all(),required=False)
-    #justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
+    #justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}),validators=[validate_language])
     mode = 'dum' # necessary to define self.mode
 
     def __init__(self,*args,**kwargs):

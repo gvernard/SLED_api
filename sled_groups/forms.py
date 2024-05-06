@@ -1,6 +1,7 @@
 from django import forms
 from lenses.models import SledGroup, Users
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
+from mysite.language_check import validate_language
 
 
 class GroupUpdateForm(BSModalModelForm):
@@ -12,6 +13,11 @@ class GroupUpdateForm(BSModalModelForm):
             'access_level': forms.Select()
         }
 
+    def clean_name(self):
+        data = self.cleaned_data["name"]
+        validate_language(data)
+        return data
+        
     def clean(self):
         if not self.has_changed():
             self.add_error('__all__',"No changes detected!")
@@ -19,7 +25,7 @@ class GroupUpdateForm(BSModalModelForm):
         
 class GroupCedeOwnershipForm(BSModalModelForm):
     heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}),validators=[validate_language])
                 
     class Meta:
         model = SledGroup
@@ -50,6 +56,11 @@ class GroupCreateForm(BSModalModelForm):
         self.user = kwargs.pop('user', None)
         super(GroupCreateForm, self).__init__(*args, **kwargs)
 
+    def clean_name(self):
+        data = self.cleaned_data["name"]
+        validate_language(data)
+        return data
+        
     def clean(self):
         # At least one User must be selected
         users = self.cleaned_data.get('users')
@@ -126,7 +137,7 @@ class GroupLeaveForm(BSModalModelForm):
 
 
 class GroupAskToJoinForm(BSModalModelForm):
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the group owner.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the group owner.','rows':3,'cols':30}),validators=[validate_language])
 
     class Meta:
         model = SledGroup

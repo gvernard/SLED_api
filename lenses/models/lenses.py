@@ -1,11 +1,11 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.db.models import Q, F, Func, FloatField, CheckConstraint
 from django.urls import reverse
 from django.conf import settings
-from functools import partial as curry
+from functools import partial as curry 
 from multiselectfield import MultiSelectField
 
 from dirtyfields import DirtyFieldsMixin
@@ -184,12 +184,16 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     name = models.CharField(unique=False,
                             blank=True,
                             max_length=100,
-                            help_text="An identification for the lens, e.g. the usual phone numbers.")
+                            help_text="An identification for the lens, e.g. the usual phone numbers.",
+                            validators=[validate_language],
+                            )
 
     alt_name = models.CharField(max_length=200,
                                 blank=True,
                                 null=True,
-                                help_text="A list of comma-separated strings for the alternative names of the systems")
+                                help_text="A list of comma-separated strings for the alternative names of the systems",
+                                validators=[validate_language],
+                                )
 
     score = models.DecimalField(blank=True,
                              null=True,
@@ -222,7 +226,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
-    mugshot = models.ImageField(upload_to='lenses', validators=[validate_image_size])
+    mugshot = models.ImageField(upload_to='lenses', validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
     
     FlagChoices = (
         ('CONFIRMED','Confirmed'),

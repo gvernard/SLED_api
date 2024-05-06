@@ -54,6 +54,14 @@ class DatabaseFileStorage(S3Boto3Storage):
             Key=os.path.join(self.location,dname,'')
         )
 
+    def get_size(self,fname):
+        response = self.connection.meta.client.head_object(
+            Bucket=self.bucket_name,
+            Key=self.location + fname
+        )
+        size = response['ContentLength'] # in bytes
+        return size
+        
 
 class LocalStorage(Storage):
     location = settings.MEDIA_ROOT + "/"
@@ -91,3 +99,6 @@ class LocalStorage(Storage):
     
     def url(self,fname):
         return self.location + fname
+
+    def get_size(self,fname):
+        return os.path.getsize(self.location+fname) # in bytes

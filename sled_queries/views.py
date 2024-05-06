@@ -64,7 +64,6 @@ class QuerySaveView(BSModalCreateView):
         return kwargs
     
     def form_valid(self, form):
-        print(self.request)
         if not is_ajax(self.request.META):
             name = form.cleaned_data['name']
             description = form.cleaned_data['description']
@@ -100,6 +99,11 @@ class QueryUpdateView(BSModalUpdateView):
             return SledQuery.accessible_objects.owned(Users.getAdmin().first())
         else:
             return SledQuery.accessible_objects.owned(self.request.user)      
+
+    def get_form_kwargs(self):
+        kwargs = super(QueryUpdateView,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
 
     def get_success_url(self):
         if self.kwargs.get('admin'):

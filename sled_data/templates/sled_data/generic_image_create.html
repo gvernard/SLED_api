@@ -24,9 +24,17 @@ Add Generic Image?
     <table>
       <tbody>
 	{% for field in form.visible_fields %}
-	<tr>
-	  <td>{{ field.error }}</td>
-          <td>
+	<tr> 
+	  <td>
+	    <div class="invalid jb-modal-field">
+	      <ul>
+		{% for error in field.errors %}
+		<li>{{ error|safe }}</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	  </td>
+         <td>
 	    <div class="sled-help-tooltip">{{ field.label|safe }}</div>
 	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
 	  </td>

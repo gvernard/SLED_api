@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
+from mysite.language_check import validate_language
 from django.utils import timezone
 from django.db.models import QuerySet
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
@@ -88,7 +89,7 @@ class LensModalUpdateForm(BSModalModelForm):
             
 class LensDeleteForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for deleting these lenses.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a justification for deleting these lenses.','rows':3,'cols':30}),validators=[validate_language])
 
     def clean(self):
         ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]
@@ -908,8 +909,14 @@ class DownloadForm(BSModalForm):
 
 
 class LensAskAccessForm(BSModalModelForm):
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the lens owner, justifying why you require access to the private lens.','rows':3,'cols':30}))
-
+    justification = forms.CharField(
+        widget=forms.Textarea(
+            {'placeholder':'Please provide a message for the lens owner, justifying why you require access to the private lens.',
+             'rows':3,
+             'cols':30}),
+        validators=[validate_language]
+    )
+    
     class Meta:
         model = Lenses
         fields = ['id']

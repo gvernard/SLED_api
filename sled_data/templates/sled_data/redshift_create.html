@@ -17,7 +17,7 @@ Add Redshift?
     </ul>
   </div>
   {% endif %}
-		
+
   <div class="jb-modal-field jb-table-no-lines">
     {{ form.owner }}
     {{ form.lens }}
@@ -25,7 +25,15 @@ Add Redshift?
       <tbody>
 	{% for field in form.visible_fields %}
 	<tr>
-	  <td>{{ field.error }}</td>
+	  <td>
+	    <div class="invalid jb-modal-field">
+	      <ul>
+		{% for error in field.errors %}
+		<li>{{ error|safe }}</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	  </td>
           <td>
 	    <div class="sled-help-tooltip">{{ field.label|safe }}</div>
 	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>

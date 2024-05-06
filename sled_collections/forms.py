@@ -2,6 +2,7 @@ from django import forms
 from lenses.models import Collection, Users, SledGroup
 from django.apps import apps
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
+from mysite.language_check import validate_language
 
 
 class CollectionCreateForm(BSModalModelForm):
@@ -55,7 +56,7 @@ class CollectionUpdateForm(BSModalModelForm):
 
         
 class CollectionAskAccessForm(BSModalModelForm):
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the lens owners, justifying why you require access to the private objects.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the lens owners, justifying why you require access to the private objects.','rows':3,'cols':30}),validators=[validate_language])
 
     class Meta:
         model = Collection
@@ -212,7 +213,7 @@ class CollectionMakePublicForm(BSModalModelForm):
 
 class CollectionCedeOwnershipForm(BSModalModelForm):
     heir = forms.ModelChoiceField(label='User',queryset=Users.objects.all())
-    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}))
+    justification = forms.CharField(widget=forms.Textarea({'placeholder':'Please provide a message for the new owner.','rows':3,'cols':30}),validators=[validate_language])
 
     class Meta:
         model = Collection

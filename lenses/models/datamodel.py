@@ -1,5 +1,5 @@
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 from django.core.files.storage import default_storage
 from django.db.models import Q, F, CheckConstraint
 from django.conf import settings
@@ -38,7 +38,7 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                             )
     image = models.ImageField(blank=False,
                               upload_to='generic',
-                              validators=[validate_image_size])
+                              validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
     
     class Meta():
         ordering = ["created_at"]
@@ -233,7 +233,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                              on_delete=models.PROTECT)
     image = models.ImageField(blank=True,
                               upload_to='imaging',
-                              validators=[validate_image_size])
+                              validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
     url = models.URLField(blank=True,
                           max_length=300)
 
@@ -341,7 +341,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
     image = models.ImageField(blank=True,
                               upload_to='spectrum',
-                              validators=[validate_image_size])
+                              validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
 
     FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future','access_level']
 

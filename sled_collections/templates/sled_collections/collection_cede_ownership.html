@@ -24,7 +24,14 @@ Cede ownership of collection {{ collection.name }}?
   <div class="jb-modal-field">
     {{ form.heir }}
   </div>
-
+  
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.justification.errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+  </div>
   <div>
     {{ form.justification }}
   </div>

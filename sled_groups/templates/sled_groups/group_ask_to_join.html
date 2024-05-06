@@ -25,7 +25,14 @@ Request to join group
     <p>
       Send request to join the group named <strong>{{ sledgroup.name }}</strong>?
     </p>
-  
+    
+    <div class="invalid jb-modal-field">
+      <ul>
+	{% for error in form.justification.errors %}
+	<li>{{ error|safe }}</li>
+	{% endfor %}
+      </ul>
+    </div>
     <div>
       {{ form.justification }}
     </div>

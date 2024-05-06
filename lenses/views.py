@@ -599,7 +599,7 @@ class LensUpdateView(TemplateView):
         if referer == request.path:
             # Submitting to itself, perform all the checks
             myformset = LensFormSet(data=request.POST,files=request.FILES,instance=request.user)
-            print(myformset.has_changed(), myformset.is_valid())
+            #print(myformset.has_changed(), myformset.is_valid())
             if myformset.has_changed() and myformset.is_valid():
 
                 instances = myformset.save(commit=False)
@@ -634,10 +634,10 @@ class LensUpdateView(TemplateView):
                     mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
                     return redirect(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
             else:
-                for form in myformset:
-                    for field in form:
-                        print("Field Error:", field.name,  field.errors)
-                print('NOT VALID')
+                #for form in myformset:
+                #    for field in form:
+                #        print("Field Error:", field.name,  field.errors)
+                #print('NOT VALID')
                     
                 # # Move uploaded files to the a temporary directory and replace image source in the formset 
                 for i,form in enumerate(myformset.forms):

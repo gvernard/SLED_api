@@ -25,6 +25,13 @@ Cede ownership of group {{ sledgroup.name }}?
     {{ form.heir }}
   </div>
 
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.justification.errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+  </div>
   <div class="jb-modal-field">
     {{ form.justification }}
   </div>

@@ -19,13 +19,21 @@ Update collection {{ collection.name }}
     </ul>
   </div>
   {% endif %}
-
+  
   {% for field in form %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in field.errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  
   <div class="jb-modal-field">
     {{ field }}
   </div>
   {% endfor %}
-
+  
 </div>
 {% endblock content %}
 

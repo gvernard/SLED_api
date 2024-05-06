@@ -1,20 +1,21 @@
 from django import forms
 from bootstrap_modal_forms.forms import BSModalForm
+from mysite.language_check import validate_language
 
 class CedeOwnershipForm(BSModalForm):
     mychoices = [('yes','Yes'),('no','No')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
 class MakePrivateForm(BSModalForm):
     mychoices = [('yes','Yes'),('no','No')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
 class DeleteObjectForm(BSModalForm):
     mychoices = [('yes','Yes'),('no','No')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
 class ResolveDuplicatesForm(BSModalForm):
     pass
@@ -22,12 +23,12 @@ class ResolveDuplicatesForm(BSModalForm):
 class AskPrivateAccessForm(BSModalForm):
     mychoices = [('yes','Yes'),('no','No')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
 class AskToJoinGroupForm(BSModalForm):
     mychoices = [('yes','Yes'),('no','No')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
 class AddDataForm(BSModalForm):
     pass
@@ -35,12 +36,12 @@ class AddDataForm(BSModalForm):
 class AcceptNewUserForm(BSModalForm):
     mychoices = [('yes','Yes'),('no','No')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
 class MergeLensesForm(forms.Form):
     mychoices = [('yes','Accept merge'),('no','Reject merge')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
     items = forms.MultipleChoiceField(
         required=False,
         widget = forms.CheckboxSelectMultiple,
@@ -73,7 +74,7 @@ class InspectImagesBaseForm(forms.Form):
     rejected = forms.BooleanField(required=False)
     name = forms.CharField(required=True,label='',widget=forms.HiddenInput())
     image_url = forms.CharField(required=True,label='',widget=forms.HiddenInput())
-    comment = forms.CharField(required=False,label='',widget=forms.Textarea(attrs={'placeholder': 'Is there anything wrong?','rows':3,'cols':25}))
+    comment = forms.CharField(required=False,label='',widget=forms.Textarea(attrs={'placeholder': 'Is there anything wrong?','rows':3,'cols':25}),validators=[validate_language])
     
     def clean(self):
         cleaned_data = super(InspectImagesBaseForm,self).clean()
@@ -84,7 +85,7 @@ class InspectImagesBaseForm(forms.Form):
 class InspectImagesForm(forms.Form):
     mychoices = [('All','All images are accepted'),('Partial','Some images cannot be accepted'),('None','No images can be accepted')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
-    response_comment = forms.CharField(required=False,label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}))
+    response_comment = forms.CharField(required=False,label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
     def __init__(self, *args, **kwargs):
         self.N_rejected = kwargs.pop('N_rejected',None)

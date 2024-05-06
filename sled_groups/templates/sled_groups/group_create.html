@@ -19,11 +19,26 @@ Create new group?
     </ul>
   </div>
   {% endif %}
-  
+
+
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.name.errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+  </div>
   <div class="jb-modal-field">
     {{ form.name }}
   </div>
 
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.description.errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+  </div>
   <div class="jb-modal-field">
     {{ form.description }}
   </div>

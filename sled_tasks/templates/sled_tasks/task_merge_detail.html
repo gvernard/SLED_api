@@ -259,6 +259,13 @@
 	{{ form.response }}
       </div>
       
+      <div class="invalid jb-modal-field">
+	<ul>
+	  {% for error in form.response_comment.errors %}
+	  <li>{{ error|safe }}</li>
+	  {% endfor %}
+	</ul>
+      </div>
       <div class="jb-modal-field">
 	{{ form.response_comment }}
       </div>

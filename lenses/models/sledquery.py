@@ -12,7 +12,8 @@ from mysite.language_check import validate_language
 
 class SledQuery(SingleObject):
     name = models.CharField(max_length=100,
-                            help_text="A name for your query")
+                            help_text="A name for your query",
+                            validators=[validate_language])
     description = models.CharField(max_length=200,
                                    null=True,
                                    blank=True,
