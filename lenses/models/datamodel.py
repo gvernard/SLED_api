@@ -23,13 +23,12 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                              on_delete=models.SET_NULL,
                              related_name="%(class)s")
 
-    # validate language for this one: likely english check will fail if weird filename.
-    # not including it.
-    # language check skipped for this one until more relaxed english check
     name = models.CharField(blank=False,
                             null=True,
                             max_length=100,
-                            help_text="A name for the generic image.")
+                            help_text="A name for the generic image.",
+                            validators=[validate_language],
+                            )
 
     info = models.TextField(blank=False,
                             null=True,
@@ -106,22 +105,20 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
             super(GenericImage,self).save(*args,**kwargs)
             default_storage.mydelete(fname)
 
-
-                
     
 class Instrument(models.Model):
 
-    # language check skipped for this one until more relaxed english check
+    # language check skipped for these two, because instrument_name and extended_name are hard-coded.
     name = models.CharField(blank=False,
                             unique=True,
                             max_length=100,
                             help_text="A name for the instrument.")
 
-    # language check skipped for this one until more relaxed english check
     extended_name = models.CharField(blank=False,
-                            max_length=100,
-                            help_text="The extended name for the instrument.")
+                                     max_length=100,
+                                     help_text="The extended name for the instrument.")
 
+    # this is hard-coded as well, but we keep the validate_language to avoid mistakes.
     info = models.TextField(blank=True,
                             default='',
                             help_text="Any important note about the instrument.",
