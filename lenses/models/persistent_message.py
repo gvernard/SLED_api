@@ -4,6 +4,9 @@ from django.urls import reverse
 from django.db.models import Q,F,Count,CharField,CheckConstraint
 from django.apps import apps
 
+from mysite.language_check import validate_language
+
+
 class TimeLineManager(models.Manager):
     def current(self):
         now = timezone.now()
@@ -20,8 +23,6 @@ class TimeLineManager(models.Manager):
         qset = super().get_queryset().filter(to_date__lt=now)
         return qset
 
-        
-    
 
 class PersistentMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -41,7 +42,9 @@ class PersistentMessage(models.Model):
                            choices=tagChoices)
     message = models.TextField(blank=False,
                                default='',
-                               help_text="The content of the message.")
+                               help_text="The content of the message.",
+                               validators=[validate_language],
+                               )
 
     timeline = TimeLineManager()
     objects = models.Manager()

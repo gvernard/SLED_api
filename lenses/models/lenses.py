@@ -19,6 +19,8 @@ from astropy.coordinates import SkyCoord
 import simplejson as json
 
 from . import SingleObject
+from mysite.language_check import validate_language
+from mysite.image_check import validate_image_size
 
 
 class ProximateLensManager(models.Manager):
@@ -209,7 +211,9 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
     info = models.TextField(blank=True,
                             default='',
-                            help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.")
+                            help_text="Description of any important aspects of this system, e.g. discovery/interesting features/multiple discoverers/etc.",
+                            validators=[validate_language],
+                            )
     
     n_img = models.IntegerField(blank=True,
                                 null=True,
@@ -218,7 +222,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
-    mugshot = models.ImageField(upload_to='lenses')
+    mugshot = models.ImageField(upload_to='lenses', validators=[validate_image_size])
     
     FlagChoices = (
         ('CONFIRMED','Confirmed'),

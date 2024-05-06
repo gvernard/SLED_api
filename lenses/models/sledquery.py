@@ -7,6 +7,7 @@ from django.urls import reverse
 import urllib
 
 from . import SingleObject
+from mysite.language_check import validate_language
 
 
 class SledQuery(SingleObject):
@@ -15,7 +16,8 @@ class SledQuery(SingleObject):
     description = models.CharField(max_length=200,
                                    null=True,
                                    blank=True,
-                                   help_text="A description for your query"
+                                   help_text="A description for your query",
+                                   validators=[validate_language]
                                    )
     cargo = models.JSONField(help_text="A json object holding the non-empty, non-false query fields.")
 
