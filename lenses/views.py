@@ -589,7 +589,7 @@ class LensUpdateView(TemplateView):
     template_name = 'lenses/lens_add_update.html'
 
     def get(self, request, *args, **kwargs):
-        message = 'You must select which lenses to update from your <a href="{% url \'sled_users:user-profile\' %}">User profile</a>.'
+        message = 'You must select which lenses to update from your <a href="'+reverse('sled_users:user-profile')+'">User profile</a>.'
         return TemplateResponse(request,'simple_message.html',context={'message':message})
 
     def post(self, request, *args, **kwargs):
@@ -641,7 +641,7 @@ class LensUpdateView(TemplateView):
                     
                 # # Move uploaded files to the a temporary directory and replace image source in the formset 
                 for i,form in enumerate(myformset.forms):
-                    if 'mugshot' in myformset.forms[i].changed_data:
+                    if 'mugshot' in myformset.forms[i].changed_data and 'mugshot' in myformset.forms[i].cleaned_data:
                         #print(myformset.forms[i].cleaned_data['mugshot'])
                         input_field_name = myformset.forms[i]['mugshot'].html_name
                         f = request.FILES[input_field_name]

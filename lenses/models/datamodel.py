@@ -14,7 +14,6 @@ from pprint import pprint
 
 from . import SingleObject, Lenses
 from mysite.language_check import validate_language
-from mysite.image_check import validate_image_size
 
 
 class GenericImage(SingleObject,DirtyFieldsMixin):
@@ -38,7 +37,7 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                             )
     image = models.ImageField(blank=False,
                               upload_to='generic',
-                              validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
+                              validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     
     class Meta():
         ordering = ["created_at"]
@@ -233,7 +232,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                              on_delete=models.PROTECT)
     image = models.ImageField(blank=True,
                               upload_to='imaging',
-                              validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
+                              validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     url = models.URLField(blank=True,
                           max_length=300)
 
@@ -341,7 +340,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
     image = models.ImageField(blank=True,
                               upload_to='spectrum',
-                              validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
+                              validators=[FileExtensionValidator(['png','jpeg','jpg'])])
 
     FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future','access_level']
 

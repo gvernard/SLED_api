@@ -20,7 +20,6 @@ import simplejson as json
 
 from . import SingleObject
 from mysite.language_check import validate_language
-from mysite.image_check import validate_image_size
 
 
 class ProximateLensManager(models.Manager):
@@ -226,7 +225,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
-    mugshot = models.ImageField(upload_to='lenses', validators=[validate_image_size,FileExtensionValidator(['png','jpeg','jpg'])])
+    mugshot = models.ImageField(upload_to='lenses', validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     
     FlagChoices = (
         ('CONFIRMED','Confirmed'),

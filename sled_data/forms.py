@@ -7,6 +7,7 @@ from django.utils import timezone
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 
 from lenses.models import DataBase, Imaging, Spectrum, Catalogue, Redshift, GenericImage, ConfirmationTask
+from mysite.image_check import validate_image_size
 
 
 
@@ -63,7 +64,13 @@ class ImagingBaseForm(BaseCreateUpdateDataForm):
 
     def __init__(self, *args, **kwargs):
         super(ImagingBaseForm,self).__init__(*args, **kwargs)
-
+        
+    def clean_image(self):
+        image = self.cleaned_data["image"]
+        if 'image' in self.changed_data:
+            validate_image_size(image)
+        return image
+        
     def clean(self):
         super(ImagingBaseForm,self).clean()
         if self.cleaned_data.get('future'):
@@ -84,6 +91,12 @@ class SpectrumBaseForm(BaseCreateUpdateDataForm):
 
     def __init__(self, *args, **kwargs):
         super(SpectrumBaseForm,self).__init__(*args, **kwargs)
+
+    def clean_image(self):
+        image = self.cleaned_data["image"]
+        if 'image' in self.changed_data:
+            validate_image_size(image)
+        return image
 
     def clean(self):
         super(SpectrumBaseForm,self).clean()
@@ -169,6 +182,11 @@ class GenericImageCreateFormModal(BSModalModelForm):
         super(GenericImageCreateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text 
  
+    def clean_image(self):
+        image = self.cleaned_data["image"]
+        if 'image' in self.changed_data:
+            validate_image_size(image)
+        return image        
 
     def clean(self):
         super(GenericImageCreateFormModal,self).clean()
@@ -225,7 +243,7 @@ class RedshiftUpdateFormModal(BSModalModelForm):
         widgets = {
             'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
         }
-        
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(RedshiftUpdateFormModal, self).__init__(*args, **kwargs)
@@ -247,6 +265,11 @@ class GenericImageUpdateFormModal(BSModalModelForm):
         super(GenericImageUpdateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text 
 
+    def clean_image(self):
+        image = self.cleaned_data["image"]
+        if 'image' in self.changed_data:
+            validate_image_size(image)
+        return image
 
         
         

@@ -8,6 +8,7 @@ from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from django_select2 import forms as s2forms
 from pprint import pprint
 from lenses.models import Lenses, Users, SledGroup, Collection, Instrument, Band, ConfirmationTask
+from mysite.image_check import validate_image_size
 
 class BaseLensForm(forms.ModelForm):
     class Meta:
@@ -27,7 +28,13 @@ class BaseLensForm(forms.ModelForm):
         for field_name,field in zip(self.fields,self.fields.values()):
             if field_name not in ['info','lens_type','source_type','image_conf','contaminant_type','access_level','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
-        
+    
+    def clean_mugshot(self):
+        mugshot = self.cleaned_data["mugshot"]
+        if 'mugshot' in self.changed_data:
+            validate_image_size(mugshot)
+        return mugshot
+    
     def clean(self):
         if not self.has_changed():
             self.add_error('__all__',"No changes detected!")
@@ -45,7 +52,7 @@ class BaseLensUpdateForm(BaseLensForm):
             'contaminant_type': s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select an option','data-allow-clear':False}),
         }
 
-
+    
 
 class LensModalUpdateForm(BSModalModelForm):
     class Meta:
@@ -67,6 +74,11 @@ class LensModalUpdateForm(BSModalModelForm):
             if field_name not in ['info','lens_type','source_type','image_conf','contaminant_type','access_level','owner','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
 
+    def clean_mugshot(self):
+        mugshot = self.cleaned_data["mugshot"]
+        validate_image_size(mugshot)
+        return mugshot
+          
     def clean(self):
         cleaned_data = super(LensModalUpdateForm,self).clean()
         

@@ -370,7 +370,7 @@ class DataUpdateManyView(TemplateView):
     obj_type = None
     
     def get(self, request, *args, **kwargs):
-        message = 'You must select which lenses to update from your <a href="{% url \'sled_users:user-profile\' %}">User profile</a>.'
+        message = 'You must select which lenses to update from your <a href="'+reverse('sled_users:user-profile')+'">User profile</a>.'
         return TemplateResponse(request,'simple_message.html',context={'message':message})
 
     def post(self, request, *args, **kwargs):
@@ -414,11 +414,11 @@ class DataUpdateManyView(TemplateView):
 
                 # # Move uploaded files to a temporary directory and replace image source in the formset 
                 for i,form in enumerate(myformset.forms):
-                    if 'image' in myformset.forms[i].changed_data:
+                    if 'image' in myformset.forms[i].changed_data and 'image' in myformset.forms[i].cleaned_data:
                         input_field_name = myformset.forms[i]['image'].html_name
                         f = request.FILES[input_field_name]
                         content = f.read()
-                        name = myformset.forms[i].cleaned_data['mugshot'].name
+                        name = myformset.forms[i].cleaned_data['image'].name
                         tmp_fname = 'temporary/' + self.request.user.username + '/' + name
                         default_storage.put_object(content,tmp_fname)
                 context = {
