@@ -6,6 +6,8 @@ from django.template.response import TemplateResponse
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.db.models import Q
+from django.http import HttpResponse,HttpResponseRedirect,JsonResponse
+from django.urls import reverse,reverse_lazy
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -113,6 +115,7 @@ class GroupAskToJoinView(BSModalUpdateView):
 class GroupDeleteView(BSModalDeleteView):
     model = SledGroup
     template_name = 'sled_groups/group_delete.html'
+    form_class = GroupDeleteForm
     success_message = 'Success: Group was deleted.'
     success_url = reverse_lazy('sled_groups:group-list')
     context_object_name = 'group'
@@ -120,12 +123,16 @@ class GroupDeleteView(BSModalDeleteView):
     def get_queryset(self):
         return SledGroup.accessible_objects.owned(self.request.user)
 
-#    def delete(self, *args, **kwargs):
-        #obj = self.get_object()
-        #print(obj)
-        #obj.delete()
-        #return redirect('sled_groups:group-list')
-#        return super().delete(*args, **kwargs)
+    def get_form_kwargs(self):
+        kwargs = super(GroupDeleteView,self).get_form_kwargs()
+        kwargs['id'] = self.get_object().id
+        return kwargs
+
+    def form_invalid(self,form):
+        mygroup = self.get_object()
+        list(messages.get_messages(self.request))
+        messages.add_message(self.request,messages.ERROR,"The group is already in a CedeOwnership task.")
+        return HttpResponseRedirect(reverse('sled_groups:group-detail',kwargs={'pk':mygroup.id})) 
 
     
 @method_decorator(login_required,name='dispatch')

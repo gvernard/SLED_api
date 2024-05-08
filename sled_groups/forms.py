@@ -1,6 +1,7 @@
 from django import forms
-from lenses.models import SledGroup, Users
+from lenses.models import SledGroup, Users, ConfirmationTask
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
+from django.core.exceptions import ValidationError
 from mysite.language_check import validate_language
 
 
@@ -40,6 +41,15 @@ class GroupCedeOwnershipForm(BSModalModelForm):
         if heir.username not in allowed_members:
             self.add_error('__all__',"You can cede ownership only to other group members.")
 
+        # Check for other tasks
+        task_list = ['CedeOwnership']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks('SledGroup',[self.instance.id],task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)
+
+
+            
 
 class GroupCreateForm(BSModalModelForm):
     users = forms.ModelMultipleChoiceField(label='Users',queryset=Users.objects.all(),required=False)
@@ -150,3 +160,18 @@ class GroupAskToJoinForm(BSModalModelForm):
 class GroupSearchForm(forms.Form):
     search_term = forms.CharField(required=False,max_length=100,widget=forms.TextInput({'placeholder':'Search term'}))
     
+
+    
+class GroupDeleteForm(forms.Form):    
+    def __init__(self, *args, **kwargs):
+        self.id = kwargs.pop('id', None)
+        super(GroupDeleteForm, self).__init__(*args, **kwargs)
+    
+    def clean(self):
+        # Check for other tasks
+        task_list = ['CedeOwnership']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks('SledGroup',[self.id],task_types=task_list)
+        if len(tasks_objects)>0 :
+            raise ValidationError('Group is in an existing pending task!')
+        else:
+            return

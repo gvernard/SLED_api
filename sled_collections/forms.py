@@ -1,7 +1,8 @@
 from django import forms
-from lenses.models import Collection, Users, SledGroup
+from lenses.models import Collection, Users, SledGroup, ConfirmationTask
 from django.apps import apps
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
+from django.core.exceptions import ValidationError
 from mysite.language_check import validate_language
 
 
@@ -238,6 +239,29 @@ class CollectionCedeOwnershipForm(BSModalModelForm):
             self.add_error('__all__',"User does not have access to objects: " + ','.join(names))
             return
 
+        # Check for other tasks
+        task_list = ['CedeOwnership']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks('Collection',[self.instance.id],task_types=task_list)
+        if errors:
+            for error in errors:
+                self.add_error('__all__',error)
 
+                
 class CollectionSearchForm(forms.Form):
     search_term = forms.CharField(required=False,max_length=100,widget=forms.TextInput({'placeholder':'Search term'}))
+
+    
+class CollectionDeleteForm(forms.Form):    
+    def __init__(self, *args, **kwargs):
+        self.id = kwargs.pop('id', None)
+        super(CollectionDeleteForm, self).__init__(*args, **kwargs)
+    
+    def clean(self):
+        # Check for other tasks
+        task_list = ['CedeOwnership']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks('Collection',[self.id],task_types=task_list)
+        if len(tasks_objects)>0 :
+            raise ValidationError('Collection is in an existing pending task!')
+        else:
+            return
+    

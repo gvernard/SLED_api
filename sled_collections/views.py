@@ -151,12 +151,24 @@ class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormVie
 class CollectionDeleteView(BSModalDeleteView):
     model = Collection
     template_name = 'sled_collections/collection_delete.html'
+    form_class = CollectionDeleteForm
     success_message = 'Success: Collection was deleted.'
     success_url = reverse_lazy('sled_collections:collections-list')
     
     def get_queryset(self):
         return Collection.accessible_objects.owned(self.request.user)
 
+    def get_form_kwargs(self):
+        kwargs = super(CollectionDeleteView,self).get_form_kwargs()
+        kwargs['id'] = self.get_object().id
+        return kwargs
+
+    def form_invalid(self,form):
+        mycollection = self.get_object()
+        list(messages.get_messages(self.request))
+        messages.add_message(self.request,messages.ERROR,"The collection is already in a CedeOwnership task.")
+        return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
+   
     def delete(self, *args, **kwargs):
         self.object = self.get_object()
         return super().delete(*args, **kwargs)

@@ -15,7 +15,7 @@ Cede ownership of collection {{ collection.name }}?
   <div class="invalid jb-modal-field">
     <ul>
       {% for error in form.non_field_errors %}
-      <li>{{ error }}</li>
+      <li>{{ error|safe }}</li>
       {% endfor %}
     </ul>
   </div>
@@ -32,7 +32,7 @@ Cede ownership of collection {{ collection.name }}?
       {% endfor %}
     </ul>
   </div>
-  <div>
+  <div class="jb-modal-field">
     {{ form.justification }}
   </div>
 
