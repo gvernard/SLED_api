@@ -50,6 +50,7 @@ class CollectionUpdateForm(BSModalModelForm):
         }
 
     def clean(self):
+        super(CollectionUpdateForm, self).clean()
         if not self.has_changed():
             self.add_error('__all__',"No changes detected!")
         return

@@ -19,6 +19,7 @@ class GroupUpdateForm(BSModalModelForm):
         return data
         
     def clean(self):
+        super(GroupUpdateForm, self).clean()
         if not self.has_changed():
             self.add_error('__all__',"No changes detected!")
             
@@ -62,6 +63,8 @@ class GroupCreateForm(BSModalModelForm):
         return data
         
     def clean(self):
+        super(GroupCreateForm, self).clean()
+
         # At least one User must be selected
         users = self.cleaned_data.get('users')
         if not users:

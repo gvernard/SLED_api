@@ -32,7 +32,8 @@ class Collection(SingleObject, DirtyFieldsMixin):
         myitems (): A generic many-to-many field
     """
     name = models.CharField(max_length=30,
-                            help_text="A name for your collection.", unique=True,
+                            help_text="A name for your collection.",
+                            unique=True,
                             validators=[validate_language],
                             )
     description = models.CharField(max_length=250,
