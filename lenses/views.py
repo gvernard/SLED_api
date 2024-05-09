@@ -17,6 +17,7 @@ from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
 from guardian.shortcuts import assign_perm,remove_perm
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory, CheckboxInput
+from django.forms.models import model_to_dict
 from django.contrib import messages
 from django.core import serializers
 from django.conf import settings
@@ -253,6 +254,62 @@ class LensUpdateModalView(BSModalUpdateView):
         return reverse('lenses:lens-detail',kwargs={'pk':self.object.id})
 
 
+@method_decorator(login_required,name='dispatch')
+class LensRequestUpdateView(BSModalUpdateView):
+    model = Lenses
+    template_name = 'lenses/lens_add_update_modal.html'
+    form_class = forms.LensModalUpdateForm
+    context_object_name = 'lens'
+    success_message = 'Success: Lens your request for an update was submitted.'
+
+    def get_queryset(self):
+        return Lenses.accessible_objects.all(self.request.user)
+
+    def form_valid(self,form):
+        
+        if not is_ajax(self.request.META):
+            # Check for duplicates and redirect here
+            instance = form.save(commit=False)
+            
+            proposed_mugshot = None
+            current_mugshot = None
+            if 'mugshot' in form.changed_data:
+                # Move any uploaded files to a temporary directory
+                input_field_name = form['mugshot'].html_name
+                f = self.request.FILES[input_field_name]
+                content = f.read()
+                tmp_fname = 'temporary/' + self.request.user.username + '/' + instance.mugshot.name
+                default_storage.put_object(content,tmp_fname)
+                proposed_mugshot = tmp_fname
+
+                target = Lenses.accessible_objects.get(pk=instance.pk)
+                current_mugshot = target.mugshot.name
+
+            fields = {}
+            for field in form.changed_data:
+                if field != 'mugshot':
+                    fields[field] = form.cleaned_data[field]
+                
+            cargo = {'object_type': 'Lenses',
+                     'object_ids': [instance.id],
+                     'fields': json.dumps(fields,cls=serializers.json.DjangoJSONEncoder),
+                     'image_field': 'mugshot',
+                     'proposed_image': proposed_mugshot,
+                     'current_image': current_mugshot
+                     }
+            receiver = Users.objects.filter(id=instance.owner.id) # needs to be a query set
+            mytask = ConfirmationTask.create_task(self.request.user,receiver,'RequestUpdate',cargo)
+            messages.add_message(self.request,messages.WARNING,"An <strong>UpdateRequest</strong> task has been submitted to the lens owner!")
+            return redirect(reverse('lenses:lens-detail',kwargs={'pk':instance.id}))
+        else:
+            response = super().form_valid(form)
+            return response
+        
+    def get_success_url(self):
+        return reverse('lenses:lens-detail',kwargs={'pk':self.object.id})
+    
+
+    
 @method_decorator(login_required,name='dispatch')
 class ExportToCSV(ModalIdsBaseMixin):
     template_name = 'csv_download.html'

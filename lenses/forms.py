@@ -76,7 +76,8 @@ class LensModalUpdateForm(BSModalModelForm):
 
     def clean_mugshot(self):
         mugshot = self.cleaned_data["mugshot"]
-        validate_image_size(mugshot)
+        if 'mugshot' in self.changed_data:
+            validate_image_size(mugshot)
         return mugshot
           
     def clean(self):

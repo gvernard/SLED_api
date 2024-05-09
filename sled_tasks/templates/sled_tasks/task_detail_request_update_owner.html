@@ -1,0 +1,82 @@
+{% extends "modal_base.html" %}
+{% load static %}
+{% load project_tags %}
+
+
+{% block title %}
+<span class="highlight">{{task.task_type}}</span> -
+{% if task.status == "P" %}
+<span style="font-weight:bold;color:red">
+  Pending
+</span>
+{% else %}
+<span style="font-weight:bold;color:green">
+  Completed
+</span>
+{% endif %}
+{% endblock title %}
+
+
+{% block content %}
+{% include "modal_container_wide.html" %}
+<div class="jb-container-modal">
+  <div class="jb-modal-field jb-table-no-lines">  
+    On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> requested the following updates to <strong>{{object_type}}</strong> <a href="{{ object.get_absolute_url }}" target="_blank">{{ object }}</a>:
+    <br>
+    <br>
+
+    <div class="jb-modal-field jb-table-no-lines">
+      <table>
+	<thead>
+	  <tr>
+	    <th>Field</th>
+	    <th>Current</th>
+	    <th></th>
+	    <th>Requested</th>
+	  </tr>
+	</thead>
+	<tbody>
+	{% for name,current,proposed in fields %}
+	<tr>
+	  <td><i>{{ name }}</i></td>
+	  <td>{{ current }}</td>
+	  <td>&rarr;</td>
+	  <td><strong>{{ proposed }}<strong></td>
+	</tr>
+	{% endfor %}
+	{% if image_field %}
+	<tr>
+	  <td><i>{{ image_field }}</i></td>
+	  <td><img class="sled-mugshot-icon" src="{{current_image}}" alt="official image"></td>
+ 	  <td>&rarr;</td>
+	  <td><img class="sled-mugshot-icon" src="{{proposed_image}}" alt="{{proposed_image|split:'/'|last}}"></td>
+	</tr>
+	{% endif %}
+	</tbody>
+      </table>
+    </div>
+
+  </div>
+
+
+  <div class="jb-modal-field jb-table-no-lines">
+    <table class="responses">
+      {% for response in responses %}
+      {% if response.response != '' %}
+      <tr><td>&bull; <strong>{{ response.name }}</strong> responded on <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) with:</td></tr>
+      <tr><td class="padded">
+	  {{ response.response|upper }} - 
+	  <span style="text-align:right;font-style:italic;">
+	    &ldquo;{{ response.response_comment }}&rdquo;
+	  </span>
+      </td></tr>
+      {% else %}
+      <tr><td>&bull; <strong>{{ response.name }}</strong> <span style="color:red">has not responded yet</span></td></tr>
+      {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+
+</div>  
+{% endblock content %}
+

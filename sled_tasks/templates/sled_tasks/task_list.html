@@ -88,6 +88,11 @@
 		<img src="{% static 'icons/eye-fill.svg' %}">
 		View
 	      </button>
+	      {% elif task.task_type == 'RequestUpdate' %}
+	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-request-update-owner' task.id %}">
+		<img src="{% static 'icons/eye-fill.svg' %}">
+		View
+	      </button>
 	      {% elif task.task_type == 'ResolveDuplicates' and task.status == "C" %}
 	      <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-resolve-duplicates-complete' task.id %}">
 		<img src="{% static 'icons/eye-fill.svg' %}">

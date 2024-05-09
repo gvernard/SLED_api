@@ -76,6 +76,10 @@
 	      Add to collection
 	    </button>	    
 	    {% if lens.owner != user %}
+	    <button type="button" id="request-update" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-request-update' lens.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}">
+	      Request update
+	    </button>	    
 	    <button id="follow-button" class="jb-submit-button-1" style="margin-left:10px;">
 	      {% if following %}
 	      <img src="{% static 'icons/person-x-fill.svg' %}" >

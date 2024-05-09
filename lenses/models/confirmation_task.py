@@ -138,6 +138,7 @@ class ConfirmationTask(SingleObject):
         ('AddData','Associate data to lens.'),
         ('AcceptNewUser','Accept new user'),
         ('InspectImages','Inspect images before making them PUB'),
+        ('RequestUpdate','Request an update from the object owner'),
     )
     task_type = models.CharField(max_length=100,
                                  choices=TaskTypeChoices,
@@ -1010,7 +1011,6 @@ class InspectImages(ConfirmationTask):
         # This is modeled after the MergeLenses task
         obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
         response = json.loads(obj_responses['response'])
-        print(response)
         
         ids = set([ str(id) for id in self.cargo['object_ids'] ])
         excluded = set(response["rejected"].keys())
@@ -1022,5 +1022,48 @@ class InspectImages(ConfirmationTask):
                 self.owner.makePublic(qset)
 
 
+class RequestUpdate(ConfirmationTask):
+    class Meta:
+        proxy = True
+
+    def allowed_responses(self):
+        return ['yes','no']
+
+    def finalizeTask(self):
+        # This is modeled after the MergeLenses task
+        response = self.heard_from().get().response
+
+        obj_id = self.cargo['object_ids'][0]
+        target = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.get(pk=obj_id)
+        
+        if response == 'yes':
+            fields = json.loads(self.cargo["fields"])
+            for field,value in fields.items():
+                setattr(target,field,value)
+
+            if self.cargo["proposed_image"]:
+
+                if self.cargo["object_type"] == 'Lenses':
+                    # Create a GenericImage from the old mugshot
+                    model_ref = apps.get_model(app_label="lenses",model_name='GenericImage')
+                    old_mug = model_ref(lens=target,owner=target.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
+                    old_mug.save()
+                    
+                    #dum,file_ext = os.path.splitext(value)
+                    #tmp_name = os.path.join('temporary',self.owner.username,str(self.id)+file_ext)
+                    #default_storage.copy(target.mugshot.name,tmp_name)
+                    target.mugshot.name = self.cargo["proposed_image"]
+
+
+                    
+            target.save()
+        else:
+            notify.send(sender=target.owner,
+                        recipient=self.owner,
+                        verb='RequestUpdateRejectedNote',
+                        level='error',
+                        timestamp=timezone.now(),
+                        action_object=self)
+                
 ### END: Confirmation task specific code
 ################################################################################################################################################

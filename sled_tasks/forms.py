@@ -38,6 +38,14 @@ class AcceptNewUserForm(BSModalForm):
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
     response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
+class RequestUpdateForm(BSModalForm):
+    mychoices = [('yes','Yes'),('no','No')]
+    response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
+    response_comment = forms.CharField(label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
+
+
+
+    
 class MergeLensesForm(forms.Form):
     mychoices = [('yes','Accept merge'),('no','Reject merge')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)

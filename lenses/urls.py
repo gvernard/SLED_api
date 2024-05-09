@@ -20,4 +20,5 @@ urlpatterns = [
     path('ajax/follow-unfollow',views.follow_unfollow,name="follow-unfollow"),
     path('ask-access/<int:pk>', views.LensAskAccessView.as_view(),name='lens-ask-access'),
     path('connections/<int:pk>', views.LensConnectionsSummaryView.as_view(),name='lens-connections'),
+    path('request-update/<int:pk>', views.LensRequestUpdateView.as_view(),name='lens-request-update'),
 ]

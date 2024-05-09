@@ -42,7 +42,7 @@
       and requested from {{ task.recipients.all|pluralize:"user,users" }} <strong>{{ task.recipients.all|join:"," }}</strong> access to the following <strong>{{object_type}}</strong>:
       {% endif %}
     </p>
-    
+
     <div class="jb-modal-field jb-table-no-lines">
       <table>
 	{% for obj in objects %}
@@ -53,7 +53,7 @@
 	</tr>
 	{% endfor %}
       </table>
-    </div>    
+    </div>
   </div>
 
   <div class="jb-modal-field jb-table-no-lines">

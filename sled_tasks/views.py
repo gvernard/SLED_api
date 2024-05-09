@@ -9,7 +9,9 @@ from django.views.generic import TemplateView, DetailView, ListView
 from django.urls import reverse,reverse_lazy
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.core import serializers
 from django.forms import formset_factory
+from django.conf import settings
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -160,8 +162,24 @@ class TaskInspectDetailOwnerView(BSModalReadView):
         context["response"] = response
         return context
 
-    
-    
+
+@method_decorator(login_required,name='dispatch')
+class TaskRequestUpdateDetailOwnerView(BSModalReadView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_detail_request_update_owner.html'
+    context_object_name = 'task'
+
+    def get_queryset(self):
+        qset1 = self.model.custom_manager.completed_for_user(self.request.user)
+        qset2 = self.model.custom_manager.pending_for_user(self.request.user)
+        return qset1|qset2
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = self.object
+        context = request_update_task_context(task,context)
+        return context
+
     
 @method_decorator(login_required,name='dispatch')
 class TaskMergeDetailOwnerView(BSModalReadView):
@@ -283,6 +301,12 @@ class TaskDetailRecipientView(BSModalFormView):
     success_message = 'Success: Your response has been recorded.'
     success_url = reverse_lazy('sled_tasks:tasks-list')
     task = None
+
+    # def get_template_names(self):
+    #     if self.task.task_type == 'RequestUpdate':
+    #         return ['sled_tasks/task_detail_request_update_recipient.html']
+    #     else:
+    #         return ['sled_tasks/task_detail_recipient.html']
     
     def get_initial(self):
         # Check if a response is already in the database  
@@ -320,6 +344,8 @@ class TaskDetailRecipientView(BSModalFormView):
             return AskToJoinGroupForm
         elif self.task.task_type == "AcceptNewUser":
             return AcceptNewUserForm
+        elif self.task.task_type == "RequestUpdate":
+            return RequestUpdateForm
         else:
             pass
         
@@ -335,23 +361,27 @@ class TaskDetailRecipientView(BSModalFormView):
         context = super(TaskDetailRecipientView,self).get_context_data(**kwargs)
 
         context['task'] = self.task
-        
-        # Comment from task sender
-        comment = ''
-        if 'comment' in self.task.cargo:
-            comment = self.task.cargo['comment']
-        context['comment'] = comment
 
-        # Queryset of objects in the task
-        objects = getattr(lenses.models,self.task.cargo["object_type"]).objects.filter(pk__in=self.task.cargo["object_ids"])
-        context['objects'] = objects
-
-        # Object type (singular or plural) for the objects in the task
-        if objects.count() > 1:
-            object_type = getattr(lenses.models,self.task.cargo["object_type"])._meta.verbose_name_plural.title()
+        if self.task.task_type == "RequestUpdate":
+            context = request_update_task_context(self.task,context)
         else:
-            object_type = getattr(lenses.models,self.task.cargo["object_type"])._meta.verbose_name.title()
-        context['object_type'] = object_type
+            # Comment from task sender
+            comment = ''
+            if 'comment' in self.task.cargo:
+                comment = self.task.cargo['comment']
+            context['comment'] = comment
+
+            # Queryset of objects in the task
+            objects = getattr(lenses.models,self.task.cargo["object_type"]).objects.filter(pk__in=self.task.cargo["object_ids"])
+            context['objects'] = objects
+
+            # Object type (singular or plural) for the objects in the task
+            if objects.count() > 1:
+                object_type = getattr(lenses.models,self.task.cargo["object_type"])._meta.verbose_name_plural.title()
+            else:
+                object_type = getattr(lenses.models,self.task.cargo["object_type"])._meta.verbose_name.title()
+            context['object_type'] = object_type
+        
         #context['admin'] = self.kwargs.get('admin')
         try:
             if self.kwargs.get('admin'):
@@ -585,7 +615,46 @@ class TaskInspectDetailView(TemplateView):
         else:
             return TemplateResponse(request,'simple_message.html',context={'message':'You are not authorized to view this page.'})
 
-    
+
+
+@method_decorator(login_required,name='dispatch')
+class TaskRequestUpdateDetailRecipientView(BSModalReadView):
+    model = ConfirmationTask
+    template_name = 'sled_tasks/task_detail_request_update_owner.html'
+    context_object_name = 'task'
+
+    def get_queryset(self):
+        qset1 = self.model.custom_manager.completed_for_user(self.request.user)
+        qset2 = self.model.custom_manager.pending_for_user(self.request.user)
+        return qset1|qset2
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        task = self.object
+
+        obj = getattr(lenses.models,task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"]).first()
+        context["object"] = obj
+        
+        object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
+        context['object_type'] = object_type
+
+        names = []
+        current = []
+        proposed = []
+        fields = json.loads(task.cargo["fields"])
+        for field,value in fields.items():
+            names.append(field)
+            current.append(getattr(obj,field))
+            proposed.append(value)
+        context["fields"] = zip(names,current,proposed)
+        
+        context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+
+        return context
+
+
+
+
     
 @method_decorator(login_required,name='dispatch')
 class TaskDeleteView(BSModalDeleteView):
@@ -597,3 +666,33 @@ class TaskDeleteView(BSModalDeleteView):
 
     def get_queryset(self):
         return self.model.objects.filter( Q(owner=self.request.user) and Q(status='C') )
+
+
+
+def request_update_task_context(task,context):
+        obj = getattr(lenses.models,task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"]).first()
+        context["object"] = obj
+        
+        object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
+        context['object_type'] = object_type
+
+        names = []
+        current = []
+        proposed = []
+        fields = json.loads(task.cargo["fields"])
+        for field,value in fields.items():
+            names.append(field)
+            current.append(getattr(obj,field))
+            proposed.append(value)
+        context["fields"] = zip(names,current,proposed)
+
+        if task.cargo["proposed_image"]:
+            context["image_field"] = task.cargo["image_field"]
+            context["current_image"] = settings.MEDIA_ROOT + "/" + task.cargo["current_image"]
+            context["proposed_image"] = settings.MEDIA_ROOT + "/" + task.cargo["proposed_image"]
+        
+        context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
+
+        return context
+
+    

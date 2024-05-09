@@ -89,19 +89,19 @@
 	    Merge
 	  </button>
 	</form>
-	{% elif task.task_type == 'InspectImages' %}
-	<form action="{% url 'sled_tasks:tasks-detail-inspect' task.id %}">
-	  <button type="submit" class="jb-submit-button-1">
-            <img src="{% static 'icons/search.svg' %}">
-            Inspect
-	  </button>
-	</form>
 	{% elif task.task_type == 'ResolveDuplicates' %}
 	<form action="{% url 'lenses:resolve-duplicates' task.id %}" method="GET">
 	  <button type="submit" id="submit" class="jb-submit-button-1">
 	    <img src="{% static 'icons/eye-fill.svg' %}">
 	    Resolve
 	  </button>	
+	</form>
+	{% elif task.task_type == 'InspectImages' %}
+	<form action="{% url 'sled_tasks:tasks-detail-inspect' task.id %}">
+	  <button type="submit" class="jb-submit-button-1">
+            <img src="{% static 'icons/search.svg' %}">
+            Inspect
+	  </button>
 	</form>
 	{% else %}
         <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-recipient' task.id %}">

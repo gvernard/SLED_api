@@ -1,5 +1,6 @@
 {% extends "modal_base.html" %}
 {% load static %}
+{% load project_tags %}
 
 
 {% block title %}
@@ -57,6 +58,43 @@
       </tr>
     </table>
 
+    {% elif task.task_type == 'RequestUpdate' %}
+
+    User <strong>{{task.owner}}</strong> requested the following updates to <strong>{{object_type}}</strong> <a href="{{ object.get_absolute_url }}" target="_blank">{{ object }}</a>:
+    <br>
+    <br>
+    
+    <div class="jb-modal-field jb-table-no-lines">
+      <table>
+	<thead>
+	  <tr>
+	    <th>Field</th>
+	    <th>Current</th>
+	    <th></th>
+	    <th>Requested</th>
+	  </tr>
+	</thead>
+	<tbody>
+	{% for name,current,proposed in fields %}
+	<tr>
+	  <td><i>{{ name }}</i></td>
+	  <td>{{ current }}</td>
+	  <td>&rarr;</td>
+	  <td><strong>{{ proposed }}<strong></td>
+	</tr>
+	{% endfor %}
+	{% if image_field %}
+	<tr>
+	  <td><i>{{ image_field }}</i></td>
+	  <td><img class="sled-mugshot-icon" src="{{current_image}}" alt="official image"></td>
+ 	  <td>&rarr;</td>
+	  <td><img class="sled-mugshot-icon" src="{{proposed_image}}" alt="{{proposed_image|split:'/'|last}}"></td>
+	</tr>
+	{% endif %}
+	</tbody>
+      </table>
+    </div>
+    
     
     {% else %}
 
@@ -113,6 +151,8 @@
     Do you approve deleting {{objects|pluralize:"this,these"}} <strong>{{object_type}}</strong>?
     {% elif task.task_type == "AskPrivateAccess" %}
     Do you accept?
+    {% elif task.task_type == "RequestUpdate" %}
+    Do you accept?
     {% endif %}
   </p>
   
@@ -138,7 +178,7 @@
 
 
 {% block action_button %}
-{% if not form.response.value %}
+{% if task.status == 'P' %}
 <button type="submit" class="jb-submit-button-1">Respond</button>
 {% endif %}
 {% endblock action_button %}
