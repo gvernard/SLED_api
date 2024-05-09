@@ -8,7 +8,7 @@ class Application(object):
     def __call__(self, environ, start_response):
 
         os.environ['SLED_PROD'] = environ['SLED_PROD']
-        if os.environ['SLED_PROD'] == 'true':
+        if os.environ['SLED_PROD'] == 'active':
             os.environ['S3_ENDPOINT_URL'] = environ['S3_ENDPOINT_URL']
             os.environ['DJANGO_SLACK_API_TOKEN'] = environ['DJANGO_SLACK_API_TOKEN']
             os.environ['DJANGO_EMAIL_PASSWORD'] = environ['DJANGO_EMAIL_PASSWORD']
