@@ -1,5 +1,6 @@
 <!-- {% csrf_token %} -->
 {% load lenses_extras %}
+{% load project_tags %}
 
 <div>
   <input name="obj_type" type="hidden" value="Lenses" />
@@ -11,9 +12,7 @@
         <th>Name</th>
         <th>Right Ascension</th>
         <th>Declination</th>
-	<th>Flag</th>
-        <th>Image Separation</th>
-        <th>Score</th>
+        <th>Owner</th>
       </tr>
     </thead>
     <tbody>
@@ -24,9 +23,7 @@
         <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
         <td>{{ lens.ra }}</td>
         <td>{{ lens.dec }}</td>
-	<td>{{ lens.flag|lens_flag|safe }}</td>
-        <td>{{ lens.image_sep|default_if_none:"" }}</td>
-        <td>{{ lens.score }}</td>
+        <td>{{ lens.owner.id|get_user_link|safe }}</td>
       </tr>
       {% endfor %}
     </tbody>

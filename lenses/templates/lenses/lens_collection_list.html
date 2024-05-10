@@ -1,4 +1,5 @@
 <!-- {% csrf_token %} -->
+{% load lenses_extras %}
 
 <div>
   <input name="obj_type" type="hidden" value="Lenses" />
@@ -10,9 +11,6 @@
         <th>Name</th>
         <th>Right Ascension</th>
         <th>Declination</th>
-        <th>Lens Redshift</th>
-        <th>Source Redshift</th>
-        <th>Image Separation</th>
         <th>Access level</th>
       </tr>
     </thead>
@@ -24,9 +22,6 @@
         <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
         <td>{{ lens.ra }}</td>
         <td>{{ lens.dec }}</td>
-        <td>{{ lens.z_lens }}</td>
-        <td>{{ lens.z_source }}</td>
-        <td>{{ lens.image_sep }}</td>
         <td>{{ lens.access_level }}</td>
       </tr>
       {% endfor %}

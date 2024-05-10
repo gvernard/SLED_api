@@ -15,6 +15,19 @@ def get_latest_action_timestamp(lens):
 def get_class_name(obj):
     return obj.__class__.__name__
 
+@register.filter(name='lens_flag')
+def lens_flag(flag):
+    if flag == 'CANDIDATE':
+        text = '<span style="color:#666666">'+flag.title()+'</span>'
+    elif flag == 'CONFIRMED':
+        text = '<span style="color:green">'+flag.title()+'</span>'
+    elif flag == 'CONTAMINANT':
+        text = '<span style="color:red">'+flag.title()+'</span>'
+    else:
+        text = flag.title()
+    return text
+
+
 
 @register.simple_tag
 def get_tab_active(fwe,fwf,name):
@@ -47,7 +60,6 @@ def get_badge(fwe,fwf,name):
     return mark_safe(text)
 
 
-
 @register.simple_tag
 def order_bands(band_dict):
     new_bands = band_dict.keys()
@@ -64,6 +76,7 @@ def order_bands(band_dict):
 def make_range(start,end):
     print(start,end)
     return range(int(start),int(end)+1)
+
 
 @register.simple_tag
 def define(var):

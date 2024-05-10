@@ -121,7 +121,7 @@
   <h1 class="jb-heading-2">{{ model }}</h1>
 
   {% if model == 'Lenses' %}
-  {% include "lenses/lens_query_list.html" with lenses=qset %}
+  {% include "lenses/lens_group_list.html" with lenses=qset %}
   
   {% elif model == 'Collections' %}
   <table>

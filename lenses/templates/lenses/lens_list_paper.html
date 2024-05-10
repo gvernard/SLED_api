@@ -1,9 +1,15 @@
+{% load lenses_extras %}
+
 <div>
   <table>
     <thead>
       <tr>
 	<th>Mugshot</th>
 	<th>Name</th>
+        <th>Right Ascension</th>
+        <th>Declination</th>
+	<th>Flag</th>
+        <th>Score</th>
 	<th>Paper scope</th>
       </tr>
     </thead>
@@ -12,6 +18,10 @@
       <tr>
         <td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
 	<td><a href="{{ lens.get_absolute_url }}">{{ lens.name }}</td>
+        <td>{{ lens.ra }}</td>
+        <td>{{ lens.dec }}</td>
+	<td>{{ lens.flag|lens_flag|safe }}</td>
+        <td>{{ lens.score }}</td>
 	<td>{{ label }}</td>
       </tr>
       {% endfor %}
