@@ -1,0 +1,30 @@
+<!-- {% csrf_token %} -->
+{% load lenses_extras %}
+{% load project_tags %}
+
+<div>
+  <table>
+    <thead>
+      <tr>
+        <th>Mugshot</th>
+        <th>Name</th>
+        <th>Right Ascension</th>
+        <th>Declination</th>
+	<th>Flag</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for lens in lenses %}
+      <tr>
+        <td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
+        <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
+        <td>{{ lens.ra }}</td>
+        <td>{{ lens.dec }}</td>
+	<td>{{ lens.flag|lens_flag|safe }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="button" class="btn btn-sm btn-light" id="toggle_all" value="select">Toggle select all</button>
+</div>
+

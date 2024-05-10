@@ -9,9 +9,9 @@
         <th></th>
         <th>Mugshot</th>
         <th>Name</th>
+        <th>Right Ascension</th>
+        <th>Declination</th>
         <th>Access level</th>
-        <th>Owner</th>
-	<th>Latest activity</th>
       </tr>
     </thead>
     <tbody>
@@ -20,9 +20,9 @@
         <td><input name="ids" type="checkbox" value="{{ lens.id }}"></td>
         <td><img class="sled-mugshot-icon" src="{{lens.mugshot.url}}"></td>
         <td><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></td>
+        <td>{{ lens.ra }}</td>
+        <td>{{ lens.dec }}</td>
         <td>{{ lens.access_level }}</td>
-        <td>{{ lens.owner }}</td>
-	<td>{{ lens|get_latest_action_timestamp|timesince }} ago</td>
       </tr>
       {% endfor %}
     </tbody>

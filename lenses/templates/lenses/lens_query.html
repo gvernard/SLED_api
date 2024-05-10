@@ -614,7 +614,7 @@
     <input type="hidden" id="lenses-count" value="{{ lenses_count }}" >
     <form id="ids-form" method="POST">
       {% csrf_token %}
-      {% include "lenses/lens_query_list.html" with lenses=lenses %}
+      {% include "lenses/lens_list_query.html" with lenses=lenses %}
     </form>
   </div>
 

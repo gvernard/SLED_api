@@ -141,7 +141,7 @@
       <input type="hidden" name="collection_id" id="collection_id" value="{{ collection.id }}">
       <span class="errorlist">{{ error_message }}</span>
       {% if collection.item_type == 'Lenses' %}
-      {% include "lenses/lens_collection_list.html" with lenses=accessible_items  %}
+      {% include "lenses/lens_list_collection.html" with lenses=accessible_items  %}
       {% else %}
       <p> Unknown item type </p>
       {% endif %}

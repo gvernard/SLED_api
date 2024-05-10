@@ -1,0 +1,8 @@
+.summary td:first-child {
+    width: 1%;
+    white-space: nowrap;
+}
+.summary td:nth-child(2) {
+    text-align: left;
+    padding-left: 50px;
+}

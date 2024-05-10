@@ -1,30 +1,46 @@
 {% extends 'master_header.html' %}
+{% load activity_tags %}
 {% load static %}
+{% load lenses_extras %}
 
 
 {% block content %}
 </br>
 <div class="jb-container">
-  {{ object.pk }}
-  <br>
-  {{ object.item_type }}
-  <br>
-  {{ object.created_at }}
-  <br>
-  Total objects: {{ myitems|length }}.
 
-  <br>
-  <br>
-
-  <table>
-    {% for obj in myitems %}
+  <table class="summary jb-table-no-lines">
     <tr>
-      <td>
-        <a href="{{ obj.get_absolute_url }}">{{ obj }}</a>
+      <td colspan="2">
+	{% activity_stream 'action_object' object %}
+	{% include "sled_home/activity_home.html" with stream=stream %}
       </td>
     </tr>
-    {% endfor %}
+    <tr>
+      <td>Created at:</td>
+      <td>{{ object.created_at }}</td>
+    </tr>
+    <tr>
+      <td>Object type:</td>
+      <td>{{ object.item_type }}</td>
+    </tr>
+    <tr>
+      <td>Number of objects:</td>
+      <td>{{ myitems|length }}</td>
+    </tr>
   </table>
+  <br>
+  
+  <div>
+    {% if object.item_type == 'Lenses' %}
+    {% include "lenses/lens_list_admin_collection.html" with lenses=myitems %}
+    {% else %}
+    Template to list {{ object.item_type }} is missing
+    {% endif %}
+  </div>
 </div>
 
 {% endblock content %}
+
+{% block extrastyles %}
+<link href="{% static 'sled_admin_collections/css/sled_admin_collections.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}
