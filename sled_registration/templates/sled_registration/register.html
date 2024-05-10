@@ -54,7 +54,13 @@
       </div>
 
       <div class="jb-form">
-        <label for="{{ form.affiliation.id_for_label }}">Slack display name:</label>
+        <label for="{{ form.info.id_for_label }}">Info*:</label>
+        {{ form.info }}
+        {{ form.info.errors }}
+      </div>
+
+      <div class="jb-form">
+        <label for="{{ form.slack_display_name.id_for_label }}">Slack display name:</label>
         {{ form.slack_display_name }}
         {{ form.slack_display_name.errors }}
       </div>

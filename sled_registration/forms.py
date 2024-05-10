@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, User
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from captcha.fields import CaptchaField, CaptchaTextInput
+from mysite.language_check import validate_language
 
 import re
 import os
@@ -19,13 +20,14 @@ class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
     first_name = forms.CharField(max_length=100, required=True)
     last_name = forms.CharField(max_length=100, required=True)
-    #captcha = CaptchaField(widget=CustomCaptchaTextInput)
+    captcha = CaptchaField(widget=CustomCaptchaTextInput)
     
     class Meta:
         model = Users
-        fields = ["username", "first_name", "last_name", "email", "password1", "password2", "affiliation", "slack_display_name", "avatar"]
+        fields = ["username", "first_name", "last_name", "email", "password1", "password2", "affiliation", "info", "slack_display_name", "avatar"]
         widgets = {
             "avatar": forms.HiddenInput(),
+            'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
         }
         
     def __init__(self, *args, **kwargs):
@@ -38,9 +40,11 @@ class RegisterForm(UserCreationForm):
         self.fields['password1'].widget.attrs['class'] = 'field-label'
         self.fields['password2'].widget.attrs['class'] = 'field-label'
         self.fields['affiliation'].widget.attrs['class'] = 'field-label'
+        self.fields['info'].widget.attrs['class'] = 'field-label'
+        self.fields['info'].widget.attrs['placeholder'] = 'Tell us a bit about why you are joining SLED'
         self.fields['slack_display_name'].widget.attrs['class'] = 'field-label'
-        #self.fields['captcha'].widget.attrs['class'] = 'field-label'
-        #self.fields['captcha'].widget.attrs['placeholder'] = 'Type in the characters from above'
+        self.fields['captcha'].widget.attrs['class'] = 'field-label'
+        self.fields['captcha'].widget.attrs['placeholder'] = 'Type in the characters from above'
 
     def clean_username(self):
         value = self.cleaned_data['username']
@@ -50,14 +54,15 @@ class RegisterForm(UserCreationForm):
 
         
     def clean(self):
-        cleaned_data = super(UserCreationForm,self).clean()
-
+        cleaned_data = super(RegisterForm,self).clean()
+        
         # Check that at least one field was changed
         if not self.has_changed():
             self.add_error("__all__","No changes detected!")
 
-        if self.cleaned_data["username"] == self.cleaned_data["email"]:
-            self.add_error("__all__","Your user name cannot be the same as your email address!")
+        if 'email' in self.cleaned_data:
+            if self.cleaned_data["username"] == self.cleaned_data["email"]:
+                self.add_error("__all__","Your user name cannot be the same as your email address!")
             
         if "slack_display_name" in self.changed_data:
             slack_name_avatar = [{

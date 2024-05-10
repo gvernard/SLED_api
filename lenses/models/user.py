@@ -67,7 +67,7 @@ class Users(AbstractUser,GuardianUserMixin):
         max_length=200,
         help_text="A link to your homepage.")
     info = models.TextField(
-        blank=True,
+        blank=False,
         default='',
         help_text="A short description of your work and interests.",
         validators=[validate_language])
