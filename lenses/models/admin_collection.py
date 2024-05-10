@@ -4,7 +4,7 @@ from django.db import models
 from django.urls import reverse
 
 from gm2m import GM2MField
-from gm2m.deletion import DO_NOTHING
+from gm2m.deletion import DO_NOTHING, CASCADE
 
 from . import SingleObject
 
@@ -34,7 +34,7 @@ class creationManager(models.Manager):
 
 
 class AdminCollection(models.Model):
-    myitems = GM2MField('Lenses','Collection',on_delete=DO_NOTHING)
+    myitems = GM2MField('Lenses','Collection',on_delete=CASCADE)
     ItemTypeChoices = (
         ('Lenses','Lenses'),
         ('Collection','Collection'),

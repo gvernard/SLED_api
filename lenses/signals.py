@@ -1,10 +1,10 @@
 from django.db.models.signals import pre_delete
+from django.db.models import Count, Q
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.dispatch import receiver
 from django.utils import timezone
 from django.apps import apps
-from django.db.models import Count
 
 from notifications.signals import notify
 from notifications.models import Notification
@@ -73,13 +73,14 @@ def delete_collection(sender,instance,**kwargs):
 
 
     
-# Select all the AdminCollections that have only one item in them
+# Select all the AdminCollections that have only one or no item in them
 # and remove the notifications and actions that are associated with them (also the AdminCollection itself)
 @receiver(pre_delete,sender=Lenses)
 @receiver(pre_delete,sender=Collection)
 def remove_ad_col(sender,instance,**kwargs):
     content_type_id = ContentType.objects.get_for_model(AdminCollection).id
-    adcols = instance.admincollection_set.annotate(Nitems=Count('admincollection_myitems')).filter(Nitems=1)
+    adcols = instance.admincollection_set.annotate(Nitems=Count('admincollection_myitems')).filter( Q(Nitems=1) | Q(Nitems=0) )
     for adcol in adcols:
-        Notification.objects.filter(action_object_content_type_id=content_type_id).filter(action_object_object_id=adcol.id).delete() # This deletes the adcol as well
+        Notification.objects.filter(action_object_content_type_id=content_type_id).filter(action_object_object_id=adcol.id).delete()
         Action.objects.action_object(adcol).delete()
+        adcol.delete()
