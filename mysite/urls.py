@@ -38,10 +38,11 @@ urlpatterns = [
     path('sled_groups/', include('sled_groups.urls'), name='sled_groups'),
     path('sled_queries/', include('sled_queries.urls'), name='sled_queries'),
     path('register/', vregistration.register, name='register'),
-    path('login/', auth_views.LoginView.as_view(
-            template_name="sled_registration/login.html",
-            authentication_form=UserLoginForm
-            ), name='login'),
+    path('login/', vregistration.myLoginView.as_view(), name='login'),
+    #path('login/', auth_views.LoginView.as_view(
+    #        template_name="sled_registration/login.html",
+    #        authentication_form=UserLoginForm
+    #        ), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='sled_registration/login.html'), name='logout'),
     #path('accounts/', include('django.contrib.auth.urls')),
     path("password_reset", vregistration.password_reset_request, name="password_reset"),

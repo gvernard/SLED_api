@@ -1,4 +1,3 @@
-# views.py
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
@@ -14,13 +13,34 @@ from django.shortcuts import render, redirect
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponse
 from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.views import LoginView
 from django.contrib.sites.models import Site
+from django.contrib import messages
 from django.template.loader import get_template
 from django.template import Context
 from .forms import RegisterForm, UserLoginForm
 
 from lenses.models import Users, ConfirmationTask
 import smtplib
+
+
+class myLoginView(LoginView):
+    template_name = "sled_registration/login.html"
+    authentication_form = UserLoginForm
+    
+    def form_valid(self,form):
+        print('ok')
+        username = self.request.POST["username"]
+        password = self.request.POST["password"]
+        user = authenticate(self.request,username=username,password=password)
+        if user is not None:
+            login(self.request,user)
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            message = 'Authentication error - Please contact the administrators.'
+            messages.add_message(self.request,messages.ERROR,message)
+            return HttpResponseRedirect(self.request.path_info)
+        
 
 
 # Create your views here.
