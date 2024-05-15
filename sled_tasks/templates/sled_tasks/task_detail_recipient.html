@@ -56,8 +56,14 @@
 	<td>Affiliation:</td>
 	<td>{{ task.owner.affiliation }}</td>
       </tr>
+      <tr>
+	<td>Info:</td>
+	<td><i>"{{ task.owner.info }}"</i></td>
+      </tr>
     </table>
-
+    <br>
+    <br>
+    
     {% elif task.task_type == 'RequestUpdate' %}
 
     User <strong>{{task.owner}}</strong> requested the following updates to <strong>{{object_type}}</strong> <a href="{{ object.get_absolute_url }}" target="_blank">{{ object }}</a>:
