@@ -13,12 +13,12 @@ DEALLOCATE PREPARE stmt;
 SET FOREIGN_KEY_CHECKS = 1;
 
 ALTER DATABASE strong_lenses_database CHARACTER SET utf8 COLLATE utf8_bin;
-DROP FUNCTION IF EXISTS distance_on_sky;
+DROP FUNCTION IF EXISTS strong_lenses_database.distance_on_sky;
 
 
 DELIMITER $$
 
-CREATE FUNCTION distance_on_sky(ra DOUBLE,decl DOUBLE,ra0 DOUBLE,decl0 DOUBLE)
+CREATE FUNCTION strong_lenses_database.distance_on_sky(ra DOUBLE,decl DOUBLE,ra0 DOUBLE,decl0 DOUBLE)
 RETURNS DOUBLE
 DETERMINISTIC
 SQL SECURITY INVOKER
