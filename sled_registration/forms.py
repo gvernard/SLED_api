@@ -80,9 +80,12 @@ class RegisterForm(UserCreationForm):
 
         # Need to call model clean methods here to raise and catch any errors
         dum = self.cleaned_data.copy()
-        dum.pop('password1',None)
+        if 'password1' in dum.keys() and 'password2' in dum.keys():
+            dum["password"] = dum.pop('password1')
+            dum["password"] = dum.pop('password2')
+        else:
+            dum["password"] = dum.pop('password1')
         dum.pop('captcha',None)
-        dum["password"] = dum.pop('password2')
         instance = Users(**dum)
         try:
             instance.full_clean()
