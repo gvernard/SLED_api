@@ -8,14 +8,14 @@
 <div class="jb-container">
   <h1 class="jb-heading-1">Collections that I created</h1>
   {% if collections_owned %}
-  <table class="jb-table">
+  <table class="jb-table sled-no-wrap">
     <thead>
       <tr>
 	<th>Name</th>
 	<th>Item type</th>
 	<th>Description</th>
-	<th>Number of items</th>
-  <th>Access</th>
+	<th># items</th>
+	<th>Access</th>
       </tr>
     </thead>
     <tbody>
@@ -24,8 +24,8 @@
 	<td><a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a></td>
 	<td>{{ collection.item_type }}</td>
 	<td>{{ collection.description }}</td>
-  <td>{{ collection.myitems.all|length }}</td>
-  <td>{{ collection.access_level }}</td>
+	<td>{{ collection.myitems.all|length }}</td>
+	<td>{{ collection.access_level }}</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -41,14 +41,14 @@
 <div class="jb-container">
   <h1 class="jb-heading-1">Private collections that I have access to</h1>
   {% if collections_access %}
-  <table class="jb-table">
+  <table class="jb-table sled-no-wrap">
     <thead>
       <tr>
 	<th>Name</th>
 	<th>Item type</th>
 	<th>Description</th>
 	<th>Owner</th>
-	<th>Number of items</th>
+	<th># items</th>
       </tr>
     </thead>
     <tbody>
@@ -80,14 +80,14 @@
     <input type="submit" value="Search">
   </form>
   {% if collections_search %}
-  <table class="jb-table">
+  <table class="jb-table sled-no-wrap">
     <thead>
       <tr>
         <th>Name</th>
         <th>Item type</th>
         <th>Description</th>
         <th>Owner</th>
-        <th>Number of items</th>
+        <th># items</th>
       </tr>
     </thead>
     <tbody>
@@ -111,3 +111,7 @@
 
 {% endblock content %}
 
+
+{% block extrastyles %}
+<link href="{% static 'sled_collections/css/collection_list.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}

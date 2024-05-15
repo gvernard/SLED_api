@@ -1,0 +1,29 @@
+.sled-no-wrap th {
+    white-space: nowrap;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.sled-no-wrap td {
+    vertical-align:top;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.sled-no-wrap th:nth-child(2) {
+    text-align: center;
+}
+.sled-no-wrap th:nth-child(4) {
+    text-align: center;
+}
+.sled-no-wrap th:nth-child(5) {
+    text-align: center;
+}
+.sled-no-wrap td:nth-child(2) {
+    text-align: center;
+}
+.sled-no-wrap td:nth-child(4) {
+    text-align: center;
+}
+.sled-no-wrap td:nth-child(5) {
+    text-align: center;
+}
