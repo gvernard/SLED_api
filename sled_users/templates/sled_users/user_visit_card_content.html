@@ -7,6 +7,9 @@
       <td>
 	<h1 class="jb-heading-1">
 	  {{ sled_user.first_name }} {{ sled_user.last_name }} ({{ sled_user.username }})
+	  {% if not sled_user.is_active %}
+	  <span style="color:blue"> - Inactive</span>
+	  {% endif %}
 	</h1>
 	<p>
 	  Joined on {{ sled_user.date_joined }}, last login {{ sled_user.last_login|timesince }} ago

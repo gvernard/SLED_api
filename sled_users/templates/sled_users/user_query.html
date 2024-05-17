@@ -37,7 +37,11 @@
 
   <div>
     {% for user in users %}
+    
+    {% if user.is_active or request.user.limitsandroles.is_admin %}
     {% include "sled_users/user_visit_card_content.html" with sled_user=user %}
+    {% endif %}
+    
     {% endfor %}
   </div>
 

@@ -18,6 +18,8 @@ from django.contrib.sites.models import Site
 from django.contrib import messages
 from django.template.loader import get_template
 from django.template import Context
+from django.template.response import TemplateResponse
+
 from .forms import RegisterForm, UserLoginForm
 
 from lenses.models import Users, ConfirmationTask
@@ -59,8 +61,10 @@ def register(response):
             cargo['object_ids'] = [candidate_user.id]
             cargo['user_admin'] = Users.selectRandomAdmin()[0].username
             ConfirmationTask.create_task(candidate_user,Users.getAdmin(),'AcceptNewUser',cargo)
-            messages.add_message(response,messages.SUCCESS,"The admins have been notified and will soon approve your registration.")
-            return HttpResponseRedirect("../login/")
+            message = "The admins have been notified and will soon process your registration!"
+            #messages.add_message(response,messages.SUCCESS,message)
+            #return HttpResponseRedirect("../login/")
+            return TemplateResponse(response,'simple_message.html',context={'message':message})
     else:
         form = RegisterForm()
 
