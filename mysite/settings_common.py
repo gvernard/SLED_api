@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'django_select2',
     'nolastlogin',
     'captcha',
+    'axes',
 ]
 
 SITE_ID = 1
@@ -74,6 +75,7 @@ SITE_ID = 1
 ACCOUNT_ACTIVATION_DAYS = 7 # One-week activation window
 
 AUTHENTICATION_BACKENDS = (
+    'axes.backends.AxesStandaloneBackend', # Should be first
     'django.contrib.auth.backends.ModelBackend', # this is default
     'guardian.backends.ObjectPermissionBackend',
 )
@@ -87,9 +89,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware', # Should be last
 ]
 
 SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'mysite.urls'
 

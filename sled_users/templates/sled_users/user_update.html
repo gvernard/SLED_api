@@ -28,14 +28,14 @@ Update your information
 	    <div class="invalid jb-modal-field">
 	      <ul>
 		{% for error in field.errors %}
-		<li>{{ error|safe }}</li>
+		<li>{{ error }}</li>
 		{% endfor %}
 	      </ul>
 	    </div>
 	  </td>
           <td>
-	    <div class="sled-help-tooltip">{{ field.label|safe }}</div>
-	    <div class="sled-help-tooltip-content">{{ field.help_text|safe }}</div>
+	    <div class="sled-help-tooltip">{{ field.label }}</div>
+	    <div class="sled-help-tooltip-content">{{ field.help_text }}</div>
 	  </td>
 	  <td>{{ field }}</td>
 	</tr>

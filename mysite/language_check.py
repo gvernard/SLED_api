@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
-#from langdetect import detect_langs
-#from profanity_check import predict
+from langdetect import detect_langs
+from profanity_check import predict
 
 
 def check_english_likely(text):
@@ -42,6 +42,16 @@ def validate_language(text):
     # 2 check for profanities
     #is_profane = bool(predict([text])[0])
     is_profane = False
+    if is_profane:
+        raise ValidationError(
+            "Please avoid profanities in SLED contents. "
+            "If this is a mistake, try adding a few more words."
+        )
+
+    
+def validate_no_profanity(text):
+    is_profane = bool(predict([text])[0])
+    #is_profane = False
     if is_profane:
         raise ValidationError(
             "Please avoid profanities in SLED contents. "

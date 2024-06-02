@@ -1,8 +1,8 @@
 from django import forms
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
-
 from lenses.models import Users
 from sled_core.slack_api_calls import get_slack_avatar
+from mysite.language_check import validate_no_profanity
 
 class UsersSearchForm(forms.Form):
     search_term = forms.CharField(required=False,
@@ -27,6 +27,21 @@ class UserUpdateForm(BSModalModelForm):
             "slack_display_name": forms.TextInput({"placeholder":"SLACK name"}),
             "avatar": forms.HiddenInput(),
         }
+
+    def clean_first_name(self):
+        data = self.cleaned_data["first_name"]
+        validate_no_profanity(data)
+        return data
+
+    def clean_last_name(self):
+        data = self.cleaned_data["last_name"]
+        validate_no_profanity(data)
+        return data
+
+    def clean_info(self):
+        data = self.cleaned_data["info"]
+        validate_no_profanity(data)
+        return data
 
     def clean(self):
         # Check that at least one field was changed
