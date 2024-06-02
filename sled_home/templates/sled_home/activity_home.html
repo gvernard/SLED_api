@@ -15,7 +15,7 @@
     {% with N=action.action_object.myitems.all|length %}
     <tr>
       <td>
-	<div data-index="{{ forloop.counter0 }}" style="display:inline-block;">
+	<div data-index="{{ forloop.counter0 }}" class="activity-entry">
 	  {% if action.data.level == "info" %}
 	  <img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2 jb-alert-icon">
 	  {% elif action.data.level == "success" %}

@@ -25,6 +25,9 @@
 .sled-global-search-result {
     width:500px !important;
 }
+#global_search2 {
+    height: 25px;
+}
 
 .jb-homepage-container p {
     margin: auto;
@@ -40,6 +43,18 @@
     height: 100%;
     padding-left: 25px;
 }
+
+
+
+.jb-message-banner {
+    border-radius: 0;
+}
+
+
+
+
+
+
 
 .jb-navbar-container {
     margin: auto;
@@ -57,6 +72,17 @@
     padding: 0px;
     border: 0px;
 }
+.jb-navbar-table-top td:first-child {
+    width: 300px;
+}
+.jb-navbar-table-top td:nth-child(2) {
+    width: 50px;
+    text-align:center;
+}
+.jb-navbar-table-top td:nth-child(3) {
+    width: 150px;
+}
+
 
 .jb-navbar-table-bottom {
     table-layout: auto;

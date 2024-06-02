@@ -11,7 +11,7 @@
       <tr>
 	<td>
 	  <div class="jb-homepage-left-text">
-	    <h1 class="jb-heading-1" style="text-align:center;padding-top:50px">Welcome to the <br> Strong Lensing Database</h1>
+	    <h1 class="jb-heading-1" class="main-title">Welcome to the <br> Strong Lensing Database</h1>
 	    
 	    <!-- Recent activity div -->
 	    <div class="jb-activity">
@@ -32,7 +32,7 @@
 
       <tr>
 	<td colspan="2">
-	  <div style="text-align:center;margin-top:50px">
+	  <div class="footer-container">
 	    <img src="{% static 'images/JB_Homepage_EPFL.png' %}" loading="lazy" width="100" alt="">
 	    <img src="{% static 'images/JB_Homepage_ERC.png' %}" loading="lazy" width="75" alt="">
 	    <img src="{% static 'images/JB_Homepage_EU.png' %}" loading="lazy" height="65" alt="">
@@ -48,8 +48,5 @@
 
 
 {% block extrastyles %}
-<style>
-  .main-layout td {border-top:none;}
-  .jb-activity {text-align:left;padding-left:60px;margin-top:20px;}
-</style>
+<link href="{% static 'sled_home/css/home_index.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}

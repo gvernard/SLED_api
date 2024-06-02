@@ -1,0 +1,23 @@
+.main-layout td {
+    border-top:none;
+}
+
+.jb-activity {
+    text-align:left;
+    padding-left:60px;
+    margin-top:20px;
+}
+
+.main-title {
+    text-align:center;
+    padding-top:50px;
+}
+
+.footer-container {
+    text-align:center;
+    margin-top:50px;
+}
+
+.activity-entry {
+    display:inline-block;
+}

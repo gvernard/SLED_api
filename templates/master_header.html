@@ -16,19 +16,10 @@
     
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous" type="text/javascript"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" integrity="sha384-pvXSwSU09c+q9mPyY++ygUHWIYRoaxgnJ/JC5wcOzMb/NVVu+IDniiB9qWp3ZNWM" crossorigin="anonymous" type="text/javascript"></script>
-    <script src="https://use.typekit.net/pkl4bli.js" integrity="sha384-bkjD7gO2Z4bX2cz58e/rtES14WZizX+lSKUnUAUl7YpWkCJKtCab29AylnquGaJU" crossorigin="anonymous" type="text/javascript"></script>
+    <script src="https://use.typekit.net/pkl4bli.js" integrity="sha384-bkjD7gO2Z4bX2cz58e/rtES14WZizX+lSKUnUAUl7YpWkCJKtCab29AylnquGaJU" crossorigin="anonymous" type="text/javascript" nonce="{{request.csp_nonce}}"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" integrity="sha384-d3UHjPdzJkZuk5H3qKYMLRyWLAQBJbby2yr2Q58hXXtAGF8RSNO9jpLDlKKPv5v3" crossorigin="anonymous" type="text/javascript"></script>
     <script src="{% static 'js/global_search.js' %}" type="text/javascript"></script>
-    <script type="text/javascript">
-      WebFont.load({
-	  google: {
-              families: ["Basic:regular"]
-	  }
-      });
-      try {
-	  Typekit.load();
-      } catch (e) {}
-    </script>
+    <script src="{% static 'js/load_fonts.js' %}" type="text/javascript"></script>
     {% block extrascripts %}
     {% endblock extrascripts %}
   </head>
@@ -38,7 +29,7 @@
     <div class="persistent-message-container">
       {% if current_messages %}
       {% for message in current_messages %}
-      <div style="border-radius:0;" class="alert alert-icon alert-{{ message.tag }} mb-0" role="alert">
+      <div class="alert alert-icon alert-{{ message.tag }} mb-0 jb-message-banner" role="alert">
 	{{ message.message|safe }}
       </div>
       {% endfor %}
@@ -50,14 +41,14 @@
       {% if messages %}
       {% for message in messages %}
       {% if message.tags %}
-      <div style="border-radius:0;" id="alert-message" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0" role="alert">
+      <div id="alert-message" class="alert alert-icon alert-{{ message.tags }} alert-dismissible fade show mb-0 jb-message-banner" role="alert">
 	{{ message|safe }}
 	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 	  <span aria-hidden="true">&times;</span>
 	</button>
       </div>
       {% else %}
-      <div style="border-radius:0;" id="alert-message">
+      <div id="alert-message" class="jb-message-banner">
 	{{ message }}
 	<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 	  <span aria-hidden="true">&times;</span>
@@ -73,13 +64,13 @@
     <div class="jb-navbar-container jb-table-no-lines">
       <table class="jb-navbar-table-top">
 	<tr>
-	  <td style="width:300px;">
+	  <td>
 	    <a href="{% url 'sled_home:homepage' %}" class="jb-nav-brand"><img src="{% static 'images/JB_Master Header_Logo.png' %}" loading="lazy" width="248" alt=""></a>
 	  </td>
-	  <td style="width:50px;text-align:center">
-	    <img style="height:25px;" src="{% static 'icons/search.svg' %}" id="global_search2">
+	  <td>
+	    <img src="{% static 'icons/search.svg' %}" id="global_search2">
 	  </td>
-	  <td style="width:150px;">
+	  <td>
 	    <input type="hidden" id="global_search" data-url="{% url 'api:global-search-view' %}" />
 	  </td>
 	  <td>
@@ -128,13 +119,6 @@
     
   </body>
 
-  <script type="text/javascript">
-    {# This needs to be at the end of the html, otherwise the animation does not work #}
-    $("#alert-message").fadeTo(2000,500).slideUp(500,function(){
-	$("#alert-message").slideUp(500);
-    });
-    
-    global_search_autocomplete('global_search');
-  </script>
+  <script src="{% static 'js/message_banner.js' %}" type="text/javascript"></script>
     
 </html>

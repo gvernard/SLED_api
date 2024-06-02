@@ -1,0 +1,2 @@
+.main-layout td {border-top:none;}
+.jb-activity {text-align:left;padding-left:60px;margin-top:20px;}

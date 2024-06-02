@@ -29,4 +29,5 @@ whitenoise==5.3.0
 requests>=2.27.1
 langdetect>=1.0.9
 alt-profanity-check>=1.4.2
-django-axes[ipware]>=6.4.0
+django-axes[ipware]==6.4.0
+django-csp==3.8
