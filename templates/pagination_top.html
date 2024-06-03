@@ -9,7 +9,11 @@
 {% if qset_range|last < 10 %}
 
 {% for n in qset_range %}
-<a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}" {% if n == qset.number %}style="color: #BABCEF"{% endif %}>{{ n }}</a>
+{% if n == qset.number %}
+<a class="sled_submit pagination-color-selected" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}">{{ n }}</a>
+{% else %}
+<a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}">{{ n }}</a>
+{% endif %}
 {% endfor %}
 				  
 {% else %}
@@ -48,7 +52,7 @@
 {% endif %}
 {% for n in limited_range %}
 {% if n == qset.number %}
-<a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}" style="color: #BABCEF">{{ n }}</a>
+<a class="sled_submit pagination-color-selected" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}">{{ n }}</a>
 {% else %}
 <a class="sled_submit" href="{{ request.path }}?{{ target }}-page={{ n }}#{{ target }}">{{ n }}</a>
 {% endif %}

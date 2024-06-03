@@ -57,31 +57,13 @@
 
 
 {% block extrastyles %}
-<style>
-  .header-table td {border-top:none}
-</style>
+<link href="{% static 'sled_users/css/user_query.css' %}" rel="stylesheet" />
+<link href="{% static 'sled_users/css/user_visit_card.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 
 {% block extrascripts %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
-<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function(){
-      $(".sled_submit").click(function(e) {
-	  e.preventDefault();
-	  var dum = $(this).attr('href').split('page=');
-	  var page = dum[1].replace('#','');
-	  $('#id_page').val(page);
-	  $('#mysubmit').trigger('click');
-      });
-
-      $(".sled-modal").each(function() {
-	  $(this).modalForm({
-              formURL: $(this).data("form-url"),
-              modalID: "#id-modal"
-	  });
-      });
-  });
-</script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_users/js/user_query.js' %}"></script>
 {% endblock extrascripts %}

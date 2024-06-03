@@ -13,7 +13,7 @@
       <tr>
 	<td>
 	  <h1 class="jb-heading-1">{{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
-	  <p style="margin-bottom:2px">
+	  <p class="joined-on">
 	    Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
 	  </p>
 	</td>
@@ -62,7 +62,7 @@
 	<table>
           <thead>
             <tr>
-	      <th style="width:250px">SLACK display name</th>
+	      <th class="slack-display-name">SLACK display name</th>
 	      <th>Info</th>
             </tr>
           </thead>
@@ -154,7 +154,7 @@
 	</p>	
 	<br>
 	{% if lenses_with_updates %}
-	<h1 class="jb-heading-3" style="background-color:white !important;">Lenses with activity since last login:</h1>
+	<h1 class="jb-heading-3 white-bg">Lenses with activity since last login:</h1>
 	<div>
 	  {% for item in lenses_with_updates %}
 	  <div class="jb-active-lens">{{ item.lens }} <span class="badge badge-warning">{{ item.N }}</span></div>	    
@@ -164,7 +164,7 @@
 	<br>
 	<br>
 	{% endif %}
-	<h1 class="jb-heading-3" style="background-color:white !important;">Follow stream:</h1>
+	<h1 class="jb-heading-3 white-bg">Follow stream:</h1>
 	<div class="jb-activity jb-table-no-lines">
 	  {% include "activity_object.html" with stream=ordered_actions show_item_type='Lenses' %}
 	</div>
@@ -179,7 +179,7 @@
 
 
   
-  <div style="margin-top:20px;">
+  <div class="margin-top">
     <h1 class="jb-heading-2">Database Management</h1>
     
     <div class="c c-user">
@@ -430,7 +430,7 @@
 		{% for imaging in imagings %}
 		<tr>
 		  <td><input name="ids" type="checkbox" value="{{ imaging.id }}"></td>
-		  <td style="text-align:center" valign="'middle">
+		  <td class="align-center" valign="'middle">
 		    {% if imaging.future %}
 		    Future
 		    {% else %}
@@ -566,7 +566,7 @@
 		{% for spectrum in spectra %}
 		<tr>
 		  <td><input name="ids" type="checkbox" value="{{ spectrum.id }}"></td>
-		  <td style="text-align:center" valign="'middle">
+		  <td class="align-center" valign="'middle">
 		    {% if spectrum.future %}
 		    Future
 		    {% else %}
@@ -703,7 +703,7 @@
 		{% for catalogue in catalogues %}
 		<tr>
 		  <td><input name="ids" type="checkbox" value="{{ catalogue.id }}"></td>
-		  <td style="text-align:center" valign="'middle">
+		  <td class="align-center" valign="'middle">
 		    {% if catalogue.future %}
 		    Future
 		    {% else %}
@@ -841,7 +841,7 @@
 		    {% endif %}
 		    {% endif %}
 		  </td>
-		  <td style="padding-right:10px;">
+		  <td class="padding-right">
 		    Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>
 		  </td>
 		  <td>
@@ -1073,7 +1073,7 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_users/js/sled_users.js' %}"></script>
-<script type="text/javascript">
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
   $(document).ready(function() {
       // Add line of last login in followed lens activity stream 
       $('.jb-activity table tbody tr').eq({{ N_last_login }}).before('<tr><td></td><td><span class="jb-important-text">Last login: {{ user.last_login }}</span></td></tr>');

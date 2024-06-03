@@ -13,13 +13,38 @@ $( document ).ready(function() {
 	prefix: prefix
     });
 
-
     $delete = $(".delete-row")
     $delete.bindFirst('click',function(e,next){
 	$(this).closest('.sled-row-content').slideUp(1000);
 	setTimeout(next, 1000); // holds the other handlers for 1sec
     });
+
+    $(document).on("change", "input[name*='mugshot']", function() {
+	var $img = $(this).parent().parent().parent().find('img');
+	readURL(this, $img);
+    });
+    
+    $('.my-select2').select2();
+    
+    set_help();
+    
+      $("#sled-add-another").click(function(e) {
+	  $(".add-row").trigger("click");
+	  set_help();
+      });
+    
 });
+
+
+function readURL(input, $img) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+	    $img.attr('src', e.target.result);
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 
 function reset_counter(row){
     $(".sled-lens-counter").each(function(index,element){

@@ -61,6 +61,34 @@ $(document).ready(function() {
 	    modalID: "#id-modal"
         });
     });
+   
+    $('.data-form').find('input').change(function(){
+	var id = $(this).parents('.data-form').attr('id');
+	
+	var exist = 0;
+	$('#'+id).find('input').each(function(){
+	    if( !$(this).attr('name').match('instrument_and') ){
+		if( $(this).attr('type') == "checkbox" ){
+		    if( $(this).is(":checked") ) {
+			exist++;
+		    }
+		} else if( $(this).val().length != 0 ){
+		    exist++;
+		}
+	    }
+	});
+	
+	var target = $('#myTab button[data-target="#'+id+'"]');
+	console.log(exist,target.html());
+	if( exist == 0 ){
+	    target.children('.badge').remove();
+	} else {
+	    if( target.children('.badge').length == 0 ){
+		target.append('<span class="badge badge-pill badge-success"><img src="'+window.path_to_icon+'"></span>');
+	    }
+	}
+    });
+    
     
     set_help();    
 });

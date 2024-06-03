@@ -30,7 +30,7 @@
                     <td>
                       <h3 class="sled-lens-counter">Lens {{ forloop.counter }}</h3>
                     </td>
-                    <td class="sled-delete-button" style="float:right;"></td>
+                    <td class="sled-delete-button float-right"></td>
                   </tr>
                 </table>
 
@@ -152,7 +152,7 @@
                           </tr>
                           <tr>
                             <td>{{ form.info.errors }}</td>
-                            <td colspan="2" style="text-align:center">{{ form.info }}</td>
+                            <td colspan="2" class="align-center">{{ form.info }}</td>
                           </tr>
                         </table>
                       </div>
@@ -164,7 +164,7 @@
                       <div>
                         <table class="jb-paragraph-2">
 			  <tr>
-			    <td colspan="1" style="text-align:center">
+			    <td colspan="1" class="align-center">
                               {% if form.instance.mugshot %}
                               <img class="sled-mugshot-image" src="{{ form.instance.mugshot.url }}" alt="Mugshot">
                               {% else %}
@@ -173,7 +173,7 @@
 			    </td>
 			  </tr>
                           <tr>
-                            <td style="text-align:center">
+                            <td class="align-center">
 			      {{ form.mugshot.errors }}
                               {{ form.mugshot }}
 			    </td>
@@ -202,7 +202,7 @@
 	  <img src="{% static 'icons/plus.svg' %}" >
           Add another
         </button>
-        <div class="sled-add-button-hidden" style="display:none;"></div>
+        <div class="sled-add-button-hidden display-none"></div>
         <button type="submit" class="jb-submit-button-1">
 	  <img src="{% static 'icons/plus.svg' %}" >
 	  Create Lenses
@@ -223,6 +223,7 @@
 
 {% block extrastyles %}
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+<link href="{% static 'lenses/css/lens_add.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 
@@ -230,7 +231,6 @@
 {% block extrascripts %}
 {% if request.resolver_match.url_name == 'lens-add' %}
 <script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
-<script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
 {% endif %}
@@ -238,31 +238,5 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" integrity="sha384-d3UHjPdzJkZuk5H3qKYMLRyWLAQBJbby2yr2Q58hXXtAGF8RSNO9jpLDlKKPv5v3" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 {{ form.media.js }}
-<script type="text/javascript">
-  $(document).ready(function() {
-      function readURL(input, $img) {
-	  if (input.files && input.files[0]) {
-              var reader = new FileReader();
-              reader.onload = function(e) {
-		  $img.attr('src', e.target.result);
-              }
-              reader.readAsDataURL(input.files[0]);
-	  }
-      }
-      $(document).on("change", "input[name*='mugshot']", function() {
-	  var $img = $(this).parent().parent().parent().find('img');
-	  readURL(this, $img);
-      });
-      
-      $('.my-select2').select2();
-
-      set_help();
-      
-      $("#sled-add-another").click(function(e) {
-	  $(".add-row").trigger("click");
-	  set_help();
-      });
-      
-  });
-</script>
+<script type="text/javascript" src="{% static 'lenses/js/lens_add.js' %}"></script>
 {% endblock extrascripts %}

@@ -30,7 +30,7 @@
   <button type="button" class="btn btn-sm btn-light" id="toggle_all" value="select">Toggle select all</button>
 </div>
 
-<script>
+<script nonce="{{request.csp_nonce}}">
   var toggle = function(e) {
     checkboxes = document.getElementsByName('ids');
     var new_status = e.currentTarget.getAttribute('value');

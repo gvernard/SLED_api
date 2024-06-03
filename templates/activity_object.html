@@ -4,7 +4,7 @@
 {% if stream %}
 
 
-<table style="table-layout:fixed;width:100%;border-collapse:collapse;">
+<table class="activity-object-table">
   <tbody>
 
     {% with activityCount=max_entries|stringformat:"s" %}
@@ -15,7 +15,7 @@
 
     {% if action.verb != "started following" and action.verb != "stopped following" %}
     <tr>
-      <td style="width:20px;">
+      <td>
 	{% if action.data.level == "info" %}
 	<img src="{% static 'icons/info-circle-fill.svg' %}" class="filter-info2 jb-alert-icon">
 	{% elif action.data.level == "success" %}
@@ -28,7 +28,7 @@
 	{{ action.data.level }}
 	{% endif %}
       </td>
-      <td style="padding-left:10px;">
+      <td>
 	
 	{% if show_item_type == "Lenses" %}
 	<a href="{{ action.target.get_absolute_url }}">{{ action.target }}</a>: 

@@ -14,41 +14,39 @@
     <form id="email-form" class="jb-form-1" method="post" action="">
       <img src="{% static 'images/JB_Login_SLED-Logo.png' %}" loading="lazy" width="40" alt="" class="jb-image-1">
       {% csrf_token %}
-      <!--{{ form.as_p }} -->
       {{ form.non_field_errors }}
+      
       <div class="jb-form">
-
         <label for="{{ form.username.id_for_label }}">Username:</label>
         {{ form.username }}
         {{ form.username.errors }}
-
       </div>
-      <div class="jb-form">
-
+      
+      <div class="jb-form">	
         <label for="{{ form.password.id_for_label }}">Password:</label>
         {{ form.password }}
         {{ form.password.errors }}
       </div>
 
-      <td>
-	<div style="text-align:center">
-	  <input type="submit" value="Login" data-wait="Please wait..." class="jb-submit-button-1 w-button">
-	</div>
-	<br>
-  <div style="text-align:center">
-    New? Register <a href="{% url 'register' %}">here</a>.
-  </div>
-  <div style="text-align:center">
-    Forgotten password? Click <a href="{% url 'password_reset' %}">here</a>.
-  </div>
+      
+      <div style="text-align:center">
+	<input type="submit" value="Login" data-wait="Please wait..." class="jb-submit-button-1 w-button">
+      </div>
 
-      </td>
+      <br>
+      <div style="text-align:center">
+	New? Register <a href="{% url 'register' %}">here</a>.
+      </div>
+      <div style="text-align:center">
+	Forgotten password? Click <a href="{% url 'password_reset' %}">here</a>.
+      </div>
+
     </form>
-
+    
   </div>
 </div>
 
-<script type="text/javascript">
+<script nonce="{{request.csp_nonce}}">
   $('form').each(function() {
     if (!$(this).is('[action]')) {
       $(this).attr('action', '/');

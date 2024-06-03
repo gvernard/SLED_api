@@ -8,13 +8,13 @@
 	<h1 class="jb-heading-1">
 	  {{ sled_user.first_name }} {{ sled_user.last_name }} ({{ sled_user.username }})
 	  {% if not sled_user.is_active %}
-	  <span style="color:blue"> - Inactive</span>
+	  <span class="color-blue"> - Inactive</span>
 	  {% endif %}
 	</h1>
 	<p>
 	  Joined on {{ sled_user.date_joined }}, last login {{ sled_user.last_login|timesince }} ago
 	</p>
-	<span class="jb-important-text" style="font-weight:bold;font-size:40px">
+	<span class="jb-important-text roles">
 	  {{ sled_user.get_roles }}
 	</span>
 
@@ -57,7 +57,7 @@
     <table>
       <thead>
         <tr>
-	  <th style="width:250px">SLACK display name</th>
+	  <th class="slack-display-name">SLACK display name</th>
           <th>Info</th>
         </tr>
       </thead>

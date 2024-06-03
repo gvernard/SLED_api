@@ -18,14 +18,8 @@
     <tbody>
       {% for query in queries %}
       <tr>
-        <td><a href="{{ group.get_absolute_url }}">{{query.name}}</td>
+        <td><a href="{{ query.get_GET_url }}">{{query.name}}</td>
         <td>{{ query.description }}</td>
-	<td>
-	  <button type="button" class="sled-view-query jb-submit-button-1" onclick="location.href='{{ query.get_GET_url }}'">
-	    <img src="{% static 'icons/eye-fill.svg' %}" alt="trash">
-	    View
-	  </button>
-	</td>
       </tr>
       {% endfor %}
     </tbody>

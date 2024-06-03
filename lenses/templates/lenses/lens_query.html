@@ -335,7 +335,7 @@
 	      <td>&nbsp;</td>
 	      <td>{{ form.instrument }}</td>
 	      <td>
-		<div class="sled-help-tooltip" style="margin-top:0px;height:30px;">
+		<div class="sled-help-tooltip data-query-table">
 		  <label>
 		    <table>
 		      <tr>
@@ -422,7 +422,7 @@
 	      <td>&nbsp;</td>
 	      <td>{{ form.instrument }}</td>
 	      <td>
-		<div class="sled-help-tooltip" style="margin-top:0px;height:30px;">
+		<div class="sled-help-tooltip data-query-table">
 		  <label>
 		    <table>
 		      <tr>
@@ -512,7 +512,7 @@
 	      <td>&nbsp;</td>
 	      <td>{{ form.instrument }}</td>
 	      <td>
-		<div class="sled-help-tooltip" style="margin-top:0px;height:30px;">
+		<div class="sled-help-tooltip data-query-table">
 		  <label>
 		    <table>
 		      <tr>
@@ -606,7 +606,6 @@
     </div>
   </div>
 
-
   
   {% include "pagination_top.html" with qset=lenses request=request qset_range=lenses_range qset_total=lenses_count target="lenses" %}
 
@@ -637,8 +636,6 @@
     </button>
   </div>
 </div>
-
-
 {% endblock content %}
 
 
@@ -657,35 +654,8 @@
 {{ lens_form.media.js }}
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
-<script type="text/javascript" src="{% static 'lenses/js/lens_query.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function(){
-      $('.data-form').find('input').change(function(){
-	  var id = $(this).parents('.data-form').attr('id');
-	  
-	  var exist = 0;
-	  $('#'+id).find('input').each(function(){
-	      if( !$(this).attr('name').match('instrument_and') ){
-		  if( $(this).attr('type') == "checkbox" ){
-		      if( $(this).is(":checked") ) {
-			  exist++;
-		      }
-		  } else if( $(this).val().length != 0 ){
-		      exist++;
-		  }
-	      }
-	  });
-	  
-	  var target = $('#myTab button[data-target="#'+id+'"]');
-	  console.log(exist,target.html());
-	  if( exist == 0 ){
-	      target.children('.badge').remove();
-	  } else {
-	      if( target.children('.badge').length == 0 ){
-		  target.append("<span class=\"badge badge-pill badge-success\"><img src=\"{% static 'icons/check.svg' %}\"></span>");
-	      }
-	  }
-      });  
-  });
+<script nonce="{{request.csp_nonce}}">
+  var path_to_icon = "{% static 'icons/check.svg' %}";
 </script>
+<script type="text/javascript" src="{% static 'lenses/js/lens_query.js' %}"></script>
 {% endblock extrascripts %}

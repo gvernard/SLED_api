@@ -42,13 +42,13 @@
 	<tr>
           <th>Author(s)</th>
           <th>Title</th>
-          <th style="width:135px;">Number of Systems</th>
+          <th class="number-of-systems">Number of Systems</th>
 	</tr>
       </thead>
       <tbody>
 	{% for paper in papers %}
 	<tr>
-          <td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
+          <td class="no-wrap"><a href="{{ paper.get_absolute_url }}">{{paper.cite_as}}</td>
           <td><i>"{{ paper.title }}"</i></td>
           <td>{{ paper.lenses_in_paper.all|length }}</td>
 	</tr>
@@ -69,19 +69,10 @@
 
 
 {% block extrastyles %}
+<link href="{% static 'sled_papers/css/paper_query.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 
 {% block extrascripts %}
-<script type="text/javascript">
-  $(document).ready(function(){
-      $(".sled_submit").click(function(e) {
-	  e.preventDefault();
-	  var dum = $(this).attr('href').split('page=');
-	  var page = dum[1].replace('#','');
-	  $('#id_page').val(page);
-	  $('#mysubmit').trigger('click');
-      });
-  });
-</script>
+<script type="text/javascript" src="{% static 'sled_papers/js/paper_query.js' %}"></script>
 {% endblock extrascripts %}

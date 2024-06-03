@@ -18,11 +18,11 @@ def get_class_name(obj):
 @register.filter(name='lens_flag')
 def lens_flag(flag):
     if flag == 'CANDIDATE':
-        text = '<span style="color:#666666">'+flag.title()+'</span>'
+        text = '<span class="jb-color-neutral">'+flag.title()+'</span>'
     elif flag == 'CONFIRMED':
-        text = '<span style="color:green">'+flag.title()+'</span>'
+        text = '<span class="jb-color-green">'+flag.title()+'</span>'
     elif flag == 'CONTAMINANT':
-        text = '<span style="color:red">'+flag.title()+'</span>'
+        text = '<span class="jb-color-red">'+flag.title()+'</span>'
     else:
         text = flag.title()
     return text

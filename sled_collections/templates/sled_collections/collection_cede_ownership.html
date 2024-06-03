@@ -49,7 +49,7 @@ Cede ownership of collection {{ collection.name }}?
 
 
 {% block extrascripts %}
-<script>
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
   users_autocomplete('id_heir');
   $('#id_heir').select2({
     width: '100%',

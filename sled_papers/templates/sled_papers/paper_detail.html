@@ -10,7 +10,7 @@
 
   <div>
     <p class="jb-heading-paper-title"> "{{ paper.title }}" </p>
-    <p style="font-size:30px;"> <a href="{{ paper.get_ads_url }}">{{ paper.cite_as }}</a> </p>
+    <p class="cite_as"> <a href="{{ paper.get_ads_url }}">{{ paper.cite_as }}</a> </p>
     <p> Created at {{ paper.created_at }} by <a href="{{ paper.owner.get_absolute_url }}">{{paper.owner}}</a></p>
     {% comment %}
     <button type="button" id="export-csv" disabled class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:export-csv' paper.pk %}">
@@ -38,29 +38,12 @@
 
 
 {% block extrastyles %}
+<link href="{% static 'sled_papers/css/paper_detail.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function() {
-
-    // Modals
-    $('#delete-paper').modalForm({
-      formURL: $('#delete-paper').data("form-url"),
-      modalID: "#id-modal",
-      isDeleteForm: true
-    });
-
-    $(".sled-modal").each(function() {
-	$(this).modalForm({
-            formURL: $(this).data("form-url"),
-            modalID: "#id-modal"
-	});
-    });
-      
-  });
-</script>
+<script src="{% static 'sled_papers/js/paper_detail.js' %}"></script>
 {% endblock extrascripts %}

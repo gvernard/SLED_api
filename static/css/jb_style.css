@@ -493,6 +493,18 @@ table td {
     border-top:0px;
 }
 
+.activity-object-table {
+    table-layout: fixed;
+    width: 100%;
+    border-collapse:collapse;
+}
+.activity-object-table td:first-child {
+    width: 20px;
+}
+.activity-object-table td:nth-child(2) {
+    padding-left: 10px;
+}
+
 
 .jb-notifications-button {
     font-family: basic-sans, sans-serif;
@@ -670,3 +682,29 @@ ul.jb-select-radio {
     display: none;
 }
 
+.pagination-color-selected {
+    color: #BABCEF !important;
+}
+
+.pagination-color-unselected {
+    color: #ACACAC !important;
+}
+
+
+.jb-color-red {
+    color: red;
+}
+.jb-color-green {
+    color: green;
+}
+.jb-color-neutral {
+    color: #666666;
+}
+
+.display-none {
+    display: none;
+}
+
+.jb-bold {
+    font-weight: bold;
+}

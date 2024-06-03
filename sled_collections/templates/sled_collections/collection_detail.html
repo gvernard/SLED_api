@@ -10,7 +10,7 @@
 <div class="jb-container">
 
   <h1 class="jb-heading-1">{{ collection.name }}</h1>
-  <p style="margin-bottom:2px">
+  <p class="created-at">
     Created at: {{ collection.created_at }}
   </p>
 
@@ -27,11 +27,11 @@
   <!-- Div with some information about the collection -->
   <div>
     <h1 class="jb-heading-2">Collection Information</h1>
-    <table>
+    <table class="collection-info">
       <tr>
-        <th style="width:100px">Owner</th>
-        <th style="width:120px">Items</th>
-        <th style="width:120px">Access level</th>
+        <th>Owner</th>
+        <th>Items</th>
+        <th>Access level</th>
         <th>Description</th>
       </tr>
       <tr>
@@ -175,9 +175,9 @@
 
 
 {% block extrascripts %}
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" integrity="sha384-d3UHjPdzJkZuk5H3qKYMLRyWLAQBJbby2yr2Q58hXXtAGF8RSNO9jpLDlKKPv5v3" crossorigin="anonymous" type="text/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous" type="text/javascript"></script>
-<script src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" integrity="sha384-d3UHjPdzJkZuk5H3qKYMLRyWLAQBJbby2yr2Q58hXXtAGF8RSNO9jpLDlKKPv5v3" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_collections/js/collection_detail.js' %}"></script>
 {% endblock extrascripts %}

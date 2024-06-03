@@ -64,7 +64,7 @@ Cede ownership?
 
 
 {% block extrascripts %}
-<script>
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
   users_autocomplete('id_heir');
 
   // The following is needed for select2 to work properly in a modal

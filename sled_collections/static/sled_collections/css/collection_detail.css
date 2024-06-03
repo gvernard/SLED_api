@@ -1,2 +1,21 @@
-.collection-access {text-align:left;}
-.collection-access tbody tr td:first-child {width:80px;}
+.collection-access {
+    text-align:left;
+}
+
+.collection-access tbody tr td:first-child {
+    width:80px;
+}
+
+.created-at {
+    margin-bottom: 2px;
+}
+
+.collection-info th:first-child {
+    width: 100px;
+}
+.collection-info th:nth-child(2) {
+    width: 120px;
+}
+.collection-info th:nth-child(3) {
+    width: 120px;
+}

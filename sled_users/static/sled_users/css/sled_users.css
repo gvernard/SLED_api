@@ -51,3 +51,27 @@
   margin-top: 12px;
   margin-right: 10px;
 }
+
+.joined-on {
+    margin-bottom: 2px;
+}
+
+.slack-display-name {
+    width: 250px;
+}
+
+.white-bg {
+    background-color:white !important;
+}
+
+.margin-top {
+    margin-top: 20px;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.padding-right {
+    padding-right: 10px;
+}

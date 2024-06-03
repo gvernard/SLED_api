@@ -70,10 +70,10 @@ Give access to Users and Groups?
 
 
 {% block extrascripts %}
-<script>
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
   users_autocomplete("id_users");
   groups_autocomplete("id_groups");
-
+  
   // The following is needed for select2 to work properly in a modal
   $('#id_users').select2({
     width: '100%',

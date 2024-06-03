@@ -1,0 +1,21 @@
+.created-at {
+    margin-bottom: 2px;
+}
+
+.group-info th:first-child {
+    width: 100px;
+}
+.group-info th:nth-child(2) {
+    width: 120px;
+}
+.group-info th:nth-child(3) {
+    width: 120px;
+}
+
+.padding-right {
+    padding-right: 10px;
+}
+
+.align-center {
+    text-align: center;
+}

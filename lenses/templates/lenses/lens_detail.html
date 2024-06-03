@@ -23,7 +23,7 @@
             Alternative names: {{lens.alt_name}}
 	  </p>
 	  {% endif %}
-	  <p style="margin-bottom:2px">
+	  <p class="created-at">
             Created at: {{ lens.created_at }}
 	    <br>
 	    Managed by: <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
@@ -80,7 +80,7 @@
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Request update
 	    </button>	    
-	    <button id="follow-button" class="jb-submit-button-1" style="margin-left:10px;">
+	    <button id="follow-button" class="jb-submit-button-1 margin-left">
 	      {% if following %}
 	      <img src="{% static 'icons/person-x-fill.svg' %}" >
 	      Unfollow
@@ -214,7 +214,7 @@
       {% for paper,label in all_papers %}
       <tr>
 	<td valign="top">{{ label }}</td>
-	<td style="white-space:nowrap;"><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
+	<td class=".no-wrap"><a href="{{ paper.get_absolute_url }}">{{ paper.cite_as }}</a></td>
 	<td><i>"{{ paper.title }}"</i></td>
       </tr>
       {% empty %}
@@ -232,7 +232,7 @@
   <div id="genericimage" class="jb-section">
     <h1 class="jb-heading-2">Generic Images</h1>
 
-    <div style="overflow:hidden">
+    <div class="overflow-hidden">
       {% for generic_image in generic_images %}
       <div class="imaging-item">
 	<div class="header">
@@ -281,7 +281,7 @@
       <tbody>
 	{% for redshift in redshifts %}
 	<tr>
-	  <td style="padding-right:10px;">
+	  <td class="padding-right">
 	    Z<sub>{{ redshift.tag }}</sub> = {{ redshift.value.normalize }}<span class="supsub"><sub>-{{ redshift.dvalue_min.normalize }}</sub><sup>+{{ redshift.dvalue_max.normalize }}</sup></span>
 	  </td>
 	  <td>
@@ -412,10 +412,10 @@
   <div id="catalogue" class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Catalogue Data</h1>
 
-    <div style="width:75%;margin:auto">
+    <div class="catalogue-div">
       <table>
 	<tr>
-	  <td style="padding-right:60px">
+	  <td class="catalogue-td">
 	    <div class="jb-table-no-lines">
 	      <table class="jb-catalogue-table">
 		{% for instrument_band in display_catalogues_plot %}
@@ -430,12 +430,13 @@
 	    </div>
 	  </td>
 	  <td>
+	    Plotting is currently disabled due to CSP conflict.
 	    <div id="plot"></div>
 	  </td>
       </table>
     </div>
 
-    <div style="overflow:hidden">
+    <div class="overflow-hidden">
       {% for instrument_name,instrument in display_catalogues_table.items %}
       <div class="catalogue-floater">
 	<h1 class="jb-heading-3">{{ instrument_name }}</h1>
@@ -461,7 +462,7 @@
 		{{ mag }} &plusmn; {{ Dmag }}
 	      </td>
 	      {% else %}
-	      <td style="text-align:center">
+	      <td class="align-center">
 		X
 	      </td>
 	      {% endif %}
@@ -528,14 +529,16 @@
 
 
 {% block extrascripts %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" integrity="sha384-d3UHjPdzJkZuk5H3qKYMLRyWLAQBJbby2yr2Q58hXXtAGF8RSNO9jpLDlKKPv5v3" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
-<script src="https://cdn.plot.ly/plotly-2.18.0.min.js" integrity="sha384-CWcvAZ15tMVGSmiB3iS8nEKTDavKuyTykso4L8f5WFdGLHtkfcM+XtwbC/nTTwHW" crossorigin="anonymous"></script>
-<script type="text/javascript">
+{% comment %}
+<script type="text/javascript" src="https://cdn.plot.ly/plotly-strict-2.32.0.min.js" integrity="sha384-io8r9i/U73rQsMlreg2vHY1FEIAc4xlJf2lyiFLOD22l55ZRCazujEhU11TZvBBz" crossorigin="anonymous"></script>
+{% endcomment %}
+<script type="text/javascript" nonce="{{request.csp_nonce}}">
   // Create the array holding all the detections in ra,dec per instrument-band
   var data = [];
   {% for instrument_band,item in display_catalogues_plot.items %}
@@ -606,7 +609,7 @@
       $('.sled-catalogue-checkbox:checked').each(function(i){
           data_to_plot.push( data[$(this).val()] );
       });
-      Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
+      //Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
   }
   
   
@@ -715,6 +718,6 @@
 	      modalID: "#id-modal"
           });
       });
-  });  
+  });
 </script>
 {% endblock extrascripts %}

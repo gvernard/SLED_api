@@ -8,7 +8,7 @@
 
   <div class="jb-table-no-lines">
     <h1 class="jb-heading-1">Admin: {{ user.first_name }} {{ user.last_name }} ({{ user.username }})</h1>
-    <p style="margin-bottom:2px">
+    <p class="joined-on">
       Joined on {{ user.date_joined }}, last login {{ user.last_login|timesince }} ago
     </p>
   </div>
@@ -300,42 +300,8 @@
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script>
-  $(document).ready(function() {
-      $('.p').hide();
-      
-      // Accordion
-      $('input[type=checkbox]').click(function(){
-	  $(this).siblings('div').animate({
-	      height: "toggle"
-	  }, 500, function() {
-	      // Animation complete.
-	  });
-      });
-
-     // Modals
-      $('.sled-delete-band,.sled-delete-instrument').each(function(){
-	  $(this).modalForm({
- 	      formURL: $(this).data("form-url"),
- 	      modalID: "#id-modal",
- 	      isDeleteForm: true
-	  });
-      });
-
-      $(".sled-modal").each(function(){
-	  $(this).modalForm({
-              formURL: $(this).data("form-url"),
- 	      modalID: "#id-modal"
-	  });
-      });
-
-
-      // Scroll to opened accordion div
-      var hash = ("{{ hash }}");
-      if( hash ){
-	  $('#'+hash).trigger("click");
-	  //$('html,body').animate({scrollTop: $('#'+hash).offset().top},'slow');
-      }
-  });
+<script nonce="{{request.csp_nonce}}">
+  var hash = ("{{ hash }}");
 </script>
+<script type="text/javascript" src="{% static 'sled_users/js/user_admin.js' %}"></script>
 {% endblock extrascripts %}

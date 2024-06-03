@@ -1,0 +1,12 @@
+.color-blue {
+    color: blue;
+}
+
+.roles {
+    font-weight: bold;
+    font-size: 40px;
+}
+
+.slack-display-name {
+    width: 250px;
+}

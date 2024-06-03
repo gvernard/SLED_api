@@ -127,7 +127,7 @@
         Your access to
 	{% if N > 1 %}
 	<a class="sled-open-tooltip" href="">{{ N }} private {% singular_or_plural note.action_object.item_type N %}</a>
-	<div class="sled-notification-tooltip" style="display:none">
+	<div class="sled-notification-tooltip display-none">
           <table>
             {% for item in note.action_object.myitems.all %}
             <tr>
@@ -152,7 +152,7 @@
 	Private {{ note.data.object_type|get_name_plural }} were removed from
 	{% if N > 1 %}
 	<a class="sled-open-tooltip">{{ N }} Collections</a> that you own.
-        <div class="sled-notification-tooltip" style="display:none">
+        <div class="sled-notification-tooltip display-none">
           <table>
             {% for col in note.action_object.myitems.all %}
             <tr>
@@ -185,7 +185,7 @@
 	{% if N > 1 %}
 	<a href="{{ note.action_object|get_ad_col_url }}" target="_blank">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
 	<a class="sled-open-tooltip" href="">{{ N }} {% singular_or_plural note.action_object.item_type N %}</a>
-	<div class="sled-notification-tooltip" style="display:none">
+	<div class="sled-notification-tooltip display-none">
           <table>
             {% for item in note.action_object.myitems.all %}
             <tr>
