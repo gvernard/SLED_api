@@ -68,24 +68,3 @@ Give access to Users and Groups?
 </button>
 {% endblock action_button %}
 
-
-{% block extrascripts %}
-<script type="text/javascript" nonce="{{request.csp_nonce}}">
-  users_autocomplete("id_users");
-  groups_autocomplete("id_groups");
-  
-  // The following is needed for select2 to work properly in a modal
-  $('#id_users').select2({
-    width: '100%',
-    placeholder: 'Search for a user',
-    minimumInputLength: 1,
-    dropdownParent: $('#id-modal')
-  });
-  $('#id_groups').select2({
-    width: '100%',
-    placeholder: 'Search for a group',
-    minimumInputLength: 1,
-    dropdownParent: $('#id-modal')
-  });
-</script>
-{% endblock extrascripts %}

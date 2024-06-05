@@ -104,16 +104,16 @@
 	  <h1 class="jb-heading-2">Admin actions</h1>
 	  
 	  <div>
-	    <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}">
+	    <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}" data-sled-onload="set_modal_update">
 	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
 	      Update lens
 	    </button>
 	    {% if lens.access_level == "PRI" %}
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}">
 	      Revoke access
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-plus-fill.svg' %}">
 	      Give access
 	    </button>
@@ -127,7 +127,7 @@
 	      Make private
 	    </button>
 	    {% endif %}
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
 	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
@@ -221,7 +221,7 @@
       No papers associated with this lens in the database
       {% endfor %}
     </table>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-quick-query' %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-quick-query' %}" data-sled-onload="set_modal_paper_quick_query">
       <img src="{% static 'icons/search.svg' %}" alt="pencil">
       Search paper
     </button>    
@@ -246,7 +246,7 @@
 	      View
 	    </button>
 	    {% if generic_image.owner == user %}
-	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:generic-image-update' generic_image.id %}">
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:generic-image-update' generic_image.id %}" data-sled-onload="set_modal_generic_image_update">
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
 	    </button>	
@@ -257,7 +257,7 @@
       {% endfor %}
     </div>
     
-    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:generic-image-create' lens=lens.id %}">
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:generic-image-create' lens=lens.id %}" data-sled-onload="set_modal_generic_image_create">
       <img src="{% static 'icons/plus.svg' %}">
       Add Generic Image
     </button>
@@ -305,7 +305,7 @@
 	  </td>
 	  <td>
 	    {% if redshift.owner == user %}
-	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}">
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}" data-sled-onload="set_modal_redshift_update">
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
 	    </button>	
@@ -318,7 +318,7 @@
       </tbody>
     </table>
     {% endif %}
-    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:redshift-create' lens=lens.id %}">
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:redshift-create' lens=lens.id %}" data-sled-onload="set_modal_redshift_create">
       <img src="{% static 'icons/plus.svg' %}">
       Add Redshift
     </button>
@@ -349,7 +349,7 @@
 		  View
 		</button>
 		{% if image.owner == user %}
-		<button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:imaging-update' image.id %}">
+		<button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:imaging-update' image.id %}" data-sled-onload="set_modal_imaging_update">
 		  <img src="{% static 'icons/pencil.svg' %}">
 		  Update
 		</button>	
@@ -363,7 +363,7 @@
       </tr>
       {% endfor %}
     </table>
-    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-create' lens=lens.id %}">
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-create' lens=lens.id %}" data-sled-onload="set_modal_imaging_create">
       <img src="{% static 'icons/plus.svg' %}">
       Add Imaging data
     </button>
@@ -389,7 +389,7 @@
 	      View
 	    </button>
 	    {% if spec.owner == user %}
-	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-update' spec.id %}">
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-update' spec.id %}" data-sled-onload="set_modal_spectrum_update">
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
 	    </button>	
@@ -401,7 +401,7 @@
       {% endfor %}
     </table>
     
-    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-create' lens=lens.id %}">
+    <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-create' lens=lens.id %}" data-sled-onload="set_modal_spectrum_create">
       <img src="{% static 'icons/plus.svg' %}">
       Add Spectrum
     </button>
@@ -532,9 +532,21 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" integrity="sha384-d3UHjPdzJkZuk5H3qKYMLRyWLAQBJbby2yr2Q58hXXtAGF8RSNO9jpLDlKKPv5v3" crossorigin="anonymous"></script>
-<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_single_objects/js/so_cede_ownership.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_single_objects/js/so_give_revoke_access.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_papers/js/paper_quick_query.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/imaging_create.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/imaging_update.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/generic_image_create.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/generic_image_update.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/redshift_create.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/redshift_update.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/spectrum_create.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/spectrum_update.js' %}"></script>
+{{ form.media.js }}
 {% comment %}
 <script type="text/javascript" src="https://cdn.plot.ly/plotly-strict-2.32.0.min.js" integrity="sha384-io8r9i/U73rQsMlreg2vHY1FEIAc4xlJf2lyiFLOD22l55ZRCazujEhU11TZvBBz" crossorigin="anonymous"></script>
 {% endcomment %}
@@ -611,7 +623,28 @@
       });
       //Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
   }
-  
+
+
+  function readURL(input, $img) {
+      if (input.files && input.files[0]) {
+	  var reader = new FileReader();
+	  reader.onload = function(e) {
+	      $img.attr('src', e.target.result);
+	  }
+	  reader.readAsDataURL(input.files[0]);
+      }
+  }
+
+  function set_modal_update(){
+      $(document).on("change", "input[name*='mugshot']", function() {
+	  var $img = $(this).parent().parent().parent().find('img');
+	  readURL(this, $img);
+      });
+      
+      set_help();
+      
+      $('.my-select2').select2();
+  }
   
   $(document).ready(function(){
       $('#follow-button').click(function(){
@@ -673,14 +706,16 @@
       $(".sled-modal").each(function() {
           $(this).modalForm({
               formURL: $(this).data("form-url"),
-              modalID: "#id-modal"
+              modalID: "#id-modal",
+	      sled_onload: $(this).data("sled-onload"),
           });
       });
       
       $(".sled-modal-wide").each(function() {
           $(this).modalForm({
               formURL: $(this).data("form-url"),
-              modalID: "#id-modal-wide"
+              modalID: "#id-modal-wide",
+	      sled_onload: $(this).data("sled-onload"),
           });
       });
       
@@ -715,7 +750,8 @@
           var new_form_url = url_core + get_str;
           $(this).modalFormTrigger({
 	      formURL: new_form_url,
-	      modalID: "#id-modal"
+	      modalID: "#id-modal",
+	      sled_onload: $(this).data("sled-onload"),
           });
       });
   });

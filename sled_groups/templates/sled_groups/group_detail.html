@@ -59,15 +59,15 @@
       <img src="{% static 'icons/trash.svg' %}">
       Delete
     </button>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-cede-ownership' group.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-cede-ownership' group.pk %}" data-sled-onload="set_modal_group_cede_ownership">
       <img src="{% static 'icons/forward-fill.svg' %}">
       Cede ownership
     </button>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-add-members' group.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-add-members' group.pk %}" data-sled-onload="set_modal_add_remove_members">
       <img src="{% static 'icons/person-plus-fill.svg' %}">
       Add members
     </button>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-remove-members' group.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_groups:group-remove-members' group.pk %}" data-sled-onload="set_modal_add_remove_members">
       <img src="{% static 'icons/person-dash-fill.svg' %}">
       Remove members
     </button>
@@ -356,5 +356,7 @@
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_groups/js/group_cede_ownership.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_groups/js/group_add_remove_members.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_groups/js/group_detail.js' %}"></script>
 {% endblock extrascripts %}

@@ -708,3 +708,11 @@ ul.jb-select-radio {
 .jb-bold {
     font-weight: bold;
 }
+
+.full-width {
+    width: 100%;
+}
+
+.float-right {
+    float: right;
+}

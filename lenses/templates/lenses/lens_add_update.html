@@ -224,16 +224,14 @@
 {% block extrastyles %}
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 <link href="{% static 'lenses/css/lens_add.css' %}" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
 {% endblock extrastyles %}
 
 
 
 {% block extrascripts %}
-{% if request.resolver_match.url_name == 'lens-add' %}
 <script type="text/javascript" src="{% static 'lenses/js/jquery.formset.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
-<link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
-{% endif %}
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js" integrity="sha384-d3UHjPdzJkZuk5H3qKYMLRyWLAQBJbby2yr2Q58hXXtAGF8RSNO9jpLDlKKPv5v3" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>

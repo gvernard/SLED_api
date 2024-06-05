@@ -54,17 +54,17 @@
       <img src="{% static 'icons/trash.svg' %}">
       Delete
     </button>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-cede-ownership' collection.pk %}" data-sled-onload="set_modal_cede_ownership">
       <img src="{% static 'icons/forward-fill.svg' %}">
       Cede ownership
     </button>
 
     {% if collection.access_level == 'PRI' %}
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-revoke-access' collection.pk %}" data-sled-onload="set_modal_give_revoke_access">
       <img src="{% static 'icons/person-dash-fill.svg' %}">
       Revoke access
     </button>
-    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}">
+    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-give-access' collection.pk %}" data-sled-onload="set_modal_give_revoke_access">
       <img src="{% static 'icons/person-plus-fill.svg' %}">
       Give access
     </button>
@@ -180,4 +180,6 @@
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_collections/js/collection_detail.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_collections/js/collection_cede_ownership.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_collections/js/collection_give_revoke_access.js' %}"></script>
 {% endblock extrascripts %}

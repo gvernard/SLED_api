@@ -46,14 +46,3 @@ Remove members from the group
 {% endblock action_button %}
 
 
-{% block extrascripts %}
-<script>
-  users_autocomplete('id_users');
-  $('#id_users').select2({
-    width: '100%',
-    placeholder: 'Search for a user',
-    minimumInputLength: 1,
-    dropdownParent: $('#id-modal')
-  });
-</script>
-{% endblock extrascripts %}

@@ -178,7 +178,7 @@ Update Lens {{ lens.name }}
                     {{ form.info.errors }}
 		  </div>
                 </td>
-                <td colspan="2" style="text-align:center">{{ form.info }}</td>
+                <td colspan="2" class="align-center">{{ form.info }}</td>
               </tr>
             </table>
           </div>
@@ -190,7 +190,7 @@ Update Lens {{ lens.name }}
           <div>
             <table class="jb-paragraph-2">
 	      <tr>
-		<td colspan="1" style="text-align:center">
+		<td colspan="1" class="align-center">
                   {% if form.instance.mugshot %}
                   <img class="sled-mugshot-image" src="{{ form.instance.mugshot.url }}" alt="Mugshot">
                   {% else %}
@@ -199,7 +199,7 @@ Update Lens {{ lens.name }}
 		</td>
 	      </tr>
               <tr>
-                <td style="text-align:center">
+                <td class="align-center">
 		  <div class="invalid jb-modal-field">
 		    {{ form.mugshot.errors }}
                     {{ form.mugshot }}		    
@@ -224,32 +224,4 @@ Update Lens {{ lens.name }}
 <button type="submit" class="jb-submit-button-1">Update</button>
 {% endblock action_button %}
 
-{% block extrastyles %}
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-{% endblock extrastyles %}
 
-
-
-{% block extrascripts %}
-<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
-{{ form.media.js }}
-<script type="text/javascript">
-  function readURL(input, $img) {
-      if (input.files && input.files[0]) {
-          var reader = new FileReader();
-          reader.onload = function(e) {
-              $img.attr('src', e.target.result);
-          }
-          reader.readAsDataURL(input.files[0]);
-      }
-  }
-  $(document).on("change", "input[name*='mugshot']", function() {
-      var $img = $(this).parent().parent().parent().find('img');
-      readURL(this, $img);
-  });
-
-  set_help();
-  
-  $('.my-select2').select2();
-</script>
-{% endblock extrascripts %}

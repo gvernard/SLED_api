@@ -33,7 +33,7 @@
     </h1>
 
     {% if N_old > 0 %}
-    <p style="color:red">
+    <p class="jb-color-red">
       You have {{N_old}} completed tasks that are more than 10 days old - please consider deleting them
     </p>
     {% endif %}
@@ -56,11 +56,11 @@
           <tr>
             <td>
 	      {% if task.status == "P" %}
-	      <span style="font-weight:bold;color:red">
+	      <span class="jb-bold jb-color-red">
 		{{ task.status }}
 	      </span>
 	      {% else %}
-	      <span style="font-weight:bold;color:green">
+	      <span style="jb-bold jb-color-green">
 		{{ task.status }}
 	      </span>
 	      {% endif %}
@@ -142,15 +142,5 @@
 {% block extrascripts %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script type="text/javascript">
-  $(document).ready(function(){
-      // Modals
-      $(".sled-modal").each(function() {
-          $(this).modalForm({
-              formURL: $(this).data("form-url"),
-              modalID: "#id-modal-wide"
-          });
-      });
-  });
-</script>
+<script type="text/javascript" src="{% static 'sled_tasks/js/task_list.js' %}"></script>
 {% endblock extrascripts %}

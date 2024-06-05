@@ -35,7 +35,7 @@
   </p>
   {% endif %}
 
-  <button type="button" id="create-new-group" class="jb-submit-button-1" data-form-url="{% url 'sled_groups:group-create' %}">
+  <button type="button" id="create-new-group" class="jb-submit-button-1" data-form-url="{% url 'sled_groups:group-create' %}" data-sled-onload="set_modal_group_create">
     <img src="{% static 'icons/plus.svg' %}">
     Create new group
   </button>
@@ -122,5 +122,6 @@
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_groups/js/group_create.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_groups/js/group_list.js' %}"></script>
 {% endblock extrascripts %}

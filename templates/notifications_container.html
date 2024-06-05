@@ -232,7 +232,7 @@
 <p>No notifications</p>
 {% endif %}
 
-<script>
+<script nonce="{{request.csp_nonce}}">
   $(".sled-modal-anchor").each(function(){
       $(this).click(function(e){e.preventDefault()});
       $(this).modalForm({

@@ -13,6 +13,9 @@ https://github.com/trco/django-bootstrap-modal-forms
             $(settings.modalID).modal("show");
             $(settings.modalForm).attr("action", settings.formURL);
             addEventHandlers(settings);
+	    if( settings.sled_onload !== undefined ){
+		window[settings.sled_onload]();
+	    }
         });
     };
 
@@ -48,6 +51,9 @@ https://github.com/trco/django-bootstrap-modal-forms
                     $(settings.modalForm).attr("action", settings.formURL);
                     // Reinstantiate handlers
                     addEventHandlers(settings);
+		    if( settings.sled_onload !== undefined ){
+			window[settings.sled_onload]();
+		    }
                 } else {
                     // Form is valid, submit it
                     callback(settings);
@@ -104,6 +110,9 @@ https://github.com/trco/django-bootstrap-modal-forms
                                     $(settings.modalID).find(settings.modalContent).load(settings.formURL, function () {
                                         $(settings.modalForm).attr("action", settings.formURL);
                                         addEventHandlers(settings);
+					if( settings.sled_onload !== undefined ){
+					    window[settings.sled_onload]();
+					}
                                     });
                                 }
                             }

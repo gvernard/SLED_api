@@ -351,11 +351,11 @@
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}">
 	      Revoke access
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-plus-fill.svg' %}">
 	      Give access
 	    </button>
@@ -369,7 +369,7 @@
 	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
 	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
@@ -483,11 +483,11 @@
 	      <img src="{% static 'icons/pencil.svg' %}" >
 	      Update
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
@@ -499,7 +499,7 @@
 	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
 	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
@@ -594,7 +594,7 @@
 		    {{ spectrum.getUsersWithAccessNoOwner|join:"," }} - <em>{{ spectrum.getGroupsWithAccessNoOwner|join:"," }}</em>
 		  </td>
 		  <td>
-		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-update' spectrum.id %}">
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-update' spectrum.id %}" data-sled-onload="set_modal_spectrum_update">
 		      <img src="{% static 'icons/pencil.svg' %}" >
 		      Update
 		    </button>
@@ -619,11 +619,11 @@
 	      <img src="{% static 'icons/pencil.svg' %}" >
 	      Update
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
@@ -635,7 +635,7 @@
 	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
 	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
@@ -743,11 +743,11 @@
 	      <img src="{% static 'icons/pencil.svg' %}" >
 	      Update
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
@@ -759,7 +759,7 @@
 	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
 	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
@@ -871,7 +871,7 @@
 		  </td>
 		  <td>
 		    {% if redshift.owner == user %}
-		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}">
+		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}" data-sled-onload="set_modal_redshift_update">
 		      <img src="{% static 'icons/pencil.svg' %}">
 		      Update
 		    </button>	
@@ -887,11 +887,11 @@
 	  {% include "pagination_bottom.html" with qset=redshifts request=request qset_range=redshifts_range qset_total=N_redshifts_total target="redshifts" %}
 	  
 	  <div>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
@@ -903,7 +903,7 @@
 	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
 	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
@@ -1012,11 +1012,11 @@
 	  {% include "pagination_bottom.html" with qset=generic_images request=request qset_range=generic_image_range qset_total=N_generic_image_total target="generic-images" %}
 	  
 	  <div>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
 	      Revoke access
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
 	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
 	      Give access
 	    </button>
@@ -1028,7 +1028,7 @@
 	      <img src="{% static 'icons/lock-fill.svg' %}" >
 	      Make private
 	    </button>
-	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}">
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
 	      <img src="{% static 'icons/forward-fill.svg' %}" >
 	      Cede ownership
 	    </button>
@@ -1072,7 +1072,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous" type="text/javascript"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_users/js/sled_users.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_single_objects/js/so_cede_ownership.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_single_objects/js/so_give_revoke_access.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/redshift_update.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_data/js/spectrum_update.js' %}"></script>
 <script type="text/javascript" nonce="{{request.csp_nonce}}">
   $(document).ready(function() {
       // Add line of last login in followed lens activity stream 

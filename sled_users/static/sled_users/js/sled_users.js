@@ -24,7 +24,8 @@ $(document).ready(function() {
             var new_form_url = url_core + get_str;
             $(this).modalFormTrigger({
 		formURL: new_form_url,
-		modalID: "#id-modal"
+		modalID: "#id-modal",
+		sled_onload: $(this).data("sled-onload"),
             });
 	}
     });
@@ -82,7 +83,8 @@ $(document).ready(function() {
     $(".sled-modal").each(function() {
 	$(this).modalForm({
             formURL: $(this).data("form-url"),
-            modalID: "#id-modal"
+            modalID: "#id-modal",
+	    sled_onload: $(this).data("sled-onload"),
 	});
     });
     
