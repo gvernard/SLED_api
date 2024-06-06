@@ -6,11 +6,11 @@
 {% block title %}
 <span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
-<span style="font-weight:bold;color:red">
+<span class="jb-bold jb-color-red">
   Pending
 </span>
 {% else %}
-<span style="font-weight:bold;color:green">
+<span class="jb-bold jb-color-green">
   Completed
 </span>
 {% endif %}
@@ -29,29 +29,29 @@
     
     {% if task.status == "P" %}
 
-    Inspector <strong>{{ task.recipients.all|join:"," }}</strong> <span style="color:red">has not responded yet</span></td></tr>
+    Inspector <strong>{{ task.recipients.all|join:"," }}</strong> <span class="jb-color-red">has not responded yet</span></td></tr>
     
     {% else %}
     
     On <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) user <strong>{{ task.recipients.all|join:"," }}</strong> responded with:
     <div class="original-message">
       {% if actual_response.response == 'All' %}
-      <span style="font-weight:bold;color:green">
+      <span class="jb-bold jb-color-green">
 	All images are accepted
       </span>
       {% elif actual_response.response == 'Partial' %}
-      <span style="font-weight:bold;color:red">
+      <span class="jb-bold jb-color-red">
 	Some of the images are rejected
       </span>
       {% else %}
-      <span style="font-weight:bold;color:red">
+      <span class="jb-bold jb-color-red">
 	None of the images is accepted
       </span>
       {% endif %}
       
       {% if actual_response.response_comment %}
-      <span style="text-align:center;font-style:italic;">
-	- &ldquo;{{ response.response_comment }}&rdquo;
+      <span class="align-center jb-italic">
+	- &ldquo;{{ actual_response.response_comment }}&rdquo;
       </span>
       {% endif %}
     </div>
@@ -74,7 +74,7 @@
 	  <td><a href="{{ obj.get_absolute_url }}" target="_blank">{{ obj }}</a></td>
 	  {% if message != '' %}
 	  <td>
-	    <span style="text-align:center;font-style:italic;">
+	    <span class="align-center jb-italic">
 	      - &nbsp; &nbsp;  &ldquo;{{ message }}&rdquo;
 	    </span>
 	  </td>

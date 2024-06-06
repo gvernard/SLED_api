@@ -709,10 +709,28 @@ ul.jb-select-radio {
     font-weight: bold;
 }
 
+.jb-italic {
+    font-style: italic;
+}
+
 .full-width {
     width: 100%;
+}
+.half-width {
+    width: 50%;
 }
 
 .float-right {
     float: right;
+}
+
+.align-center {
+    text-align: center;
+}
+.align-right {
+    text-align: right;
+}
+
+.valign-center {
+    vertical-align: center;
 }

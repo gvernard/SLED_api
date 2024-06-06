@@ -5,11 +5,11 @@
 {% block title %}
 <span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
-<span style="font-weight:bold;color:red">
+<span class="jb-bold jb-color-red">
     Pending
 </span>
 {% else %}
-<span style="font-weight:bold;color:green">
+<span class="jb-bold jb-color-green">
   Completed
 </span>
 {% endif %}
@@ -36,7 +36,7 @@
       {% endfor %}
     </ul>
 
-    <p style="text-align:center;font-weight:bold;color:green">
+    <p class="align-center jb-bold jb-color-green">
 	You can now safely delete this task.
     </p>
   </div>

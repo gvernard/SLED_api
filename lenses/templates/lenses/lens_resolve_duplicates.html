@@ -18,7 +18,7 @@
       <table>
         <thead>
           <tr>
-            <th style="width: 50%">
+            <th class="half-width">
               Lenses that require checking
             </th>
             <th>
@@ -52,7 +52,7 @@
             <td>
               {% include 'lenses/lens_visit_card.html' with lens=new_lens %}
             </td>
-            <td style="text-align:center;vertical-align:center;">
+            <td class="align-center valign-center">
               No duplicates!
 	    </td>
 	  </tr>
@@ -80,19 +80,5 @@
 
 
 {% block extrascripts %}
-<script type="text/javascript">
-  $(document).ready(function() { 
-      $('.sled-dupl-yes-no').on('click', function() {
-	  if ($(this).is(':checked')) {
-	      var target = $(this).parents('tr').prev();
-              target.removeClass("sled-duplicate-required");
-              if ($(this).val() == 'yes') {
-		  target.removeClass("sled-duplicate-no").addClass("sled-duplicate-yes");
-              } else {
-		  target.removeClass("sled-duplicate-yes").addClass("sled-duplicate-no");
-              }
-	  }
-      })
-  });
-</script>
+<script type="text/javascript" src="{% static 'lenses/js/lens_resolve_duplicates.js' %}"></script>
 {% endblock extrascripts %}

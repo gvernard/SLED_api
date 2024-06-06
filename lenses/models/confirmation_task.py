@@ -726,8 +726,8 @@ class MergeLenses(ConfirmationTask):
     def finalizeTask(self):
         # Switch the selected data and all PRI data from the submitted lens to the existing one
         # Update any fields of the existing lens from the submitted one
-        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
-        response = json.loads(obj_responses['response'])
+        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response_comment').first()
+        response = json.loads(obj_responses['response_comment'])
 
         if response['response'] == 'yes':
             from . import Users
@@ -1009,8 +1009,8 @@ class InspectImages(ConfirmationTask):
 
     def finalizeTask(self):
         # This is modeled after the MergeLenses task
-        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response').first()
-        response = json.loads(obj_responses['response'])
+        obj_responses = self.heard_from().annotate(name=F('recipient__username')).values('response_comment').first()
+        response = json.loads(obj_responses['response_comment'])
         
         ids = set([ str(id) for id in self.cargo['object_ids'] ])
         excluded = set(response["rejected"].keys())

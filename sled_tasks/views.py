@@ -146,8 +146,8 @@ class TaskInspectDetailOwnerView(BSModalReadView):
 
         response = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment').first()
 
-        if response["response"]:
-            actual_response = json.loads(response["response"])
+        if response["response_comment"]:
+            actual_response = json.loads(response["response_comment"])
             context["actual_response"] = actual_response
             if actual_response['response'] == 'Partial':
                 messages = []
@@ -205,11 +205,11 @@ class TaskMergeDetailOwnerView(BSModalReadView):
         #context['nhf'] = self.object.not_heard_from().values_list('recipient__username',flat=True)
         responses = list(self.object.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment'))
         context['response'] = {}
-        if responses[0]['response'] == '':
+        response = json.loads(responses[0]['response_comment'])
+        if response['response'] == '':
             context['response']['response'] = ''
             context['response']['name'] = responses[0]['name']
         else:
-            response = json.loads(responses[0]['response'])
             context['response']['response'] = response['response']
             context['response']['response_comment'] = response['response_comment']
             context['response']['name'] = responses[0]['name']
@@ -496,9 +496,10 @@ class TaskMergeDetailView(TemplateView):
             
             if myform.is_valid():
                 # Hack to pass the insert_form responses to the task
-                my_response = json.dumps(myform.cleaned_data)
+                my_response_comment = json.dumps(myform.cleaned_data)
+                my_response = myform.cleaned_data['response']
                 task.responses_allowed = [my_response]
-                task.registerAndCheck(request.user,my_response,myform.cleaned_data['response_comment'])
+                task.registerAndCheck(request.user,my_response,my_response_comment)
                 return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
             else:
                 context['form'] = myform
@@ -594,9 +595,10 @@ class TaskInspectDetailView(TemplateView):
                         "response_comment": form.cleaned_data["response_comment"],
                         "rejected": rejected
                     }
-                    my_response = json.dumps(mydict)
+                    my_response = mydict["response"]
+                    my_response_comment = json.dumps(mydict)
                     task.responses_allowed = [my_response]                    
-                    task.registerAndCheck(request.user,my_response,form.cleaned_data['response_comment'])
+                    task.registerAndCheck(request.user,my_response,my_response_comment)
                     return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
                 else:
                     context = {}

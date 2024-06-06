@@ -6,11 +6,11 @@
 {% block title %}
 <span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
-<span style="font-weight:bold;color:red">
+<span class="jb-bold jb-color-red">
     Pending
 </span>
 {% else %}
-<span style="font-weight:bold;color:green">
+<span class="jb-bold jb-color-green">
   Completed
 </span>
 {% endif %}
@@ -22,7 +22,7 @@
 
   {% if db_response.response %}
   <p>
-    <span style="color:green">
+    <span class="jb-color-green">
       You have responded to this task at: <b>{{ db_response.created_at }}</b>
     </span>
   </p>
@@ -107,7 +107,7 @@
     {% if task.task_type != "InspectImages" %}
     User <strong>{{task.owner.username}}</strong> is saying:
     <div class="original-message">
-      <span style="text-align:center;font-style:italic;">
+      <span class="align-center jb-italic">
 	&ldquo;{{ comment }}&rdquo;
       </span>
     </div>

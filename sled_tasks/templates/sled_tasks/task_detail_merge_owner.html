@@ -6,11 +6,11 @@
 {% block title %}
 <span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
-<span style="font-weight:bold;color:red">
+<span class="jb-bold jb-color-red">
   Pending
 </span>
 {% else %}
-<span style="font-weight:bold;color:green">
+<span class="jb-bold jb-color-green">
   Completed
 </span>
 {% endif %}
@@ -38,14 +38,14 @@
 
     <div class="jb-modal-field jb-table-no-lines">
       {% if response.response == '' %}
-      &bull; <strong>{{ response.name }}</strong> <span style="color:red">has not responded yet</span>
+      &bull; <strong>{{ response.name }}</strong> <span class="jb-color-red">has not responded yet</span>
       {% else  %}
 
       <table class="responses">
 	<tr><td>&bull; <strong>{{ response.name }}</strong> responded on <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) with:</td></tr>
 	<tr><td class="padded">
 	    {{ response.response|upper }} - 
-	    <span style="text-align:right;font-style:italic;">
+	    <span class="align-right jb-italic">
 	      &ldquo;{{ response.response_comment }}&rdquo;
 	    </span>
 	</td></tr>
@@ -69,7 +69,7 @@
       <table class="summary">
       {% for object_type,items in response.items.items %}
       <tr>
-	<td style="text-align:right">{{object_type}}</td>
+	<td class="align-right">{{object_type}}</td>
 	<td>
 	  <ul>
 	  {% for item in items %}
@@ -90,7 +90,7 @@
     {% if request.user == task.owner and task.status == "C" %}
     <div class="jb-modal-field jb-table-no-lines">
       <p>
-	<span style="font-weight:bold;color:red">
+	<span class="jb-bold jb-color-red">
 	  Important!
 	</span>
 	If you are happy with the result of the merger then delete this task and your associated lens:

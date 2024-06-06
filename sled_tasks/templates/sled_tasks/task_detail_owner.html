@@ -5,11 +5,11 @@
 {% block title %}
 <span class="highlight">{{task.task_type}}</span> -
 {% if task.status == "P" %}
-<span style="font-weight:bold;color:red">
+<span class="jb-bold jb-color-red">
     Pending
 </span>
 {% else %}
-<span style="font-weight:bold;color:green">
+<span class="jb-bold jb-color-green">
   Completed
 </span>
 {% endif %}
@@ -24,7 +24,7 @@
   <div class="jb-modal-field jb-table-no-lines">    
     On <strong>{{ task.created_at }}</strong> ({{ task.created_at|timesince }} ago) user <strong>{{task.owner}}</strong> said:
     <div class="original-message">
-      <span style="text-align:center;font-style:italic;">
+      <span class="align-center jb-italic">
 	&ldquo;{{ task.cargo.comment }}&rdquo;
       </span>
     </div>
@@ -63,12 +63,12 @@
       <tr><td>&bull; <strong>{{ response.name }}</strong> responded on <strong>{{response.created_at}}</strong> ({{ response.created_at|timesince }} ago) with:</td></tr>
       <tr><td class="padded">
 	  {{ response.response|upper }} - 
-	  <span style="text-align:right;font-style:italic;">
+	  <span class="align-right jb-italic">
 	    &ldquo;{{ response.response_comment }}&rdquo;
 	  </span>
       </td></tr>
       {% else %}
-      <tr><td>&bull; <strong>{{ response.name }}</strong> <span style="color:red">has not responded yet</span></td></tr>
+      <tr><td>&bull; <strong>{{ response.name }}</strong> <span class="jb-color-red">has not responded yet</span></td></tr>
       {% endif %}
       {% endfor %}
     </table>

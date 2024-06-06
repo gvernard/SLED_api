@@ -147,7 +147,7 @@ class LensDeleteView(ModalIdsBaseMixin):
                 for j in accessible_objects[i]:
                     objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,user,objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                remove_perm(perm,user,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self.request.user,
                             recipient=user,
                             verb='DeleteObjectsPrivateNote',
@@ -166,7 +166,7 @@ class LensDeleteView(ModalIdsBaseMixin):
                 for j in accessible_objects[i]:
                     objects.append(pri[j])
                     names.append(str(pri[j]))
-                remove_perm(perm,group,objects) # (just 1 query)
+                remove_perm(perm,group,*objects) # (just 1 query)
                 action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=object_type,object_names=names)
 
             ### Notifications per collection #####################################################

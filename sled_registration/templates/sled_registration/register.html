@@ -71,7 +71,7 @@
         {{ form.captcha.errors }}
       </div>
       
-      <div style="text-align:center">
+      <div class="align-center">
 	<input type="submit" value="Register" data-wait="Please wait..." class="jb-submit-button-1 w-button">
       </div>
     </form>
@@ -81,27 +81,11 @@
 
 
 {% block extrastyles %}
-<style>
-  .captcha {width:300px; height:100px;}
-</style>
+<link href="{% static 'sled_registration/css/register.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 {% block extrascripts %}
-<script type="text/javascript">
-  $(document).ready(function() {
-      $('.js-captcha-refresh').click(function(){
-	  $form = $(this).parents('form');
-	  //$.getJSON($(this).data('url'), {}, function(json) {
-          //    // This should update your captcha image src and captcha hidden input
-	  //});
-	  $.getJSON("/captcha/refresh/", function (result) {
-              $('.captcha').attr('src', result['image_url']);
-              $('#id_captcha_0').val(result['key'])
-	  });
-	  return false;
-      });
-  });
-</script>
+<script type="text/javascript" src="{% static 'sled_registration/js/register.js' %}"></script>
 {% endblock extrascripts %}
 
 

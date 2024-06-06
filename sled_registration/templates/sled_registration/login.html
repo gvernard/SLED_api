@@ -1,11 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
 
-{% block extrastyles %}
-{% endblock extrastyles %}
-
-{% block extrascripts %}
-{% endblock extrascripts %}
 
 {% block content %}
 <div class="jb-sign-up-wrap jb-container">
@@ -29,15 +24,15 @@
       </div>
 
       
-      <div style="text-align:center">
+      <div class="align-center">
 	<input type="submit" value="Login" data-wait="Please wait..." class="jb-submit-button-1 w-button">
       </div>
 
       <br>
-      <div style="text-align:center">
+      <div class="align-center">
 	New? Register <a href="{% url 'register' %}">here</a>.
       </div>
-      <div style="text-align:center">
+      <div class="align-center">
 	Forgotten password? Click <a href="{% url 'password_reset' %}">here</a>.
       </div>
 
@@ -45,15 +40,13 @@
     
   </div>
 </div>
-
-<script nonce="{{request.csp_nonce}}">
-  $('form').each(function() {
-    if (!$(this).is('[action]')) {
-      $(this).attr('action', '/');
-    }
-  });
-  // $('#id_username').addClass('text-field',"w-input").attr({"data-name":'Name'});
-</script>
-
-
 {% endblock content %}
+
+
+{% block extrastyles %}
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script type="text/javascript" src="{% static 'sled_registration/js/login.js' %}"></script>
+{% endblock extrascripts %}
