@@ -31,3 +31,4 @@ langdetect>=1.0.9
 alt-profanity-check>=1.4.2
 django-axes[ipware]==6.4.0
 django-csp==3.8
+python-dotenv==1.0.1
