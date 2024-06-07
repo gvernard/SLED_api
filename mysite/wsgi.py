@@ -10,7 +10,7 @@ class Application(object):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         sys.path.append(BASE_DIR)
 
-        if os.path.isfile('../.env'):
+        if os.path.isfile('../../.env'):
             load_dotenv(dotenv_path)
             print('Loading .env file.')
         else:
