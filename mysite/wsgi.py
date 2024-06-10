@@ -12,11 +12,12 @@ class Application(object):
         BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         sys.path.append(BASE_DIR)
 
-        if os.path.isfile('../../.env'):
+        try:
+            dotenv_path
             load_dotenv(dotenv_path)
-            print('Loading .env file.')
-        else:
-            print('Environment .env file not found.')
+            print('Loading doetenv_path')
+        except NameError:
+            print('dotenv_path not defined.')
         
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
