@@ -77,7 +77,7 @@ class UserQueryView(TemplateView):
     
 
 
-
+@method_decorator(login_required,name='dispatch')
 class UserVisitCard(DetailView):
     model = Users
     template_name = 'sled_users/user_visit_card.html'
