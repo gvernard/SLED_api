@@ -1,0 +1,14 @@
+.side-bar {
+    width: 400px;
+    height: 80%;
+    color: red;
+}
+
+.side-bar ul {
+    list-style: none;
+    padding-left: 6px;
+}
+
+.whitespace {
+    height: 1000px;
+}

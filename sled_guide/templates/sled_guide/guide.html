@@ -1,0 +1,291 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="w3-sidebar w3-light-grey w3-bar-block side-bar">
+  <h3 class="w3-bar-item">Contents</h3>
+
+  <a href="#users" class="w3-bar-item w3-button">User responsibilities and limits</a>
+  <ul>
+    <li><a href="#users-user-profile" class="w3-bar-item w3-button">User profile</a></li>
+    <li><a href="#users-roles" class="w3-bar-item w3-button">Roles</a></li>
+    <li><a href="#users-limits" class="w3-bar-item w3-button">Limits</a></li>
+  </ul>
+
+  <a href="#users-and-access" class="w3-bar-item w3-button">Users and access</a>
+  <ul>
+    <li><a href="#users-and-access-access-level" class="w3-bar-item w3-button">Access Level</a></li>
+    <li><a href="#users-and-access-user-groups" class="w3-bar-item w3-button">User groups</a></li>
+  </ul>
+
+  <a href="#querying" class="w3-bar-item w3-button">Querying</a>
+  <ul>
+    <li><a href="#querying-standard-queries" class="w3-bar-item w3-button">Standard queries</a></li>
+    <li><a href="#querying-api-queries" class="w3-bar-item w3-button">API queries</a></li>
+  </ul>
+  
+  <a href="#adding-objects" class="w3-bar-item w3-button">Adding objects</a>
+  <ul>
+    <li><a href="#adding-objects-lenses" class="w3-bar-item w3-button">Adding lenses</a></li>
+    <li><a href="#adding-objects-papers" class="w3-bar-item w3-button">Adding papers</a></li>
+    <li><a href="#adding-objects-data" class="w3-bar-item w3-button">Adding data</a></li>
+    <li><a href="#adding-objects-api" class="w3-bar-item w3-button">Using the API</a></li>
+  </ul>
+
+  <a href="#collections" class="w3-bar-item w3-button">Collections</a>
+
+  <a href="#tasks" class="w3-bar-item w3-button">Tasks</a>
+</div>
+
+
+
+<div class="jb-container">
+
+  
+
+
+  <div class="jb-section" id="users">
+    <h1>User responsibilities and limits</h1>
+    <p>
+      <b>The main responsibility of a SLED user is to maintain up-to-date the information of lenses, data, models, etc, that are assigned to them</b>. This community-driven approach is the cornerstone of SLED's power to deliver accurate scientific results and information. The user is referred to as the 'owner' of these objects, which are all listed in their
+      {% if request.user.is_authenticated %}
+      <a href="{% url 'sled_users:user-profile' %}">User profile</a>
+      {% else %}
+      User profile
+      {% endif %}
+      page.
+    </p>
+    
+    <div id="users-user-profile">
+      <h3>User profile</h3>
+      <p>
+	This is where are the objects owned by the user are listed and can be managed. This includes the main SLED products, i.e. lenses, Imaging Data, Spectra, Redshifts, Generic Images, and Models, but also secondary objects that help with organisation, access, and overall convenience, i.e. <a href="#querying">saved queries</a>, <a href="#collections">collections</a>, and <a href="#users-and-access-user-groups">groups</a>. Notifications and <a href="#tasks">tasks</a> are also listed here, the latter being very important for the funcionality of the website. This is also where the user can keep their personal information up-to-date, which is required to enable efficient completion of tasks and communication with other users.
+      </p>
+    </div>
+
+    <div id="users-roles">
+      <h3>Roles</h3>
+      <p>
+	There are 3 special user roles:
+      </p>
+      <ol>
+	<li><i>SuperAdmin</i>: This is the user who decides who can assign the role of Admin and Inspector to other users.</li>
+	<li><i>Admin</i>: This is a small group of users, usually 2, who have a higher degree of responsibility. They are the ones who can approve or reject new users, making public objects private, deleting public objects, etc, see the <a href="#tasks">tasks</a> for more details.</li>
+	<li><i>Inspector</i>: This group of users has the responsibility to visually inspect any public images uploaded to the website and ensure that they are indeed related to science, e.g. lens mugshots, Imaging Data, Spectra, etc</li>
+      </ol>
+      <p>
+	The SuperAdmin can re-assign these roles at any time
+      </p>
+    </div>
+
+    <div id="users-limits">
+      <h3>Limits</h3>
+      <p>
+	Every user has a limited number of objects that they can create in the database per week and that they can own and manage in total. These numbers default to 100 and 1000 respectively, but they can be changed by the SuperAdmin upon request. These settings may be changed in the future to impose limits per object type, e.g. it makes sense to manage hundreds of lenses but not so much for groups or saved queries.
+      </p>
+    </div>
+    
+  </div>
+  <hr>
+
+
+
+
+  <div class="jb-section" id="users-and-access">
+    <h1>Users and access</h1>
+
+    <div id="users-and-access-access-level">
+      <h3>Access level</h3>
+      <p>
+      Any object that can exist in SLED (lenses, data, models, collections, etc) can be publicly visible and accessible by any registered SLED user, or kept private with its access directly controlled by its owner. Private objects will still appear in the queries of every user with access to them, but not to other users. A private object can be readily changed to public, but the opposite requires approval from the database administrators. It is good practice to inject objects as private and then, after ensuring that there are no mistakes, change them to public.
+      </p>
+    </div>
+
+    <div id="users-and-access-user-groups">
+      <h3>User groups</h3>
+      <p>
+	Creating groups of users is a convenient way to delegate access to private objects more easily. For example, one user adds 5 new lens candidates that they want to share with their close collaborators. The lenses are created as private, a group with the collaboration name is created (can also be private) and the collaborators are added to it, and the owner of the 5 private lenses gives access to the group instead of each user individually. This has the extra benefit that any new user who joins the group will automatically gain access to private objects accessible by the group. All groups are visible to all users, but the members of private groups are not shown. Any user has the option to request to join the group and a 'Join Group' task will be created for the group owner to resolve.
+      </p>
+    </div>
+    
+  </div>
+  <hr>
+
+  
+
+  
+  <div class="jb-section" id="querying">
+    <h1>Querying</h1>
+
+    <div id="querying-user-queries">
+      <p>
+	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models. For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search). Placing the mouse above each field label provides some information about it (units, etc). Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page. You can also save all or part of the returned lenses in a new or existing <a href="#collections">Collection</a>. The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future.
+      </p>
+      <p>
+	<b>Coming soon</b>: option to download the query result directly in .json format.
+      </p>
+      <p>
+	<b>Coming soon</b>: querying lens Models and classification Scores.
+      </p>
+    </div>
+      
+    <div id="querying-standard-queries">
+      <h3>Standard queries</h3>
+      <p>
+	These are some very common queries that are centrally available, for example, to return all the lensed quasars, lensed supernovae, lenses with HST data, etc. For comments or additions to these standard queries please contact the administrators.
+      </p>
+    </div>
+    
+    <div id="querying-api-queries">
+      <h3>API queries</h3>
+      <p>
+	<b>Coming soon.</b>
+      </p>
+    </div>
+
+  </div>
+  <hr>
+
+
+
+  
+  <div class="jb-section" id="adding-objects">  
+    <h1>Adding new objects</h1>
+    
+    <div id="adding-objects-lenses">
+      <h3>Adding lenses</h3>
+      <p>
+	There is an automatic check for duplicate lenses in the database based on the RA, DEC: if the given coordinates are within 10 arcsec of an existing lens then the new lens is flagged as potential duplicate. This check includes all the lenses accessible to the user at the time, both private and public (see <a href="#users-and-access-access-level">Access Level</a>). If a submitted lens is a duplicate then there are the following options in order to proceed:
+      </p>
+      <ol>
+	<li><i>Do nothing</i>: The lens is ignored and not injected in the database.</li>
+	<li><i>Distinct lens</i>: The lens is treated as a distinct entry in the database, despite its proximity to an existing one, and injected.</li>
+	<li><i>Merge</i>: All the information of the new lens will be suggested to be merged into the existing one. A 'Merge' task will be created for the owner of the existing lens to resolve.</li>
+      </ol>
+      <p>
+	The mugshot of every public lens needs to be visually confirmed by an Inspector before the lens is actually made public. Such lenses are termorarily injected in the database as private and automatically changed to public if approved by the Inspector.
+      </p>
+    </div>
+
+    <div id="adding-objects-papers">
+      <h3>Adding papers</h3>
+      <p>
+	<b>Coming soon</b>
+      </p>
+    </div>
+    
+    <div id="adding-objects-data">
+      <h3>Adding data</h3>
+      <p>
+	Data that are associated with a lens, Redshifts, Imaging Data, Spectra, Generic Images, and Models, can be added directly in the detail page of each lens. Catalogue data are managed by the database administrators and cannot be added/edited by the users. Mass injection of data is allowed only via the API. Public data that include an image, i.e. Imaging Data, Spectra, Generic Images, etc, need to be visually confirmed by an Inspector and are termorarily injected in the database as private.
+      </p>
+    </div>
+
+    <div id="adding-objects-api">
+      <h3>Using the API interface</h3>
+      <p>
+	<b>Coming soon</b>: if duplicates are detected during injection via the API then a 'Resolve Duplicates' task is created in the same way as adding lenses via the web interface described above.
+      </p>
+    </div>
+  </div>
+  <hr>
+
+
+
+  
+  <div class="jb-section" id="collections">
+    <h1>Collections</h1>
+    <p>
+      A Collection is a fixed list of lenses, as opposed to a (dynamic) query, that users can create. It can be private or public, its management after creation can be passed on to another SLED user, and lenses can be removed or added to it. The latter can happen either by selecting lenses from a query result, or through the detail page of a given lens. Collections can be <a href="{% url 'sled_collections:collections-list' %}">searched</a> by any user. Currently, there are only collections of lenses allowed, but this may be extended to models, etc, in the future.
+    </p>
+  </div>
+  <hr>
+
+
+
+  
+  <div class="jb-section" id="tasks">
+    <h1>Tasks</h1>
+    <p>
+      There is a number of tasks that are important for ensuring the quality of science that SLED can be used for. For example, if a colleague cannot perform their duties of keeping lenses (and other objects) up-to-date anymore for whatever reason, then they can cede their ownership to another user. This will create a 'Cede Ownership' task that will need to be resolved. There are also other tasks that can involve 1) any two SLED users, 2) a user and themselves (this is just a way to ensure that information is not lost, e.g. after a logout), and 3) a user and an Admin user.
+    </p>
+    <table>
+      <thead>
+	<tr>
+	  <th>Task name</th>
+	  <th>Users involved</th>
+	  <th>Description</th>
+      </thead>
+      <tbody>
+	<tr>
+	  <td>Cede ownership</td>
+	  <td>Any two users</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Inspect images</td>
+	  <td>A user and an Inspector</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Request update</td>
+	  <td>Any two users</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Ask to join group</td>
+	  <td>Any two users</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Make private</td>
+	  <td>A user and an Admin</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Delete object</td>
+	  <td>A user and an Admin</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Register new user</td>
+	  <td>A user and an Admin</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Resolve duplicates</td>
+	  <td>A user and themselves</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Merge lenses</td>
+	  <td>Any two users</td>
+	  <td></td>
+	</tr>
+	<tr>
+	  <td>Ask private access</td>
+	  <td>Any two users</td>
+	  <td></td>
+	</tr>
+      </tbody>
+    </table>
+  </div>
+  <hr>
+
+  
+  <div class="whitespace">
+  </div>
+
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+<link href="{% static 'sled_guide/css/guide.css' %}" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="https://www.w3schools.com/w3css/4/w3.css">
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+{% endblock extrascripts %}

@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'sled_single_objects',
     'sled_persistent_message',
     'sled_limits',
+    'sled_guide',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'sled_home.apps.HomeConfig',
@@ -127,8 +128,8 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 # Content Security Policy
 CSP_IMG_SRC = ("'self'",'data:','https://code.jquery.com','https://amnh1.osn.mghpcc.org')
-CSP_STYLE_SRC = ("'self'",'https://cdn.jsdelivr.net','https://use.typekit.net','https://p.typekit.net','https://amnh1.osn.mghpcc.org')
-CSP_STYLE_SRC_ELEM = ["'self'",'https://cdn.jsdelivr.net','https://use.typekit.net','https://p.typekit.net','https://cdn.plot.ly','https://code.jquery.com','https://cdnjs.cloudflare.com','https://amnh1.osn.mghpcc.org']
+CSP_STYLE_SRC = ("'self'",'https://cdn.jsdelivr.net','https://use.typekit.net','https://p.typekit.net','https://amnh1.osn.mghpcc.org','https://www.w3schools.com/')
+CSP_STYLE_SRC_ELEM = ["'self'",'https://cdn.jsdelivr.net','https://use.typekit.net','https://p.typekit.net','https://cdn.plot.ly','https://code.jquery.com','https://cdnjs.cloudflare.com','https://amnh1.osn.mghpcc.org','https://www.w3schools.com/']
 CSP_STYLE_SRC_ATTR = ("'self'")
 CSP_SCRIPT_SRC = ("'self'",'https://cdn.jsdelivr.net','https://code.jquery.com','https://ajax.googleapis.com','https://use.typekit.net','https://amnh1.osn.mghpcc.org')
 CSP_SCRIPT_SRC_ELEM = ("'self'",'https://cdn.jsdelivr.net','https://code.jquery.com','https://ajax.googleapis.com','https://use.typekit.net','https://cdn.plot.ly','https://cdnjs.cloudflare.com','https://amnh1.osn.mghpcc.org')
