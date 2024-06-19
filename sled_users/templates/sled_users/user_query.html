@@ -23,10 +23,22 @@
     </div>
     {% endif %}
     
-    <p>
-      {{ form.search_term }}
-      <input id="mysubmit" type="submit" value="Search">
-    </p>
+    <table class="jb-table-no-lines search-table">
+      <tr>
+	<td>
+	  {{ form.search_term }}
+	</td>
+
+	<td>
+	  {{ form.role.label }}
+	  {{ form.role }}
+	</td>
+
+	<td>
+	  <input id="mysubmit" type="submit" value="Search">
+	</td>
+      </tr>
+    </table>
 
     {{ form.page }}
   </form>

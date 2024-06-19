@@ -1,3 +1,7 @@
 .header-table td {
     border-top: none;
 }
+
+.search-table {
+    width: 500px;
+}

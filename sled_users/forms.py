@@ -8,6 +8,13 @@ class UsersSearchForm(forms.Form):
     search_term = forms.CharField(required=False,
                                   max_length=100,
                                   widget=forms.TextInput({'placeholder':'User name/surname/email keyword'}))
+    mychoices = [
+        ('any','any'),
+        ('SuperAdmin','SuperAdmin'),
+        ('Admin','Admin'),
+        ('Inspector','Inspector'),
+    ]
+    role = forms.ChoiceField(label='Role',choices=mychoices) 
     page = forms.IntegerField(required=False,widget=forms.HiddenInput())
 
 

@@ -36,6 +36,15 @@ class UserQueryView(TemplateView):
             users = Users.objects.filter(Q(first_name__icontains=search_term) | Q(last_name__icontains=search_term) | Q(email__icontains=search_term)).select_related("limitsandroles")
         else:
             users = Users.objects.all()
+
+        role = cleaned_data["role"]
+        if role == 'SuperAdmin':
+            users = users.filter(limitsandroles__is_super_admin=True)
+        elif role == "Admin":
+            users = users.filter(limitsandroles__is_admin=True)
+        elif role == "Inspector":
+            users = users.filter(limitsandroles__is_inspector=True)
+            
         users = users.exclude(username__in=['admin','AnonymousUser'])
         
         paginator = Paginator(users,50)
@@ -65,7 +74,7 @@ class UserQueryView(TemplateView):
         if request.GET:
             form = UsersSearchForm(request.GET)
         else:
-            form = UsersSearchForm()
+            form = UsersSearchForm(initial={'role':'any'})
         context = self.get_context(form)
         return self.render_to_response(context)
 

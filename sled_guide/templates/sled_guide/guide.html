@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div class="w3-sidebar w3-light-grey w3-bar-block side-bar">
+<div class="w3-sidebar w3-card w3-light-grey w3-bar-block my-side-bar">
   <h3 class="w3-bar-item">Contents</h3>
 
   <a href="#users" class="w3-bar-item w3-button">User responsibilities and limits</a>
@@ -70,9 +70,9 @@
 	There are 3 special user roles:
       </p>
       <ol>
-	<li><i>SuperAdmin</i>: This is the user who decides who can assign the role of Admin and Inspector to other users.</li>
-	<li><i>Admin</i>: This is a small group of users, usually 2, who have a higher degree of responsibility. They are the ones who can approve or reject new users, making public objects private, deleting public objects, etc, see the <a href="#tasks">tasks</a> for more details.</li>
-	<li><i>Inspector</i>: This group of users has the responsibility to visually inspect any public images uploaded to the website and ensure that they are indeed related to science, e.g. lens mugshots, Imaging Data, Spectra, etc</li>
+	<li><a href="{% url 'sled_users:user-query' %}?role=SuperAdmin">SuperAdmin</a>: This is the user who decides who can assign the role of Admin and Inspector to other users.</li>
+	<li><a href="{% url 'sled_users:user-query' %}?role=Admin">Admin</a>: This is a small group of users, usually 2, who have a higher degree of responsibility. They are the ones who can approve or reject new users, making public objects private, deleting public objects, etc, see the <a href="#tasks">tasks</a> for more details.</li>
+	<li><a href="{% url 'sled_users:user-query' %}?role=Inspector">Inspector</a>: This group of users has the responsibility to visually inspect any public images uploaded to the website and ensure that they are indeed related to science, e.g. lens mugshots, Imaging Data, Spectra, etc</li>
       </ol>
       <p>
 	The SuperAdmin can re-assign these roles at any time
@@ -185,7 +185,7 @@
     <div id="adding-objects-api">
       <h3>Using the API interface</h3>
       <p>
-	<b>Coming soon</b>: if duplicates are detected during injection via the API then a 'Resolve Duplicates' task is created in the same way as adding lenses via the web interface described above.
+	<b>Coming soon</b>: if duplicates are detected during injection via the API then a <a href="#task-resolve-duplicates">Resolve Duplicates</a> task is created in the same way as adding lenses via the web interface described above.
       </p>
     </div>
   </div>
@@ -253,7 +253,7 @@
 	  <td>A user and an Admin</td>
 	  <td></td>
 	</tr>
-	<tr>
+	<tr id="task-resolve-duplicates">
 	  <td>Resolve duplicates</td>
 	  <td>A user and themselves</td>
 	  <td></td>
@@ -282,8 +282,8 @@
 
 
 {% block extrastyles %}
-<link href="{% static 'sled_guide/css/guide.css' %}" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="https://www.w3schools.com/w3css/4/w3.css">
+<link href="{% static 'sled_guide/css/guide.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 
