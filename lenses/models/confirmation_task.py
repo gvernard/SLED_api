@@ -249,7 +249,7 @@ class ConfirmationTask(SingleObject):
             mycontext = {
                 'first_name': user.first_name,
                 'task_type': self.task_type,
-                'protocol': 'http',
+                'protocol': 'https',
                 'domain': site.domain,
                 'task_url': reverse('sled_tasks:tasks-list')
             }
@@ -974,7 +974,7 @@ class AcceptNewUser(ConfirmationTask):
             mycontext = {
                 'first_name': task_owner.first_name,
                 'last_name': task_owner.last_name,
-                'protocol': 'http',
+                'protocol': 'https',
                 'domain': site.domain,
                 'user_url': task_owner.get_absolute_url(),
                 'username': task_owner.username,
