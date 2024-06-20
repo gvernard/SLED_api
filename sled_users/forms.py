@@ -10,6 +10,8 @@ class UsersSearchForm(forms.Form):
                                   widget=forms.TextInput({'placeholder':'User name/surname/email keyword'}))
     mychoices = [
         ('any','any'),
+        ('active','active'),
+        ('inactive','inactive'),
         ('SuperAdmin','SuperAdmin'),
         ('Admin','Admin'),
         ('Inspector','Inspector'),

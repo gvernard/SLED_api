@@ -352,7 +352,7 @@ class UsersAutocomplete(APIView):
     def get(self,request):
         user = request.user
         term = request.query_params.get('q')
-        queryset = Users.objects.exclude(username__in=['AnonymousUser','admin',user.username])
+        queryset = Users.objects.exclude(username__in=['AnonymousUser','admin',user.username]).exclude(is_active=False)
         if term is not None:
             queryset = queryset.filter(Q(username__icontains=term) | Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(email__icontains=term))
         queryset.order_by('last_name')

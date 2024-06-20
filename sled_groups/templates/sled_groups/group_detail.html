@@ -213,7 +213,7 @@
 	<td>
 	  <a href="{{ imaging.lens.get_absolute_url }}">{{ imaging.lens.name }}</a>
 	  {% if imaging.is_orphan %}
-	  DELETED
+	  <span class="jb-bold jb-color-red">DELETED</span>
 	  {% else %}
 	  {% can_access imaging.lens user as flag %}
 	  {% if not flag %}
@@ -258,7 +258,7 @@
 	<td>
 	  <a href="{{ generic_image.lens.get_absolute_url }}">{{ generic_image.lens.name }}</a>
 	  {% if generic_image.is_orphan %}
-	  DELETED
+	  <span class="jb-bold jb-color-red">DELETED</span>
 	  {% else %}
 	  {% can_access generic_image.lens user as flag %}
 	  {% if not flag %}
@@ -305,7 +305,7 @@
 	<td>
 	  <a href="{{ spectrum.lens.get_absolute_url }}">{{ spectrum.lens.name }}</a>
 	  {% if spectrum.is_orphan %}
-	  DELETED
+	  <span class="jb-bold jb-color-red">DELETED</span>
 	  {% else %}
 	  {% can_access spectrum.lens user as flag %}
 	  {% if not flag %}

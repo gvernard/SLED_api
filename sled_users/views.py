@@ -44,6 +44,10 @@ class UserQueryView(TemplateView):
             users = users.filter(limitsandroles__is_admin=True)
         elif role == "Inspector":
             users = users.filter(limitsandroles__is_inspector=True)
+        elif role == "active":
+            users = users.filter(is_active=True)
+        elif role == "inactive":
+            users = users.filter(is_active=False)
             
         users = users.exclude(username__in=['admin','AnonymousUser'])
         
@@ -74,7 +78,7 @@ class UserQueryView(TemplateView):
         if request.GET:
             form = UsersSearchForm(request.GET)
         else:
-            form = UsersSearchForm(initial={'role':'any'})
+            form = UsersSearchForm(initial={'role':'active'})
         context = self.get_context(form)
         return self.render_to_response(context)
 
