@@ -15,10 +15,11 @@ class Application(object):
         try:
             dotenv_path
             load_dotenv(dotenv_path)
-            print('Loading doetenv_path')
+            #print('Loading doetenv_path')
         except NameError:
-            print('dotenv_path not defined.')
-        
+            #print('dotenv_path not defined.')
+            pass
+            
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
 
         _application = get_wsgi_application()

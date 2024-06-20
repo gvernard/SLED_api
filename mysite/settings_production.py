@@ -8,7 +8,14 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 DEBUG = False
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST_USER = 'sleddatabase@gmail.com'
+#EMAIL_HOST_PASSWORD = os.environ['DJANGO_EMAIL_PASSWORD']
+EMAIL_HOST = os.environ['DJANGO_EMAIL_HOST']
+EMAIL_PORT = os.environ['DJANGO_EMAIL_PORT']
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
 
 ALLOWED_HOSTS = ['127.0.0.1','127.0.1.1','localhost','sled.amnh.org','216.73.242.43']
 
