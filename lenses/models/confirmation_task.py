@@ -242,7 +242,7 @@ class ConfirmationTask(SingleObject):
         """
         site = Site.objects.get_current()
         subject = 'SLED: Response to %s task required' % self.task_type
-        from_email = 'no-reply@%s' % site.domain
+        from_email = 'sled-no-reply@sled.amnh.org'
         
         for user in users:
             html_message = get_template('emails/task_notification.html')
@@ -994,7 +994,7 @@ class AcceptNewUser(ConfirmationTask):
 
         # Send email to user with the response
         user_email = task_owner.email
-        from_email = 'no-reply@%s' % site.domain
+        from_email = 'sled-no-reply@sled.amnh.org'
         send_mail(subject,plain_message,from_email,[user_email],html_message=html_message)
             
 

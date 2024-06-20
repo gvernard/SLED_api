@@ -94,7 +94,7 @@ def password_reset_request(request):
                     plain_message = strip_tags(html_message)
 
                     user_email = user.email
-                    from_email = 'no-reply@%s' % site.domain
+                    from_email = 'sled-no-reply@sled.amnh.org'
                     send_mail(subject,plain_message,from_email,[user_email],html_message=html_message)
 
                 return redirect ("/password_reset/done/")
