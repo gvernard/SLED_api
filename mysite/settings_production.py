@@ -7,6 +7,8 @@ load_dotenv(find_dotenv())
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 DEBUG = False
+ADMINS = [('Giorgos','gvernardos@amnh.org')]
+SERVER_EMAIL = 'sled-no-reply@sled.amnh.org'
 
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
