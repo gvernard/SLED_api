@@ -4,10 +4,12 @@ from bootstrap_modal_forms.forms import BSModalModelForm
 
 
 class LimitsAndRolesUpdateForm(BSModalModelForm):
+    active = forms.BooleanField(required=False)
+
     class Meta:
         model = LimitsAndRoles
         exclude = ['user']
-
+        
     def clean(self):
         # Check that at least one field was changed
         if not self.has_changed():
@@ -27,5 +29,6 @@ class LimitsAndRolesUpdateForm(BSModalModelForm):
             n_super_admins = LimitsAndRoles.objects.filter(is_super_admin=True).count()
             if n_super_admins == 1:
                 self.add_error('__all__',"This is the only remaining <strong>SUPER admin</strong>!")
-            
+
+
         return

@@ -28,6 +28,12 @@ class LimitsAndRolesUpdateView(BSModalUpdateView):
         else:
             return LimitsAndRoles.objects.none()
 
+    def get_initial(self):
+        initial = {
+            'active': self.get_object().user.is_active
+        }
+        return initial
+        
     def form_valid(self,form):
         if not is_ajax(self.request.META):
             # Reassigning admin tasks
@@ -38,6 +44,13 @@ class LimitsAndRolesUpdateView(BSModalUpdateView):
                 for task in tasks:
                     task.cargo['user_admin'] = new_admin
                     task.save()
+
+            # Make user active
+            if 'active' in form.changed_data:
+                target_user = self.get_object()
+                target_user.user.is_active = form.cleaned_data["active"]
+                target_user.user.save(update_fields=["is_active"])
+                
         response = super().form_valid(form)
         return response
         
