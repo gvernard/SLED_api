@@ -127,7 +127,7 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 
 
 # Content Security Policy
-CSP_IMG_SRC = ("'self'",'data:','https://code.jquery.com','https://amnh1.osn.mghpcc.org')
+CSP_IMG_SRC = ("'self'",'data:','https://code.jquery.com','https://amnh1.osn.mghpcc.org','https://avatars.slack-edge.com')
 CSP_STYLE_SRC = ("'self'",'https://cdn.jsdelivr.net','https://use.typekit.net','https://p.typekit.net','https://amnh1.osn.mghpcc.org','https://www.w3schools.com/')
 CSP_STYLE_SRC_ELEM = ["'self'",'https://cdn.jsdelivr.net','https://use.typekit.net','https://p.typekit.net','https://cdn.plot.ly','https://code.jquery.com','https://cdnjs.cloudflare.com','https://amnh1.osn.mghpcc.org','https://www.w3schools.com/']
 CSP_STYLE_SRC_ATTR = ("'self'")

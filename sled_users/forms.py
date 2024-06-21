@@ -64,7 +64,7 @@ class UserUpdateForm(BSModalModelForm):
                 "avatar": ''
             }]
             errors,flags,slack_name_avatar = get_slack_avatar(slack_name_avatar)
-            print(errors,flags,slack_name_avatar)
+            #print(errors,flags,slack_name_avatar)
             
             if errors:
                 for e in errors:
