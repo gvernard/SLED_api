@@ -1002,8 +1002,7 @@ class LensQueryView(TemplateView):
 #=============================================================================================================================
 
 def follow_unfollow(request):
-    if request.is_ajax and request.method == "GET":
-        
+    if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest' and request.method == "GET":
         action = request.GET.get("action",None)
         user = Users.objects.get(pk=request.GET.get("user_id",None))
         lens = Lenses.objects.get(pk=request.GET.get("lens_id",None))

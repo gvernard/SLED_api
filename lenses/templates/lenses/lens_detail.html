@@ -676,9 +676,8 @@
 		  }
 		  jQuery('<div>', {
 		      id: 'alert-message',
-		      class: 'alert alert-icon alert-dismissible fade show mb-0 ' + myclass,
+		      class: 'alert alert-icon alert-dismissible fade show mb-0 message-banner ' + myclass,
 		      text: response["message"],
-		      style: "border-radius:0;display:none;",
 		  }).appendTo('.alert-message-container');
 		  $('#alert-message').slideDown(500).delay(2000).slideUp(500).queue(function(){
 		      $('#follow-button').prop('disabled',false);
@@ -688,9 +687,8 @@
               error: function(response){
 		  jQuery('<div>', {
 		      id: 'alert-message',
-		      class: 'alert alert-icon alert-error alert-dismissible fade show mb-0',
+		      class: 'alert alert-icon alert-error alert-dismissible fade show mb-0 message-banner',
 		      text: response["message"],
-		      style: "border-radius:0;display:none;",
 		  }).appendTo('.alert-message-container');
 		  $('#alert-message').slideDown(500).delay(2000).slideUp(500).queue(function(){
 		      $('#follow-button').prop('disabled',false);
