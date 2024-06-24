@@ -517,7 +517,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
     #                              on_delete=models.CASCADE,
     #                              related_name="%(class)s")
     
-    value = models.DecimalField(max_digits=5,
+    value = models.DecimalField(max_digits=6,
                                 decimal_places=4,
                                 verbose_name="Z",
                                 help_text="The redshift of the source, if known.",

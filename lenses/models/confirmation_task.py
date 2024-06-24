@@ -338,7 +338,7 @@ class ConfirmationResponse(models.Model):
     created_at = models.DateTimeField(auto_now=True)
     # response: just yes or now, pre-defined in database model.
     response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.")
-    response_comment = models.CharField(max_length=1000,
+    response_comment = models.CharField(max_length=10000,
                                         help_text="A comment (optional) from the recipient on the given response.",
                                         validators=[validate_language],
                                         )

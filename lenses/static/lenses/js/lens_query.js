@@ -42,14 +42,19 @@ $(document).ready(function() {
 	$('#exe_summary input[type="checkbox"]:checked').each(function() {
             values.push('ids=' + $(this).val());
 	});
+	
 	if( values.length == 0 ){
-            if( confirm('This will select the entire query result, i.e. '+lenses_count+' lenses!\nAre you sure you want to proceed?') ){
-		var get_str = '?' + $("#lens-query").serialize() + '&';
-	    }
+	    alert('You must select at least one lens!');
+	    return;
+            //if( confirm('This will select the entire query result, i.e. '+lenses_count+' lenses!\nAre you sure you want to proceed?') ){
+	    //	var get_str = '?' + $("#lens-query").serialize() + '&';
+	    //}
 	} else {
             var get_str = '?' + values.join('&') + '&';
 	}
-
+	
+        var get_str = '?' + values.join('&') + '&';
+	
         // Fetch only the first part of the URL (without any GET arguments)
         var url = $(this).data('form-url').split('?');
         var url_core = url[0];
