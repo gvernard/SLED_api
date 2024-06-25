@@ -12,6 +12,7 @@ from django.core.paginator import Paginator
 from django.core import serializers
 from django.forms import formset_factory
 from django.conf import settings
+from django.apps import apps
 
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
@@ -55,7 +56,7 @@ class TaskListView(ListView):
 
         date_check = timezone.now() - timezone.timedelta(days=10)
         N_old = owner.filter( Q(status='C') & Q(modified_at__lt=date_check) ).count()
-        print(date_check,N_old)
+        #print(date_check,N_old)
         
         o_paginator = Paginator(owner,50)
         o_page_number = self.request.GET.get('tasks_owned-page',1)
@@ -391,7 +392,7 @@ class TaskDetailRecipientView(BSModalFormView):
         except task.DoesNotExist:
             db_response = None
         context['db_response'] = db_response
-        
+
         return context
 
     def form_valid(self,form):
@@ -672,29 +673,30 @@ class TaskDeleteView(BSModalDeleteView):
 
 
 def request_update_task_context(task,context):
-        obj = getattr(lenses.models,task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"]).first()
-        context["object"] = obj
+    obj = apps.get_model(app_label="lenses",model_name=task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"]).first()
+    #obj = getattr(lenses.models,task.cargo["object_type"]).objects.filter(pk__in=task.cargo["object_ids"]).first()
+    context["object"] = obj
+    
+    object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
+    context['object_type'] = object_type
+    
+    names = []
+    current = []
+    proposed = []
+    fields = json.loads(task.cargo["fields"])
+    for field,value in fields.items():
+        names.append(field)
+        current.append(getattr(obj,field))
+        proposed.append(value)
+    context["fields"] = zip(names,current,proposed)
+    
+    if task.cargo["proposed_image"]:
+        context["image_field"] = task.cargo["image_field"]
+        context["current_image"] = settings.MEDIA_ROOT + "/" + task.cargo["current_image"]
+        context["proposed_image"] = settings.MEDIA_ROOT + "/" + task.cargo["proposed_image"]
         
-        object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
-        context['object_type'] = object_type
+    context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
 
-        names = []
-        current = []
-        proposed = []
-        fields = json.loads(task.cargo["fields"])
-        for field,value in fields.items():
-            names.append(field)
-            current.append(getattr(obj,field))
-            proposed.append(value)
-        context["fields"] = zip(names,current,proposed)
-
-        if task.cargo["proposed_image"]:
-            context["image_field"] = task.cargo["image_field"]
-            context["current_image"] = settings.MEDIA_ROOT + "/" + task.cargo["current_image"]
-            context["proposed_image"] = settings.MEDIA_ROOT + "/" + task.cargo["proposed_image"]
-        
-        context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
-
-        return context
+    return context
 
     

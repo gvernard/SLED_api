@@ -97,7 +97,8 @@ class GroupAskToJoinView(BSModalUpdateView):
     success_url = reverse_lazy('sled_groups:group-list')
 
     def get_queryset(self):
-        return SledGroup.accessible_objects.all(self.request.user)
+        #return SledGroup.accessible_objects.all(self.request.user)
+        return SledGroup.objects.all()
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):

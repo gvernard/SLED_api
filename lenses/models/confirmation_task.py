@@ -1035,12 +1035,16 @@ class RequestUpdate(ConfirmationTask):
 
         obj_id = self.cargo['object_ids'][0]
         target = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.get(pk=obj_id)
-        
+
+        print( self.cargo )
         if response == 'yes':
+            old_values = {}
+
             fields = json.loads(self.cargo["fields"])
             for field,value in fields.items():
+                old_values[field] = getattr(target,field)
                 setattr(target,field,value)
-
+                
             if self.cargo["proposed_image"]:
 
                 if self.cargo["object_type"] == 'Lenses':
@@ -1048,6 +1052,7 @@ class RequestUpdate(ConfirmationTask):
                     model_ref = apps.get_model(app_label="lenses",model_name='GenericImage')
                     old_mug = model_ref(lens=target,owner=target.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
                     old_mug.save()
+                    old_values['mugshot'] = old_mug
                     
                     #dum,file_ext = os.path.splitext(value)
                     #tmp_name = os.path.join('temporary',self.owner.username,str(self.id)+file_ext)
@@ -1055,6 +1060,11 @@ class RequestUpdate(ConfirmationTask):
                     target.mugshot.name = self.cargo["proposed_image"]
 
 
+            # I need this trick with reading 'old_values' as JSON first because the dict contains Decimal types
+            json_object = json.dumps(old_values,cls=serializers.json.DjangoJSONEncoder)
+            old_values = json.loads(json_object)
+            self.cargo['old_values'] = old_values
+            self.save()
                     
             target.save()
         else:
