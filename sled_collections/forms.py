@@ -184,11 +184,12 @@ class CollectionAddItemsForm(BSModalForm):
         copies = col.itemsInCollection(self.user,to_add) # Check if items are already in the collection
         if len(copies) > 0:
             if len(copies) == 1:
-                msg = col._meta.verbose_name.title() + " " + copies[0].name + " is already in the collection!"
+                #msg = col._meta.verbose_name.title() + " " + copies[0].name + " is already in the collection!"
+                msg = obj_model._meta.verbose_name.title() + " " + copies[0].name + " is already in the collection!"
                 self.add_error('__all__',msg)
             else:
                 obj_names = ['<li>'+obj.name+'</li>' for obj in copies]
-                msg = col._meta.verbose_name_plural.title() + " <ul>" + ''.join(obj_names) + "</ul> are already in the collection!"
+                msg = obj_modal._meta.verbose_name_plural.title() + " <ul>" + ''.join(obj_names) + "</ul> are already in the collection!"
                 self.add_error('__all__',msg)
 
 
