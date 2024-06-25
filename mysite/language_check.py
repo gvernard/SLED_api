@@ -31,8 +31,8 @@ def validate_language(text):
     """
 
     # 1 check that the text is in english
-    #is_english = check_english_likely(text)
-    is_english = True
+    is_english = check_english_likely(text)
+    #is_english = True
     if not is_english:
         raise ValidationError(
             "Please stick to English for SLED content. "
@@ -40,8 +40,8 @@ def validate_language(text):
         )
     
     # 2 check for profanities
-    #is_profane = bool(predict([text])[0])
-    is_profane = False
+    is_profane = bool(predict([text])[0])
+    #is_profane = False
     if is_profane:
         raise ValidationError(
             "Please avoid profanities in SLED contents. "
