@@ -376,18 +376,23 @@ class Lenses(SingleObject,DirtyFieldsMixin):
 
             
     def clean(self):
-        if self.ra and self.dec:
-            jname = self.create_name()
-            if not self.name:
-                self.name = jname
-            else:
-                if not self.alt_name:
-                    self.alt_name = jname
+        try:
+            self.clean_fields()
+        except ValidationError as e:
+            pass
+        else:
+            if self.ra and self.dec:
+                jname = self.create_name()
+                if not self.name:
+                    self.name = jname
                 else:
-                    altnames = [name.strip() for name in self.alt_name.split(',')]
-                    if jname not in altnames:
-                        altnames.append(jname)
-                        self.alt_name = ', '.join(altnames)
+                    if not self.alt_name:
+                        self.alt_name = jname
+                    else:
+                        altnames = [name.strip() for name in self.alt_name.split(',')]
+                        if jname not in altnames:
+                            altnames.append(jname)
+                            self.alt_name = ', '.join(altnames)
                     
         if self.contaminant_type and self.flag != 'CONTAMINANT':
             raise ValidationError("To set the Contaminant Type the lens must be flagged as a Contaminant.")
@@ -453,7 +458,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     def create_name(self):
         c = SkyCoord(ra=self.ra*u.degree, dec=self.dec*u.degree, frame='icrs')
         return 'J'+c.to_string('hmsdms')
-
+        
         
     def get_absolute_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.id})

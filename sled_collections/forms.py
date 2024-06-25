@@ -189,7 +189,7 @@ class CollectionAddItemsForm(BSModalForm):
                 self.add_error('__all__',msg)
             else:
                 obj_names = ['<li>'+obj.name+'</li>' for obj in copies]
-                msg = obj_modal._meta.verbose_name_plural.title() + " <ul>" + ''.join(obj_names) + "</ul> are already in the collection!"
+                msg = obj_model._meta.verbose_name_plural.title() + " <ul>" + ''.join(obj_names) + "</ul> are already in the collection!"
                 self.add_error('__all__',msg)
 
 
