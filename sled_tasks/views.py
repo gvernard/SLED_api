@@ -679,21 +679,32 @@ def request_update_task_context(task,context):
     
     object_type = getattr(lenses.models,task.cargo["object_type"])._meta.verbose_name.title()
     context['object_type'] = object_type
+
+    #print(task.cargo)
     
     names = []
     current = []
     proposed = []
     fields = json.loads(task.cargo["fields"])
+    if task.status == 'C':
+        old_values = task.cargo["old_values"]
     for field,value in fields.items():
         names.append(field)
-        current.append(getattr(obj,field))
+        if task.status == 'C':
+            current.append(old_values[field])
+        else:
+            current.append(getattr(obj,field))
         proposed.append(value)
     context["fields"] = zip(names,current,proposed)
     
     if task.cargo["proposed_image"]:
         context["image_field"] = task.cargo["image_field"]
-        context["current_image"] = settings.MEDIA_ROOT + "/" + task.cargo["current_image"]
-        context["proposed_image"] = settings.MEDIA_ROOT + "/" + task.cargo["proposed_image"]
+        if task.status == 'C':
+            context["current_image"] = settings.MEDIA_ROOT + "/" + old_values["mugshot"]
+            context["proposed_image"] = settings.MEDIA_ROOT + "/" + task.cargo["current_image"]
+        else:
+            context["current_image"] = settings.MEDIA_ROOT + "/" + task.cargo["current_image"]
+            context["proposed_image"] = settings.MEDIA_ROOT + "/" + task.cargo["proposed_image"]
         
     context['responses'] = task.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment')
 

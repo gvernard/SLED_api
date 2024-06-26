@@ -5,6 +5,7 @@ from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.core import serializers
 from django.core.files.storage import default_storage
+from django.core.files import File
 from django.urls import reverse
 from django import forms
 from django.db.models import Q,F,Count,CharField
@@ -1036,7 +1037,6 @@ class RequestUpdate(ConfirmationTask):
         obj_id = self.cargo['object_ids'][0]
         target = apps.get_model(app_label="lenses",model_name=self.cargo['object_type']).objects.get(pk=obj_id)
 
-        print( self.cargo )
         if response == 'yes':
             old_values = {}
 
@@ -1050,9 +1050,25 @@ class RequestUpdate(ConfirmationTask):
                 if self.cargo["object_type"] == 'Lenses':
                     # Create a GenericImage from the old mugshot
                     model_ref = apps.get_model(app_label="lenses",model_name='GenericImage')
-                    old_mug = model_ref(lens=target,owner=target.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
+                    #old_mug = model_ref(lens=target,owner=target.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot)
+                    old_mug = model_ref(lens=target,owner=target.owner,access_level=target.access_level,name='Old mugshot',info='A previous mugshot image of the lens.',image=target.mugshot.name)    
                     old_mug.save()
-                    old_values['mugshot'] = old_mug
+                    old_values['mugshot'] = old_mug.image.name
+
+                    if target.access_level == 'PRI':
+                        # Give access to owner (cannot use giveAccess)
+                        perm = "view_"+old_mug._meta.model_name
+                        assign_perm(perm,old_mug.owner,old_mug)
+
+                        # Give access to all the other users and groups
+                        uwa = target.getUsersWithAccess(target.owner)
+                        gwa = target.getGroupsWithAccess(target.owner)
+                        id_list = [g.id for g in gwa]
+                        gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
+                        old_mug.owner.giveAccess([old_mug],list(uwa)+list(gwa))
+
+
+                        
                     
                     #dum,file_ext = os.path.splitext(value)
                     #tmp_name = os.path.join('temporary',self.owner.username,str(self.id)+file_ext)

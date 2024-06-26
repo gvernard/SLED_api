@@ -98,12 +98,13 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
         fname = self.image.name
         dum,file_ext = os.path.splitext(fname)
         sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + file_ext
+        #print(fname,sled_fname)
         if fname != sled_fname:
             default_storage.copy(fname,sled_fname)            
             self.image.name = sled_fname
             super(GenericImage,self).save(*args,**kwargs)
             default_storage.mydelete(fname)
-
+        
     
 class Instrument(models.Model):
 
