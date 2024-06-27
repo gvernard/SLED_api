@@ -587,7 +587,7 @@ class TaskInspectDetailView(TemplateView):
                     if form["rejected"]:
                         rejected[form["obj_id"]] = form["comment"]
 
-                form = InspectImagesForm(data=request.POST,N_rejected=len(rejected))
+                form = InspectImagesFinal(data=request.POST,N_rejected=len(rejected))
 
                 if form.is_valid():
                     # Hack to pass the insert_form responses to the task
@@ -608,7 +608,7 @@ class TaskInspectDetailView(TemplateView):
                     context['task'] = task
                     return self.render_to_response(context)
             else:
-                form = InspectImagesForm(data=request.POST)
+                form = InspectImagesFinal(data=request.POST)
                 context = {}
                 context['formset'] = formset
                 context['final_form'] = form

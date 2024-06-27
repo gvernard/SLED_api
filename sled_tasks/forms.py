@@ -86,21 +86,25 @@ class InspectImagesBaseForm(forms.Form):
     
     def clean(self):
         cleaned_data = super(InspectImagesBaseForm,self).clean()
-        if cleaned_data["rejected"] == True and cleaned_data["comment"] == '':
-            self.add_error('__all__','You need to provide a justification for rejecting this image!')
-
+        if cleaned_data["rejected"] == True:
+            if "comment" in cleaned_data:
+                if cleaned_data["comment"] == '':
+                    self.add_error('__all__','You need to provide a justification for rejecting this image!')
+            else:
+                self.add_error('__all__','You need to provide a justification for rejecting this image!')
                 
-class InspectImagesForm(forms.Form):
+                
+class InspectImagesFinal(forms.Form):
     mychoices = [('All','All images are accepted'),('Partial','Some images cannot be accepted'),('None','No images can be accepted')]
     response = forms.ChoiceField(label='Response',widget=forms.RadioSelect(attrs={'class':'jb-select-radio'}),choices=mychoices)
     response_comment = forms.CharField(required=False,label='',widget=forms.Textarea(attrs={'placeholder': 'Say something back','rows':3,}),validators=[validate_language])
 
     def __init__(self, *args, **kwargs):
         self.N_rejected = kwargs.pop('N_rejected',None)
-        super(InspectImagesForm,self).__init__(*args, **kwargs)
+        super(InspectImagesFinal,self).__init__(*args, **kwargs)
     
     def clean(self):
-        cleaned_data = super(InspectImagesForm,self).clean()
+        cleaned_data = super(InspectImagesFinal,self).clean()
         response = cleaned_data.get('response')
         response_comment = cleaned_data.get('response_comment')
         if response == 'All':
