@@ -565,7 +565,7 @@ class TaskInspectDetailView(TemplateView):
         
         context = {}
         context['formset'] = formset
-        context['final_form'] = InspectImagesForm()
+        context['final_form'] = InspectImagesFinal()
         context['task'] = task
         return self.render_to_response(context)
 
