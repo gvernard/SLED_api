@@ -355,10 +355,11 @@ class UsersAutocomplete(APIView):
         queryset = Users.objects.exclude(username__in=['AnonymousUser','admin',user.username]).exclude(is_active=False)
         if term is not None:
             queryset = queryset.filter(Q(username__icontains=term) | Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(email__icontains=term))
+        #queryset = Users.objects.filter(username='Giorgos')
         queryset.order_by('last_name')
         serializer = UsersSerializer(queryset,many=True)
         return Response({"users":serializer.data})
-
+    
 class GroupsAutocomplete(APIView):
     def get(self,request):
         term = request.query_params.get('q')

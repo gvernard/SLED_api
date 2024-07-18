@@ -1,4 +1,4 @@
-function groups_autocomplete(target_id){
+function groups_autocomplete(target_id,parent_id){
     $("#"+target_id).select2({
 	width: '100%',
 	ajax: {
@@ -12,7 +12,6 @@ function groups_autocomplete(target_id){
 	    },
 	    processResults: function (data, params) {
 		var results = []
-		console.log(data.groups);
 		$.each(data.groups,function(i,group){
 		    results.push({
 			id: group.id,
@@ -32,7 +31,8 @@ function groups_autocomplete(target_id){
 	placeholder: 'Search for a group',
 	minimumInputLength: 1,
 	templateResult: formatGroup,
-	templateSelection: formatGroupSelection
+	templateSelection: formatGroupSelection,
+	dropdownParent: $('#'+parent_id)
     });
 }
 
@@ -60,7 +60,7 @@ function formatGroupSelection(group){
 
 
 
-function users_autocomplete(target_id){
+function users_autocomplete(target_id,parent_id){
     $("#"+target_id).select2({
 	width: '100%',
 	ajax: {
@@ -97,7 +97,8 @@ function users_autocomplete(target_id){
 	placeholder: 'Search for a user',
 	minimumInputLength: 1,
 	templateResult: formatUser,
-	templateSelection: formatUserSelection
+	templateSelection: formatUserSelection,
+	dropdownParent: $('#'+parent_id)
     });
 }
 
@@ -121,66 +122,3 @@ function formatUser(user){
 function formatUserSelection(user){
     return user.text;
 }
-
-
-
-
-function papers_autocomplete(target_id){
-    $("#"+target_id).select2({
-	width: '100%',
-	ajax: {
-	    url: $("#Urlpapers").attr("data-url"),
-	    dataType: 'json',
-	    delay: 250,
-	    data: function (params) {
-		return {
-		    q: params.term, // search term
-		};
-	    },
-	    processResults: function (data, params) {
-		var results = []
-		$.each(data.papers,function(i,paper){
-		    results.push({
-			id: paper.id,
-			cite_as: String(paper.cite_as),
-			title: String(paper.title)
-		    });
-		});
-		
-		return {
-		    results: results,
-		    pagination: {
-			more: false
-		    }
-		};
-	    },
-	    cache: true
-	},
-	placeholder: 'Search for a paper',
-	minimumInputLength: 1,
-	templateResult: formatPaper,
-	templateSelection: formatPaperSelection
-    });
-}
-function formatPaper(paper){
-//    var $container = $(
-//	"<div class='select2-result-repository clearfix'>" +
-//	    "<div class='select2-result-paper__meta'><table>" +
-//            "<tr><td><div class='select2-result-paper__cite_as'></div></td></tr>" +
-//            "<tr><td><div class='select2-result-paper__title'></div></td></tr>" +
-//	    "</table></div>" +
-//	    "</div>"
-//    );
-//    $container.find(".select2-result-paper__cite_as").append(paper.cite_as);
-//    $container.find(".select2-result-paper__title").append(paper.title);
-    var $container = $(
-	'<p><strong>' + paper.cite_as + '</strong><i>' + paper.title + '</i></p>'
-    );
-    
-    return $container;
-}
-
-function formatPaperSelection(paper){
-    return paper.title;
-}
-

@@ -23,7 +23,7 @@ class GroupsSerializer(serializers.HyperlinkedModelSerializer):
 
 
         
-### Groups autocomplete
+### Papers autocomplete
 ################################################################################
 class PapersSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
