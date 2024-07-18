@@ -152,7 +152,8 @@ class GroupCreateView(BSModalFormView):
             add_user_names = form.cleaned_data['users']
             name = form.cleaned_data['name']
             description = form.cleaned_data['description']
-            sledgroup = SledGroup(name=name, owner=self.request.user, description=description)
+            access_level = form.cleaned_data['access_level']
+            sledgroup = SledGroup(name=name, owner=self.request.user, description=description, access_level=access_level)
             sledgroup.save()
             sledgroup.addMember(self.request.user,add_user_names)
             messages.add_message(self.request,messages.SUCCESS,"Group <b>"+name+"</b> was successfully created!")
