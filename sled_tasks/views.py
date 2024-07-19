@@ -696,7 +696,7 @@ def request_update_task_context(task,context):
             current.append(getattr(obj,field))
         proposed.append(value)
     context["fields"] = zip(names,current,proposed)
-    
+
     if task.cargo["proposed_image"]:
         context["image_field"] = task.cargo["image_field"]
         if task.status == 'C':

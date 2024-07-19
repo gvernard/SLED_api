@@ -389,12 +389,12 @@ class LensConnectionsSummaryView(BSModalReadView):
         context = super().get_context_data(**kwargs)
         
         other_owners = {"Generic Images": [], "Redshifts": [], "Imaging Data": [], "Spectroscopic Data": [], "Models": []}
-        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True).filter(future=False)
+        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])
         generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
 
-        print(other_owners)
+        #print(other_owners)
         
         for image in allimages:
             other_owners["Imaging Data"].append(image.owner.username)
@@ -441,8 +441,12 @@ class LensDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         #context['imagings'] = context['lens'].imaging.all(self.request.user)
-        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True).filter(future=False)
-        allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        qset = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        allimages = qset.filter(future=False)
+        futimages = qset.filter(future=True)
+        qset = Spectrum.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
+        allspectra = qset.filter(future=False)
+        futspectra = qset.filter(future=True)
         allcataloguedata = list(Catalogue.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True))
         
         following = is_following(self.request.user,context['lens'])
@@ -546,7 +550,9 @@ class LensDetailView(DetailView):
         context['following'] = following
         context['all_papers'] = zip(allpapers,paper_labels)
         context['display_imagings'] = display_images
+        context['future_imagings'] = futimages
         context['display_spectra'] = allspectra
+        context['future_spectra'] = futspectra
         context['display_catalogues_plot'] = dict(catalogue_entries_plot)
         context['display_catalogues_table'] = all_results
         context["redshifts"] = redshifts

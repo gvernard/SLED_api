@@ -2,6 +2,7 @@
 {% load static %}
 {% load activity_tags %}
 {% load lenses_extras %}
+{% load project_tags %}
 
 
 {% block content %}
@@ -26,7 +27,7 @@
 	  <p class="created-at">
             Created at: {{ lens.created_at }}
 	    <br>
-	    Managed by: <a href="{{ lens.owner.get_absolute_url }}">{{ lens.owner }}</a>
+	    Managed by: {{ lens.owner.id|get_user_link|safe }}
 	  </p>
 	  <!-- Recent activity div -->
 	  <div class="jb-activity">
@@ -363,6 +364,29 @@
       </tr>
       {% endfor %}
     </table>
+
+    {% if future_imagings|length > 0 %}
+    <h3 class="jb-heading-3">Future</h3>
+    <table>
+      <tr>
+	<th>Instrument</th>
+	<th>Band</th>
+	<th>Date</th>
+	<th>Information</th>
+	<th>Owner</th>
+      </tr>
+      {% for imaging in future_imagings %}
+      <tr>
+	<td>{{imaging.instrument}}</td>
+	<td>{{imaging.band}}</td>
+	<td>{{imaging.date_taken}}</td>
+	<td>{{imaging.info}}</td>
+	<td>{{imaging.owner.id|get_user_link|safe}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+    
     <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:imaging-create' lens=lens.id %}" data-sled-onload="set_modal_imaging_create">
       <img src="{% static 'icons/plus.svg' %}">
       Add Imaging data
@@ -400,6 +424,26 @@
       </td></tr>
       {% endfor %}
     </table>
+
+    {% if future_spectra|length > 0 %}
+    <h3 class="jb-heading-3">Future</h3>
+    <table>
+      <tr>
+	<th>Instrument</th>
+	<th>Date</th>
+	<th>Information</th>
+	<th>Owner</th>
+      </tr>
+      {% for spectrum in future_imagings %}
+      <tr>
+	<td>{{spectrum.instrument}}</td>
+	<td>{{spectrum.date_taken}}</td>
+	<td>{{spectrum.info}}</td>
+	<td>{{spectrum.owner.id|get_user_link|safe}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
     
     <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_data:spectrum-create' lens=lens.id %}" data-sled-onload="set_modal_spectrum_create">
       <img src="{% static 'icons/plus.svg' %}">

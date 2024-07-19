@@ -298,11 +298,11 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
             super(Imaging,self).save(*args,**kwargs)
 
         # Create new file and remove old one
-        if self.exists:
+        if not self.future and self.exists:
             fname = self.image.name
             dum,file_ext = os.path.splitext(fname)
             sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + file_ext
-            print(fname,sled_fname)
+            #print(fname,sled_fname)
             if fname != sled_fname:
                 default_storage.copy(fname,sled_fname)            
                 self.image.name = sled_fname
@@ -398,7 +398,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
             super(Spectrum,self).save(*args,**kwargs)
                 
         # Create new file and remove old one
-        if self.exists:
+        if not self.future and self.exists:
             fname = self.image.name
             dum,file_ext = os.path.splitext(fname)
             sled_fname = self.image.field.upload_to + "/" + str( self.pk ) + file_ext
