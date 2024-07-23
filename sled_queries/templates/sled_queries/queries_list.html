@@ -32,17 +32,11 @@
         <td>{{ query.description }}</td>
 	<td>{{ query.created_at }}</td>
 	<td>
-	  <button type="button" class="sled-delete-query btn btn-sm btn-danger"
-		  {% if view.kwargs.admin %}
-		  data-form-url="{% url 'sled_queries:query-delete-admin' query.pk %}"
-		  {% else %}
-		  data-form-url="{% url 'sled_queries:query-delete' query.pk %}"
-		  {% endif %}
-		  >
-	    <img src="{% static 'icons/trash.svg' %}" alt="trash">
-	    Delete
+	  <button type="button" class="sled-view-query jb-submit-button-1" data-form-url="{{ query.get_GET_url }}">
+	    <img src="{% static 'icons/eye-fill.svg' %}" alt="trash">
+	    View
 	  </button>
-	  <button type="button" class="sled-modal btn btn-sm btn-primary"
+	  <button type="button" class="sled-modal jb-submit-button-1"
 		  {% if view.kwargs.admin %}
 		  data-form-url="{% url 'sled_queries:query-update-admin' query.pk %}"
 		  {% else %}
@@ -52,13 +46,19 @@
 	    <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
 	    Update
 	  </button>
-	  <button type="button" class="sled-modal btn btn-sm btn-primary" data-form-url="{% url 'sled_queries:query-link' query.pk %}">
+	  <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_queries:query-link' query.pk %}">
 	    <img src="{% static 'icons/people-fill.svg' %}" alt="trash">
 	    Share
 	  </button>
-	  <button type="button" class="sled-view-query btn btn-sm btn-primary" data-form-url="{{ query.get_GET_url }}">
-	    <img src="{% static 'icons/eye-fill.svg' %}" alt="trash">
-	    View
+	  <button type="button" class="sled-delete-query jb-submit-button-1"
+		  {% if view.kwargs.admin %}
+		  data-form-url="{% url 'sled_queries:query-delete-admin' query.pk %}"
+		  {% else %}
+		  data-form-url="{% url 'sled_queries:query-delete' query.pk %}"
+		  {% endif %}
+		  >
+	    <img src="{% static 'icons/trash.svg' %}" alt="trash">
+	    Delete
 	  </button>
 	</td>
       </tr>

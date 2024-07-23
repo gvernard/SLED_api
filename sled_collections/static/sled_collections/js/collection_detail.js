@@ -40,6 +40,5 @@ $(document).ready(function() {
 
     });
 
-    $('#toggle_all').remove();
 });
 
