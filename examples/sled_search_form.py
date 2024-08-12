@@ -35,8 +35,8 @@ search_field_values =  {'lens-ra_min': '0', 'lens-ra_max': '180', 'lens-dec_min'
                         #'catalogue-mag_min': '', 'catalogue-mag_max': '',
                     }
 
-username = 'Cameron'
-password = '123'
+username = 'username'
+password = 'password'
 r = requests.post(urlquery, data=search_field_values, auth=HTTPBasicAuth(username, password))
 dbquery = json.loads(r.text)
 
