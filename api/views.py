@@ -15,7 +15,7 @@ from rest_framework.parsers import  MultiPartParser
 
 from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper, Imaging, Spectrum, Catalogue
-
+from lenses import forms, query_utils
 from guardian.shortcuts import assign_perm
 from actstream import action
 
@@ -403,6 +403,45 @@ class QueryLenses(APIView):
         else:
             lensjsons = []
         return Response({'lenses':lensjsons})
+
+
+class QueryLensesFull(APIView):
+    """
+    API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
+    """
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self,request):
+        user = request.user
+        print(request.data)
+        lens_form = forms.LensQueryForm(request.data,prefix="lens")
+        redshift_form = forms.RedshiftQueryForm(request.data,prefix="redshift")
+        imaging_form = forms.ImagingQueryForm(request.data,prefix="imaging")
+        spectrum_form = forms.SpectrumQueryForm(request.data,prefix="spectrum")
+        catalogue_form = forms.CatalogueQueryForm(request.data,prefix="catalogue")
+        forms_with_fields = []
+        forms_with_errors = []
+        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form])
+        error_messages = []
+        for name,form in zipped:
+            if form.is_valid():
+                if form.cleaned_data:
+                    forms_with_fields.append(name)
+            else:
+                forms_with_errors.append(name) 
+                error_messages.append(form.errors)
+        
+        if len(forms_with_errors) > 0:
+            return Response({'errors':error_messages})
+        else:
+            qset = query_utils.combined_query(lens_form.cleaned_data,redshift_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            lensjsons = []
+            for lens in qset:
+                json = model_to_dict(lens, exclude=['mugshot', 'owner'])
+                lensjsons.append(json)
+
+            return Response({'lenses':lensjsons, 'errors':''})
 
 
     
