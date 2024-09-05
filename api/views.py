@@ -1,4 +1,4 @@
-from django.db.models import Q,Value
+from django.db.models import Q,Value,Prefetch
 from django.db.models.functions import Collate
 from django.core import serializers
 from django.urls import reverse
@@ -11,8 +11,9 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
+
 from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Band, Redshift
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Paper
 from lenses import forms, query_utils
 from guardian.shortcuts import assign_perm
 from actstream import action
@@ -405,9 +406,6 @@ class QueryLenses(APIView):
             lensjsons = []
         return Response({'lenses':lensjsons})
 
-from django.db.models import Prefetch
-from lenses.models import Paper
-
 class QueryLensesFull(APIView):
     """
     API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
@@ -503,49 +501,13 @@ class QueryLensesFull(APIView):
                         model_to_dict(catalogue, exclude=['lens', 'image', 'id', 'owner'])  # Exclude the reverse relation to avoid circular references
                         for catalogue in lens.catalogue.all()  # Use .all() to get all related redshifts
                     ]
-                    
+
 
             print('time to loop through lenses', time.time()-t2)
             print('Query took', time.time()-t1, 'seconds')
             return Response({'lenses':lensjsons, 'errors':''})
-            
-            '''for lens in qset:
-                json = model_to_dict(lens, exclude=['mugshot', 'owner'])
-                
-                if 'append_papers' in request.data.keys():
-                    if float(request.data['append_papers'][0]): # this might need some improvement... data is parsed into lists of strings
-                        papers = lens.papers(manager='objects').all()
-                        json['papers'] = [model_to_dict(paper, exclude=['lenses_in_paper', 'id', 'owner', 'access_level']) for paper in papers]
-
-                if 'append_images' in request.data.keys():
-                    if float(request.data['append_images'][0]): # this might need some improvement... data is parsed into lists of strings
-                        allimages = Imaging.accessible_objects.all(self.request.user).filter(lens=lens).filter(exists=True).filter(future=False)
-                        display_images = {}
-                        if allimages:
-                            instruments = allimages.values_list('instrument__name', flat=True).distinct().order_by()
-                            
-                            band_order = list(Band.objects.all().values_list('name', flat=True))
-                            for instrument in instruments:
-                                bands = allimages.filter(instrument__name=instrument).values_list('band__name',flat=True).distinct().order_by()
-                                bands = np.array(bands)[np.argsort([band_order.index(band) for band in bands])]
-                                display_images[instrument] = bands
-                        json['images'] = display_images
-
-                if 'append_spectra' in request.data.keys():
-                    if float(request.data['append_spectra'][0]):
-                        allspectra = Spectrum.accessible_objects.all(self.request.user).filter(lens=lens).filter(exists=True).filter(future=False)
-                        display_spectra = {}
-                        if allspectra:
-                            instruments = allspectra.values_list('instrument__name', flat=True).distinct().order_by()
-                            print(instruments)
-                            for instrument in instruments:
-                                display_spectra[instrument] = [model_to_dict(spectrum, exclude=['id', 'owner', 'access_level', 'image']) for spectrum in allspectra.filter(instrument__name=instrument)]
-                        json['spectra'] = display_spectra
-                lensjsons.append(json)'''
-            
 
 
-    
 class QueryPapers(APIView):
     """
     API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
