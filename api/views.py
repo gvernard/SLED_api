@@ -442,6 +442,7 @@ class QueryLensesFull(APIView):
             append_images = 'append_images' in request.data and bool(strtobool(request.data['append_images'][0]))
             append_spectra = 'append_spectra' in request.data and bool(strtobool(request.data['append_spectra'][0]))
             append_redshifts = 'append_redshifts' in request.data and bool(strtobool(request.data['append_redshifts'][0]))
+            append_catalogue = 'append_catalogue' in request.data and bool(strtobool(request.data['append_catalogue'][0]))
             
             qset = query_utils.combined_query(
                 lens_form.cleaned_data, redshift_form.cleaned_data, imaging_form.cleaned_data,
@@ -462,6 +463,9 @@ class QueryLensesFull(APIView):
 
             if append_spectra:
                 qset = qset.prefetch_related('spectrum')
+
+            if append_catalogue:
+                qset = qset.prefetch_related('catalogue')
 
             # Get the Lens model
             Lens = ContentType.objects.get(model='lenses').model_class()
@@ -494,6 +498,12 @@ class QueryLensesFull(APIView):
                         for spec in lens.spectrum.all()  # Use .all() to get all related redshifts
                     ]
 
+                if append_catalogue:
+                    lensjsons[i]['catalogue'] = [
+                        model_to_dict(catalogue, exclude=['lens', 'image', 'id', 'owner'])  # Exclude the reverse relation to avoid circular references
+                        for catalogue in lens.catalogue.all()  # Use .all() to get all related redshifts
+                    ]
+                    
 
             print('time to loop through lenses', time.time()-t2)
             print('Query took', time.time()-t1, 'seconds')
