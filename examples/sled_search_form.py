@@ -14,10 +14,10 @@ search_field_values =  {'lens-ra_min': '0', 'lens-ra_max': '180', 'lens-dec_min'
                         #'lens-lens_type': 'GALAXY', #lens type, options are: ['GALAXY', 'LTG', 'SPIRAL', 'GALAXY PAIR', 'GROUP', 'CLUSTER', 'CLUSTER MEMBER', 'QUASAR', 'LRG', 'ETG', 'ELG']
                         #'lens-source_type': ['ETG',], #lens source type, options are: ['GALAXY', 'ETG', 'SMG', 'QUASAR', 'DLA', 'PDLA', 'RADIO-LOUD', 'BAL QUASAR', 'ULIRG', 'BL Lac', 'LOBAL QUASAR', 'FELOBAL QUASAR', 'EXTREME RED OBJECT', 'RED QUASAR', 'GW', 'FRB', 'GRB', 'SN', 'LBG', 'ETG', 'ELG']
                         #'lens-image_conf': 'LONG-AXIS CUSP', 'SHORT-AXIS CUSP', 'NAKED CUSP', 'CUSP', 'CENTRAL IMAGE', 'FOLD', 'CROSS', 'DOUBLE', 'QUAD', 'RING', 'ARC',
-                        #'redshift-z_lens_method': '', 'redshift-z_lens_min': '', 'redshift-z_lens_max': '',
-                        #'redshift-z_source_method': '', 'redshift-z_source_min': '', 'redshift-z_source_max': '',
-                        #'redshift-z_los_method': '', 'redshift-z_los_min': '', 'redshift-z_los_max': '',
-                        #'imaging-band': '', 'imaging-future': '',
+                        #'redshift-z_lens_method': '', 'redshift-z_lens_min': '', 'redshift-z_lens_max': '', options are "leave it blank for ANY", 'PHOTO', 'SPECTRO', 'OTHER'
+                        #'redshift-z_source_method': '', 'redshift-z_source_min': '', 'redshift-z_source_max': '', options are "leave it blank for ANY", 'PHOTO', 'SPECTRO', 'OTHER'
+                        #'redshift-z_los_method': '', 'redshift-z_los_min': '', 'redshift-z_los_max': '', options are "leave it blank for ANY", 'PHOTO', 'SPECTRO', 'OTHER'
+                        #'imaging-band': '', 'imaging-future': '', #for imaging band numbers check the curl request: ['2', '6', '5', '1']
                         #'imaging-date_taken_min_month': '', 'imaging-date_taken_min_day': '', 'imaging-date_taken_min_year': '',
                         #'imaging-date_taken_max_month': '', 'imaging-date_taken_max_day': '', 'imaging-date_taken_max_year': '',
                         #'imaging-exposure_time_min': '', 'imaging-exposure_time_max': '',
