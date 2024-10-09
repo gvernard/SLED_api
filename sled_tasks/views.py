@@ -668,8 +668,8 @@ class TaskDeleteView(BSModalDeleteView):
     success_url = reverse_lazy('sled_tasks:tasks-list')
 
     def get_queryset(self):
-        return self.model.objects.filter( Q(owner=self.request.user) and Q(status='C') )
-
+        #return self.model.objects.filter( Q(owner=self.request.user) and Q(status='C') )
+        return self.model.objects.filter( Q(owner=self.request.user) )
 
 
 def request_update_task_context(task,context):

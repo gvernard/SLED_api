@@ -212,6 +212,7 @@ class ConfirmationTask(SingleObject):
         task.recipients.set(users)
         task.save()
         task.recipient_names = list(users.values_list('username',flat=True))
+        #print('task created: ',task.recipients.all())
         task.inviteRecipients(task.recipients.all())
         return task
 

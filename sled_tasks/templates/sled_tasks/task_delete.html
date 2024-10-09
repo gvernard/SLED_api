@@ -9,9 +9,15 @@ Delete <strong>{{ task.task_type }}</strong> task
 
 {% block content %}
 <div class="jb-container-modal">
+  {% if task.status == 'C' %}
   <p class="jb-color-green">
     This task was completed on <strong>{{task.modified_at}}</strong>.
   </p>
+  {% else %}
+  <p class="jb-color-red">
+    This task was created on <strong>{{task.created_at}}</strong> and still pending.
+  </p>  
+  {% endif %}
   <p>
     Are you sure you want to delete it?
   </p>
