@@ -363,7 +363,15 @@
 	      <img src="{% static 'icons/people-fill.svg' %}" >
 	      Make public
 	    </button>
-	    
+	    <button type="button" id="make-collection" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create' 'Lenses' %}">
+	      <img src="{% static 'icons/folder-fill.svg' %}"> 
+	      Make collection
+	    </button>
+	    <button type="button" id="add-to-collection" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-add-items' 'Lenses' %}">
+	      <img src="{% static 'icons/folder-plus.svg' %}">
+	      Add to collection
+	    </button>
+    
 	    <!-- The buttons below should be hidden as extra actions -->
 	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
 	      <img src="{% static 'icons/lock-fill.svg' %}" >

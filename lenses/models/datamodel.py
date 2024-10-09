@@ -8,6 +8,7 @@ from multiselectfield import MultiSelectField
 from dirtyfields import DirtyFieldsMixin
 from actstream import action
 from notifications.signals import notify
+from django_resized import ResizedImageField
 import os
 import simplejson as json
 from pprint import pprint
@@ -35,8 +36,12 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                             help_text="Description of any important aspects of the image.",
                             validators=[validate_language],
                             )
-    image = models.ImageField(blank=False,
+    #image = models.ImageField(blank=False,
+    #                          upload_to='generic',
+    #                          validators=[FileExtensionValidator(['png','jpeg','jpg'])])
+    image = ResizedImageField(blank=False,
                               upload_to='generic',
+                              force_format='PNG',
                               validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     
     class Meta():
@@ -231,8 +236,12 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                              to_field='name',
                              verbose_name="Band",
                              on_delete=models.PROTECT)
-    image = models.ImageField(blank=True,
+    #image = models.ImageField(blank=True,
+    #                          upload_to='imaging',
+    #                          validators=[FileExtensionValidator(['png','jpeg','jpg'])])
+    image = ResizedImageField(blank=True,
                               upload_to='imaging',
+                              force_format='PNG',
                               validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     url = models.URLField(blank=True,
                           max_length=300)
@@ -339,8 +348,12 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                                      verbose_name="Resolution",
                                      help_text="The resolution of the spectrum [nm].",
                                      validators=[MinValueValidator(0.0,"Resolution must be positive."),])
-    image = models.ImageField(blank=True,
+    #image = models.ImageField(blank=True,
+    #                          upload_to='spectrum',
+    #                          validators=[FileExtensionValidator(['png','jpeg','jpg'])])
+    image = ResizedImageField(blank=True,
                               upload_to='spectrum',
+                              force_format='PNG',
                               validators=[FileExtensionValidator(['png','jpeg','jpg'])])
 
     FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future','access_level']

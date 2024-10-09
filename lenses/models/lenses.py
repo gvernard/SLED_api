@@ -11,6 +11,7 @@ from multiselectfield import MultiSelectField
 from dirtyfields import DirtyFieldsMixin
 from actstream import action
 from guardian.shortcuts import get_users_with_perms
+from django_resized import ResizedImageField
 
 import os
 import math
@@ -225,7 +226,8 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
-    mugshot = models.ImageField(upload_to='lenses', validators=[FileExtensionValidator(['png','jpeg','jpg'])])
+    #mugshot = models.ImageField(upload_to='lenses', validators=[FileExtensionValidator(['png','jpeg','jpg'])])
+    mugshot = ResizedImageField(upload_to='lenses', force_format='PNG', validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     
     FlagChoices = (
         ('CONFIRMED','Confirmed'),
