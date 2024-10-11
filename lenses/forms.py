@@ -919,7 +919,37 @@ class DownloadForm(BSModalForm):
                            widget=forms.NumberInput(attrs={"disabled": True}),
                            )
     
+class DownloadChooseForm(BSModalForm):
+    ids = forms.CharField(widget=forms.HiddenInput())
+    N = forms.IntegerField(required=False,
+                           label="N<sub>images,min</sub>",
+                           help_text="Minimum number of source images.",
+                           widget=forms.NumberInput(attrs={"disabled": True}),
+                           )
 
+    OPTIONS = (
+        ("redshift", "Redshifts"),
+        ("imaging", "Imaging Data"),
+        ("spectrum", "Spectra"),
+        ("catalogue", "Catalogue Data"),
+        ("genericimage", "Generic Images"),
+        ("papers", "Papers"),
+        #("models", "Models"),
+    )
+    related = forms.MultipleChoiceField(required=False,widget=forms.CheckboxSelectMultiple,choices=OPTIONS)
+
+    
+    def clean_related(self):
+        # This reverses the choices (passing the unselected choices)
+        available_choices = [ choice[0] for choice in self.fields['related'].choices ]
+        choices = self.cleaned_data['related']
+        reverse_choices = list(set(available_choices) - set(choices))
+        return reverse_choices
+
+        
+        
+    
+    
 
 class LensAskAccessForm(BSModalModelForm):
     justification = forms.CharField(

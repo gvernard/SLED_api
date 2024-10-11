@@ -1,5 +1,3 @@
-import os
-from collections import OrderedDict,defaultdict
 from django.shortcuts import render, redirect
 from django.urls import reverse,reverse_lazy
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -12,38 +10,39 @@ from django.apps import apps
 from django.core.paginator import Paginator
 from django.core.files import File
 from django.core.files.storage import default_storage
-
+from django.core import serializers
 from django.views.generic import ListView, DetailView, TemplateView
 from django.utils.decorators import method_decorator
 from guardian.shortcuts import assign_perm,remove_perm
 from django.forms import formset_factory, modelformset_factory, inlineformset_factory, CheckboxInput
 from django.forms.models import model_to_dict
 from django.contrib import messages
-from django.core import serializers
 from django.conf import settings
 from django.db.models import Max, Subquery, Q
 from django.db.models.query import QuerySet
+
+import numpy as np
+import csv
 import json
+import os
+from collections import OrderedDict,defaultdict
 from urllib.parse import urlparse
 from itertools import chain
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift, GenericImage
+from rest_framework.renderers import JSONRenderer
 
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift, GenericImage
+from api.download_serializers import LensDownSerializer,LensDownSerializerAll
 from . import forms
 from . import query_utils
 
 from bootstrap_modal_forms.generic import  BSModalDeleteView,BSModalFormView,BSModalUpdateView,BSModalCreateView,BSModalReadView
-
 from bootstrap_modal_forms.mixins import is_ajax
-
 from notifications.signals import notify
 from actstream import action
 from actstream.actions import follow,unfollow,is_following
 from actstream.models import followers,following
 
-import numpy as np
-from pprint import pprint
-import csv
 
 
 #=============================================================================================================================
@@ -337,10 +336,6 @@ class ExportToCSV(ModalIdsBaseMixin):
                        'flag',
                        'score',
                        'image_sep',
-                       'z_source',
-                       'z_source_secure',
-                       'z_lens',
-                       'z_lens_secure',
                        'info',
                        'n_img',
                        'image_conf',
@@ -353,7 +348,35 @@ class ExportToCSV(ModalIdsBaseMixin):
         return response
 
 
+@method_decorator(login_required,name='dispatch')
+class ExportToJSON(ModalIdsBaseMixin):
+    template_name = 'json_download.html'
+    form_class = forms.DownloadChooseForm
+    success_url = reverse_lazy('lenses:lens-query')
 
+    def get_initial(self):
+        ids = self.request.GET.getlist('ids',None)
+        if not ids:
+            ids = query_utils.get_combined_qset(self.request.GET,self.request.user)
+        ids_str = ','.join(ids)
+        return {'ids': ids_str,'N':len(ids)}
+
+    def my_form_valid(self,form):
+        ids = form.cleaned_data['ids'].split(',')
+        fields_to_remove = form.cleaned_data['related']
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids).prefetch_related('imaging')
+        
+        serializer = LensDownSerializerAll(lenses,many=True,context={'fields_to_remove': fields_to_remove})
+        data = JSONRenderer().render(serializer.data)
+                
+        response = HttpResponse(data,content_type='application/json')
+        response['Content-Disposition'] = 'attachment;filename=lenses.json'
+        return response
+
+
+
+
+    
 @method_decorator(login_required,name='dispatch')
 class LensAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view passes the object id automatically
     model = Lenses

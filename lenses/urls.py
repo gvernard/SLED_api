@@ -21,4 +21,6 @@ urlpatterns = [
     path('ask-access/<int:pk>', views.LensAskAccessView.as_view(),name='lens-ask-access'),
     path('connections/<int:pk>', views.LensConnectionsSummaryView.as_view(),name='lens-connections'),
     path('request-update/<int:pk>', views.LensRequestUpdateView.as_view(),name='lens-request-update'),
+    path('export-csv/', views.ExportToCSV.as_view(),name='lens-export-csv'),
+    path('export-json/', views.ExportToJSON.as_view(),name='lens-export-json'),
 ]

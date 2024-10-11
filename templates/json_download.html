@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-Download as csv?
+Download as .json?
 {% endblock title %}
 
 {% block content %}
@@ -18,10 +18,24 @@ Download as csv?
   </div>
   {% endif %}
   
-  You will download details for {{ form.N.value }} lenses
-
+  You will download details for <b>{{ form.N.value }}</b> lenses.
+  <br>
+  <br>
+  You may <b>optionally</b> fetch additional data:
+  <table class="jb-table-no-lines center">
+    {% for radio in form.related %}
+    <tr>
+      <td>
+	{{ radio.tag }}
+      </td>
+      <td>
+	<label for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  
   {{ form.ids }}
-
 </div>
 {% endblock content %}
 
@@ -32,3 +46,8 @@ Download as csv?
   Download
 </button>
 {% endblock action_button %}
+
+
+{% block extrascripts %}
+<link href="{% static 'lenses/css/lens_download_json.css' %}" rel="stylesheet" />
+{% endblock extrascripts %}
