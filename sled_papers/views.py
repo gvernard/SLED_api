@@ -10,6 +10,7 @@ from django.db.models import F, Q, Min, Max
 from django.urls import reverse_lazy, reverse  
 from django.http import HttpResponse
 from django.core.paginator import Paginator
+from rest_framework.renderers import JSONRenderer
 
 # Third party app imports 
 from bootstrap_modal_forms.mixins import is_ajax
@@ -17,8 +18,9 @@ from bootstrap_modal_forms.generic import BSModalDeleteView, BSModalFormView
 
 # Local app imports
 from .forms import *  
-from lenses.forms import DownloadForm
+from lenses.forms import DownloadChooseForm
 from lenses.models import Lenses, Paper
+from api.download_serializers import LensDownSerializerAll
 
 
 
@@ -182,42 +184,26 @@ class PaperQuickQueryView(BSModalFormView):
     
 @method_decorator(login_required,name='dispatch')
 class PaperExportToCSVView(BSModalFormView):
-    template_name = 'csv_download.html'
-    form_class = DownloadForm
+    template_name = 'json_download.html'
+    form_class = DownloadChooseForm
 
     def get_initial(self):
         paper = Paper.objects.get(pk=self.kwargs['pk'])
         lenses = paper.lenses_in_paper.all()
-        return {'ids': 'dum','N':len(lenses)}
+        ids = [ str(id) for id in lenses.values_list('id',flat=True) ]
+        return {'ids': ','.join(ids),'N':len(lenses)}
     
     def form_valid(self,form):
         if not is_ajax(self.request.META):
-            paper = Paper.objects.get(pk=self.kwargs['pk'])
-            lenses = paper.lenses_in_paper.all()
-                    
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment;filename=lenses.csv'
-            writer = csv.writer(response)
-            field_names = ['ra',
-                           'dec',
-                           'name',
-                           'alt_name',
-                           'flag',
-                           'score',
-                           'image_sep',
-                           'z_source',
-                           'z_source_secure',
-                           'z_lens',
-                           'z_lens_secure',
-                           'info',
-                           'n_img',
-                           'image_conf',
-                           'lens_type',
-                           'source_type',
-                           'contaminant_type']
-            writer.writerow(field_names)
-            for lens in lenses:
-                writer.writerow([getattr(lens,field) for field in field_names])
+            ids = form.cleaned_data['ids'].split(',')
+            fields_to_remove = form.cleaned_data['related']
+            lenses = Lenses.accessible_objects.in_ids(self.request.user,ids).prefetch_related('imaging')
+            
+            serializer = LensDownSerializerAll(lenses,many=True,context={'fields_to_remove': fields_to_remove})
+            data = JSONRenderer().render(serializer.data)
+            
+            response = HttpResponse(data,content_type='application/json')
+            response['Content-Disposition'] = 'attachment;filename=lenses.json'
             return response
         else:
             response = super().form_valid(form)
@@ -226,3 +212,18 @@ class PaperExportToCSVView(BSModalFormView):
     def get_success_url(self):
         return reverse('sled_papers:paper-detail',kwargs={'pk':self.kwargs['pk']})
 
+
+
+# View for lens Collage
+@method_decorator(login_required,name='dispatch')
+class PaperLensCollageView(ListView):
+    model = Lenses
+    allow_empty = True
+    template_name = 'lenses/lens_collage.html'
+    paginate_by = 50
+    context_object_name = 'lenses'
+    
+    def get_queryset(self):
+        paper = Paper.objects.get(pk=self.kwargs['pk'])
+        lenses = paper.lenses_in_paper.all()
+        return lenses

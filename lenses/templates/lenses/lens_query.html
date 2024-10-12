@@ -635,10 +635,12 @@
       Add to collection
     </button>
 
+    {% comment %}
     <button type="button" id="export" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-export-csv' %}">
       <img src="{% static 'icons/arrow-down-circle-fill.svg' %}">
       Export .csv
     </button>
+    {% endcomment %}
 
     <button type="button" id="export" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-export-json' %}">
       <img src="{% static 'icons/arrow-down-circle-fill.svg' %}">

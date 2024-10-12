@@ -13,5 +13,10 @@ $(document).ready(function() {
             modalID: "#id-modal"
 	});
     });
+
+    $("#lens-collage").click(function() {
+	var url = $(this).data('form-url');
+	document.location.href = url;
+    });
     
 });

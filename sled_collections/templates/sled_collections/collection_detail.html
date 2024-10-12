@@ -155,14 +155,18 @@
       <img src="{% static 'icons/plus.svg' %}">
       Add items
     </button>
-    <button type="button" id="remove-items" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-remove-items' collection.pk %}">
+    <button type="button" id="remove-items" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-remove-items' collection.pk %}">
       <img src="{% static 'icons/dash.svg' %}">
       Remove selected
     </button>
     {% endif %}
-    <button type="submit" form="ids-form" class="sled-process-lenses jb-submit-button-1" formaction="{% url 'lenses:lens-collage' %}">
+    <button type="submit" form="ids-form" class="jb-submit-button-1" formaction="{% url 'lenses:lens-collage' %}">
       <img src="{% static 'icons/columns-gap.svg' %}">
       See collage
+    </button>
+    <button type="button" id="export" class="sled-process-lenses jb-submit-button-1" data-form-url="{% url 'lenses:lens-export-json' %}">
+      <img src="{% static 'icons/arrow-down-circle-fill.svg' %}">
+      Export .json
     </button>
   </div>
   

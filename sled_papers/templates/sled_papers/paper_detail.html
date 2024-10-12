@@ -12,26 +12,27 @@
     <p class="jb-heading-paper-title"> "{{ paper.title }}" </p>
     <p class="cite_as"> <a href="{{ paper.get_ads_url }}">{{ paper.cite_as }}</a> </p>
     <p> Created at {{ paper.created_at }} by <a href="{{ paper.owner.get_absolute_url }}">{{paper.owner}}</a></p>
-    {% comment %}
-    <button type="button" id="export-csv" disabled class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:export-csv' paper.pk %}">
-      <img src="{% static 'icons/cloud-arrow-down-fill.svg' %}">
-      Export to csv
-    </button>
-    {% endcomment %}
+    <div>
+      {% if user == paper.owner %}
+      <button type="button" id="delete-paper" class="jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-delete' paper.pk %}">
+	<img src="{% static 'icons/trash.svg' %}">
+	Delete
+      </button>
+      {% endif %}
+      <button type="button" id="lens-collage" class="jb-submit-button-1" data-form-url="{% url 'sled_papers:lens-collage' paper.pk %}">
+	<img src="{% static 'icons/columns-gap.svg' %}">
+	See collage
+      </button>
+      <button type="button" id="export" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_papers:export-csv' paper.pk %}">
+	<img src="{% static 'icons/cloud-arrow-down-fill.svg' %}">
+	Export .json
+      </button>
+    </div>
+    <br>
     <p> Contains the following <b>{{ Nlenses }}</b> lenses: </p>
   </div>
 
   {% include "lenses/lens_list_paper.html" with pairs=pairs  %}
-
-  <div>
-    {% if user == paper.owner %}
-    <button type="button" id="delete-paper" class="jb-submit-button-1" data-form-url="{% url 'sled_papers:paper-delete' paper.pk %}">
-      <img src="{% static 'icons/trash.svg' %}">
-      Delete
-    </button>
-    {% endif %}
-  </div>
-
   
 </div>
 {% endblock content %}

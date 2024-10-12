@@ -13,7 +13,7 @@ $(document).ready(function() {
 	});
     });
 
-    $("#remove-items").click(function() {
+    $(".sled-process-lenses").click(function() {
 
 	// Construct get query string
 	var values = [];

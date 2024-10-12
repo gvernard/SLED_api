@@ -8,7 +8,7 @@ from .user import Users
 from .limits_and_roles import LimitsAndRoles
 from .sledquery import SledQuery
 from .datamodel import Instrument, Band, DataBase, Imaging, Spectrum, Catalogue, Redshift, GenericImage
-from .paper import Paper
+from .paper import Paper, PaperLensConnection
 from .persistent_message import PersistentMessage
 
 default_app_config = 'lenses.apps.SledActstreamConfig'
