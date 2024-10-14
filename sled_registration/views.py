@@ -31,7 +31,6 @@ class myLoginView(LoginView):
     authentication_form = UserLoginForm
     
     def form_valid(self,form):
-        print('ok')
         username = self.request.POST["username"]
         password = self.request.POST["password"]
         user = authenticate(self.request,username=username,password=password)
