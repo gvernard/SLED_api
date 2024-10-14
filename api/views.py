@@ -1,9 +1,7 @@
-from django.db import connection
-from django.db.models import Q,F,Value
+from django.db.models import Q,Value,Prefetch
 from django.db.models.functions import Collate
-from django.conf import settings
 from django.core import serializers
-from django.urls import reverse,reverse_lazy
+from django.urls import reverse
 from django.forms.models import model_to_dict
 from django.apps import apps
 from django.core.files.storage import default_storage
@@ -13,17 +11,21 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser
 
-from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Paper, Imaging, Spectrum, Catalogue
 
+from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Paper
+from lenses import forms, query_utils
 from guardian.shortcuts import assign_perm
 from actstream import action
 
-import os
 import json
+import numpy as np
+from distutils.util import strtobool
+import time
 import base64
-from io import BytesIO, BufferedReader
 from django.core.files.base import ContentFile
+from django.contrib.contenttypes.models import ContentType
+
 
 class UploadData(APIView):
     parser_classes = [MultiPartParser]
@@ -404,8 +406,108 @@ class QueryLenses(APIView):
             lensjsons = []
         return Response({'lenses':lensjsons})
 
+class QueryLensesFull(APIView):
+    """
+    API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
+    """
+    authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
-    
+    def post(self,request):
+        t1 = time.time()
+        user = request.user        
+        lens_form = forms.LensQueryForm(request.data,prefix="lens")
+        redshift_form = forms.RedshiftQueryForm(request.data,prefix="redshift")
+        imaging_form = forms.ImagingQueryForm(request.data,prefix="imaging")
+        spectrum_form = forms.SpectrumQueryForm(request.data,prefix="spectrum")
+        catalogue_form = forms.CatalogueQueryForm(request.data,prefix="catalogue")
+        forms_with_fields = []
+        forms_with_errors = []
+        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form])
+        error_messages = []
+        for name,form in zipped:
+            if form.is_valid():
+                if form.cleaned_data:
+                    forms_with_fields.append(name)
+            else:
+                forms_with_errors.append(name) 
+                error_messages.append(form.errors)
+        
+        if len(forms_with_errors) > 0:
+            return Response({'errors':error_messages})
+        else:
+            append_papers = 'append_papers' in request.data and bool(strtobool(request.data['append_papers'][0]))
+            append_images = 'append_images' in request.data and bool(strtobool(request.data['append_images'][0]))
+            append_spectra = 'append_spectra' in request.data and bool(strtobool(request.data['append_spectra'][0]))
+            append_redshifts = 'append_redshifts' in request.data and bool(strtobool(request.data['append_redshifts'][0]))
+            append_catalogue = 'append_catalogue' in request.data and bool(strtobool(request.data['append_catalogue'][0]))
+            
+            qset = query_utils.combined_query(
+                lens_form.cleaned_data, redshift_form.cleaned_data, imaging_form.cleaned_data,
+                spectrum_form.cleaned_data, catalogue_form.cleaned_data, user)
+            
+            print('qset finished in', time.time()-t1)
+
+            if append_papers:
+                qset = qset.prefetch_related(
+                    Prefetch('papers', queryset=Paper.objects.all(), to_attr='prefetched_papers')
+                )
+            
+            if append_redshifts:
+                qset = qset.prefetch_related('redshift')
+
+            if append_images:
+                qset = qset.prefetch_related('imaging')
+
+            if append_spectra:
+                qset = qset.prefetch_related('spectrum')
+
+            if append_catalogue:
+                qset = qset.prefetch_related('catalogue')
+
+            # Get the Lens model
+            Lens = ContentType.objects.get(model='lenses').model_class()
+            lens_fields = [f.name for f in Lens._meta.get_fields() if (not f.is_relation)&(f.name not in ['mugshot','owner'])]
+
+            t2 = time.time()
+            lensjsons = list(qset.values('id', *lens_fields))
+            for i, lens in enumerate(qset):
+                if append_redshifts:
+                    lensjsons[i]['redshifts'] = [
+                        model_to_dict(redshift, exclude=['lens', 'id', 'owner'])  # Exclude the reverse relation to avoid circular references
+                        for redshift in lens.redshift.all()  # Use .all() to get all related redshifts
+                    ]
+
+                if append_papers:
+                    lensjsons[i]['papers'] = [
+                        model_to_dict(paper, exclude=['lenses_in_paper', 'id', 'owner', 'access_level']) 
+                        for paper in lens.prefetched_papers
+                    ]
+                
+                if append_images:
+                    lensjsons[i]['images'] = [
+                        model_to_dict(image, exclude=['lens', 'image', 'id', 'owner'])  # Exclude the reverse relation to avoid circular references
+                        for image in lens.imaging.all()  # Use .all() to get all related redshifts
+                    ]
+                
+                if append_spectra:
+                    lensjsons[i]['spectra'] = [
+                        model_to_dict(spec, exclude=['lens', 'image', 'id', 'owner'])  # Exclude the reverse relation to avoid circular references
+                        for spec in lens.spectrum.all()  # Use .all() to get all related redshifts
+                    ]
+
+                if append_catalogue:
+                    lensjsons[i]['catalogue'] = [
+                        model_to_dict(catalogue, exclude=['lens', 'image', 'id', 'owner'])  # Exclude the reverse relation to avoid circular references
+                        for catalogue in lens.catalogue.all()  # Use .all() to get all related redshifts
+                    ]
+
+
+            print('time to loop through lenses', time.time()-t2)
+            print('Query took', time.time()-t1, 'seconds')
+            return Response({'lenses':lensjsons, 'errors':''})
+
+
 class QueryPapers(APIView):
     """
     API function to query the user's lenses, simply an ra dec radius search for now, returning the closest 
@@ -513,3 +615,4 @@ class UpdateLenses(APIView):
                 return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
         return Response('updated values for '+str(len(updates))+' requests')
+
