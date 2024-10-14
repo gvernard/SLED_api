@@ -33,9 +33,9 @@ def delete_group(sender,instance,**kwargs):
     for model_class in SingleObject.__subclasses__():
         perm = 'view_'+model_class._meta.model_name
         pri_objs = model_class.objects.filter(access_level="PRI")
-        objs = get_objects_for_group(instance,perm,klass=pri_objs)
+        objs = get_objects_for_group(instance,perm,klass=pri_objs) # This is a queryset
         if objs:
-            remove_perm(perm,instance,*objs)
+            remove_perm(perm,instance,list(objs))
 
     # Remove group's activity stream (where action target is the group)
     instance.target_actions.all().delete()
