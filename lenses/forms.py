@@ -947,8 +947,7 @@ class DownloadChooseForm(BSModalForm):
         return reverse_choices
 
         
-        
-    
+   
     
 
 class LensAskAccessForm(BSModalModelForm):
