@@ -1,0 +1,8 @@
+Dear {{ first_name }}
+<br>
+there are pending tasks that require your attention.
+Please respond urgently:
+<br>
+<a href="{{ protocol }}://{{ domain }}{{ task_url }}">{{ protocol }}://{{ domain }}{{ task_url }}</a>
+<br>
+{% include "emails/signature.html" %}

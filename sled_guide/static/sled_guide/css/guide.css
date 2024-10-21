@@ -11,3 +11,31 @@
 .whitespace {
     height: 800px;
 }
+
+
+.form_table {
+    table-layout: fixed;
+    width: 1000px;
+    margin-bottom: 30px;
+}
+
+.form_table td {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    border-top: 0px solid #ACACAC;
+}
+
+.form_table td:first-child {
+    vertical-align: top;
+    width: 170px;
+    text-align: right;
+    font-weight: bold;
+}
+.form_table td:last-child {
+    padding-left: 10px;
+    text-align: left;
+}
+
+.form_table tr:last-child {
+    border-bottom: 0px solid #ACACAC;
+}

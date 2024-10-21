@@ -120,10 +120,7 @@
 
     <div id="querying-user-queries">
       <p>
-	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models. For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search). Placing the mouse above each field label provides some information about it (units, etc). Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page. You can also save all or part of the returned lenses in a new or existing <a href="#collections">Collection</a>. The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future.
-      </p>
-      <p>
-	<b>Coming soon</b>: option to download the query result directly in .json format.
+	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models. For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search). Placing the mouse above each field label provides some information about it (units, etc). Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page. You can also save all or part of the returned lenses in a new or existing <a href="#collections">Collection</a>. The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future. It is possible to select which lenses and associated to download in .json format.
       </p>
       <p>
 	<b>Coming soon</b>: querying lens Models and classification Scores.
@@ -140,8 +137,60 @@
     <div id="querying-api-queries">
       <h3>API queries</h3>
       <p>
-	<b>Coming soon.</b>
+	For large queries, it is advised to use the API functionality. The following fields are allowed to be passed explicitly to an API call:
       </p>
+      <h5>Lenses</h5>
+      <table class="form_table">
+	{% for key, val in lens_form.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+
+      <h5>Redshifts</h5>
+      <table class="form_table">
+	{% for key, val in redshift_form.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+
+      <h5>Imaging Data</h5>
+      <table class="form_table">
+	{% for key, val in imaging_form.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+
+      <h5>Spectra</h5>
+      <table class="form_table">
+	{% for key, val in spectrum_form.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+
+      <h5>Catalogue Data</h5>
+      <table class="form_table">
+	{% for key, val in catalogue_form.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+
+      <h5>Models</h5>
+      <b>Coming soon</b>
     </div>
 
   </div>

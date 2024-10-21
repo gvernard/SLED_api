@@ -591,9 +591,7 @@
 <script type="text/javascript" src="{% static 'sled_data/js/spectrum_create.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_data/js/spectrum_update.js' %}"></script>
 {{ form.media.js }}
-{% comment %}
 <script type="text/javascript" src="https://cdn.plot.ly/plotly-strict-2.32.0.min.js" integrity="sha384-io8r9i/U73rQsMlreg2vHY1FEIAc4xlJf2lyiFLOD22l55ZRCazujEhU11TZvBBz" crossorigin="anonymous"></script>
-{% endcomment %}
 <script type="text/javascript" nonce="{{request.csp_nonce}}">
   // Create the array holding all the detections in ra,dec per instrument-band
   var data = [];
@@ -665,7 +663,7 @@
       $('.sled-catalogue-checkbox:checked').each(function(i){
           data_to_plot.push( data[$(this).val()] );
       });
-      //Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
+      Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
   }
 
 

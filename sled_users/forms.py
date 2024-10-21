@@ -1,3 +1,4 @@
+import os
 from django import forms
 from bootstrap_modal_forms.forms import BSModalModelForm, BSModalForm
 from lenses.models import Users
@@ -59,11 +60,17 @@ class UserUpdateForm(BSModalModelForm):
 
 
         if "slack_display_name" in self.changed_data:
-            slack_name_avatar = [{
-                "slack_name": self.cleaned_data["slack_display_name"],
-                "avatar": ''
-            }]
-            errors,flags,slack_name_avatar = get_slack_avatar(slack_name_avatar)
+            # Get the value of an environment variable
+            SLACK_TOKEN = os.environ.get('DJANGO_SLACK_API_TOKEN')
+                
+            if SLACK_TOKEN == '':
+                errors = [("slack_display_name",'Slack API token not defined! You are probably on the dev server...')]
+            else:
+                slack_name_avatar = [{
+                    "slack_name": self.cleaned_data["slack_display_name"],
+                    "avatar": ''
+                }]
+                errors,flags,slack_name_avatar = get_slack_avatar(slack_name_avatar)
             #print(errors,flags,slack_name_avatar)
             
             if errors:
