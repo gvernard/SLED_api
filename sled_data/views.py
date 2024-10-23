@@ -322,12 +322,13 @@ class DataDeleteManyView(ModalIdsBaseMixin):
             ### Notifications per user #####################################################
             users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
             for i,user in enumerate(users_with_access):
-                objects = []
+                object_ids = []
                 names = []
                 for j in accessible_objects[i]:
-                    objects.append(pri[j])
+                    object_ids.append(pri[j].id)
                     names.append(str(pri[j]))
-                remove_perm(perm,user,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                qset = model_ref.objects.filter(id__in=object_ids)
+                remove_perm(perm,user,qset) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self.request.user,
                             recipient=user,
                             verb='DeleteObjectsPrivateNote',
@@ -341,12 +342,13 @@ class DataDeleteManyView(ModalIdsBaseMixin):
             id_list = [g.id for g in groups_with_access]
             gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
-                objects = []
+                object_ids = []
                 names = []
                 for j in accessible_objects[i]:
-                    objects.append(pri[j])
+                    object_ids.append(pri[j].id)
                     names.append(str(pri[j]))
-                remove_perm(perm,group,*objects) # (just 1 query)
+                qset = model_ref.objects.filter(id__in=object_ids)
+                remove_perm(perm,group,qset) # (just 1 query)
                 action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=obj_type,object_names=names)
 
             ### Finally, delete the private objects
