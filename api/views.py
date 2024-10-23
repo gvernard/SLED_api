@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.forms.models import model_to_dict
 from django.apps import apps
 from django.core.files.storage import default_storage
+from django.forms import inlineformset_factory
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -174,125 +175,109 @@ class UploadCollection(APIView):
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
-        
+
 class UploadLenses(APIView):
-    parser_classes = [MultiPartParser]
     authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
     permission_classes = [permissions.IsAuthenticated]
-    
-    def post(self,request):
-        # Here I need to check that the keys in the request are a subset of the fields used in the serializer.
-        # Then, Check that each given list of keys has the same length N.
-
-        # Get number of lenses and the keys
-        #print(request.files)
-        #print(json.loads(request.data))
-        
-        #print(lenses[0])
-        '''Nlenses = int(request.data.pop('N')[0])
-        keys = []
-        for key,dum in request.data.items():
-            keys.append(key)
-        #print(Nlenses,keys)
-
-        # Reshape the data ('files') in the request to create one dict per lens
-        list_of_lists = []
-        for key in keys:
-            list_of_lists.append(request.data.getlist(key))
-        #print(list_of_lists)
-        lenses = []
-        for i in range(0,Nlenses):
-            lens = {}
-            for j,key in enumerate(keys):
-                lens[key] = list_of_lists[j][i]
-            lenses.append(lens)
-        #print(lenses)'''
-        #print(lenses)
-
-        lenses = list(json.loads(request.body))
-
-        #Keep non-empty fields
-        potential_headers = list(lenses[0].keys())
-        lenses = [{key:lens[key] for key in potential_headers if lens[key]!=''} for lens in lenses]
-        for lens in lenses:
-            #convert the string representation back to a content file for the mugshot
-            lens['mugshot'] = ContentFile(base64.b64decode(lens['mugshot']), name=lens['imagename'])
-            lens = {key:(lens[key] if lens[key]!='' else None) for key in lens.keys()}
 
 
-        #convert strings to lists for serializers for any multi-object-fields
-        #print(lenses[0])
-        for key in ['lens_type', 'source_type', 'image_conf']:
-            for lens in lenses:
-                if key in lens.keys():
-                    if ',' in lens[key]:
-                        lens[key] = [field.strip() for field in lens[key].split(',')]
-                    else:
-                        lens[key] = [lens[key].strip()]
-        print(lenses[0]['name'])
-
-        #deal with multiple names
-        for lens in lenses:
-            if ',' in lens['name']:
-                lens['alt_name'] = ', '.join(lens['name'].split(',')[1:])
-                lens['name'] = lens['name'].split(',')[0].strip()
-                
-
-        #remove any trailing spaces from strings:
-        for lens in lenses:
-            for key in lens.keys():
-                if type(lens[key])==str:
-                    lens[key] = lens[key].strip()
-        print(lenses)
-        serializer = LensesUploadSerializer(data=lenses, many=True)
-        if serializer.is_valid():
-            lenses = serializer.create(serializer.validated_data)
-            print(lenses[0])
-            for lens in lenses:
-                lens.owner = request.user
-                #lens.create_name()
-
-            indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
-            if len(indices) == 0:
-                # Insert in the database
-                pri = []
-                pub = []
-                for lens in lenses:
-                    lens.save()
-                    if lens.access_level == 'PRI':
-                        pri.append(lens)
-                    else:
-                        pub.append(lens)
-                if pri:
-                    assign_perm('view_lenses',request.user,pri) # pri being a list here is fine because new lenses are uploaded (no existing permissions)
-                if len(pub) > 0:
-                    ad_col = AdminCollection.objects.create(item_type="Lenses",myitems=pub)
-                    action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
-
-                response = "Success! Lenses uploaded to the database successfully!"
-                return Response(response)
-            else:
-                # Move uploaded files to a temporary directory
-                for i,lens in enumerate(lenses):
-                    content = lens.mugshot.read()
-                    tmp_fname = 'temporary/' + self.request.user.username + '/' + lens.mugshot.name
-                    default_storage.put_object(content,tmp_fname)
-                cargo = {'mode':'add','objects':serializers.serialize('json',lenses)}
-                receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
-                mytask = ConfirmationTask.create_task(self.request.user,receiver,'ResolveDuplicates',cargo)
-
-                myurl = request.build_absolute_uri(reverse('lenses:resolve-duplicates',kwargs={'pk':mytask.id}))
-                response = {
-                    "Error":"There were duplicates.",
-                    "URL": myurl
-                }
-                return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
-
-            # response = {"data":"ok"}
-            # return Response(response)
-        else:
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request):
+        try:
+            data = json.loads(request.body)
             
+            # Create a formset similar to the one in LensAddView
+            LensFormSet = inlineformset_factory(Users, Lenses, formset=forms.BaseLensAddUpdateFormSet, form=forms.BaseLensForm, exclude=('id',), extra=0)
+            
+            # Prepare the data for the formset
+            formatted_data = self.format_data_for_formset(data)
+            myformset = LensFormSet(data=formatted_data, files=self.prepare_files(data), instance=request.user)
+            print(myformset.is_valid())
+            if myformset.is_valid():
+                instances = myformset.save(commit=False)
+
+                indices, neis = Lenses.proximate.get_DB_neighbours_many(instances)
+                print(instances)
+                if len(indices) == 0:
+                    return self.save_lenses(instances, request.user)
+                else:
+                    return self.handle_duplicates(instances, request)
+            else:
+                errors = self.collect_formset_errors(myformset)
+                return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        except json.JSONDecodeError:
+            return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def collect_formset_errors(self, formset):
+        errors = {}
+        for i, form in enumerate(formset.forms):
+            if form.errors:
+                errors[f'form_{i}'] = form.errors
+        if formset.non_form_errors():
+            errors['non_form_errors'] = formset.non_form_errors()
+        return errors
+    def format_data_for_formset(self, data):
+        formatted_data = {'form-TOTAL_FORMS': str(len(data)),
+                          'form-INITIAL_FORMS': '0',
+                          'form-MAX_NUM_FORMS': ''}
+        
+        for i, lens in enumerate(data):
+            for key, value in lens.items():
+                if key in ['lens_type', 'source_type', 'image_conf'] and isinstance(value, list):
+                    value = ', '.join(value)
+                formatted_data[f'form-{i}-{key}'] = value
+
+        return formatted_data
+
+    def prepare_files(self, data):
+        files = {}
+        for i, lens in enumerate(data):
+            if 'mugshot' in lens:
+                files[f'form-{i}-mugshot'] = ContentFile(base64.b64decode(lens['mugshot']), name=lens.get('imagename', f'image_{i}.jpg'))
+        return files
+
+    def save_lenses(self, instances, user):
+        messages = ['Lenses successfully added to the database!']
+        pri = []
+        pub = []
+
+        for lens in instances:
+            lens.owner = user
+            if lens.access_level == 'PRI':
+                pri.append(lens)
+            else:
+                lens.access_level = 'PRI'
+                pub.append(lens)
+            lens.save()
+
+        assign_perm('view_lenses', user, instances)
+
+        if pub:
+            object_type = pub[0]._meta.model.__name__
+            cargo = {
+                'object_type': object_type,
+                'object_ids': [lens.id for lens in pub],
+            }
+            receiver = Users.selectRandomInspector()
+            mytask = ConfirmationTask.create_task(user, receiver, 'InspectImages', cargo)
+            messages.append("An InspectImages task has been submitted!")
+
+        return Response({"message": ' '.join(messages)}, status=status.HTTP_201_CREATED)
+
+    def handle_duplicates(self, instances, request):
+        for lens in instances:
+            tmp_fname = f'temporary/{request.user.username}/{lens.mugshot.name}'
+            default_storage.put_object(lens.mugshot.read(), tmp_fname)
+            lens.mugshot.name = tmp_fname
+
+        cargo = {'mode': 'add', 'objects': serializers.serialize('json', instances)}
+        receiver = Users.objects.filter(id=request.user.id)
+        mytask = ConfirmationTask.create_task(request.user, receiver, 'ResolveDuplicates', cargo)
+        
+        url = request.build_absolute_uri(reverse('lenses:resolve-duplicates', kwargs={'pk': mytask.id}))
+        return Response({"message": "Duplicates found", "url": url}, status=status.HTTP_409_CONFLICT)
+
         
 class GlobalSearch(APIView):
     authentication_classes = [authentication.SessionAuthentication, authentication.BasicAuthentication]
@@ -455,7 +440,6 @@ class QueryLensesFull(APIView):
             serializer = LensDownSerializerAll(qset,many=True,context={'fields_to_remove': fields_to_remove})
             lensjsons = serializer.data
 
-            #print('Query took', time.time()-t1, 'seconds')
             return Response({'lenses':lensjsons, 'errors':''})
 
 
