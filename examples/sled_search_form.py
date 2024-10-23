@@ -1,18 +1,19 @@
 import json
 import requests
 from requests.auth import HTTPBasicAuth
+import os
 
 urlquery = "http://127.0.0.1:8000/api/query-lenses-full/"
 ra, dec = 260.45419, 88.70621
 
-search_field_values =  {'lens-ra_min': '0', 'lens-ra_max': '180', 'lens-dec_min': '-90', 'lens-dec_max': '0', #box search
+search_field_values =  {'lens-ra_min': '0', 'lens-ra_max': '360', 'lens-dec_min': '-90', 'lens-dec_max': '0', #box search
                         #'lens-ra_centre': '0', 'lens-dec_centre': '1', 'lens-radius': '0.001', #cone search
                         #'lens-n_img_min': '5', 'lens-n_img_max': '6', #number of images
                         #'lens-image_sep_min': '7', 'lens-image_sep_max': '8', #image separation
-                        #'lens-score_min': '9', 'lens-score_max': '10', #score for candidates
-                        'lens-flag': ['CONFIRMED', 'CANDIDATE',], #flag for confirmed, candidate or contamiant systems
+                        'lens-score_min': '1.5', 'lens-score_max': '3', #score for candidates
+                        'lens-flag': ['CANDIDATE',], #flag for confirmed, candidate or contamiant systems
                         #'lens-lens_type': 'GALAXY', #lens type, options are: ['GALAXY', 'LTG', 'SPIRAL', 'GALAXY PAIR', 'GROUP', 'CLUSTER', 'CLUSTER MEMBER', 'QUASAR', 'LRG', 'ETG', 'ELG']
-                        #'lens-source_type': ['ETG',], #lens source type, options are: ['GALAXY', 'ETG', 'SMG', 'QUASAR', 'DLA', 'PDLA', 'RADIO-LOUD', 'BAL QUASAR', 'ULIRG', 'BL Lac', 'LOBAL QUASAR', 'FELOBAL QUASAR', 'EXTREME RED OBJECT', 'RED QUASAR', 'GW', 'FRB', 'GRB', 'SN', 'LBG', 'ETG', 'ELG']
+                        'lens-source_type': ['QUASAR',], #lens source type, options are: ['GALAXY', 'ETG', 'SMG', 'QUASAR', 'DLA', 'PDLA', 'RADIO-LOUD', 'BAL QUASAR', 'ULIRG', 'BL Lac', 'LOBAL QUASAR', 'FELOBAL QUASAR', 'EXTREME RED OBJECT', 'RED QUASAR', 'GW', 'FRB', 'GRB', 'SN', 'LBG', 'ETG', 'ELG']
                         #'lens-image_conf': 'LONG-AXIS CUSP', 'SHORT-AXIS CUSP', 'NAKED CUSP', 'CUSP', 'CENTRAL IMAGE', 'FOLD', 'CROSS', 'DOUBLE', 'QUAD', 'RING', 'ARC',
                         #'redshift-z_lens_method': '', 'redshift-z_lens_min': '', 'redshift-z_lens_max': '', options are "leave it blank for ANY", 'PHOTO', 'SPECTRO', 'OTHER'
                         #'redshift-z_source_method': '', 'redshift-z_source_min': '', 'redshift-z_source_max': '', options are "leave it blank for ANY", 'PHOTO', 'SPECTRO', 'OTHER'
@@ -35,8 +36,11 @@ search_field_values =  {'lens-ra_min': '0', 'lens-ra_max': '180', 'lens-dec_min'
                         #'catalogue-mag_min': '', 'catalogue-mag_max': '',
                     }
 
-username = 'username'
-password = 'password'
+urlquery = "http://127.0.0.1:8000/api/query-lenses-full/"
+username, password = os.getenv('SLED_USERNAME'), os.getenv('SLED_PASSWORD')
+
+if (not username) or (not password):
+    print('You have not set your SLED username and password environment variables. Please read the comments above.')
 r = requests.post(urlquery, data=search_field_values, auth=HTTPBasicAuth(username, password))
 dbquery = json.loads(r.text)
 

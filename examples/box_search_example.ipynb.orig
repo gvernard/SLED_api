@@ -10,7 +10,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 8,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "da61a48e-7ba9-439d-917e-4f3fd8b24227",
    "metadata": {},
    "outputs": [],
@@ -37,7 +41,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 9,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "634cd7a3-af76-4bb0-b086-76eabb903a5d",
    "metadata": {},
    "outputs": [],
@@ -60,7 +68,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 14,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "a32ee986",
    "metadata": {},
    "outputs": [],
@@ -90,7 +102,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 15,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "60ba08ef-b3f2-49b0-900d-7c0b05be6c08",
    "metadata": {},
    "outputs": [],
@@ -106,7 +122,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 16,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "4cf79e37-b2ea-40e4-a285-6291b1a561c7",
    "metadata": {},
    "outputs": [],
@@ -116,7 +136,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 17,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "fd5e7b07",
    "metadata": {},
    "outputs": [],
@@ -126,7 +150,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 7,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "5362f726",
    "metadata": {
     "scrolled": true
@@ -147,7 +175,11 @@
   },
   {
    "cell_type": "code",
+<<<<<<< HEAD
    "execution_count": null,
+=======
+   "execution_count": 547,
+>>>>>>> 00bef55 (Minor changes to some example scripts)
    "id": "5f11ab96",
    "metadata": {
     "scrolled": true
