@@ -936,7 +936,7 @@ class LensCollageView(ListView):
     model = Lenses
     allow_empty = True
     template_name = 'lenses/lens_collage.html'
-    paginate_by = 50
+    paginate_by = 100
 
     def get_queryset(self,ids):
         return Lenses.accessible_objects.in_ids(self.request.user,ids)
@@ -967,22 +967,23 @@ class LensQueryView(TemplateView):
         imaging_form = forms.ImagingQueryForm(request,prefix="imaging")
         spectrum_form = forms.SpectrumQueryForm(request,prefix="spectrum")
         catalogue_form = forms.CatalogueQueryForm(request,prefix="catalogue")
+        management_form = forms.ManagementQueryForm(request,prefix="management",user=user)
 
         forms_with_fields = []
         forms_with_errors = []
-        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form])
+        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue','management'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,management_form])
         for name,form in zipped:
             if form.is_valid():
                 if form.cleaned_data:
                     forms_with_fields.append(name)
             else:
                 forms_with_errors.append(name)
-                
+
         if len(forms_with_errors) == 0:
-            qset = query_utils.combined_query(lens_form.cleaned_data,redshift_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            qset = query_utils.combined_query(lens_form.cleaned_data,redshift_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,management_form.cleaned_data,user)
 
             # Paginator
-            paginator = Paginator(qset,50)
+            paginator = Paginator(qset,100)
             lenses_page = paginator.get_page( request.get('lenses-page',1) )
             lenses_count = paginator.count
             lenses_range = paginator.page_range
@@ -995,6 +996,7 @@ class LensQueryView(TemplateView):
                        'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
+                       'management_form':management_form,
                        'forms_with_fields': forms_with_fields,
                        'forms_with_errors': forms_with_errors,
                        }
@@ -1007,6 +1009,7 @@ class LensQueryView(TemplateView):
                        'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
+                       'management_form':management_form,
                        'forms_with_fields':forms_with_fields,
                        'forms_with_errors':forms_with_errors,
                        }
@@ -1022,6 +1025,7 @@ class LensQueryView(TemplateView):
         merged_request = request.POST.copy()
         merged_request['lenses-page'] = page_number
         context = self.my_response(merged_request,request.user)
+
         return self.render_to_response(context)
         
 

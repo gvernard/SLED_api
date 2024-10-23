@@ -1,16 +1,20 @@
 #!/bin/bash
 MYSQLDUMP=$(which mysqldump)
 AWK=$(which awk)
-current_path=`pwd`
-secret_path=${current_path}/../../SLED_secrets
 
 
 
 ########## SETUP TARGET DIRECTORY ##########
-if [[ $# -eq 1 ]]
+if [[ $# -eq 2 ]]
 then
-    readonly NAME=$1
+    readonly SECRET_PATH=$1
+    readonly NAME=$2
+elif [[ $# -eq 1 ]]
+then
+    readonly SECRET_PATH=$1
+    readonly NAME="latest"
 else
+    readonly SECRET_PATH='.'
     readonly NAME="latest"
 fi
 
@@ -18,6 +22,7 @@ readonly BACKUP_DIR="/var/tmp/SLED_tmp_backups/"${NAME}
 mkdir -p ${BACKUP_DIR}
 mkdir -p ${BACKUP_DIR}/database
 mkdir -p ${BACKUP_DIR}/files
+
 
 #if [ -d $BACKUP_DIR ]
 #then
@@ -39,7 +44,7 @@ mkdir -p ${BACKUP_DIR}/files
 ########## BACKUP DATABASE ##########
 
 # Get database connection parameters
-cnf_file=${secret_path}/sled_ro.cnf
+cnf_file=${SECRET_PATH}/sled_ro.cnf
 if ! [ -f $cnf_file ]
 then
     echo "File $cnf_file not found!"    
@@ -61,17 +66,17 @@ $MYSQLDUMP --single-transaction -h $MHOST -P $MPORT -u $MUSER -p$MPASS $MDB > ${
 ########## TRANSFER TO REMOTE BACKUP ##########
 
 # Transfer backup file to remote backup storage
-conf_file=${secret_path}/rclone.conf
+conf_file=${SECRET_PATH}/rclone.conf
 if ! [ -f $conf_file ]
 then
     echo "File $conf_file not found!"    
     exit
 fi
 
-S3_BACKUP_BUCKET_NAME=`grep -o 'Bucket.*' ${secret_path}/s3_backup.txt | cut -f2- -d: | tr -d ' '`
+S3_BACKUP_BUCKET_NAME=`grep -o 'Bucket.*' ${SECRET_PATH}/s3_backup.txt | cut -f2- -d: | tr -d ' '`
 rclone --config="${conf_file}" move ${BACKUP_DIR} sled_backup:${S3_BACKUP_BUCKET_NAME}/${NAME}
 
-S3_STORAGE_BUCKET_NAME=`grep -o 'Bucket.*' ${secret_path}/s3_storage.txt | cut -f2- -d: | tr -d ' '`
+S3_STORAGE_BUCKET_NAME=`grep -o 'Bucket.*' ${SECRET_PATH}/s3_storage.txt | cut -f2- -d: | tr -d ' '`
 rclone --config="${conf_file}" sync sled_storage:${S3_STORAGE_BUCKET_NAME}/files sled_backup:${S3_BACKUP_BUCKET_NAME}/${NAME}/files
 
 

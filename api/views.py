@@ -356,7 +356,11 @@ class UsersAutocomplete(APIView):
     def get(self,request):
         user = request.user
         term = request.query_params.get('q')
-        queryset = Users.objects.exclude(username__in=['AnonymousUser','admin',user.username]).exclude(is_active=False)
+        exclude_self = request.query_params.get('ex_self')
+        excluded = ['AnonymousUser','admin']
+        if exclude_self == 'true':
+            excluded.append(user.username)
+        queryset = Users.objects.exclude(username__in=excluded).exclude(is_active=False)
         if term is not None:
             queryset = queryset.filter(Q(username__icontains=term) | Q(first_name__icontains=term) | Q(last_name__icontains=term) | Q(email__icontains=term))
         #queryset = Users.objects.filter(username='Giorgos')
@@ -415,9 +419,10 @@ class QueryLensesFull(APIView):
         imaging_form = forms.ImagingQueryForm(request.data,prefix="imaging")
         spectrum_form = forms.SpectrumQueryForm(request.data,prefix="spectrum")
         catalogue_form = forms.CatalogueQueryForm(request.data,prefix="catalogue")
+        management_form = forms.CatalogueQueryForm(request.data,prefix="management")
         forms_with_fields = []
         forms_with_errors = []
-        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form])
+        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue','management'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,management_form])
         error_messages = []
         for name,form in zipped:
             if form.is_valid():
@@ -433,7 +438,7 @@ class QueryLensesFull(APIView):
 
             qset = query_utils.combined_query(
                 lens_form.cleaned_data, redshift_form.cleaned_data, imaging_form.cleaned_data,
-                spectrum_form.cleaned_data, catalogue_form.cleaned_data, user)
+                spectrum_form.cleaned_data, catalogue_form.cleaned_data, management_form.cleaned_data, user)
 
             #print('qset finished in', time.time()-t1)
             #print('qset size: ', qset.count())

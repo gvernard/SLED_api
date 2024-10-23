@@ -8,44 +8,64 @@ def get_combined_qset(request,user): # Must be self.request.GET or self.request.
     imaging_form = ImagingQueryForm(request,prefix="imaging")
     spectrum_form = SpectrumQueryForm(request,prefix="spectrum")
     catalogue_form = CatalogueQueryForm(request,prefix="catalogue")
+    management_form = ManagementQueryForm(request,prefix="management",user=user)
     for form in [lens_form,imaging_form,spectrum_form,catalogue_form]:
         form.is_valid()
-    qset = combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+    qset = combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,management_form.cleaned_data,user)
     ids = [str(x) for x in qset.values_list('id',flat=True)]
     return ids
 
 
-def combined_query(lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,user):
+def combined_query(lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,management_form,user):
     #start with available lenses
     lenses = Lenses.accessible_objects.all(user)
 
     if lens_form:
-        print('Lenses form has values')
+        #print('Lenses form has values')
         lenses = lens_search(lenses,lens_form,user)
-        print(len(lenses))
+        #print(len(lenses))
 
     if redshift_form:
-        print('Redshift form has values')
+        #print('Redshift form has values')
         lenses = redshift_search(lenses,redshift_form,user)
-        print(len(lenses))
+        #print(len(lenses))
 
     if imaging_form:
-        print('Imaging form has values')
+        #print('Imaging form has values')
         lenses = imaging_search(lenses,imaging_form,user)
-        print(len(lenses))
+        #print(len(lenses))
 
     if spectrum_form:
-        print('Spectrum not empty')
+        #print('Spectrum not empty')
         lenses = spectrum_search(lenses,spectrum_form,user)
-        print(len(lenses))
+        #print(len(lenses))
 
     if catalogue_form:
-        print('CATALOGUE not empty')
+        #print('CATALOGUE not empty')
         lenses = catalogue_search(lenses,catalogue_form,user)
-        print(len(lenses))
+        #print(len(lenses))
 
+    if management_form:
+        #print('Management not empty')
+        lenses = management_search(lenses,management_form,user)
+        #print(len(lenses))
+        
     return lenses
 
+
+def management_search(lenses,cleaned_form,user):
+    conditions = Q()
+    if cleaned_form.get('access_level'):
+        conditions.add(Q(**{'access_level__exact':cleaned_form.get('access_level')}),Q.AND)
+    if cleaned_form.get('owner'):
+        conditions.add(Q(**{'owner__in':cleaned_form.get('owner')}),Q.AND)
+    if cleaned_form.get('collections'):
+        conditions.add(Q(**{'items__in':cleaned_form.get('collections')}),Q.AND)
+        
+    lenses = lenses.filter(conditions)
+    return lenses
+
+        
 
 def catalogue_search(lenses,cleaned_form,user):
     conditions = Q(catalogue__exists=True)
@@ -120,7 +140,7 @@ def spectrum_search(lenses,cleaned_form,user):
 def imaging_search(lenses,cleaned_form,user):
     conditions = Q(imaging__exists=True)
     for key,value in cleaned_form.items():
-        print(key, value)
+        #print(key, value)
         if key not in ['instrument','instrument_and'] and value != None:
             if '_min' in key:
                 conditions.add(Q(**{'imaging__'+key.split('_min')[0]+'__gte':value}),Q.AND)
@@ -130,7 +150,7 @@ def imaging_search(lenses,cleaned_form,user):
                 conditions.add(Q(**{'imaging__'+key:value}),Q.AND)
 
     instrument = cleaned_form.get('instrument',None)
-    print('instrument:', instrument)
+    #print('instrument:', instrument)
     if instrument:
         if cleaned_form.get('instrument_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
             sets = []
@@ -149,7 +169,7 @@ def imaging_search(lenses,cleaned_form,user):
 
 
 def redshift_search(lenses,cleaned_form,user):
-    print(cleaned_form)
+    #print(cleaned_form)
     
     conditions = Q()
     if cleaned_form.get('z_source_min') or cleaned_form.get('z_source_max') or cleaned_form.get('z_source_method'):

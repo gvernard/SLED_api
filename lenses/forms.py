@@ -910,6 +910,50 @@ class RedshiftQueryForm(forms.Form):
                 self.cleaned_data.pop(key)
 
 
+class ManagementQueryForm(forms.Form):
+    access_choices = (
+        ('','Any'),
+        ('PUB','Public'),
+        ('PRI','Private'),
+    )
+    access_level = forms.ChoiceField(choices=access_choices,
+                                     required=False,
+                                     label="Access level",
+                                     help_text='Select public or private lenses only')
+    owner = forms.ModelMultipleChoiceField(queryset=Users.objects.all(),
+                                           required=False,
+                                           label='Owned by',
+                                           help_text="Select one or more users")
+    collections = forms.ModelMultipleChoiceField(queryset=Collection.objects.all(),
+                                                 required=False,
+                                                 label='In collection',
+                                                 help_text="Select a collection")
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(ManagementQueryForm, self).__init__(*args, **kwargs)
+        self.fields['collections'].queryset = Collection.accessible_objects.all(user)
+
+            
+    def clean_collections(self):
+        collections = self.cleaned_data['collections']
+        if len(collections) > 1:
+            self.add_error('collections',"You can select only 1 collection.")
+        return collections
+
+    
+    def clean(self):
+        super(ManagementQueryForm,self).clean()
+        if self.cleaned_data['access_level'] == '':
+            self.cleaned_data.pop('access_level')
+        if not self.cleaned_data['owner']:
+            self.cleaned_data.pop('owner')
+        if not self.cleaned_data['collections']:
+            self.cleaned_data.pop('collections')
+            
+            
+
+                
                 
 class DownloadForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())
