@@ -58,9 +58,9 @@ def management_search(lenses,cleaned_form,user):
     if cleaned_form.get('access_level'):
         conditions.add(Q(**{'access_level__exact':cleaned_form.get('access_level')}),Q.AND)
     if cleaned_form.get('owner'):
-        conditions.add(Q(**{'owner__in':cleaned_form.get('owner')}),Q.AND)
+        conditions.add(Q(**{'owner__username__in':cleaned_form.get('owner')}),Q.AND)
     if cleaned_form.get('collections'):
-        conditions.add(Q(**{'items__in':cleaned_form.get('collections')}),Q.AND)
+        conditions.add(Q(**{'items__name__in':cleaned_form.get('collections')}),Q.AND)
         
     lenses = lenses.filter(conditions)
     return lenses

@@ -612,7 +612,8 @@
 	  </div>
 	  {% endif %}
 
-	  <table>
+	  <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+	  <table class="management-table">
 	    <tr>
 	      <td>{{ form.access_level.errors }}</td>
               <td>
@@ -622,7 +623,6 @@
               <td>{{ form.access_level }}</td>
 	    </tr>
 	    <tr>
-	      <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
 	      <td>{{ form.owner.errors }}</td>
               <td>
 		<div class="sled-help-tooltip"><label>{{ form.owner.label }}</label></div>
