@@ -93,7 +93,10 @@ $(document).ready(function() {
 	    }
 	}
     });
-    
+
+
+    users_autocomplete("id_management-owner",'auto-parent',ex_self=false);
+
     
     set_help();    
 });

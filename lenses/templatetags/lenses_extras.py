@@ -74,7 +74,6 @@ def order_bands(band_dict):
 
 @register.simple_tag
 def make_range(start,end):
-    print(start,end)
     return range(int(start),int(end)+1)
 
 

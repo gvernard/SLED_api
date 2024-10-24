@@ -910,6 +910,67 @@ class RedshiftQueryForm(forms.Form):
                 self.cleaned_data.pop(key)
 
 
+class ManagementQueryForm(forms.Form):
+    access_choices = (
+        ('','Any'),
+        ('PUB','Public'),
+        ('PRI','Private'),
+    )
+    access_level = forms.ChoiceField(choices=access_choices,
+                                     required=False,
+                                     label="Access level",
+                                     help_text='Select public or private lenses only')
+    owner = forms.ModelMultipleChoiceField(queryset=Users.objects.all(),
+                                           required=False,
+                                           label='Owned by',
+                                           help_text="Select one or more users")
+    collections = forms.ModelChoiceField(queryset=Collection.objects.all(),
+                                         required=False,
+                                         empty_label='---------',
+                                         widget=s2forms.Select2Widget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select a collection','allowClear':True,'width':'10%'}),
+                                         label='In collection',
+                                         help_text="Select a collection")
+    #collections = forms.ModelMultipleChoiceField(queryset=Collection.objects.all(),
+    #                                     required=False,
+    #                                     label='In collection',
+    #                                     help_text="Select a collection")
+
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super(ManagementQueryForm, self).__init__(*args, **kwargs)
+        self.fields['collections'].queryset = Collection.accessible_objects.all(user)
+
+            
+    def clean_collections(self):
+        collections = self.cleaned_data['collections']
+        if collections:
+            return [collections.name]
+        else:
+            return []
+
+    #def clean_collections(self):
+        #collections = self.cleaned_data['collections']
+        #if len(collections) > 1:
+        #    self.add_error('collections',"You can select only 1 collection.")
+        #return collections.values_list('id',flat=True)
+
+    def clean_owner(self):
+        owners = self.cleaned_data['owner']
+        return owners.values_list('username',flat=True)
+    
+    def clean(self):
+        super(ManagementQueryForm,self).clean()
+        if self.cleaned_data['access_level'] == '':
+            self.cleaned_data.pop('access_level')
+        if not self.cleaned_data['owner']:
+            self.cleaned_data.pop('owner')
+        if not self.cleaned_data['collections']:
+            self.cleaned_data.pop('collections')
+        #self.add_error('__all__','STOP')
+            
+
+                
                 
 class DownloadForm(BSModalForm):
     ids = forms.CharField(widget=forms.HiddenInput())

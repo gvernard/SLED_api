@@ -78,6 +78,16 @@
 	    Models
 	  </button>
 	</li>
+	<li class="nav-item">
+	  <button class="nav-link {% get_tab_active fwe fwf 'management' %}" id="management-tab" data-toggle="tab" data-target="#management" type="button">
+	    Management
+	    {% if 'management' in fwe %}
+	    <span class="badge badge-pill badge-danger"><img src="{% static 'icons/exclamation.svg' %}"></span>
+	    {% elif 'management' in fwf %}
+	    <span class="badge badge-pill badge-success"><img src="{% static 'icons/check.svg' %}"></span>
+	    {% endif %}
+	  </button>
+	</li>
       </ul>
       <div class="tab-content" id="myTabContent">
 
@@ -254,7 +264,7 @@
 
 	  <table class="data-form-table redshift-table">
 	    <tr>
-              <td>Lens:</td>
+              <td>Lens</td>
               <td>{{ form.z_lens_method.errors }}</td>
               <td>
 		<div class="sled-help-tooltip">
@@ -274,7 +284,7 @@
 	    </tr>
 
 	    <tr>
-              <td>Source:</td>
+              <td>Source</td>
               <td>{{ form.z_source_method.errors }}</td>
               <td>
 		<div class="sled-help-tooltip">
@@ -294,7 +304,7 @@
 	    </tr>
 
 	    <tr>
-              <td>Line-of-sight:</td>
+              <td>Line-of-sight</td>
               <td>{{ form.z_los_method.errors }}</td>
               <td>
 		<div class="sled-help-tooltip">
@@ -588,6 +598,55 @@
 	    </p>
 	  </div>
 	</div>
+
+	<div class="data-form tab-pane fade {% get_tab_active fwe fwf 'management' %}" id="management">
+	  {% with form=management_form %}
+	  
+	  {% if form.non_field_errors|length > 0 %}
+	  <div class="invalid jb-modal-field">
+	    <ul>
+	      {% for error in form.non_field_errors %}
+	      <li>{{ error }}</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	  {% endif %}
+
+	  <input type="hidden" id="Urlusers" data-url="{% url 'api:users-view' %}" />
+	  <table class="management-table">
+	    <tr>
+	      <td>{{ form.access_level.errors }}</td>
+              <td>
+		<div class="sled-help-tooltip"><label>{{ form.access_level.label }}</label></div>
+		<div class="sled-help-tooltip-content">{{ form.access_level.help_text }}</div>
+	      </td>
+              <td>{{ form.access_level }}</td>
+	    </tr>
+	    <tr>
+	      <td>{{ form.owner.errors }}</td>
+              <td>
+		<div class="sled-help-tooltip"><label>{{ form.owner.label }}</label></div>
+		<div class="sled-help-tooltip-content">{{ form.owner.help_text }}</div>
+	      </td>
+	      <td>
+		<div id="auto-parent">
+		  {{ form.owner }}
+		</div>
+	      </td>
+	    </tr>
+	    <tr>
+	      <td>{{ form.collections.errors }}</td>
+              <td>
+		<div class="sled-help-tooltip"><label>{{ form.collections.label }}</label></div>
+		<div class="sled-help-tooltip-content">{{ form.collections.help_text }}</div>
+	      </td>
+              <td>{{ form.collections }}</td>
+	    </tr>
+	  </table>
+
+	  
+	  {% endwith %}
+	</div>
 	
       </div>
       {% endwith %}
@@ -670,5 +729,6 @@
 <script nonce="{{request.csp_nonce}}">
   var path_to_icon = "{% static 'icons/check.svg' %}";
 </script>
+<script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/lens_query.js' %}"></script>
 {% endblock extrascripts %}

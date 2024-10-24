@@ -60,7 +60,7 @@ function formatGroupSelection(group){
 
 
 
-function users_autocomplete(target_id,parent_id){
+function users_autocomplete(target_id,parent_id,ex_self=true){
     $("#"+target_id).select2({
 	width: '100%',
 	ajax: {
@@ -70,6 +70,7 @@ function users_autocomplete(target_id,parent_id){
 	    data: function (params) {
 		return {
 		    q: params.term, // search term
+		    ex_self: ex_self
 		};
 	    },
 	    processResults: function (data, params) {

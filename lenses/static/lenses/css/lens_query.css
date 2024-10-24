@@ -133,3 +133,25 @@ input:checked + .slider:before {
     margin-top: 0px;
     height: 30px;
 }
+
+
+.management-table {
+    width: fit-content;
+    margin: 0px auto;
+}
+
+/*.management-table td:nth-child(1) {
+    border: 1px solid red;
+}*/
+.management-table label {
+    margin-bottom:0px;
+}
+
+.management-table td:nth-child(2) {
+    text-align: right;
+}
+
+.management-table td:nth-child(3) {
+    width: 300px;
+    padding-left: 30px;
+}

@@ -136,17 +136,19 @@ class LensDeleteView(ModalIdsBaseMixin):
         pri = qset.filter(access_level='PRI')
         if pri:
             object_type = pri[0]._meta.model.__name__
+            model_ref = apps.get_model(app_label="lenses",model_name=object_type)
             perm = "view_lenses"
 
             ### Notifications per user #####################################################
             users_with_access,accessible_objects = self.request.user.accessible_per_other(pri,'users')
             for i,user in enumerate(users_with_access):
-                objects = []
+                object_ids = []
                 names = []
                 for j in accessible_objects[i]:
-                    objects.append(pri[j])
+                    object_ids.append(pri[j].id)
                     names.append(str(pri[j]))
-                remove_perm(perm,user,*objects) # Remove all the view permissions for these objects that are to be updated (just 1 query)
+                qset = model_ref.objects.filter(id__in=object_ids)
+                remove_perm(perm,user,qset) # Remove all the view permissions for these objects that are to be updated (just 1 query)
                 notify.send(sender=self.request.user,
                             recipient=user,
                             verb='DeleteObjectsPrivateNote',
@@ -160,12 +162,13 @@ class LensDeleteView(ModalIdsBaseMixin):
             id_list = [g.id for g in groups_with_access]
             gwa = SledGroup.objects.filter(id__in=id_list) # Needed to cast Group to SledGroup
             for i,group in enumerate(groups_with_access):
-                objects = []
+                object_ids = []
                 names = []
                 for j in accessible_objects[i]:
-                    objects.append(pri[j])
+                    object_ids.append(pri[j].id)
                     names.append(str(pri[j]))
-                remove_perm(perm,group,*objects) # (just 1 query)
+                qset = model_ref.objects.filter(id__in=object_ids)
+                remove_perm(perm,group,qset) # (just 1 query)
                 action.send(self.request.user,target=gwa[i],verb='DeleteObject',level='warning',object_type=object_type,object_names=names)
 
             ### Notifications per collection #####################################################
@@ -936,7 +939,7 @@ class LensCollageView(ListView):
     model = Lenses
     allow_empty = True
     template_name = 'lenses/lens_collage.html'
-    paginate_by = 50
+    paginate_by = 100
 
     def get_queryset(self,ids):
         return Lenses.accessible_objects.in_ids(self.request.user,ids)
@@ -967,22 +970,23 @@ class LensQueryView(TemplateView):
         imaging_form = forms.ImagingQueryForm(request,prefix="imaging")
         spectrum_form = forms.SpectrumQueryForm(request,prefix="spectrum")
         catalogue_form = forms.CatalogueQueryForm(request,prefix="catalogue")
+        management_form = forms.ManagementQueryForm(request,prefix="management",user=user)
 
         forms_with_fields = []
         forms_with_errors = []
-        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form])
+        zipped = zip(['lenses','redshift','imaging','spectrum','catalogue','management'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,management_form])
         for name,form in zipped:
             if form.is_valid():
                 if form.cleaned_data:
                     forms_with_fields.append(name)
             else:
                 forms_with_errors.append(name)
-                
+
         if len(forms_with_errors) == 0:
-            qset = query_utils.combined_query(lens_form.cleaned_data,redshift_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,user)
+            qset = query_utils.combined_query(lens_form.cleaned_data,redshift_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,management_form.cleaned_data,user)
 
             # Paginator
-            paginator = Paginator(qset,50)
+            paginator = Paginator(qset,100)
             lenses_page = paginator.get_page( request.get('lenses-page',1) )
             lenses_count = paginator.count
             lenses_range = paginator.page_range
@@ -995,6 +999,7 @@ class LensQueryView(TemplateView):
                        'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
+                       'management_form':management_form,
                        'forms_with_fields': forms_with_fields,
                        'forms_with_errors': forms_with_errors,
                        }
@@ -1007,6 +1012,7 @@ class LensQueryView(TemplateView):
                        'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
                        'catalogue_form':catalogue_form,
+                       'management_form':management_form,
                        'forms_with_fields':forms_with_fields,
                        'forms_with_errors':forms_with_errors,
                        }
@@ -1022,6 +1028,7 @@ class LensQueryView(TemplateView):
         merged_request = request.POST.copy()
         merged_request['lenses-page'] = page_number
         context = self.my_response(merged_request,request.user)
+
         return self.render_to_response(context)
         
 
