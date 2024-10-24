@@ -144,3 +144,5 @@ static/css/vendors/*
 
 staticfiles/
 mysite/settings.py
+
+run_dev_server/docker-compose.yaml
