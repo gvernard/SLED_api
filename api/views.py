@@ -429,16 +429,20 @@ class QueryLensesFull(APIView):
             #print('qset size: ', qset.count())
 
 
-            fields = ["redshift","imaging","spectrum","catalogue","genericimage","papers"]
+            fields = ["redshift", "imaging", "spectrum", "catalogue", "genericimage", "papers"]
             fields_to_remove = []
             for field in fields:
                 key = 'download_choices-'+field
-                val = int(request.data[key])
-                if val == 0:
+                if key in request.data.keys():
+                    val = int(request.data[key])
+                    if val == 0:
+                        fields_to_remove.append(field)
+                else:
                     fields_to_remove.append(field)
             
-            serializer = LensDownSerializerAll(qset,many=True,context={'fields_to_remove': fields_to_remove})
+            serializer = LensDownSerializerAll(qset, many=True, context={'fields_to_remove':fields_to_remove})
             lensjsons = serializer.data
+            print(lensjsons)
 
             return Response({'lenses':lensjsons, 'errors':''})
 
