@@ -68,9 +68,9 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
     
     def get_absolute_url(self):
         if self.lens is None:
-            return self.lens.get_absolute_url() + '#' + self._meta.model_name
-        else:
             return reverse('simple-message-default')
+        else:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
@@ -272,9 +272,9 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     
     def get_absolute_url(self):
         if self.lens is None:
-            return self.lens.get_absolute_url() + '#' + self._meta.model_name
-        else:
             return reverse('simple-message-default')
+        else:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
@@ -386,12 +386,13 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     
     def get_absolute_url(self):
         if self.lens is None:
-            return self.lens.get_absolute_url() + '#' + self._meta.model_name
-        else:
             #self.id
             #return reverse('simple-message-default',kwargs={'message':'You cannot currently view this'})
             return reverse('simple-message-default')
-    
+        else:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
+
+        
     def save(self,*args,**kwargs):
         if self._state.adding:
             # Creating object for the first time, calling save first to create a primary key
@@ -497,9 +498,9 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
     
     def get_absolute_url(self):
         if self.lens is None:
-            return self.lens.get_absolute_url() + '#' + self._meta.model_name
-        else:
             return reverse('simple-message-default')
+        else:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
@@ -624,9 +625,9 @@ class Redshift(SingleObject,DirtyFieldsMixin):
     
     def get_absolute_url(self):
         if self.lens is None:
-            return self.lens.get_absolute_url() + '#' + self._meta.model_name
-        else:
             return reverse('simple-message-default')
+        else:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
 
     
     def save(self,*args,**kwargs):
