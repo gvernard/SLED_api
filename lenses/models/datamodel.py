@@ -4,6 +4,7 @@ from django.core.files.storage import default_storage
 from django.db.models import Q, F, CheckConstraint
 from django.conf import settings
 from django.utils import timezone
+from django.urls import reverse
 from multiselectfield import MultiSelectField
 from dirtyfields import DirtyFieldsMixin
 from actstream import action
@@ -66,7 +67,10 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        if self.lens is None:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        else:
+            return reverse('simple-message-default')
 
     
     def save(self,*args,**kwargs):
@@ -267,7 +271,10 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        if self.lens is None:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        else:
+            return reverse('simple-message-default')
 
     
     def save(self,*args,**kwargs):
@@ -318,7 +325,8 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                 super(Imaging,self).save(*args,**kwargs)
                 default_storage.mydelete(fname)
 
-        
+
+
 class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     lambda_min = models.DecimalField(blank=True,
                                      null=True,
@@ -377,8 +385,12 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url() + '#' + self._meta.model_name
-
+        if self.lens is None:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        else:
+            #self.id
+            #return reverse('simple-message-default',kwargs={'message':'You cannot currently view this'})
+            return reverse('simple-message-default')
     
     def save(self,*args,**kwargs):
         if self._state.adding:
@@ -420,9 +432,6 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
                 self.image.name = sled_fname
                 super(Spectrum,self).save(*args,**kwargs)
                 default_storage.mydelete(fname)
-
-                
-
 
 
     
@@ -487,7 +496,10 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        if self.lens is None:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        else:
+            return reverse('simple-message-default')
 
     
     def save(self,*args,**kwargs):
@@ -611,7 +623,10 @@ class Redshift(SingleObject,DirtyFieldsMixin):
 
     
     def get_absolute_url(self):
-        return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        if self.lens is None:
+            return self.lens.get_absolute_url() + '#' + self._meta.model_name
+        else:
+            return reverse('simple-message-default')
 
     
     def save(self,*args,**kwargs):
