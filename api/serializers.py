@@ -550,7 +550,7 @@ class CollectionUploadSerializer(serializers.Serializer):
 
     name = serializers.CharField(max_length=50)
     description = serializers.CharField(max_length=250)
-    access = serializers.CharField(max_length=3)
+    access_level = serializers.CharField(max_length=3)
     lenses = serializers.ListField()
 
     def create(self,validated_data):
@@ -563,8 +563,9 @@ class CollectionUploadSerializer(serializers.Serializer):
         return value
 
     def validate(self,data):
-        print('validating')
-        print('data', data)
+        #print('validating')
+        #print('data', data)
+        
         ### Check proximity of given lenses with each other
         '''check_radius = 16 # arcsec
         proximal_lenses = []
@@ -583,14 +584,13 @@ class CollectionUploadSerializer(serializers.Serializer):
             message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission is not allowed.'
             raise serializers.ValidationError(message)'''
 
-        print(data)
         lenses_in_collection = []
         for lensinstance in data['lenses']:
             ra, dec = lensinstance['ra'], lensinstance['dec']
             user = self.context['request'].user
             qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=5) # This call includes PRI lenses visible to the user
             lenses_in_collection.append(qset.values_list('id', flat=True)[0])
-        print(lenses_in_collection)
+        #print(lenses_in_collection)
         data['lenses_in_collection'] = lenses_in_collection
         return data
 

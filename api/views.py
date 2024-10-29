@@ -40,14 +40,14 @@ class UploadData(APIView):
         # Then, Check that each given list of keys has the same length N.
 
         # Get number of lenses and the keys
-        print('just got some fresh data in, mmm', request.data)
+        #print('just got some fresh data in, mmm', request.data)
         #uploaded_data = request.data.copy()
         #print(uploaded_data)
 
         uploaded_data = request.data.copy()
         Ndata = int(uploaded_data.pop('N')[0])
         data_type = str(uploaded_data.pop('type')[0])
-        print(uploaded_data)
+        #print(uploaded_data)
         keys = []
         for key,dum in uploaded_data.items():
             keys.append(key)
@@ -62,17 +62,17 @@ class UploadData(APIView):
         for i in range(0,Ndata):
             datum = {}
             for j,key in enumerate(keys):
-                print(j, key, list_of_lists[j])
+                #print(j, key, list_of_lists[j])
                 datum[key] = list_of_lists[j][i]
             if 'date_taken' not in keys:
                 print('No date provided...')
             datum['owner'] = request.user.pk
             raw_data.append(datum)
-        print(raw_data)
+        #print(raw_data)
 
         if data_type == "Imaging":
             serializer = ImagingDataUploadSerializer(data=raw_data,many=True)
-            print(serializer)
+            #print(serializer)
         elif data_type == "Spectrum":
             serializer = SpectrumDataUploadSerializer(data=raw_data,many=True)
         elif data_type == "Catalogue":
@@ -83,7 +83,7 @@ class UploadData(APIView):
             }
             return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
             
-        print(serializer.is_valid())
+        #print(serializer.is_valid())
         if serializer.is_valid():
             data = serializer.create(serializer.validated_data)
             # Get RA,dec separately
@@ -119,7 +119,7 @@ class UploadPapers(APIView):
     
     def post(self,request):
         #Paper.objects.all().delete()
-        print(request.data)
+        #print(request.data)
         serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
         if serializer.is_valid():
             validated_data = serializer.validated_data
@@ -135,7 +135,7 @@ class UploadPapers(APIView):
 
                 for j in range(0,len(lenses_pp[i])):
                     paper_obj.lenses_in_paper.add(lenses_pp[i][j],through_defaults=flags_pp[i][j])
-                print(paper_obj.pk)
+                #print(paper_obj.pk)
                 paper_instances.append(paper_obj)
                 
             ad_col = AdminCollection.objects.create(item_type="Paper",myitems=paper_instances)
@@ -144,7 +144,7 @@ class UploadPapers(APIView):
             response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
             return Response(response)
         else:
-            print(serializer.errors)
+            #print(serializer.errors)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
 
@@ -154,12 +154,12 @@ class UploadCollection(APIView):
     
     def post(self,request):
         #Paper.objects.all().delete()
-        print(request.data)
+        #print(request.data)
         serializer = CollectionUploadSerializer(data=request.data, context={'request':request})
         if serializer.is_valid():
             validated_data = serializer.validated_data
             lenses_pc = validated_data["lenses_in_collection"]
-            access_level = validated_data["access"]
+            access_level = validated_data["access_level"]
             name = validated_data["name"]
             description = validated_data["description"]
 
@@ -191,19 +191,19 @@ class UploadLenses(APIView):
             # Prepare the data for the formset
             formatted_data = self.format_data_for_formset(data)
             myformset = LensFormSet(data=formatted_data, files=self.prepare_files(data), instance=request.user)
-            print(myformset.is_valid())
+            #print(myformset.is_valid())
             if myformset.is_valid():
                 instances = myformset.save(commit=False)
 
                 indices, neis = Lenses.proximate.get_DB_neighbours_many(instances)
-                print(instances)
+                #print(instances)
                 if len(indices) == 0:
                     return self.save_lenses(instances, request.user)
                 else:
                     return self.handle_duplicates(instances, request)
             else:
-                print("Form errors:", myformset.errors)
-                print("Non form errors:", myformset.non_form_errors())
+                #print("Form errors:", myformset.errors)
+                #print("Non form errors:", myformset.non_form_errors())
                 errors = self.collect_formset_errors(myformset)
                 return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -232,7 +232,7 @@ class UploadLenses(APIView):
             for key, value in lens.items():
                 formatted_data[f'lenses_set-{i}-{key}'] = value
                 
-        print("Formatted data:", formatted_data)  # Debug print
+        #print("Formatted data:", formatted_data)  # Debug print
         return formatted_data
 
     def prepare_files(self, data):
@@ -407,7 +407,7 @@ class QueryLensesFull(APIView):
         t1 = time.time()
         user = request.user        
         lens_form = forms.LensQueryForm(request.data,prefix="lens")
-        print('requestdata', request.data, lens_form, lens_form.is_valid())
+        #print('requestdata', request.data, lens_form, lens_form.is_valid())
         redshift_form = forms.RedshiftQueryForm(request.data,prefix="redshift")
         imaging_form = forms.ImagingQueryForm(request.data,prefix="imaging")
         spectrum_form = forms.SpectrumQueryForm(request.data,prefix="spectrum")
@@ -450,7 +450,7 @@ class QueryLensesFull(APIView):
             
             serializer = LensDownSerializerAll(qset, many=True, context={'fields_to_remove':fields_to_remove})
             lensjsons = serializer.data
-            print(lensjsons)
+            #print(lensjsons)
 
             return Response({'lenses':lensjsons, 'errors':''})
 
@@ -466,19 +466,19 @@ class QueryPapers(APIView):
         user = request.user
         ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
         lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)
-        print('searching papers')
+        #print('searching papers')
         if lenses:
             lens = lenses[0]
-            print(lens.name)
+            #print(lens.name)
             allpapers = lens.papers(manager='objects').all()
-            print(allpapers)
+            #print(allpapers)
             lensjsons = []
             if len(allpapers)>0:
                 for paper in allpapers:
-                    print(paper)
+                    #print(paper)
                     json = model_to_dict(paper, exclude=['lenses_in_paper', 'id', 'owner', 'access_level'])
-                    print('jsonised')
-                    print(json)
+                    #print('jsonised')
+                    #print(json)
                     lensjsons.append(json)
             else:
                 lensjsons = []
@@ -505,7 +505,7 @@ class UpdateLenses(APIView):
             
             lens = lenses[0]
             update_data = update.copy()
-            print(update_data)
+            #print(update_data)
             #check for any update in parameters
 
             '''for key in ['lens_type', 'source_type', 'image_conf']:
@@ -517,27 +517,27 @@ class UpdateLenses(APIView):
 
             for key in ['lens_type', 'source_type', 'image_conf']:
                 if key in update_data.keys():
-                    print(update_data[key])
+                    #print(update_data[key])
                     if ',' in update_data[key]:
                         update_data[key] = [field.strip() for field in update_data[key].split(',')]
-                        print(update_data[key])
+                        #print(update_data[key])
                     else:
-                        print(update_data[key])
+                        #print(update_data[key])
                         update_data[key] = [update_data[key].strip()]
 
 
-            print(update_data)
-            print('about to serialize')
+            #print(update_data)
+            #print('about to serialize')
             #cannot create a lens with the same name, so let's pop it and then bring it back later
             name = False
             if 'name' in update_data.keys():
-                print('Saving name for update later')
+                #print('Saving name for update later')
                 name = update_data['name']
                 update_data.pop('name')
             serializer = LensesUpdateSerializer(data=update_data, many=False)
             if serializer.is_valid():
                 updated_lens = serializer.create(serializer.validated_data)
-                print('managed to serialize:', updated_lens)
+                #print('managed to serialize:', updated_lens)
 
                 for key in update_data.keys():
                     #do not update ra, dec; delete lens is likely best option, otherwise all external data-fetching tasks 
@@ -545,14 +545,14 @@ class UpdateLenses(APIView):
                     if key in ['ra', 'dec']:
                         continue
 
-                    print('Might be updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
+                    #print('Might be updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
                     value = getattr(lens, key)
 
                     if str(type(getattr(lens, key)))=="<class 'decimal.Decimal'>":
                         value = float(value)
 
                     if value!=update_data[key]:
-                        print('Updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
+                        #print('Updating', key, 'from', getattr(lens, key), 'to', getattr(updated_lens, key))
                         setattr(lens, key, getattr(updated_lens, key))
 
                     if name:
