@@ -209,6 +209,7 @@ class UploadLenses(APIView):
             return Response({"error": "Invalid JSON"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     def collect_formset_errors(self, formset):
         errors = {}
         for i, form in enumerate(formset.forms):
@@ -217,6 +218,7 @@ class UploadLenses(APIView):
         if formset.non_form_errors():
             errors['non_form_errors'] = formset.non_form_errors()
         return errors
+    
     def format_data_for_formset(self, data):
         formatted_data = {'form-TOTAL_FORMS': str(len(data)),
                           'form-INITIAL_FORMS': '0',
