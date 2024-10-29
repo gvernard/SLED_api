@@ -184,7 +184,7 @@ class UploadLenses(APIView):
     def post(self, request):
         try:
             data = json.loads(request.body)
-            
+
             # Create a formset similar to the one in LensAddView
             LensFormSet = inlineformset_factory(Users, Lenses, formset=forms.BaseLensAddUpdateFormSet, form=forms.BaseLensForm, exclude=('id',), extra=0)
             
@@ -202,6 +202,8 @@ class UploadLenses(APIView):
                 else:
                     return self.handle_duplicates(instances, request)
             else:
+                print("Form errors:", myformset.errors)
+                print("Non form errors:", myformset.non_form_errors())
                 errors = self.collect_formset_errors(myformset)
                 return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -218,25 +220,28 @@ class UploadLenses(APIView):
             errors['non_form_errors'] = formset.non_form_errors()
         return errors
     def format_data_for_formset(self, data):
-        formatted_data = {'form-TOTAL_FORMS': str(len(data)),
-                          'form-INITIAL_FORMS': '0',
-                          'form-MAX_NUM_FORMS': ''}
-        
+        formatted_data = {
+            'lenses_set-TOTAL_FORMS': str(len(data)),
+            'lenses_set-INITIAL_FORMS': '0',
+            'lenses_set-MAX_NUM_FORMS': ''
+        }
+
         for i, lens in enumerate(data):
             for key, value in lens.items():
-                if key in ['lens_type', 'source_type', 'image_conf'] and isinstance(value, list):
-                    value = ', '.join(value)
-                formatted_data[f'form-{i}-{key}'] = value
-
+                formatted_data[f'lenses_set-{i}-{key}'] = value
+                
+        print("Formatted data:", formatted_data)  # Debug print
         return formatted_data
 
     def prepare_files(self, data):
         files = {}
         for i, lens in enumerate(data):
             if 'mugshot' in lens:
-                files[f'form-{i}-mugshot'] = ContentFile(base64.b64decode(lens['mugshot']), name=lens.get('imagename', f'image_{i}.jpg'))
+                files[f'lenses_set-{i}-mugshot'] = ContentFile(
+                    base64.b64decode(lens['mugshot']), 
+                    name=lens.get('imagename', f'image_{i}.jpg')
+                )
         return files
-
     def save_lenses(self, instances, user):
         messages = ['Lenses successfully added to the database!']
         pri = []
@@ -400,6 +405,7 @@ class QueryLensesFull(APIView):
         t1 = time.time()
         user = request.user        
         lens_form = forms.LensQueryForm(request.data,prefix="lens")
+        print('requestdata', request.data, lens_form, lens_form.is_valid())
         redshift_form = forms.RedshiftQueryForm(request.data,prefix="redshift")
         imaging_form = forms.ImagingQueryForm(request.data,prefix="imaging")
         spectrum_form = forms.SpectrumQueryForm(request.data,prefix="spectrum")
