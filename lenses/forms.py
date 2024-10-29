@@ -196,7 +196,7 @@ class BaseLensAddUpdateFormSet(forms.BaseInlineFormSet):
             return
         
         ### Check if formset has changed.
-        if not self.has_changed():
+        if self.initial_forms and not self.has_changed():
             raise ValidationError("No changes detected.")
 
         ### Check proximity here
