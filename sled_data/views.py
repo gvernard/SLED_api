@@ -217,7 +217,21 @@ class DataUpdateView(BSModalUpdateView):
         return response
     
     def get_success_url(self):
-        return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
+        if self.get_object().lens is None:
+            model_name = self.kwargs.get('model')
+            if model_name == 'Imaging':
+                myhash = 'imagings'
+            elif model_name == 'Spectrum':
+                myhash = 'spectra'
+            elif model_name == 'Catalogue':
+                myhash = 'catalogues'
+            elif model_name == 'Redshift':
+                myhash = 'redshifts'
+            elif model_name == 'GenericImage':
+                myhash = 'generic-images'
+            return reverse('sled_users:user-profile') + '#' + myhash
+        else:
+            return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
 
     def get_success_message(self):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
