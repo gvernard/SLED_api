@@ -25,14 +25,14 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
                              related_name="%(class)s")
 
     name = models.CharField(blank=False,
-                            null=True,
+                            null=False,
                             max_length=100,
                             help_text="A name for the generic image.",
                             validators=[validate_language],
                             )
 
     info = models.TextField(blank=False,
-                            null=True,
+                            null=False,
                             default='',
                             help_text="Description of any important aspects of the image.",
                             validators=[validate_language],
@@ -61,9 +61,9 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
         
     def __str__(self):
         if self.lens == None:
-            return self.name
-        else:
             return self.lens.name + " - " + self.name
+        else:
+            return self.name
 
     
     def get_absolute_url(self):

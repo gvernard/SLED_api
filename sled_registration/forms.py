@@ -43,6 +43,7 @@ class RegisterForm(UserCreationForm):
         self.fields['info'].widget.attrs['class'] = 'field-label'
         self.fields['info'].widget.attrs['placeholder'] = 'Tell us a bit about why you are joining SLED'
         self.fields['slack_display_name'].widget.attrs['class'] = 'field-label'
+        self.fields['slack_display_name'].widget.attrs['placeholder'] = 'OPTIONAL: Your "Display Name" in SLED\'s Slack'
         self.fields['captcha'].widget.attrs['class'] = 'field-label'
         self.fields['captcha'].widget.attrs['placeholder'] = 'Type in the characters from above'
 

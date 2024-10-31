@@ -38,12 +38,13 @@ class BaseCreateUpdateDataForm(forms.ModelForm):
             
         now = timezone.now().date()
         date_taken = self.cleaned_data.get('date_taken')
-        if self.cleaned_data.get('future'):
-            if now > date_taken:
-                self.add_error('__all__','Date must be in the future!')
-        else:
-            if now < date_taken:
-                self.add_error('__all__','Date must be in the past!')
+        if date_taken:
+            if self.cleaned_data.get('future'):
+                if now > date_taken:
+                    self.add_error('__all__','Date must be in the future!')
+            else:
+                if now < date_taken:
+                    self.add_error('__all__','Date must be in the past!')
 
         ### Check user limits
         if self.user:
@@ -287,7 +288,7 @@ class DataUpdateManyFormSet(forms.BaseInlineFormSet):
             return
         
         ### Check if formset has changed.
-        if not self.has_changed():
+        if self.initial_forms and not self.has_changed():
             raise ValidationError('No changes detected.')
 
         ### Check that no two files are the same

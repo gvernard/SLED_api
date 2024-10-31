@@ -10,14 +10,14 @@ from django.forms import inlineformset_factory
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import authentication, permissions, status
-from rest_framework.parsers import  MultiPartParser
+from rest_framework.parsers import  MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
 
-
-from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
+from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, GenericImageUploadSerializer, RedshiftUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
 from .download_serializers import LensDownSerializer,LensDownSerializerAll
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Paper
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Paper, GenericImage, Redshift
 from lenses import forms, query_utils
+from sled_data import forms as data_forms
 from guardian.shortcuts import assign_perm
 from actstream import action
 
@@ -30,85 +30,87 @@ from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 
 
+
+
+        
 class UploadData(APIView):
-    parser_classes = [MultiPartParser]
+    #parser_classes = [MultiPartParser]
     authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        # Here I need to check that the keys in the request are a subset of the fields used in the serializer.
-        # Then, Check that each given list of keys has the same length N.
-
-        # Get number of lenses and the keys
-        #print('just got some fresh data in, mmm', request.data)
-        #uploaded_data = request.data.copy()
-        #print(uploaded_data)
-
-        uploaded_data = request.data.copy()
-        Ndata = int(uploaded_data.pop('N')[0])
-        data_type = str(uploaded_data.pop('type')[0])
-        #print(uploaded_data)
-        keys = []
-        for key,dum in uploaded_data.items():
-            keys.append(key)
-        #print(Ndata,keys)
-
-        # Reshape the data ('files') in the request to create one dict per lens
-        list_of_lists = []
-        for key in keys:
-            list_of_lists.append(uploaded_data.getlist(key))
-        #print(list_of_lists)
-        raw_data = []
-        for i in range(0,Ndata):
-            datum = {}
-            for j,key in enumerate(keys):
-                #print(j, key, list_of_lists[j])
-                datum[key] = list_of_lists[j][i]
-            if 'date_taken' not in keys:
-                print('No date provided...')
+        data_type = request.data['data_type']
+        data = request.data['data']
+        
+        for datum in data:
             datum['owner'] = request.user.pk
-            raw_data.append(datum)
-        #print(raw_data)
-
-        if data_type == "Imaging":
-            serializer = ImagingDataUploadSerializer(data=raw_data,many=True)
-            #print(serializer)
-        elif data_type == "Spectrum":
-            serializer = SpectrumDataUploadSerializer(data=raw_data,many=True)
-        elif data_type == "Catalogue":
-            serializer = CatalogueDataUploadSerializer(data=raw_data,many=True)
-        else:
-            response = {
-                "Error":"Unknown data type. Valid choices are: Imaging, Spectrum, and Catalogue."
-            }
-            return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
             
-        #print(serializer.is_valid())
-        if serializer.is_valid():
-            data = serializer.create(serializer.validated_data)
-            # Get RA,dec separately
-            ra = []
-            dec = []
-            for i in range(0,Ndata):
-                ra.append( float(raw_data[i].get('ra')) )
-                dec.append( float(raw_data[i].get('dec')) )
-
-            # Move uploaded files to a temporary directory
-            if data_type != 'Catalogue':
-                content = datum.image.read()
-                tmp_fname = 'temporary/' + self.request.user.username + '/' + datum.image.name
-                default_storage.put_object(content,tmp_fname)
-                            
-            cargo = {'ra':ra,'dec':dec,'objects':serializers.serialize('json',data)}
-            receiver = Users.objects.filter(id=request.user.id) # receiver must be a queryset
-            mytask = ConfirmationTask.create_task(self.request.user,receiver,'AddData',cargo)
-            #print(cargo['objects'])
-            myurl = request.build_absolute_uri(reverse('lenses:add-data',kwargs={'pk':mytask.id}))
-            response = {
-                "Warning":"Data uploaded successfully. Perform the final verification step by visiting the following URL:",
-                "URL": myurl
-            }
+        if data_type == "imaging":
+            serializer = ImagingDataUploadSerializer(data=data,context={'user':request.user},many=True)
+        elif data_type == "spectrum":
+            serializer = SpectrumDataUploadSerializer(data=data,context={'user':request.user},many=True)
+        elif data_type == "catalogue":
+            serializer = CatalogueDataUploadSerializer(data=data,many=True)
+        elif data_type == "redshift":
+            serializer = RedshiftUploadSerializer(data=data,context={'user':request.user},many=True)
+        elif data_type == "genericimage":
+            serializer = GenericImageUploadSerializer(data=data,context={'user':request.user},many=True)
+        else:
+            response = {"error":"Unknown data type. Valid choices are: Imaging, Spectrum, Catalogue, Redshift, and GenericImage."}
             return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        
+        if serializer.is_valid():
+            validated_data = serializer.validated_data
+            data = serializer.create(serializer.validated_data)
+            
+            perm = "view_"+data[0]._meta.model_name
+            pri = []
+            pub = []
+            for datum in data:
+                if datum.access_level == 'PRI':
+                    pri.append(datum)
+                else:
+                    if data_type in ['imaging','spectrum']:
+                        if not datum.future:
+                            datum.access_level = 'PRI'
+                    elif data_type == 'genericimage':
+                        datum.access_level = 'PRI'                        
+                    pub.append(datum)
+                datum.save()
+                
+            assign_perm(perm,request.user,pri)
+                
+            messages = []
+            if len(data) > 1:
+                messages.append(data[0]._meta.verbose_name_plural.title() + ' successfully added to the database!')
+            else:
+                messages.append(data[0]._meta.verbose_name.title() + ' successfully added to the database!')
+                
+
+            if pub and data_type in ['imaging','genericimage','spectrum']:
+                assign_perm(perm,request.user,pub) # pub has access_level set to PRI here
+
+                not_future_ids = []
+                if data_type in  ['imaging','spectrum']:
+                    for obj in pub:
+                        if not obj.future:
+                            not_future_ids.append(obj.id)
+                else:
+                    for obj in pub:
+                        not_future_ids.append(obj.id)
+
+                if not_future_ids:
+                    object_type = pub[0]._meta.model.__name__
+                    cargo = {
+                        'object_type': object_type,
+                        'object_ids': not_future_ids,
+                    }
+                    receiver = Users.selectRandomInspector()
+                    mytask = ConfirmationTask.create_task(request.user, receiver, 'InspectImages', cargo)
+                    messages.append("An InspectImages task has been submitted!")
+
+            return Response({"message": ' '.join(messages)}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
@@ -216,7 +218,7 @@ class UploadLenses(APIView):
         errors = {}
         for i, form in enumerate(formset.forms):
             if form.errors:
-                errors[f'form_{i}'] = form.errors
+                errors['lens-'+str(i)] = form.errors
         if formset.non_form_errors():
             errors['non_form_errors'] = formset.non_form_errors()
         return errors
@@ -244,6 +246,7 @@ class UploadLenses(APIView):
                     name=lens.get('imagename', f'image_{i}.jpg')
                 )
         return files
+    
     def save_lenses(self, instances, user):
         messages = ['Lenses successfully added to the database!']
         pri = []

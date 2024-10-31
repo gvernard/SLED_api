@@ -1,9 +1,11 @@
 from django.db.models import F
-from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper, Collection
+from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper, Collection, GenericImage, Redshift
 from rest_framework import serializers, fields
 from rest_framework.validators import UniqueValidator
+from drf_extra_fields.fields import Base64ImageField
 import ads
 from itertools import chain
+from django.utils import timezone
        
 ### Users autocomplete
 ################################################################################
@@ -34,77 +36,296 @@ class PapersSerializer(serializers.HyperlinkedModelSerializer):
 
 ### Uploading data
 ################################################################################
-class BaseDataFileUploadListSerializer(serializers.ListSerializer):
+def check_lenses(attrs):
+    lenses = []
+    for i in range(0,len(attrs)):
+        ra = attrs[i].get('ra')
+        dec = attrs[i].get('dec')
+        user = attrs[i].get('owner')
+        qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user=attrs[i].get('owner'))
+        print(qset)
+        if qset:
+            if qset.count() > 1:
+                raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
+            else:
+                attrs[i]['lens'] = qset[0]
+        else:
+            raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any lens in the database!' % (ra,dec))
+        
+    return attrs
+    
+
+def check_files(attrs):
+    duplicate_files = []
+    for i in range(0,len(attrs)-1):
+        item1 = attrs[i]
+        future1 = item1.get('future')
+        
+        if not future1:
+            
+            for j in range(i+1,len(attrs)):
+                item2 = attrs[j]
+                future2 = item2.get('future')
+
+                if not future2:
+                    file1 = item1.get('image').name
+                    size1 = item1.get('image').size
+                    file2 = item2.get('image').name
+                    size2 = item2.get('image').size
+
+                    #if file1 == file2 and size1 == size2:
+                    if size1 == size2:
+                        duplicate_files.append(str(i)+' and '+str(j))
+
+    for pair in duplicate_files:
+        raise serializers.ValidationError('Items %s have the same size which could indicate duplicates! If not duplicates then submit separately' % pair)
+
+
+    
+
+class ImagingDataUploadListSerializer(serializers.ListSerializer):
     def validate(self,attrs):
+        ### Check that there is only one matching lens per datum
+        attrs = check_lenses(attrs)
+                    
         ### Check that no two files are the same
-        duplicate_files = []
-        if attrs[0].get('image'):
-            for i in range(0,len(attrs)-1):
-                lens1 = attrs[i]
-                file1 = lens1.get('image').name
-                size1 = lens1.get('image').size
+        check_files(attrs)
 
-                for j in range(i+1,len(attrs)):
-                    lens2 = attrs[j]
-                    file2 = lens2.get('image').name
-                    size2 = lens1.get('image').size
+        ### Check if Imaging data has NOT the same ra,dec,instrument, and band
+        same_data = []
+        for i in range(0,len(attrs)-1):
+            item1 = attrs[i]
+            ra1    = item1.get('ra')
+            dec1   = item1.get('dec')
+            instr1 = item1.get('instrument')
+            band1  = item1.get('band')
+            
+            for j in range(i+1,len(attrs)):
+                item2 = attrs[j]
+                ra2    = item2.get('ra')
+                dec2   = item2.get('dec')
+                instr2 = item2.get('instrument')
+                band2  = item2.get('band')
 
-                    if file1 == file2 and size1 == size2:
-                        duplicate_files.append(file1)
-
-            if len(duplicate_files) > 0:
-                raise serializers.ValidationError('More than one files have the same name and size which could indicate duplicates!')
-
-        ### Check that there is at least one matching lens per datum
-        print(attrs)
-        for i in range(0,len(attrs)):
-            ra = attrs[i].get('ra')
-            dec = attrs[i].get('dec')
-            user = attrs[i].get('owner')
-            print(user, user)
-            mybool = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user=attrs[i].get('owner'))
-            print(mybool)
-            if not mybool:
-                raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any public lens in the database!' % (ra,dec))
+                if ra1 == ra2 and dec1 == dec2 and instr1 == instr2 and band1 == band2:
+                    same_data.append(item1)
+        if len(same_data) > 0:
+            raise serializers.ValidationError('More than one imaging data found for the same lens, instrument, and band, which could indicate duplicates!')
 
         return attrs
 
-
+        
 class ImagingDataUploadSerializer(serializers.ModelSerializer):
     ra = serializers.DecimalField(max_digits=7,decimal_places=4)
     dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    image = Base64ImageField(required=False)
 
     class Meta():
         model = Imaging
         exclude = ['lens','created_at','modified_at']
-        list_serializer_class = BaseDataFileUploadListSerializer
+        list_serializer_class = ImagingDataUploadListSerializer
         
     def create(self,validated_data):
         validated_data.pop('ra')
         validated_data.pop('dec')
         return Imaging(**validated_data)
 
+    def validate(self, data):
+        now = timezone.now().date()
+        date_taken = data.get('date_taken')
+        future = data.get('future')
+        if future:
+            if now > date_taken:
+                raise serializers.ValidationError('Date must be in the future!')
+            if data.get('image'):
+                raise serializers.ValidationError('You cannot submit an image for future data!')
+        else:
+            if now < date_taken:
+                raise serializers.ValidationError('Date must be in the past!')
+            if not data.get('image'):
+                raise serializers.ValidationError('You must submit an image!')
+                
+        ### Check user limits
+        if self.context['user']:
+            check = self.context['user'].check_all_limits(1,self.Meta.model.__name__)
+            if check["errors"]:
+                for error in check["errors"]:
+                    raise serializers.ValidationError(error)
+        
+        return data
+
     
+
+    
+class SpectrumDataUploadListSerializer(serializers.ListSerializer):
+    def validate(self,attrs):
+        ### Check that there is only one matching lens per datum
+        attrs = check_lenses(attrs)
+                    
+        ### Check that no two files are the same
+        check_files(attrs)
+
+        ### Check if Imaging data has NOT the same ra,dec,instrument, and band
+        same_data = []
+        for i in range(0,len(attrs)-1):
+            item1 = attrs[i]
+            ra1    = item1.get('ra')
+            dec1   = item1.get('dec')
+            instr1 = item1.get('instrument')
+            
+            for j in range(i+1,len(attrs)):
+                item2 = attrs[j]
+                ra2    = item2.get('ra')
+                dec2   = item2.get('dec')
+                instr2 = item2.get('instrument')
+
+                if ra1 == ra2 and dec1 == dec2 and instr1 == instr2:
+                    same_data.append(item1)
+        if len(same_data) > 0:
+            raise serializers.ValidationError('More than one spectra found for the same lens and instrument, which could indicate duplicates!')
+
+        return attrs
+    
+        
 class SpectrumDataUploadSerializer(serializers.ModelSerializer):
     ra = serializers.DecimalField(max_digits=7,decimal_places=4)
     dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    image = Base64ImageField(required=False)
 
     class Meta():
         model = Spectrum
         exclude = ['lens','created_at','modified_at']
-        list_serializer_class = BaseDataFileUploadListSerializer
+        list_serializer_class = SpectrumDataUploadListSerializer
         
     def create(self,validated_data):
         validated_data.pop('ra')
         validated_data.pop('dec')
         return Spectrum(**validated_data)
 
+    def validate(self, data):
+        now = timezone.now().date()
+        date_taken = data.get('date_taken')
+        future = data.get('future')
+        if future:
+            if now > date_taken:
+                raise serializers.ValidationError('Date must be in the future!')
+            if data.get('image'):
+                raise serializers.ValidationError('You cannot submit an image for future data!')
+        else:
+            if now < date_taken:
+                raise serializers.ValidationError('Date must be in the past!')
+            if not data.get('image'):
+                raise serializers.ValidationError('You must submit an image!')
+                
+        ### Check user limits
+        if self.context['user']:
+            check = self.context['user'].check_all_limits(1,self.Meta.model.__name__)
+            if check["errors"]:
+                for error in check["errors"]:
+                    raise serializers.ValidationError(error)
+        
+        return data
 
+    
+
+class GenericImageUploadListSerializer(serializers.ListSerializer):
+    def validate(self,attrs):
+        ### Check that there is only one matching lens per datum
+        attrs = check_lenses(attrs)
+                    
+        ### Check that no two files are the same
+        check_files(attrs)
+
+        return attrs
+    
+        
+class GenericImageUploadSerializer(serializers.ModelSerializer):
+    ra = serializers.DecimalField(max_digits=7,decimal_places=4)
+    dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    image = Base64ImageField(required=True)
+
+    class Meta():
+        model = GenericImage
+        exclude = ['lens','created_at','modified_at']
+        list_serializer_class = GenericImageUploadListSerializer
+        
+    def create(self,validated_data):
+        validated_data.pop('ra')
+        validated_data.pop('dec')
+        return GenericImage(**validated_data)
+
+    def validate(self, data):
+        ### Check user limits
+        if self.context['user']:
+            check = self.context['user'].check_all_limits(1,self.Meta.model.__name__)
+            if check["errors"]:
+                for error in check["errors"]:
+                    raise serializers.ValidationError(error)
+        
+        return data
+
+
+    
+    
+class RedshiftUploadListSerializer(serializers.ListSerializer):
+    def validate(self,attrs):
+        ### Check that there is only one matching lens per datum
+        attrs = check_lenses(attrs)
+
+        ### Check if Redshift has NOT the same ra, dec, tag, and method
+        same_data = []
+        for i in range(0,len(attrs)-1):
+            item1 = attrs[i]
+            ra1     = item1.get('ra')
+            dec1    = item1.get('dec')
+            tag1    = item1.get('tag')
+            method1 = item1.get('method')
+            
+            for j in range(i+1,len(attrs)):
+                item2 = attrs[j]
+                ra2     = item2.get('ra')
+                dec2    = item2.get('dec')
+                tag2    = item2.get('tag')
+                method2 = item2.get('method')
+
+                if ra1 == ra2 and dec1 == dec2 and tag1 == tag2 and method1 == method2:
+                    same_data.append(item1)
+        if len(same_data) > 0:
+            raise serializers.ValidationError('More than one redshifts found for the same lens/source and method, which could indicate duplicates! If this is not a mistake, then submit separately.')
+
+        return attrs
+
+    
+class RedshiftUploadSerializer(serializers.ModelSerializer):
+    ra = serializers.DecimalField(max_digits=7,decimal_places=4)
+    dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+
+    class Meta():
+        model = Redshift
+        exclude = ['lens','created_at','modified_at']
+        list_serializer_class = RedshiftUploadListSerializer
+        
+    def create(self,validated_data):
+        validated_data.pop('ra')
+        validated_data.pop('dec')
+        return Redshift(**validated_data)
+
+    def validate(self, data):
+        ### Check user limits
+        if self.context['user']:
+            check = self.context['user'].check_all_limits(1,self.Meta.model.__name__)
+            if check["errors"]:
+                for error in check["errors"]:
+                    raise serializers.ValidationError(error)
+        
+        return data
+
+    
+    
 class CatalogueDataUploadSerializer(serializers.ModelSerializer):
     ra = serializers.DecimalField(max_digits=7,decimal_places=4)
     dec = serializers.DecimalField(max_digits=7,decimal_places=4)
     mag = serializers.DecimalField(max_digits=10, decimal_places=3, allow_null=True)
-
 
     class Meta():
         model = Catalogue
@@ -117,7 +338,11 @@ class CatalogueDataUploadSerializer(serializers.ModelSerializer):
         validated_data.pop('dec')
         return Catalogue(**validated_data)
 
-    
+
+
+
+
+
     
 ### Uploading lenses
 ################################################################################
