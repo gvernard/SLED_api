@@ -84,7 +84,6 @@ $(document).ready(function() {
 	});
 	
 	var target = $('#myTab button[data-target="#'+id+'"]');
-	console.log(exist,target.html());
 	if( exist == 0 ){
 	    target.children('.badge').remove();
 	} else {

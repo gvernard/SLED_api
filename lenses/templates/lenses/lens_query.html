@@ -621,6 +621,7 @@
 		<div class="sled-help-tooltip-content">{{ form.access_level.help_text }}</div>
 	      </td>
               <td>{{ form.access_level }}</td>
+	      <td></td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.owner.errors }}</td>
@@ -633,6 +634,7 @@
 		  {{ form.owner }}
 		</div>
 	      </td>
+	      <td></td>
 	    </tr>
 	    <tr>
 	      <td>{{ form.collections.errors }}</td>
@@ -641,6 +643,25 @@
 		<div class="sled-help-tooltip-content">{{ form.collections.help_text }}</div>
 	      </td>
               <td>{{ form.collections }}</td>
+	      <td>
+		<div class="sled-help-tooltip data-query-table">
+		  <label>
+		    <table>
+		      <tr>
+			<td>OR</td>
+			<td>
+			  <div class="switch">
+			    {{ form.collections_and }}
+			    <span class="slider round"></span>
+			  </div>
+			</td>
+			<td>AND</td>
+		      </tr>
+		    </table>
+		  </label>
+		</div>
+		<div class="sled-help-tooltip-content">{{ form.collections_and.help_text }}</div>
+	      </td>
 	    </tr>
 	  </table>
 

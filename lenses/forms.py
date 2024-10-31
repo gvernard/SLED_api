@@ -924,17 +924,24 @@ class ManagementQueryForm(forms.Form):
                                            required=False,
                                            label='Owned by',
                                            help_text="Select one or more users")
-    collections = forms.ModelChoiceField(queryset=Collection.objects.all(),
-                                         required=False,
-                                         empty_label='---------',
-                                         widget=s2forms.Select2Widget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select a collection','allowClear':True,'width':'10%'}),
-                                         label='In collection',
-                                         help_text="Select a collection")
-    #collections = forms.ModelMultipleChoiceField(queryset=Collection.objects.all(),
+    #collections = forms.ModelChoiceField(queryset=Collection.objects.all(),
     #                                     required=False,
+    #                                     empty_label='---------',
+    #                                     widget=s2forms.Select2Widget(attrs={'class':'my-select2 jb-myselect2','data-placeholder':'Select a collection','allowClear':True,'width':'10%'}),
     #                                     label='In collection',
     #                                     help_text="Select a collection")
-
+    collections = forms.ModelMultipleChoiceField(queryset=Collection.objects.all(),
+                                                 required=False,
+                                                 widget=s2forms.Select2MultipleWidget(attrs={'class':'my-select2 collections-select','data-placeholder':'Select one or more collections','data-allow-clear':False,'width':'300px'}),
+                                                 label='In collection',
+                                                 help_text="Select one or more collections")
+    collections_and = forms.BooleanField(required=False,
+                                        label='Collection AND/OR',
+                                        help_text="Join the selected collections as an AND or OR clause.",
+                                        widget=forms.CheckboxInput(attrs={'class': 'custom-control-input',
+                                                                          'id': 'customSwitch1'
+                                                                          })
+                                        )
     
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
@@ -942,18 +949,18 @@ class ManagementQueryForm(forms.Form):
         self.fields['collections'].queryset = Collection.accessible_objects.all(user)
 
             
+    #def clean_collections(self):
+    #    collections = self.cleaned_data['collections']
+    #    if collections:
+    #        return [collections.name]
+    #    else:
+    #        return []
+
     def clean_collections(self):
         collections = self.cleaned_data['collections']
-        if collections:
-            return [collections.name]
-        else:
-            return []
-
-    #def clean_collections(self):
-        #collections = self.cleaned_data['collections']
         #if len(collections) > 1:
         #    self.add_error('collections',"You can select only 1 collection.")
-        #return collections.values_list('id',flat=True)
+        return collections.values_list('name',flat=True)
 
     def clean_owner(self):
         owners = self.cleaned_data['owner']
@@ -965,8 +972,10 @@ class ManagementQueryForm(forms.Form):
             self.cleaned_data.pop('access_level')
         if not self.cleaned_data['owner']:
             self.cleaned_data.pop('owner')
-        if not self.cleaned_data['collections']:
-            self.cleaned_data.pop('collections')
+        #if not self.cleaned_data['collections']:
+        #    self.cleaned_data.pop('collections')
+        if not self.cleaned_data['collections_and']:
+            self.cleaned_data.pop('collections_and')
         #self.add_error('__all__','STOP')
             
 

@@ -59,10 +59,24 @@ def management_search(lenses,cleaned_form,user):
         conditions.add(Q(**{'access_level__exact':cleaned_form.get('access_level')}),Q.AND)
     if cleaned_form.get('owner'):
         conditions.add(Q(**{'owner__username__in':cleaned_form.get('owner')}),Q.AND)
-    if cleaned_form.get('collections'):
-        conditions.add(Q(**{'items__name__in':cleaned_form.get('collections')}),Q.AND)
-        
-    lenses = lenses.filter(conditions)
+    #if cleaned_form.get('collections'):
+    #    conditions.add(Q(**{'items__name__in':cleaned_form.get('collections')}),Q.AND)
+   
+    collections = cleaned_form.get('collections',None)
+    if collections:
+        if cleaned_form.get('collections_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
+            sets = []
+            for item in collections:
+                sets.append( set(lenses.filter(conditions & Q(items__name=item)).values_list('id',flat=True)) )
+                final = set([id for id in lenses.values_list('id',flat=True)]).intersection(*sets)
+                lenses = Lenses.accessible_objects.all(user).filter(id__in=final)
+        else:
+            q = Q()
+            for item in collections:
+                q.add( Q(items__name=item), Q.OR )
+            lenses = lenses.filter(conditions & q).distinct()
+    else:
+        lenses = lenses.filter(conditions).distinct()
     return lenses
 
         

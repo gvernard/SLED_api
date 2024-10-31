@@ -152,6 +152,13 @@ input:checked + .slider:before {
 }
 
 .management-table td:nth-child(3) {
-    width: 300px;
     padding-left: 30px;
+}
+
+.management-table td:nth-child(4) {
+    padding-left: 10px;
+}
+
+.collections-select {
+    width: 400px;
 }
