@@ -39,7 +39,7 @@ class UploadData(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        data_type = request.query_params.get('q',None)
+        data_type = request.data.get('data_type',None)
         if not data_type:
             response = {"error":"You must specify 'data_type'!"}
             return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
