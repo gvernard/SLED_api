@@ -133,7 +133,7 @@ class Instrument(models.Model):
                             help_text="Any important note about the instrument.",
                             validators=[validate_language],
                             )
-
+    '''
     BaseTypeChoices = (
         ('Spectrum','Spectrum'),
         ('Imaging','Imaging'),
@@ -143,7 +143,8 @@ class Instrument(models.Model):
                                   blank=True,
                                   null=True,
                                   choices=BaseTypeChoices)
-
+    '''
+    
     class Meta():
         ordering = ["name"]
         db_table = "instruments"

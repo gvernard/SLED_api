@@ -622,7 +622,8 @@ class ImagingQueryForm(DataBaseQueryForm):
     )
     instrument = forms.ModelMultipleChoiceField(
         label = 'Instrument',
-        queryset = Instrument.objects.filter(base_types__icontains='Imaging'),
+        #queryset = Instrument.objects.filter(base_types__icontains='Imaging'),
+        queryset = Instrument.objects.all(),
         required = False,
         widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
                                                       'data-placeholder':'Select an instrument',
@@ -675,7 +676,8 @@ class ImagingQueryForm(DataBaseQueryForm):
 class SpectrumQueryForm(DataBaseQueryForm):
     instrument = forms.ModelMultipleChoiceField(
         label = 'Instrument',
-        queryset = Instrument.objects.filter(base_types__icontains='Spectrum'),
+        #queryset = Instrument.objects.filter(base_types__icontains='Spectrum'),
+        queryset = Instrument.objects.all(),
         required = False,
         widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
                                                       'data-placeholder':'Select an instrument',
@@ -747,7 +749,8 @@ class SpectrumQueryForm(DataBaseQueryForm):
 class CatalogueQueryForm(DataBaseQueryForm):
     instrument = forms.ModelMultipleChoiceField(
         label = 'Instrument',
-        queryset = Instrument.objects.filter(base_types__icontains='Catalogue'),
+        #queryset = Instrument.objects.filter(base_types__icontains='Catalogue'),
+        queryset = Instrument.objects.all(),
         required = False,
         widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
                                                       'data-placeholder':'Select an instrument',
