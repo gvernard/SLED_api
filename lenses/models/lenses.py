@@ -108,14 +108,14 @@ class ProximateLensManager(models.Manager):
             if qset.count() > 0:
                 return qset
             else:
-                return []
+                return Lenses.objects.none()
 
         else:
             qset = Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
             if qset.count() > 0:
                 return qset
             else:
-                return False
+                return Lenses.objects.none()
 
         
     def get_DB_neighbours_anywhere_many(self,ras,decs,radius=None):
@@ -159,7 +159,7 @@ class ProximateLensManager(models.Manager):
         neis_list = [] # A list of non-empty querysets
         for i in range(0,len(ras)):
             neis = self.get_DB_neighbours_anywhere_user_specific(ras[i],decs[i],user,lenses=None,radius=radius)
-            if neis:
+            if len(neis) != 0:
                 index_list.append(i)
                 neis_list.append(neis)
         return index_list,neis_list

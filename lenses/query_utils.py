@@ -23,7 +23,7 @@ def combined_query(lens_form,redshift_form,imaging_form,spectrum_form,catalogue_
     if lens_form:
         #print('Lenses form has values')
         lenses = lens_search(lenses,lens_form,user)
-        #print(len(lenses))
+        #print('lenses search: ',lenses)
 
     if redshift_form:
         #print('Redshift form has values')
@@ -48,7 +48,7 @@ def combined_query(lens_form,redshift_form,imaging_form,spectrum_form,catalogue_
     if management_form:
         #print('Management not empty')
         lenses = management_search(lenses,management_form,user)
-        #print(len(lenses))
+        #print('management search: ',lenses)
         
     return lenses
 
@@ -61,10 +61,10 @@ def management_search(lenses,cleaned_form,user):
         conditions.add(Q(**{'owner__username__in':cleaned_form.get('owner')}),Q.AND)
     #if cleaned_form.get('collections'):
     #    conditions.add(Q(**{'items__name__in':cleaned_form.get('collections')}),Q.AND)
-   
+
     collections = cleaned_form.get('collections',None)
     if collections:
-        if cleaned_form.get('collections_and'): # the clean method ensures that if 'instrument' is there then so is 'instrument_and'
+        if cleaned_form.get('collections_and'): # the clean method ensures that if 'collections' is there then so is 'collections_and'
             sets = []
             for item in collections:
                 sets.append( set(lenses.filter(conditions & Q(items__name=item)).values_list('id',flat=True)) )

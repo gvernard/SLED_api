@@ -39,7 +39,10 @@ class UploadData(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        data_type = request.data['data_type']
+        data_type = request.query_params.get('q',None)
+        if not data_type:
+            response = {"error":"You must specify 'data_type'!"}
+            return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
         data = request.data['data']
         
         for datum in data:
@@ -56,7 +59,7 @@ class UploadData(APIView):
         elif data_type == "genericimage":
             serializer = GenericImageUploadSerializer(data=data,context={'user':request.user},many=True)
         else:
-            response = {"error":"Unknown data type. Valid choices are: Imaging, Spectrum, Catalogue, Redshift, and GenericImage."}
+            response = {"error":"Unknown data type. Valid choices are: 'imaging', 'spectrum', 'catalogue', 'redshift', and 'genericimage'."}
             return Response(response,status=status.HTTP_406_NOT_ACCEPTABLE)
 
         
@@ -470,7 +473,7 @@ class QueryPapers(APIView):
         ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
         lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)
         #print('searching papers')
-        if lenses:
+        if len(lenses) != 0:
             lens = lenses[0]
             #print(lens.name)
             allpapers = lens.papers(manager='objects').all()

@@ -972,9 +972,8 @@ class ManagementQueryForm(forms.Form):
             self.cleaned_data.pop('access_level')
         if not self.cleaned_data['owner']:
             self.cleaned_data.pop('owner')
-        #if not self.cleaned_data['collections']:
-        #    self.cleaned_data.pop('collections')
-        if not self.cleaned_data['collections_and']:
+        if not self.cleaned_data['collections']:
+            self.cleaned_data.pop('collections')
             self.cleaned_data.pop('collections_and')
         #self.add_error('__all__','STOP')
             

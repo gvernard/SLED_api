@@ -43,12 +43,10 @@ def check_lenses(attrs):
         dec = attrs[i].get('dec')
         user = attrs[i].get('owner')
         qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user=attrs[i].get('owner'))
-        print(qset)
-        if qset:
-            if qset.count() > 1:
-                raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
-            else:
-                attrs[i]['lens'] = qset[0]
+        if qset.count() > 1:
+            raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
+        elif qset.count() == 1:
+            attrs[i]['lens'] = qset[0]
         else:
             raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any lens in the database!' % (ra,dec))
         
@@ -116,8 +114,8 @@ class ImagingDataUploadListSerializer(serializers.ListSerializer):
 
         
 class ImagingDataUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=7,decimal_places=4)
-    dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
     image = Base64ImageField(required=False)
 
     class Meta():
@@ -188,8 +186,8 @@ class SpectrumDataUploadListSerializer(serializers.ListSerializer):
     
         
 class SpectrumDataUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=7,decimal_places=4)
-    dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
     image = Base64ImageField(required=False)
 
     class Meta():
@@ -240,8 +238,8 @@ class GenericImageUploadListSerializer(serializers.ListSerializer):
     
         
 class GenericImageUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=7,decimal_places=4)
-    dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
     image = Base64ImageField(required=True)
 
     class Meta():
@@ -297,8 +295,8 @@ class RedshiftUploadListSerializer(serializers.ListSerializer):
 
     
 class RedshiftUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=7,decimal_places=4)
-    dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
 
     class Meta():
         model = Redshift
@@ -323,8 +321,8 @@ class RedshiftUploadSerializer(serializers.ModelSerializer):
     
     
 class CatalogueDataUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=7,decimal_places=4)
-    dec = serializers.DecimalField(max_digits=7,decimal_places=4)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
     mag = serializers.DecimalField(max_digits=10, decimal_places=3, allow_null=True)
 
     class Meta():
@@ -771,8 +769,8 @@ class PaperUploadSerializer(serializers.Serializer):
 
         return data
 
+    
 class CollectionUploadSerializer(serializers.Serializer):
-
     name = serializers.CharField(max_length=50)
     description = serializers.CharField(max_length=250)
     access_level = serializers.CharField(max_length=3)
