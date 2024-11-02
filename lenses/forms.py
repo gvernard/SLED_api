@@ -510,7 +510,7 @@ class LensQueryForm(forms.Form):
         #if self.cleaned_data.get('ra_min') and self.cleaned_data.get('ra_max'):
         #    if float(self.cleaned_data.get('ra_min')) > float(self.cleaned_data.get('ra_max')):
         #        raise ValidationError('The maximum ra is lower than the minimum.')
-
+        
         if self.cleaned_data.get('dec_min') and self.cleaned_data.get('dec_max'):
             if float(self.cleaned_data.get('dec_min')) > float(self.cleaned_data.get('dec_max')):
                 raise ValidationError('The maximum dec is lower than the minimum.')
@@ -528,7 +528,11 @@ class LensQueryForm(forms.Form):
             if None in [self.cleaned_data.get('ra_centre'), self.cleaned_data.get('dec_centre'), self.cleaned_data.get('radius')]:
                 raise ValidationError('You must provide a right ascension, declination and radius to use the cone search')
         
+            if self.cleaned_data.get('ra_min') or self.cleaned_data.get('ra_max') or self.cleaned_data.get('dec_min') and self.cleaned_data.get('dec_max'):
+                raise ValidationError('You cannot use Box and Cone Search at the same time! Clean up the unnecessary fiels.')
+        
 
+            
         keys = list(self.cleaned_data.keys())
         for key in keys:
             if isinstance(self.cleaned_data[key],QuerySet) or isinstance(self.cleaned_data[key],list):

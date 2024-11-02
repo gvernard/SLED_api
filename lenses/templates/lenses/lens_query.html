@@ -111,15 +111,15 @@
 		<div class="sled-cone-box">
 		  <ul class="nav nav-tabs" role="tablist">
 		    <li class="nav-item">
-		      <a class="nav-link active" data-toggle="tab" href="#home">Box search</a>
+		      <a class="nav-link {%if cone == False %}active{% endif %}" data-toggle="tab" href="#home">Box search</a>
 		    </li>
 		    <li class="nav-item">
-		      <a class="nav-link" data-toggle="tab" href="#menu1">Cone search</a>
+		      <a class="nav-link {%if cone == True %}active{% endif %}" data-toggle="tab" href="#menu1">Cone search</a>
 		    </li>
 		  </ul>
 		  
 		  <div class="tab-content taba">
-		    <div id="home" class="tab-pane active"><br>
+		    <div id="home" class="tab-pane {%if cone == False %}active{% endif %}"><br>
 		      <table>
 			<tr>
 			  <td>{{ form.ra_min.errors }}</td>
@@ -144,7 +144,7 @@
 		      </table>  
 		    </div>
 		    
-		    <div id="menu1" class="tab-pane"><br>  
+		    <div id="menu1" class="tab-pane {%if cone == True %}active{% endif %}"><br>  
 		      <table>
 			<tr>
                           <td>

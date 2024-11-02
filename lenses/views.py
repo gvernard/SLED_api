@@ -991,10 +991,16 @@ class LensQueryView(TemplateView):
             lenses_count = paginator.count
             lenses_range = paginator.page_range
 
+            if 'ra_centre' in lens_form.cleaned_data: # Checking only for one of the Cone Search parameters is enough
+                cone = True
+            else:
+                cone = False
+                
             context = {'lenses':lenses_page,
                        'lenses_range':lenses_range,
                        'lenses_count':lenses_count,
                        'lens_form':lens_form,
+                       'cone': cone,
                        'redshift_form':redshift_form,
                        'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
@@ -1008,6 +1014,7 @@ class LensQueryView(TemplateView):
                        'lenses_range': [],
                        'lenses_count': 0,
                        'lens_form':lens_form,
+                       'cone': False,
                        'redshift_form':redshift_form,
                        'imaging_form':imaging_form,
                        'spectrum_form':spectrum_form,
