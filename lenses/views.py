@@ -466,6 +466,7 @@ class LensDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
         #context['imagings'] = context['lens'].imaging.all(self.request.user)
         qset = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
         allimages = qset.filter(future=False)
@@ -556,9 +557,15 @@ class LensDetailView(DetailView):
         
         # All papers are public, no need for the accessible_objects manager
         allpapers = context['lens'].papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),
-                                                    model=F('paperlensconnection__model'),
-                                                    classification=F('paperlensconnection__classification'), #redshift=F('paperlensconnection__redshift')
-                                                    )
+                                                                             model=F('paperlensconnection__model'),
+                                                                             classification=F('paperlensconnection__classification'), #redshift=F('paperlensconnection__redshift')
+                                                                             )
+        # Collections
+        #cols = context['lens'].collections.all()
+        #cols = Collection.accessible_objects.in_ids(self.request.user,cols.values_list('id',flat=True))
+        cols = Collection.accessible_objects.all(self.request.user).filter(Q(item_type='Lenses') & Q(collection_myitems__gm2m_pk=context['lens'].id))
+        
+
         labels = []
         for paper in allpapers:
             flags = []
@@ -583,6 +590,7 @@ class LensDetailView(DetailView):
         context['display_catalogues_table'] = all_results
         context["redshifts"] = redshifts
         context["generic_images"] = generic_images
+        context["all_collections"] = cols
         return context
     
 

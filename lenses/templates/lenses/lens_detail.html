@@ -206,8 +206,16 @@
     </table>
   </div>
 
+  <!-- Div containing all the SLED collections -->
+  <div class="jb-section jb-table-no-lines">
+    <h1 class="jb-heading-2">SLED collections</h1>
+    {% for col in all_collections %}
+    <a href="{{ col.get_absolute_url }}">{{ col.name }}</a>
+    {% if not forloop.last %}  |  {% endif %}
+    {% endfor %}
+  </div>
 
-
+  
   <!-- Div containing all the related papers -->
   <div class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Papers</h1>
