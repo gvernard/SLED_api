@@ -200,7 +200,7 @@ class UploadLenses(APIView):
             if myformset.is_valid():
                 instances = myformset.save(commit=False)
 
-                indices, neis = Lenses.proximate.get_DB_neighbours_many(instances)
+                indices, neis = Lenses.proximate.get_DB_neighbours_many(instances,user=request.user)
                 #print(instances)
                 if len(indices) == 0:
                     return self.save_lenses(instances, request.user)
@@ -397,7 +397,7 @@ class QueryLenses(APIView):
     def post(self,request):
         user = request.user
         ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
-        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)        
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,radius=radius,user=user)
         serializer = LensDownSerializer(lenses,many=True)
         return Response({'lenses':serializer.data})
 
@@ -471,7 +471,7 @@ class QueryPapers(APIView):
     def post(self,request):
         user = request.user
         ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
-        lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user,radius=radius)
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,radius=radius,user=user)
         #print('searching papers')
         if len(lenses) != 0:
             lens = lenses[0]
@@ -507,7 +507,7 @@ class UpdateLenses(APIView):
         updates = list(json.loads(request.body))
         for update in updates:
             ra, dec = float(update['ra']), float(update['dec'])
-            lenses = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=5.)
+            lenses = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,user=user)
             
             lens = lenses[0]
             update_data = update.copy()

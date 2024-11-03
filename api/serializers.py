@@ -42,7 +42,7 @@ def check_lenses(attrs):
         ra = attrs[i].get('ra')
         dec = attrs[i].get('dec')
         user = attrs[i].get('owner')
-        qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra,dec,user=attrs[i].get('owner'))
+        qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,user=attrs[i].get('owner'))
         if qset.count() > 1:
             raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
         elif qset.count() == 1:
@@ -811,7 +811,7 @@ class CollectionUploadSerializer(serializers.Serializer):
         for lensinstance in data['lenses']:
             ra, dec = lensinstance['ra'], lensinstance['dec']
             user = self.context['request'].user
-            qset = Lenses.proximate.get_DB_neighbours_anywhere_user_specific(ra, dec, user, radius=5) # This call includes PRI lenses visible to the user
+            qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,radius=5,user=user) # This call includes PRI lenses visible to the user
             lenses_in_collection.append(qset.values_list('id', flat=True)[0])
         #print(lenses_in_collection)
         data['lenses_in_collection'] = lenses_in_collection

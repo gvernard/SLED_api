@@ -27,6 +27,10 @@
             <td>Owner:</td>
 	    <td>{{ lens.owner.id|get_user_link|safe }}</td>
           </tr>
+          <tr>
+            <td>Access level:</td>
+	    <td>{{ lens.access_level }}</td>
+          </tr>
 	  {% if lens.info %}
           <tr>
             <td>Info:</td>

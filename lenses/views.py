@@ -207,7 +207,7 @@ class LensMakePublicView(ModalIdsBaseMixin):
     def my_form_valid(self,form):
         ids = [ int(id) for id in form.cleaned_data.get('ids').split(',') ]
         lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
-        indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses)
+        indices,neis = Lenses.proximate.get_DB_neighbours_many(lenses) # Only match PUB lenses 
 
         if len(indices) == 0:
             cargo = {'object_type': 'Lenses',
@@ -241,7 +241,7 @@ class LensUpdateModalView(BSModalUpdateView):
         if not is_ajax(self.request.META):
             # Check for duplicates and redirect here
             instance = form.save(commit=False)
-            neis = Lenses.proximate.get_DB_neighbours(instance)
+            neis = Lenses.proximate.get_DB_neighbours(instance,user=self.request.user)
 
             if neis:
                 cargo = {'mode':'add','objects':serializers.serialize('json',[instance])}
@@ -618,7 +618,7 @@ class LensAddView(TemplateView):
             if myformset.is_valid():
                 # Set the possible duplicate indices and call validate again to check the insert fields - this requires a new formset
                 instances = myformset.save(commit=False)
-                indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
+                indices,neis = Lenses.proximate.get_DB_neighbours_many(instances,user=request.user)
                 #print(indices,neis)
                 
                 if len(indices) == 0:
@@ -700,7 +700,7 @@ class LensUpdateView(TemplateView):
             if myformset.has_changed() and myformset.is_valid():
 
                 instances = myformset.save(commit=False)
-                indices,neis = Lenses.proximate.get_DB_neighbours_many(instances)
+                indices,neis = Lenses.proximate.get_DB_neighbours_many(instances,user=request.user)
 
                 if len(indices) == 0:
                     pub = []
@@ -779,7 +779,7 @@ class LensResolveDuplicatesView(TemplateView):
                 lens = obj.object
                 objs.append(lens)
 
-        indices,neis = Lenses.proximate.get_DB_neighbours_many(objs)
+        indices,neis = Lenses.proximate.get_DB_neighbours_many(objs,user=user)
         existing = [None]*len(objs)
         for i,index in enumerate(indices):
             existing[index] = neis[i]
@@ -865,7 +865,7 @@ class LensAddDataView(TemplateView):
 
         ras = task.cargo['ra']
         decs = task.cargo['dec']
-        indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user)
+        indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs,user=user)
         existing = [None]*len(objs)
         choice_list = [None]*len(objs)
         for i,index in enumerate(indices):

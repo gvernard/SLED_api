@@ -28,27 +28,38 @@ class ProximateLensManager(models.Manager):
     Attributes:
         check_radius (`float`): A radius in arcsec, representing an area around each existing lens.
     """
-    check_radius = 5 # in arcsec
+    check_radius = 16 # in arcsec
 
     
-    def get_DB_neighbours(self,lens):
+    def get_DB_neighbours(self,lens,radius=None,user=None):
         """
-        Checks if a lens object (not yet in the database) has any PUBLIC lenses close to it. It excludes itself from the returned queryset (relevant if updating the object).
+        Checks if a lens object *not yet in the database* has any lenses close to it.
+        If a user is given, then it checks both for PUB and PRI lenses.
+        If no user is given, then it checks only PUB lenses.
+        It excludes itself from the returned queryset (relevant if updating the object).
 
         Args:
             lens (`Lenses`): A lens around which to search.
+            radius (`float`): A value for the search radius in arcsec (OPTIONAL)
+            user (`User`): A user object (OPTIONAL)
             
         Returns:
-            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+            Queryset (`Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
         """
-        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),lens.ra,lens.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=self.check_radius).exclude(id=lens.id)
-        if qset.count() > 0:
-            return qset
+        if not radius:
+            radius = self.check_radius
+            
+        if not user:
+            qset = super().get_queryset().filter(access_level='PUB')
         else:
-            return False
+            qset = Lenses.accessible_objects.all(user)
+            
+        qset = qset.annotate(distance=Func(F('ra'),F('dec'),lens.ra,lens.dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius).exclude(id=lens.id)
+        return qset
+
 
         
-    def get_DB_neighbours_many(self,lenses):
+    def get_DB_neighbours_many(self,lenses,radius=None,user=None):
         """
         Loops over a list of lenses and calls repeatedly get_DB_neighbours.
 
@@ -57,114 +68,93 @@ class ProximateLensManager(models.Manager):
 
         Returns:
             index_list (List[int]): A list of indices to the original input list indicating those lenses that have proximate existing lenses. 
-            neis_list (List[`Lenses`]): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+            neis_list (List[`Lenses`]): Returns a list of querysets matching the list of lenses from index_list. Each queryset contains the neighbours of each lens.
         """   
         index_list = []
         neis_list = [] # A list of non-empty querysets
         for i,lens in enumerate(lenses):
-            neis = self.get_DB_neighbours(lens)
+            neis = self.get_DB_neighbours(lens,radius=radius,user=user)
             if neis:
                 index_list.append(i)
                 neis_list.append(neis)
         return index_list,neis_list
 
     
-    def get_DB_neighbours_anywhere(self,ra,dec,radius=None):
+    def get_DB_neighbours_anywhere(self,ra,dec,radius=None,user=None):
         """
         Same as get_DB_neighbours but this time untied to any lens object (from the database or not).
+        If a user is given, then it checks both for PUB and PRI lenses.
+        If no user is given, then it checks only PUB lenses.
 
         Args:
-            ra: the RA of any point on the sky.
-            dec: the DEC of any point on the sky.
-            radius: in arcsec (optional).
+            ra (`float`): The RA of any point on the sky.
+            dec (`float`): The DEC of any point on the sky.
+            radius (`float`): A value for the search radius in arcsec (OPTIONAL)
+            user (`User`): A user object (OPTIONAL)
 
         Returns:
-            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+            Queryset (`Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
         """
         if not radius:
             radius = self.check_radius
-        qset = super().get_queryset().filter(access_level='PUB').annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
-        if qset.count() > 0:
-            return qset
+
+        if not user:
+            qset = super().get_queryset().filter(access_level='PUB')
         else:
-            return False
-
-    def get_DB_neighbours_anywhere_user_specific(self,ra,dec,user=None,lenses=None,radius=None):
-        """
-        Same as get_DB_neighbours but this time untied to any lens object (from the database or not).
-
-        Args:
-            ra: the RA of any point on the sky.
-            dec: the DEC of any point on the sky.
-            radius: in arcsec (optional).
-
-        Returns:
-            neighbours (list `Lenses`): Returns which of the existing lenses in the database are within a 'radius' from the lens.
-        """
-        if not radius:
-            radius = self.check_radius
-        if lenses:
-            qset = lenses.annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
-            if qset.count() > 0:
-                return qset
-            else:
-                return Lenses.objects.none()
-
-        else:
-            qset = Lenses.accessible_objects.all(user).annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
-            if qset.count() > 0:
-                return qset
-            else:
-                return Lenses.objects.none()
-
+            qset = Lenses.accessible_objects.all(user)
         
-    def get_DB_neighbours_anywhere_many(self,ras,decs,radius=None):
+        qset = qset.annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+        return qset
+
+
+    def get_DB_neighbours_anywhere_many(self,ras,decs,radius=None,user=None):
         """
         Loops over a list of Ra and dec and calls repeatedly get_DB_neighbours_anywhere.
 
         Args:
             ra [List(`float`)]: A list of RA values.
             dec [List(`float`)]: A list of dec values.
+            radius (`float`): A value for the search radius in arcsec (OPTIONAL)
+            user (`User`): A user object (OPTIONAL)
 
         Returns:
             index_list (List[int]): A list of indices to the original input list indicating those lenses that have proximate existing lenses. 
-            neis_list (List[`Lenses`]): Returns which of the existing lenses in the database are within a 'radius' from the lens.
+            neis_list (List[`Lenses`]): Returns a list of querysets matching the list of lenses from index_list. Each queryset contains the neighbours of each lens.
         """   
-        if not radius:
-            radius = self.check_radius
         index_list = []
         neis_list = [] # A list of non-empty querysets
         for i in range(0,len(ras)):
-            neis = self.get_DB_neighbours_anywhere(ras[i],decs[i],radius)
+            neis = self.get_DB_neighbours_anywhere(ras[i],decs[i],radius,user)
             if neis:
                 index_list.append(i)
                 neis_list.append(neis)
         return index_list,neis_list
-        
-    def get_DB_neighbours_anywhere_many_user_specific(self,ras,decs,user,radius=None):
-        """
-        Loops over a list of Ra and dec and calls repeatedly get_DB_neighbours_anywhere.
 
+
+
+    def get_DB_neighbours_anywhere_subqset(self,ra,dec,lens_subqset,radius=None):
+        """
+        Same as get_DB_neighbours_anywhere but this time filters an existing queryset (lens_subqset) that is passed as argument.
+        No need for a User object.
+        
         Args:
             ra [List(`float`)]: A list of RA values.
             dec [List(`float`)]: A list of dec values.
+            lens_subqset (Queryset `Lenses`): A queryset of Lenses.
+            radius (`float`): A value for the search radius in arcsec (OPTIONAL)
 
         Returns:
-            index_list (List[int]): A list of indices to the original input list indicating those lenses that have proximate existing lenses. 
-            neis_list (List[`Lenses`]): Returns which of the existing lenses in the database are within a 'radius' from the lens.
-        """   
+            Queryset (`Lenses`): Returns a queryset filtered by proximity to the given ra,dec.
+        """
         if not radius:
             radius = self.check_radius
-        index_list = []
-        neis_list = [] # A list of non-empty querysets
-        for i in range(0,len(ras)):
-            neis = self.get_DB_neighbours_anywhere_user_specific(ras[i],decs[i],user,lenses=None,radius=radius)
-            if len(neis) != 0:
-                index_list.append(i)
-                neis_list.append(neis)
-        return index_list,neis_list
+            
+        qset = lens_subqset.annotate(distance=Func(F('ra'),F('dec'),ra,dec,function='distance_on_sky',output_field=FloatField())).filter(distance__lt=radius)
+        return qset
 
-    
+
+
+
 
 class Lenses(SingleObject,DirtyFieldsMixin):
     ra = models.DecimalField(blank=False,

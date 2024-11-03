@@ -47,6 +47,7 @@
               {{ form.index }}
             </td>
           </tr>
+	  {% comment "This is to exclude the OK lenses" %}
 	  {% else %}
           <tr class="sled-main-row sled-duplicate-yes">	  
             <td>
@@ -61,6 +62,7 @@
 	      &nbsp;
 	    </td>
 	  </tr>
+	  {% endcomment %}
 	  {% endif %}
           {% endfor %}
         </tbody>
