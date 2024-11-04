@@ -1,3 +1,4 @@
+import os
 from django.db.models import F
 from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum, Catalogue, Paper, Collection, GenericImage, Redshift
 from rest_framework import serializers, fields
@@ -114,8 +115,8 @@ class ImagingDataUploadListSerializer(serializers.ListSerializer):
 
         
 class ImagingDataUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
-    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
     image = Base64ImageField(required=False)
 
     class Meta():
@@ -186,8 +187,8 @@ class SpectrumDataUploadListSerializer(serializers.ListSerializer):
     
         
 class SpectrumDataUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
-    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
     image = Base64ImageField(required=False)
 
     class Meta():
@@ -238,8 +239,8 @@ class GenericImageUploadListSerializer(serializers.ListSerializer):
     
         
 class GenericImageUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
-    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
     image = Base64ImageField(required=True)
 
     class Meta():
@@ -295,8 +296,8 @@ class RedshiftUploadListSerializer(serializers.ListSerializer):
 
     
 class RedshiftUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
-    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
 
     class Meta():
         model = Redshift
@@ -321,8 +322,8 @@ class RedshiftUploadSerializer(serializers.ModelSerializer):
     
     
 class CatalogueDataUploadSerializer(serializers.ModelSerializer):
-    ra = serializers.DecimalField(max_digits=10,decimal_places=6)
-    dec = serializers.DecimalField(max_digits=10,decimal_places=6)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
     mag = serializers.DecimalField(max_digits=10, decimal_places=3, allow_null=True)
 
     class Meta():
@@ -339,6 +340,34 @@ class CatalogueDataUploadSerializer(serializers.ModelSerializer):
 
 
 
+### Uploading collections
+################################################################################
+class CollectionUploadSerializer(serializers.Serializer):
+    name = serializers.CharField(max_length=50)
+    description = serializers.CharField(max_length=250)
+    access_level = serializers.CharField(max_length=3)
+    lenses = serializers.ListField()
+
+    def create(self,validated_data):
+        return Collection(**validated_data)
+
+    #make sure there are no collections with the same exact name
+    def validate_name(self, value):
+        if value and Collection.objects.filter(name__exact=value).exists():
+            raise serializers.ValidationError("Name already exists!")
+        return value
+
+    def validate(self,data):
+        lenses_in_collection = []
+        for lensinstance in data['lenses']:
+            ra, dec = lensinstance['ra'], lensinstance['dec']
+            user = self.context['request'].user
+            qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,radius=5,user=user) # This call includes PRI lenses visible to the user
+            lenses_in_collection.append(qset.values_list('id', flat=True)[0])
+        #print(lenses_in_collection)
+        data['lenses_in_collection'] = lenses_in_collection
+        return data
+
 
 
     
@@ -349,7 +378,7 @@ class LensesUploadListSerializer(serializers.ListSerializer):
     def validate(self,attrs):
         print('validating the lens')
         ### Check proximity here
-        check_radius = 5 # arcsec
+        check_radius = 16 # arcsec
         proximal_lenses = []
         for i in range(0,len(attrs)-1):
             lens1 = attrs[i]
@@ -526,8 +555,6 @@ class LensesUpdateSerializer(serializers.ModelSerializer):
 ################################################################################
 class PaperUploadListSerializer(serializers.ListSerializer):
     def validate(self,papers):
-        print('Serializer: ',len(papers))
-        
         bibcodes = [paper['bibcode'] for paper in papers]
 
         ## Check for duplicate bibcodes within the uploaded data
@@ -541,21 +568,20 @@ class PaperUploadListSerializer(serializers.ListSerializer):
         if len(dupl) != 0:
             raise serializers.ValidationError('There are duplicate bibcodes: '+','.join(dupl))
 
-
         
         ## Check that bibcodes do not exist already in the database
         existing = Paper.objects.filter(bibcode__in=bibcodes).values('bibcode','cite_as')
         if len(existing) != 0:
-            labels = []
+            errors = []
             for q in existing:
-                labels.append( q['cite_as']+' ('+q['bibcode']+')' )
-            raise serializers.ValidationError('These bibcodes already exist: '+'\n'.join(labels))
+                labels = q['cite_as']+' ('+q['bibcode']+')'
+                errors.append('This paper exists: '+labels)
+            raise serializers.ValidationError(errors)
 
-        
 
         ## Check ADS if bibcodes are valid and fetch data that will be added to validated_data
         ## Check only at the end in order not to waste calls to the ADS API.
-        ads.config.token = 'vL9nHFH4ozMNFtds3lwRnvmXOW8W2xdJIznHa4TO'
+        ads.config.token = os.environ['DJANGO_ADS_API_TOKEN']
         r = ads.RateLimits('SearchQuery')
         q = ads.SearchQuery(bibcode="2022MNRAS.516.1347V") # random bibcode to test the remaining queries
         q.execute()
@@ -580,161 +606,57 @@ class PaperUploadListSerializer(serializers.ListSerializer):
         ads_ids = []
         for i,paper in enumerate(papers):
             ads_ids.append(in_ads[i].recid)
-            paper.ads_id = in_ads[i].recid
-            paper.title = in_ads[i].title[0]
-            paper.year = in_ads[i].year
-            paper.first_author = in_ads[i].first_author
+            paper["ads_id"]       = in_ads[i].recid
+            paper["title"]        = in_ads[i].title[0]
+            paper["year"]         = in_ads[i].year
+            paper["first_author"] = in_ads[i].first_author
             if len(in_ads[i].author) > 2:
-                paper.cite_as = paper.first_author + ' et al. (' + paper.year + ')'
+                paper["cite_as"] = paper["first_author"] + ' et al. (' + paper["year"] + ')'
             else:
-                paper.cite_as = ' and '.join(in_ads[i].author) + ' (' + paper.year + ')'
-        print(ads_ids)
-
-
+                paper["cite_as"] = ' and '.join(in_ads[i].author) + ' (' + paper["year"] + ')'
+        #print(ads_ids)
+        
         
         ## Check that ads_id do not exist already in the database
         existing = Paper.objects.filter(ads_id__in=ads_ids).values('bibcode','cite_as')
         if len(existing) != 0:
-            labels = []
+            errors = []
             for q in existing:
-                labels.append( q['cite_as']+' ('+q['bibcode']+')' )
-            raise serializers.ValidationError('These bibcodes already exist: '+'\n'.join(labels))
+                label = q['cite_as']+' ('+q['bibcode']+')'
+                errors.append( 'These bibcodes already exist in SLED: '+label)
+            raise serializers.ValidationError(errors)
 
+        return papers # This is passed to the calling API view
 
-        
-    
-        ## Loop over papers and check for proximity.
-        ## If not all lenses exist, return paper and RA,DEC that do not exist.
-        lenses_per_paper = []
-        for paper in papers:
-            N_lenses = len(paper['lenses']) 
-            ras  = []
-            decs = []
-            for lens in paper['lenses']:
-                ras.append(lens['ra'])
-                decs.append(lens['dec'])
-
-            user = self.context['request'].user
-            #indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many_user_specific(ras,decs,user,radius=10) # This call includes PRI lenses visible to the user
-            indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs,radius=5) # Only public lenses
-            
-            if len(indices) != N_lenses:
-                #print(neis)
-                setA = set(indices)
-                setB = set(range(0,N_lenses))
-                missing = setB - setA
-                #print(missing)
-                labels = []
-                for k in missing:
-                    labels.append( '(' + str(ras[k]) + ',' + str(decs[k]) + ')' )
-                    print('missing: (' + str(ras[k]) + ',' + str(decs[k]) + ')')
-                raise serializers.ValidationError('These RA,DEC do NOT correspond to any lens in the database:\n '+'\n'.join(labels))
-            else:
-
-                lenses = list( neis )
-                if len(lenses) != N_lenses:
-                    # This means that one (or more) lens(es) from dum_lenses matched to more than one lens from the DB
-                    # It is a duplicate problem...
-                    labels = []
-                    for k in range(0,len(neis)):
-                        if len(neis[k]) > 1:
-                            labels.append( '(' + str(ras[k]) + ',' + str(decs[k]) + ')' )
-                    raise serializers.ValidationError('Contact the admins: potential duplicates in the database for: ' + '\n'.join(labels))
-                else:
-                    # Queryset evaluation happens here
-                    dum = []
-                    for q in neis:
-                        if len(q)>1:
-                            print(q)
-                            print('NEIS NEIS')
-
-                        dum.extend( list(q) )
-                    lenses_per_paper.append( dum )
-
-        #print('lenses per paper:', lenses_per_paper)
-        
-        ## Loop over papers and check for discovery
-        #print(len(lenses_per_paper[0]))
-        lenses_with_discovery = []
-        for i,paper in enumerate(papers):
-            #print(i, paper)
-            for j,lens in enumerate(lenses_per_paper[i]):
-                #print(j, lens)
-                if papers[i]["lenses"][j]["discovery"]:
-                    lenses_with_discovery.append(lenses_per_paper[i][j])
-
-        ## We don't want to claim discovery papers ourselves, so the 'if' statement below is not needed because there will be no unique discovery paper.
-        #if len(lenses_with_discovery) != 0:
-        #    ## Check for duplicate discovery papers within the uploaded data
-        #    seen = set()
-        #    dupl = []
-        #    for lens in lenses_with_discovery:
-        #        if lens.name not in seen:
-        #            seen.add(lens.name)
-        #        else:
-        #            dupl.append(lens.name)
-        #    if len(dupl) != 0:
-        #        raise serializers.ValidationError('There are duplicate discovery papers in the upload: '+','.join(dupl))
-        #            
-        #    ## Check database for existing discovery papers (only for those lenses that have been specified here as discovery)
-        #    ## Object access in the call below is already delegated by proximate.get_DB_neighbours_many
-        #    qset = Lenses.objects.filter(id__in=[lens.id for lens in lenses_with_discovery],paperlensconnection__discovery=True).annotate(paper=F('papers__cite_as'))
-        #    if len(qset) > 0:
-        #        labels = []
-        #        for lens in qset:
-        #            labels.append(lens.name + ' - ' + lens.paper)
-        #        raise serializers.ValidationError('Discovery papers already exist for: ' + '\n'.join(labels))
-
-        flags_per_paper = []
-        for paper in papers:
-            flags_and_lenses = []
-            for lens in paper['lenses']:
-                flags_and_lenses.append(
-                    {
-                        "discovery": lens["discovery"],
-                        "classification": lens["classification"],
-                        "model": lens["model"]
-                    }
-                )
-            flags_per_paper.append(flags_and_lenses)
-
-
-
-        new_papers = []
-        for i,paper in enumerate(papers):
-            new_paper = {
-                "ads_id": paper.ads_id,
-                "bibcode": paper["bibcode"],
-                "title": paper.title,
-                "year": paper.year,
-                "first_author": paper.first_author,
-                "cite_as": paper.cite_as
-            }
-            new_papers.append(new_paper)
-
-
-
-        ## Final validated data structure
-        validated_data = {
-            "papers": new_papers,
-            "lenses_per_paper": lenses_per_paper,
-            "flags_per_paper": flags_per_paper
-        }
-
-        #raise serializers.ValidationError('DUM error raised. Stop')
-        return validated_data
 
 
 
 class PaperLensSerializer(serializers.Serializer):
-    ra = serializers.FloatField(min_value=0,max_value=360)
-    dec = serializers.FloatField(min_value=-90,max_value=90)
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
     discovery = serializers.BooleanField()
     classification = serializers.BooleanField()
     model = serializers.BooleanField()
     #redshift = serializers.BooleanField()
+        
+    def validate(self,item):
+        ra = item['ra']
+        dec = item['dec']
+        qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec)
+        N = qset.count()
+        if N == 0:
+            raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any lens in the database!' % (ra,dec))
+        elif N > 1: 
+            raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
+        else:
+            flags = {
+                "discovery": item["discovery"],
+                "classification": item["classification"],
+                "model":item["model"]
+            }
+            return({'lens': qset[0],'flags': flags})
+        
 
-    
 class PaperUploadSerializer(serializers.Serializer):
     bibcode = serializers.CharField(max_length=19)
     lenses = serializers.ListField(
@@ -749,72 +671,28 @@ class PaperUploadSerializer(serializers.Serializer):
 
     def validate(self,data):
         ### Check proximity of given lenses with each other
-        check_radius = 5 # arcsec
         proximal_lenses = []
+        check_radius = 16 # arcsec
+        ras = []
+        decs = []        
         for i in range(0,len(data['lenses'])-1):
-            ra1 = data['lenses'][i]['ra']
-            dec1 = data['lenses'][i]['dec']
-
+            ra1 = data['lenses'][i]['lens'].ra
+            dec1 = data['lenses'][i]['lens'].dec
+            ras.append(ra1)
+            decs.append(dec1)
+            
             for j in range(i+1,len(data['lenses'])):
-                ra2 = data['lenses'][j]['ra']
-                dec2 = data['lenses'][j]['dec']
+                ra2 = data['lenses'][j]['lens'].ra
+                dec2 = data['lenses'][j]['lens'].dec
 
                 if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
-                    proximal_lenses.append(j)
-                    print(ra1, dec1, ra2, dec2)
+                    proximal_lenses.append(str(i)+' and '+str(j))
+        ras.append(data['lenses'][-1]['lens'].ra)
+        decs.append(data['lenses'][-1]['lens'].dec)
 
-        if len(proximal_lenses) > 0:
-            message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission is not allowed.'
+        for pair in proximal_lenses:
+            message = 'Lenses %s are too close to each other. This probably indicates a possible duplicate and submission is not allowed.' % pair
             raise serializers.ValidationError(message)
 
         return data
-
-    
-class CollectionUploadSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=50)
-    description = serializers.CharField(max_length=250)
-    access_level = serializers.CharField(max_length=3)
-    lenses = serializers.ListField()
-
-    def create(self,validated_data):
-        return Collection(**validated_data)
-
-    #make sure there are no collections with the same exact name
-    def validate_name(self, value):
-        if value and Collection.objects.filter(name__exact=value).exists():
-            raise serializers.ValidationError("Name already exists!")
-        return value
-
-    def validate(self,data):
-        #print('validating')
-        #print('data', data)
-        
-        ### Check proximity of given lenses with each other
-        '''check_radius = 16 # arcsec
-        proximal_lenses = []
-        for i in range(0,len(data['lenses'])-1):
-            ra1 = data['lenses'][i]['ra']
-            dec1 = data['lenses'][i]['dec']
-
-            for j in range(i+1,len(data['lenses'])):
-                ra2 = data['lenses'][j]['ra']
-                dec2 = data['lenses'][j]['dec']
-
-                if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
-                    proximal_lenses.append(j)
-
-        if len(proximal_lenses) > 0:
-            message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission is not allowed.'
-            raise serializers.ValidationError(message)'''
-
-        lenses_in_collection = []
-        for lensinstance in data['lenses']:
-            ra, dec = lensinstance['ra'], lensinstance['dec']
-            user = self.context['request'].user
-            qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,radius=5,user=user) # This call includes PRI lenses visible to the user
-            lenses_in_collection.append(qset.values_list('id', flat=True)[0])
-        #print(lenses_in_collection)
-        data['lenses_in_collection'] = lenses_in_collection
-        return data
-
 

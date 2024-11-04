@@ -123,24 +123,20 @@ class UploadPapers(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        #Paper.objects.all().delete()
-        #print(request.data)
         serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
         if serializer.is_valid():
             validated_data = serializer.validated_data
-            papers = validated_data["papers"]
-            lenses_pp = validated_data["lenses_per_paper"]
-            flags_pp = validated_data["flags_per_paper"]
-
+            
             paper_instances = []
-            for i,paper in enumerate(papers):
+            for i,paper in enumerate(validated_data):
+                lenses = paper.pop('lenses')
+
                 paper["owner"] = request.user
                 paper["access_level"] = "PUB"
                 paper_obj = Paper.objects.create(**paper)
 
-                for j in range(0,len(lenses_pp[i])):
-                    paper_obj.lenses_in_paper.add(lenses_pp[i][j],through_defaults=flags_pp[i][j])
-                #print(paper_obj.pk)
+                for j in range(0,len(lenses)):
+                    paper_obj.lenses_in_paper.add(lenses[j]['lens'],through_defaults=lenses[j]['flags'])
                 paper_instances.append(paper_obj)
                 
             ad_col = AdminCollection.objects.create(item_type="Paper",myitems=paper_instances)
@@ -149,7 +145,6 @@ class UploadPapers(APIView):
             response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
             return Response(response)
         else:
-            #print(serializer.errors)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
 
