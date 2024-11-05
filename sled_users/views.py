@@ -208,7 +208,8 @@ class UserProfileView(TemplateView):
         owned_objects = user.getOwnedObjects()
 
         # Paginator for lenses
-        lenses_paginator = Paginator(owned_objects["Lenses"],50)
+        ordered_lenses = owned_objects["Lenses"].order_by('-created_at')
+        lenses_paginator = Paginator(ordered_lenses,50)
         lenses_page_number = request.GET.get('lenses-page',1)
         lenses_page = lenses_paginator.get_page(lenses_page_number)
 
