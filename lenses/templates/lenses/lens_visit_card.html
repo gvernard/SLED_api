@@ -5,7 +5,11 @@
   <table>
     <tr>
       <td colspan="2">
+	{% if lens.pk %}
         <h3><a href="{{ lens.get_absolute_url }}">{{lens.name}}</a></h3>
+	{% else %}
+	<h3>{{lens.name}}</h3>	
+	{% endif %}
       </td>
     </tr>
     <tr>

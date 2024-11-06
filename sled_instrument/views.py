@@ -16,10 +16,9 @@ from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.models import Users, Instrument
 from .forms import *
+from sled_users.decorators import admin_access_only
 
-from django.contrib.admin.views.decorators import staff_member_required
-
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class InstrumentCreateView(BSModalFormView):
     template_name = 'sled_instrument/instrument_create.html'
     form_class = InstrumentCreateForm
@@ -37,7 +36,7 @@ class InstrumentCreateView(BSModalFormView):
         return response
 
     
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class InstrumentUpdateView(BSModalUpdateView):
     model = Instrument
     template_name = 'sled_instrument/instrument_update.html'
@@ -46,7 +45,7 @@ class InstrumentUpdateView(BSModalUpdateView):
     success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'instruments'})
 
 
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class InstrumentDeleteView(BSModalDeleteView):
     model = Instrument
     template_name = 'sled_instrument/instrument_delete.html'

@@ -19,14 +19,17 @@ Create new instrument?
   {% endif %}
 
   <div class="jb-modal-field">
+    {{ form.name.errors }}
     {{ form.name }}
   </div>
   
   <div class="jb-modal-field">
+    {{ form.extended_name.errors }}
     {{ form.extended_name }}
   </div>
   
   <div class="jb-modal-field">
+    {{ form.info.errors }}
     {{ form.info }}
   </div>
 

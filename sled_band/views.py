@@ -16,11 +16,10 @@ from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.models import Users, Band
 from .forms import *
+from sled_users.decorators import admin_access_only
 
-from django.contrib.admin.views.decorators import staff_member_required
 
-
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class BandCreateView(BSModalFormView):
     model = Band
     template_name = 'sled_band/band_create.html'
@@ -39,7 +38,7 @@ class BandCreateView(BSModalFormView):
         return response
 
 
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class BandUpdateView(BSModalUpdateView):
     model = Band
     template_name = 'sled_band/band_update.html'
@@ -48,7 +47,7 @@ class BandUpdateView(BSModalUpdateView):
     success_url = reverse_lazy('sled_users:user-admin',kwargs={'hash':'bands'})
 
 
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class BandDeleteView(BSModalDeleteView):
     model = Band
     template_name = 'sled_band/band_delete.html'

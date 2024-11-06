@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
-from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.views.generic import ListView
@@ -15,10 +14,11 @@ from bootstrap_modal_forms.generic import (
 from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.models import PersistentMessage
+from sled_users.decorators import admin_access_only
 from .forms import *
 
 
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class PersistentMessageListView(ListView):
     model = PersistentMessage
     allow_empty = True
@@ -32,7 +32,7 @@ class PersistentMessageListView(ListView):
         return context
 
     
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class PersistentMessageCreateView(BSModalCreateView):
     model = PersistentMessage
     template_name = 'sled_persistent_message/message_create.html'
@@ -42,7 +42,7 @@ class PersistentMessageCreateView(BSModalCreateView):
     success_url = reverse_lazy('sled_persistent_message:message-list')
 
     
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class PersistentMessageUpdateView(BSModalUpdateView):
     model = PersistentMessage
     template_name = 'sled_persistent_message/message_update.html'
@@ -52,7 +52,7 @@ class PersistentMessageUpdateView(BSModalUpdateView):
     success_url = reverse_lazy('sled_persistent_message:message-list')
 
     
-@method_decorator(staff_member_required,name='dispatch')
+@method_decorator(admin_access_only,name='dispatch')
 class PersistentMessageDeleteView(BSModalDeleteView):
     model = PersistentMessage
     template_name = 'sled_persistent_message/message_delete.html'
