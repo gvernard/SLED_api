@@ -20,7 +20,8 @@ class LensDownSerializer(serializers.ModelSerializer):
                   'lens_type',
                   'source_type',
                   'contaminant_type',
-                  'mugshot']
+                  'mugshot',
+                  'access_level']
         
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -158,6 +159,7 @@ class LensDownSerializerAll(serializers.ModelSerializer):
                   'source_type',
                   'contaminant_type',
                   'mugshot',
+                  'access_level',
                   'imaging',
                   'genericimage',
                   'spectrum',

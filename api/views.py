@@ -23,6 +23,7 @@ from actstream import action
 
 import json
 import numpy as np
+from itertools import chain
 from distutils.util import strtobool
 import time
 import base64
@@ -391,10 +392,25 @@ class QueryLenses(APIView):
 
     def post(self,request):
         user = request.user
-        ra, dec, radius = float(request.data['ra']), float(request.data['dec']), float(request.data['radius'])
-        lenses = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,radius=radius,user=user)
+
+        dum = np.array(request.data['ras'])
+        ras  = dum.astype(float)
+
+        dum = np.array(request.data['decs'])
+        decs = dum.astype(float)
+        
+        if len(ras) != len(decs):
+            return Response({'errors':'Length of RA and DEC arrays does not match!'})
+        
+        indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs,user=user)
+        lenses = list(chain(*neis))
         serializer = LensDownSerializer(lenses,many=True)
-        return Response({'lenses':serializer.data})
+        return Response(
+            {
+                'existing_at': indices,
+                'lenses':serializer.data
+            }
+        )
 
     
 class QueryLensesFull(APIView):
