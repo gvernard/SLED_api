@@ -4,7 +4,7 @@ $(document).ready(function() {
         event.preventDefault();
 	var dum = $(this).attr('href').split('?');
 	$('#lens-query').attr('action','?'+dum[1]);
-	console.log($('#lens-query').attr('action'));
+	//console.log($('#lens-query').attr('action'));
 	$('#mysubmit').trigger('click');
     });
     

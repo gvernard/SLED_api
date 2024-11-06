@@ -20,7 +20,7 @@ from bootstrap_modal_forms.generic import BSModalDeleteView, BSModalFormView
 from .forms import *  
 from lenses.forms import DownloadChooseForm
 from lenses.models import Lenses, Paper
-from api.download_serializers import LensDownSerializerAll
+from api.download_serializers import LensDownSerializerAll, LensDownSerializer
 
 
 
@@ -173,7 +173,7 @@ class PaperDeleteView(BSModalDeleteView):
     def get_queryset(self):
         return Paper.accessible_objects.owned(self.request.user)
 
-
+    
 @method_decorator(login_required,name='dispatch')
 class PaperQuickQueryView(BSModalFormView):
     # This is a dummy view, just to launch the modal. No forms submitted. 
