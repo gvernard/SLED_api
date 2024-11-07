@@ -166,8 +166,8 @@ class UploadCollection(APIView):
             mycollection.save()
             lenses = Lenses.accessible_objects.in_ids(self.request.user,lens_ids)
             mycollection.myitems = lenses
-            mycollection.save()
-
+            mycollection.save()            
+            
             response = "Success! Collection uploaded!"
             return Response(response)
         else:
