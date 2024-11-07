@@ -154,21 +154,18 @@ class UploadCollection(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        #Paper.objects.all().delete()
-        #print(request.data)
         serializer = CollectionUploadSerializer(data=request.data, context={'request':request})
         if serializer.is_valid():
             validated_data = serializer.validated_data
-            lenses_pc = validated_data["lenses_in_collection"]
+            lens_ids     = validated_data["lenses_in_collection"]
             access_level = validated_data["access_level"]
-            name = validated_data["name"]
-            description = validated_data["description"]
+            name         = validated_data["name"]
+            description  = validated_data["description"]
 
-            #Collection.objects.create(**collectiondat)
             mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type='Lenses')
             mycollection.save()
-            lens_ids = Lenses.accessible_objects.in_ids(self.request.user,lenses_pc)
-            mycollection.myitems = lens_ids
+            lenses = Lenses.accessible_objects.in_ids(self.request.user,lens_ids)
+            mycollection.myitems = lenses
             mycollection.save()
 
             response = "Success! Collection uploaded!"

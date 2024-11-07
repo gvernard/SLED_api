@@ -25,9 +25,9 @@ class LensDownSerializer(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        site = Site.objects.get_current()
-        mugshot_url = 'https://' + site.domain + ret['mugshot']
-        ret['mugshot'] = mugshot_url
+        #site = Site.objects.get_current()
+        #mugshot_url = 'https://' + site.domain + ret['mugshot']
+        #ret['mugshot'] = mugshot_url
         return ret
 
 
@@ -194,9 +194,9 @@ class LensDownSerializerAll(serializers.ModelSerializer):
         
     def to_representation(self, instance):
         ret = super().to_representation(instance)
-        site = Site.objects.get_current()
-        mugshot_url = 'https://' + site.domain + ret['mugshot']
-        ret['mugshot'] = mugshot_url
+        #site = Site.objects.get_current()
+        #mugshot_url = 'https://' + site.domain + ret['mugshot']
+        #ret['mugshot'] = mugshot_url
         
         if 'papers' not in self.context['fields_to_remove']:
             flags = instance.papers(manager='objects').all().annotate(discovery=F('paperlensconnection__discovery'),

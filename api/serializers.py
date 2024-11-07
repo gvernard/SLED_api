@@ -342,12 +342,31 @@ class CatalogueDataUploadSerializer(serializers.ModelSerializer):
 
 ### Uploading collections
 ################################################################################
+class CollectionLensSerializer(serializers.Serializer):
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
+        
+    def validate(self,item):
+        ra = item['ra']
+        dec = item['dec']
+        qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec)
+        N = qset.count()
+        if N == 0:
+            raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any lens in the database!' % (ra,dec))
+        elif N > 1: 
+            raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
+        else:
+            return qset[0]
+
+
 class CollectionUploadSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=50)
     description = serializers.CharField(max_length=250)
     access_level = serializers.CharField(max_length=3)
-    lenses = serializers.ListField()
-
+    lenses = serializers.ListField(
+        child=CollectionLensSerializer()
+    )
+    
     def create(self,validated_data):
         return Collection(**validated_data)
 
@@ -359,12 +378,12 @@ class CollectionUploadSerializer(serializers.Serializer):
 
     def validate(self,data):
         lenses_in_collection = []
-        for lensinstance in data['lenses']:
-            ra, dec = lensinstance['ra'], lensinstance['dec']
+        for lens in data['lenses']:
+            ra  = lens.ra,
+            dec = lens.dec
             user = self.context['request'].user
-            qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,radius=5,user=user) # This call includes PRI lenses visible to the user
+            qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,user=user) # This call includes PRI lenses visible to the user
             lenses_in_collection.append(qset.values_list('id', flat=True)[0])
-        #print(lenses_in_collection)
         data['lenses_in_collection'] = lenses_in_collection
         return data
 
