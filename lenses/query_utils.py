@@ -256,7 +256,7 @@ def lens_search(lenses,form,user):
         lenses = lenses.filter(ra__gte=form['ra_min']) | lenses.filter(ra__lte=form['ra_max'])
 
     if 'ra_centre' in form:
-        lenses = Lenses.proximate.get_DB_neighbours_anywhere_subset(form['ra_centre'], form['dec_centre'], lenses=lenses, radius=float(form['radius'])*3600.) # No need to pass user here
+        lenses = Lenses.proximate.get_DB_neighbours_anywhere_subqset(form['ra_centre'], form['dec_centre'], lenses=lenses, radius=float(form['radius'])*3600.) # No need to pass user here
 
     return lenses
 
