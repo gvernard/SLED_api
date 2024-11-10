@@ -45,6 +45,7 @@
 	<h2>Prerequisites</h2>
 	<p>
 	  You will need a <b>SLED user account</b>, at least the <b>RA and DEC</b> of your lenses, and an <b>image of each lens</b> (.jpeg, .png, or .jpg).
+	  More details on all the different information that one can upload with each lens can be found in the <a href="{% url 'sled_guide:sled-guide' %}#object-specs-lens">guide</a>.
 	</p>
 	
 	
@@ -83,21 +84,21 @@
 	</p>
 	
 	
-	<h2>Final notes</h2>
+	<h2>Final steps</h2>
 	<p>
 	  <ul>
 	    <li>
-	      Upon successful upload, the new lenses will appear in your <a href="{% url 'sled_users:user-profile' %}">user profile</a>.
+	      <b>What's next?</b> - Upon successful upload, the new lenses will appear in your <a href="{% url 'sled_users:user-profile' %}">user profile</a>.
 	      You will be the owner of these lenses and responsible for keeping them up-to-date.
 	    </li>
 	    <li>
-	      If you uploaded your lenses as <b>Private</b>, then you can select which other users or groups are able to see them; go to the bottom of your <a href="{% url 'sled_users:user-profile' %}#lenses">user profile</a> lens page and click the ‘Give access’ button.
-	      If you uploaded your lenses as <b>Public</b> then they will be temporarily stored as Private.
+	      <b>Private vs Public</b> - If you uploaded your lenses with private access (PRI), then you can select which other users or groups are able to see them; go to the bottom of your <a href="{% url 'sled_users:user-profile' %}#lenses">user profile</a> lens page and click the ‘Give access’ button.
+	      If you uploaded your lenses with public access (PUB) then they will be temporarily stored as private.
 	      They will be made available to all SLED users as soon as their mugshot images are inspected and approved by another SLED user.
 	      You can see the SLED users who have such an inspector role <a href="{% url 'sled_users:user-query' %}?role=Inspector">here</a>.
 	    </li>
 	    <li>
-	      You can optionally use <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_create_collection.ipynb" target="_blank">this script</a> to create a SLED collection with the lenses you just uploaded (or you can do it by hand from your user profile page).
+	      <b>A collection of your new lenses</b> - You can optionally use <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_create_collection.ipynb" target="_blank">this script</a> to create a SLED collection with the lenses you just uploaded (or you can do it by hand from your user profile page).
 	    </li>
 	  </ul>
 	</p>
@@ -114,7 +115,12 @@
 	</label>
       </h1>
       <div class="p">
-	BLA
+	<p>
+	  Data that are associated with a lens can be added directly in its detail page.
+	  Catalogue data are managed by the database administrators and cannot be added/edited by the users.
+	  Mass injection of data is allowed only via the API.
+	  Public data that include an image, i.e. Imaging Data, Spectra, Generic Images, etc, need to be visually confirmed by an Inspector and are termorarily injected in the database as private.
+	</p>
       </div>
     </div>
     

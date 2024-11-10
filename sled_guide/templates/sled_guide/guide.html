@@ -25,12 +25,11 @@
     <li><a href="#querying-api-queries" class="w3-bar-item w3-button">API queries</a></li>
   </ul>
   
-  <a href="#adding-objects" class="w3-bar-item w3-button">Adding objects</a>
+  <a href="#object-specs" class="w3-bar-item w3-button">Object specifications</a>
   <ul>
-    <li><a href="#adding-objects-lenses" class="w3-bar-item w3-button">Adding lenses</a></li>
-    <li><a href="#adding-objects-papers" class="w3-bar-item w3-button">Adding papers</a></li>
-    <li><a href="#adding-objects-data" class="w3-bar-item w3-button">Adding data</a></li>
-    <li><a href="#adding-objects-api" class="w3-bar-item w3-button">Using the API</a></li>
+    <li><a href="#object-specs-lens" class="w3-bar-item w3-button">Lens</a></li>
+    <li><a href="#object-specs-imaging" class="w3-bar-item w3-button">Imaging data</a></li>
+    <li><a href="#object-specs-spectrum" class="w3-bar-item w3-button">Spectrum</a></li>
   </ul>
 
   <a href="#collections" class="w3-bar-item w3-button">Collections</a>
@@ -199,44 +198,24 @@
 
 
   
-  <div class="jb-section" id="adding-objects">  
-    <h1>Adding new objects</h1>
+  <div class="jb-section" id="object-specs">  
+    <h1>Object specifications</h1>
     
-    <div id="adding-objects-lenses">
-      <h3>Adding lenses</h3>
-      <p>
-	There is an automatic check for duplicate lenses in the database based on the RA, DEC: if the given coordinates are within 10 arcsec of an existing lens then the new lens is flagged as potential duplicate. This check includes all the lenses accessible to the user at the time, both private and public (see <a href="#users-and-access-access-level">Access Level</a>). If a submitted lens is a duplicate then there are the following options in order to proceed:
-      </p>
-      <ol>
-	<li><i>Do nothing</i>: The lens is ignored and not injected in the database.</li>
-	<li><i>Distinct lens</i>: The lens is treated as a distinct entry in the database, despite its proximity to an existing one, and injected.</li>
-	<li><i>Merge</i>: All the information of the new lens will be suggested to be merged into the existing one. A 'Merge' task will be created for the owner of the existing lens to resolve.</li>
-      </ol>
-      <p>
-	The mugshot of every public lens needs to be visually confirmed by an Inspector before the lens is actually made public. Such lenses are termorarily injected in the database as private and automatically changed to public if approved by the Inspector.
-      </p>
+    <div id="object-specs-lens">
+
+      <h5>Lens</h5>
+
+      <table class="form_table">
+	{% for key, val in lens_model.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
     </div>
 
-    <div id="adding-objects-papers">
-      <h3>Adding papers</h3>
-      <p>
-	<b>Coming soon</b>
-      </p>
-    </div>
-    
-    <div id="adding-objects-data">
-      <h3>Adding data</h3>
-      <p>
-	Data that are associated with a lens, Redshifts, Imaging Data, Spectra, Generic Images, and Models, can be added directly in the detail page of each lens. Catalogue data are managed by the database administrators and cannot be added/edited by the users. Mass injection of data is allowed only via the API. Public data that include an image, i.e. Imaging Data, Spectra, Generic Images, etc, need to be visually confirmed by an Inspector and are termorarily injected in the database as private.
-      </p>
-    </div>
 
-    <div id="adding-objects-api">
-      <h3>Using the API interface</h3>
-      <p>
-	<b>Coming soon</b>: if duplicates are detected during injection via the API then a <a href="#task-resolve-duplicates">Resolve Duplicates</a> task is created in the same way as adding lenses via the web interface described above.
-      </p>
-    </div>
   </div>
   <hr>
 
@@ -319,6 +298,24 @@
 	</tr>
       </tbody>
     </table>
+
+
+    <div id="adding-objects-lenses">
+      <h3>Resolve Duplicates</h3>
+      <p>
+	There is an automatic check for duplicate lenses in the database based on the RA, DEC: if the given coordinates are within 10 arcsec of an existing lens then the new lens is flagged as potential duplicate. This check includes all the lenses accessible to the user at the time, both private and public (see <a href="#users-and-access-access-level">Access Level</a>). If a submitted lens is a duplicate then there are the following options in order to proceed:
+      </p>
+      <ol>
+	<li><i>Do nothing</i>: The lens is ignored and not injected in the database.</li>
+	<li><i>Distinct lens</i>: The lens is treated as a distinct entry in the database, despite its proximity to an existing one, and injected.</li>
+	<li><i>Merge</i>: All the information of the new lens will be suggested to be merged into the existing one. A 'Merge' task will be created for the owner of the existing lens to resolve.</li>
+      </ol>
+      <p>
+	The mugshot of every public lens needs to be visually confirmed by an Inspector before the lens is actually made public. Such lenses are termorarily injected in the database as private and automatically changed to public if approved by the Inspector.
+      </p>
+    </div>
+
+    
   </div>
   <hr>
 

@@ -171,7 +171,7 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
     class AccessLevel(models.TextChoices):
         PUBLIC = "PUB"
         PRIVATE = "PRI"
-    access_level = models.CharField(max_length=3,choices=AccessLevel.choices,default=AccessLevel.PRIVATE,help_text="Set public or private access to this object.")
+    access_level = models.CharField(max_length=3,choices=AccessLevel.choices,default=AccessLevel.PRIVATE,help_text="Set public (PUB) or private (PRI) access to this object.")
 
     objects = models.Manager()
     accessible_objects = AccessManager()

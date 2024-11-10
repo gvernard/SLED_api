@@ -1,6 +1,8 @@
+from django.db import models
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from lenses.forms import *
+from lenses.models import Collection, Lenses
 
 
 class GuideView(TemplateView):
@@ -10,6 +12,37 @@ class GuideView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(GuideView,self).get_context_data(**kwargs)
 
+        # Lens
+        lens_model = Lenses._meta.get_fields(include_parents=False)
+        fields_help = {}
+        for field in lens_model:
+            field_type = field.get_internal_type()
+            if field_type not in ['ForeignKey','GM2MRelation','ManyToManyField','BigAutoField']:
+                #print(field.name,field.get_internal_type())
+                fields_help[field.name] = field.help_text
+        key_names = ['created_at','modified_at']
+        for key in key_names:
+            fields_help.pop(key,None)
+        context['lens_model'] = fields_help
+
+        choices = [ choice[0] for choice in Lenses._meta.get_field('flag').choices ]
+        fields_help['flag'] += ' Allowed choices are: <i>' + ', '.join(choices) + '</i>'
+
+        choices = [ choice[0] for choice in Lenses._meta.get_field('image_conf').choices ]
+        fields_help['image_conf'] += ' Allowed choices are: <i>' + ', '.join(choices) + '</i>'
+
+        choices = [ choice[0] for choice in Lenses._meta.get_field('lens_type').choices ]
+        fields_help['lens_type'] += ' Allowed choices are: <i>' + ', '.join(choices) + '</i>'
+
+        choices = [ choice[0] for choice in Lenses._meta.get_field('source_type').choices ]
+        fields_help['source_type'] += ' Allowed choices are: <i>' + ', '.join(choices) + '</i>'
+
+        choices = [ choice[0] for choice in Lenses._meta.get_field('contaminant_type').choices ]
+        fields_help['contaminant_type'] += ' Allowed choices are: <i>' + ', '.join(choices) + '</i>'
+
+
+        
+        
         # LensQueryForm
         lens_form = LensQueryForm()
         fields_help = {}
@@ -31,7 +64,8 @@ class GuideView(TemplateView):
         fields_help.pop('page')
         context['lens_form'] = fields_help
 
-
+        
+        # RedshiftQueryForm
         redshift_form = RedshiftQueryForm()
         fields_help = {}
         for field in redshift_form:
@@ -47,6 +81,7 @@ class GuideView(TemplateView):
         context['redshift_form'] = fields_help
 
 
+        # ImagingQueryForm
         imaging_form = ImagingQueryForm()
         fields_help = {}
         for field in imaging_form:
@@ -67,6 +102,7 @@ class GuideView(TemplateView):
         context['imaging_form'] = fields_help
 
 
+        # SpectrumQueryForm
         spectrum_form = SpectrumQueryForm()
         fields_help = {}
         for field in spectrum_form:
@@ -83,6 +119,7 @@ class GuideView(TemplateView):
         context['spectrum_form'] = fields_help
 
 
+        # CatalogueQueryForm
         catalogue_form = CatalogueQueryForm()
         fields_help = {}
         for field in catalogue_form:

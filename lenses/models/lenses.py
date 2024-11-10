@@ -161,14 +161,14 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                              max_digits=10,
                              decimal_places=6,
                              verbose_name="RA",
-                             help_text="The RA of the lens [degrees].",
+                             help_text="The RA of the lens [degrees] between 0 and 360.",
                              validators=[MinValueValidator(0.0,"RA must be positive."),
                                          MaxValueValidator(360,"RA must be less than 360 degrees.")])
     dec = models.DecimalField(blank=False,
                               max_digits=10,
                               decimal_places=6,
                               verbose_name="DEC",
-                              help_text="The DEC of the lens [degrees].",
+                              help_text="The DEC of the lens [degrees] between -90 and 90.",
                               validators=[MinValueValidator(-90,"DEC must be above -90 degrees."),
                                           MaxValueValidator(90,"DEC must be below 90 degrees.")])
     name = models.CharField(unique=False,
@@ -181,7 +181,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     alt_name = models.CharField(max_length=200,
                                 blank=True,
                                 null=True,
-                                help_text="A list of comma-separated strings for the alternative names of the systems",
+                                help_text="A list of comma-separated strings for the alternative names of the system.",
                                 #validators=[validate_language],
                                 )
 
@@ -199,7 +199,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                     max_digits=6,
                                     decimal_places=4,
                                     verbose_name="Separation",
-                                    help_text="An estimate of the maximum image separation or arc radius [arcsec].",
+                                    help_text="An estimate of the maximum image separation or arc radius [arcsec]. Must be positive and <100.",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                 MaxValueValidator(100,"Separation must be less than 10 arcsec.")])
 
@@ -212,12 +212,16 @@ class Lenses(SingleObject,DirtyFieldsMixin):
     n_img = models.IntegerField(blank=True,
                                 null=True,
                                 verbose_name="N<sub>images</sub>",
-                                help_text="The number of source images, if known.",
+                                help_text="The number of source images, if known. Must be an integer.",
                                 validators=[MinValueValidator(2,"For this to be a lens candidate, it must have at least 2 images of the source"),
                                             MaxValueValidator(20,"Wow, that's a lot of images, are you sure?")])
     
     #mugshot = models.ImageField(upload_to='lenses', validators=[FileExtensionValidator(['png','jpeg','jpg'])])
-    mugshot = ResizedImageField(upload_to='lenses', force_format='PNG', validators=[FileExtensionValidator(['png','jpeg','jpg'])])
+    mugshot = ResizedImageField(upload_to='lenses',
+                                force_format='PNG',
+                                validators=[FileExtensionValidator(['png','jpeg','jpg'])],
+                                help_text="A 'mugshot' image of the lens, usually a pretty picture characteristic of the system."
+                                )
     
     FlagChoices = (
         ('CONFIRMED','Confirmed'),
@@ -249,7 +253,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                   blank=True,
                                   null=True,
                                   verbose_name="Image configuration",
-                                  help_text="The configuration of the lensing system, if known.",
+                                  help_text="The configuration of the lensing system, if known. Multiple choices are possible.",
                                   choices=ImageConfChoices)
     LensTypeChoices = (
         ('GALAXY','Galaxy'),
@@ -268,7 +272,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                  blank=True,
                                  null=True,
                                  verbose_name="Lens type",
-                                 help_text="The type of the lensing galaxy, if known.",
+                                 help_text="The type of the lensing galaxy, if known. Multiple choices are possible.",
                                  choices=LensTypeChoices)
     
     SourceTypeChoices = (
@@ -298,7 +302,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                    blank=True,
                                    null=True,
                                    verbose_name="Source type",
-                                   help_text="The type of the source, if known.",
+                                   help_text="The type of the source, if known. Multiple choices are possible.",
                                    choices=SourceTypeChoices)
 
     ContaminantTypeChoices = (
@@ -331,7 +335,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                    blank=True,
                                    null=True,
                                    verbose_name="Contaminant type",                                        
-                                   help_text="The type of contaminant, if known.",
+                                   help_text="The type of contaminant, if known. Multiple choices are possible.",
                                    choices=ContaminantTypeChoices)
 
     # Fields to report updates on
