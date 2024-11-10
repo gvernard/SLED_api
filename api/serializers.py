@@ -389,7 +389,7 @@ class CollectionUploadSerializer(serializers.Serializer):
 class LensesUploadListSerializer(serializers.ListSerializer):
 
     def validate(self,attrs):
-        print('validating the lens')
+
         ### Check proximity here
         check_radius = 16 # arcsec
         proximal_lenses = []
@@ -432,65 +432,9 @@ class LensesUploadListSerializer(serializers.ListSerializer):
 
 
 class LensesUploadSerializer(serializers.ModelSerializer):
-    #z_lens = serializers.DecimalField(allow_null=True)
-    LensTypeChoices = (
-        ('GALAXY','Galaxy'),
-        ('LTG','Late-type Galaxy'),
-        ('SPIRAL','Spiral galaxy'),
-        ('GALAXY PAIR','Galaxy pair'),
-        ('GROUP','Group of galaxies'),
-        ('CLUSTER','Galaxy cluster'),
-        ('CLUSTER MEMBER','Galaxy cluster member'),
-        ('QUASAR','Quasar'),
-        ('LRG','Luminous Red Galaxy'),
-        ('ETG', 'Early Type Galaxy'),
-        ('ELG', 'Emission Line Galaxy')
-    )
-    lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
-
-    SourceTypeChoices = (
-        ('GALAXY','Galaxy'),
-        ('ETG','Early-type Galaxy'),
-        ('SMG','Sub-millimetre Galaxy'),
-        ('QUASAR','Quasar'),
-        ('DLA','DLA'),
-        ('PDLA','PDLA'),
-        ('RADIO-LOUD','Radio-loud'),
-        ('BAL QUASAR','BAL Quasar'),
-        ('ULIRG','ULIRG'),
-        ('BL Lac','BL Lac'),
-        ('LOBAL QUASAR','LoBAL Quasar'),
-        ('FELOBAL QUASAR','FeLoBAL Quasar'),
-        ('EXTREME RED OBJECT','Extreme Red Object'),
-        ('RED QUASAR','Red Quasar'),
-        ('GW','Gravitational Wave'),
-        ('FRB','Fast Radio Burst'),
-        ('GRB','Gamma Ray Burst'),
-        ('SN','Supernova'),
-        ('LBG', 'Lyman Break Galaxy'),
-        ('ELG', 'Emission Line Galaxy')
-    )
-    source_type = fields.MultipleChoiceField(choices=SourceTypeChoices, required=False)
-
-    ImageConfChoices = (
-        ('LONG-AXIS CUSP','Long-axis Cusp'),
-        ('SHORT-AXIS CUSP','Short-axis Cusp'),
-        ('NAKED CUSP','Naked Cusp'),
-        ('CUSP','Cusp'),
-        ('CENTRAL IMAGE','Central Image'),
-        ('FOLD','Fold'),
-        ('CROSS','Cross'),
-        ('DOUBLE','Double'),
-        ('QUAD','Quad'),
-        ('RING','Ring'),
-        ('ARC','Arc')
-    )
-
-    image_conf = fields.MultipleChoiceField(choices=ImageConfChoices, required=False)
-
     class Meta:
         model = Lenses
-        exclude = ['owner','created_at','modified_at']
+        exclude = ['id','owner','created_at','modified_at']
         list_serializer_class = LensesUploadListSerializer
         
     def create(self,validated_data):
@@ -498,65 +442,9 @@ class LensesUploadSerializer(serializers.ModelSerializer):
 
 
 class LensesUpdateSerializer(serializers.ModelSerializer):
-    #z_lens = serializers.DecimalField(allow_null=True)
-    LensTypeChoices = (
-        ('GALAXY','Galaxy'),
-        ('LTG','Late-type Galaxy'),
-        ('SPIRAL','Spiral galaxy'),
-        ('GALAXY PAIR','Galaxy pair'),
-        ('GROUP','Group of galaxies'),
-        ('CLUSTER','Galaxy cluster'),
-        ('CLUSTER MEMBER','Galaxy cluster member'),
-        ('QUASAR','Quasar'),
-        ('LRG','Luminous Red Galaxy'),
-        ('ETG', 'Early Type Galaxy'),
-        ('ELG', 'Emission Line Galaxy')
-    )
-    lens_type = fields.MultipleChoiceField(choices=LensTypeChoices, required=False)
-    
-    SourceTypeChoices = (
-        ('GALAXY','Galaxy'),
-        ('ETG','Early-type Galaxy'),
-        ('SMG','Sub-millimetre Galaxy'),
-        ('QUASAR','Quasar'),
-        ('DLA','DLA'),
-        ('PDLA','PDLA'),
-        ('RADIO-LOUD','Radio-loud'),
-        ('BAL QUASAR','BAL Quasar'),
-        ('ULIRG','ULIRG'),
-        ('BL Lac','BL Lac'),
-        ('LOBAL QUASAR','LoBAL Quasar'),
-        ('FELOBAL QUASAR','FeLoBAL Quasar'),
-        ('EXTREME RED OBJECT','Extreme Red Object'),
-        ('RED QUASAR','Red Quasar'),
-        ('GW','Gravitational Wave'),
-        ('FRB','Fast Radio Burst'),
-        ('GRB','Gamma Ray Burst'),
-        ('SN','Supernova'),
-        ('LBG', 'Lyman Break Galaxy'),
-        ('ELG', 'Emission Line Galaxy')
-    )
-    source_type = fields.MultipleChoiceField(choices=SourceTypeChoices, required=False)
-
-    ImageConfChoices = (
-        ('LONG-AXIS CUSP','Long-axis Cusp'),
-        ('SHORT-AXIS CUSP','Short-axis Cusp'),
-        ('NAKED CUSP','Naked Cusp'),
-        ('CUSP','Cusp'),
-        ('CENTRAL IMAGE','Central Image'),
-        ('FOLD','Fold'),
-        ('CROSS','Cross'),
-        ('DOUBLE','Double'),
-        ('QUAD','Quad'),
-        ('RING','Ring'),
-        ('ARC','Arc')
-    )
-
-    image_conf = fields.MultipleChoiceField(choices=ImageConfChoices, required=False)
-
     class Meta:
         model = Lenses
-        exclude = ['id', 'owner','created_at','modified_at', 'mugshot']
+        exclude = ['id','owner','created_at','modified_at','access_level']
         optional_fields = '__all__'
         
     def create(self,validated_data):

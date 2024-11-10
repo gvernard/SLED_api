@@ -61,7 +61,7 @@
 	  Just follow these two steps:
 	  <ol>
 	    <li>
-	      Use this <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_simple_query.ipynb">simple query script</a> to perform a query to the database at your RA,DEC.
+	      Use this <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_simple_query.ipynb" target="_blank">simple query script</a> to perform a query to the database at your RA,DEC.
 	      This will identify any lenses from your sample that may already exist in the database.
 	      If such lenses are found, then before injecting your sample you may:
 	      <ul>
@@ -74,7 +74,7 @@
 	      </ul>
 	    </li>
 	    <li>
-	      Use this <a href="">upload script</a> to inject your lenses in the database.
+	      Use this <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_upload_lenses.ipynb" target="_blank">upload script</a> to inject your lenses in the database.
 	      The script reports any conflicts, such as duplicates within your sample, non-matching coordinates, etc, that need to be resolved before uploading.
 	      You are free to choose which other SLED fields you want to include, besides the RA, DEC, and a lens image.
 	      It is recommended to upload the lenses with <b>restricted (private) access</b>, in order to avoid any mistakes.
@@ -97,7 +97,7 @@
 	      You can see the SLED users who have such an inspector role <a href="{% url 'sled_users:user-query' %}?role=Inspector">here</a>.
 	    </li>
 	    <li>
-	      You can optionally use <a href="">this script</a> to create a SLED collection with the lenses you just uploaded (or you can do it by hand from your user profile page).
+	      You can optionally use <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_create_collection.ipynb" target="_blank">this script</a> to create a SLED collection with the lenses you just uploaded (or you can do it by hand from your user profile page).
 	    </li>
 	  </ul>
 	</p>
