@@ -59,7 +59,7 @@ $(document).ready(function() {
 
     $('.sled-toggle-access').click(function(e){
 	var value = e.currentTarget.getAttribute('value');
-	console.log(value);
+	//console.log(value);
 	var table = $(this).siblings('.items-list').children('tbody');
 	if( value == "PUB" ){
 	    table.find('td.access-level:contains(PUB)').parent('tr').animate({ opacity: 100 });

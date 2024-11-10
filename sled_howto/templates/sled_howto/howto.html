@@ -1,0 +1,186 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<div class="jb-container">
+  
+  
+  
+  <div>
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-2">
+      <h1 class="jb-heading-2">
+	<label for="faq-2">
+	  How to make a simple RA,DEC query?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-3">
+      <h1 class="jb-heading-2">
+	<label for="faq-3">
+	  How to query the database using all its advanced features?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="how-to-inject-lenses">
+      <h1 class="jb-heading-2">
+	<label for="how-to-inject-lenses">
+	  How to inject new lenses?
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	<h2>Prerequisites</h2>
+	<p>
+	  You will need a <b>SLED user account</b>, at least the <b>RA and DEC</b> of your lenses, and an <b>image of each lens</b> (.jpeg, .png, or .jpg).
+	</p>
+	
+	
+	<h2>A few lenses</h2>
+	<p>
+	  If you have only a handful of new lenses to inject, then use the <a href="{% url 'lenses:lens-add' %}">web interface</a>.
+	</p>
+	
+	
+	<h2>Large numbers of lenses</h2>
+	<p>
+	  Using the web interface for uploading more than a handful of lenses can be impractical.
+	  There is the alternative option to upload lenses using scripts from the command line or from ipython notebooks.
+	  Just follow these two steps:
+	  <ol>
+	    <li>
+	      Use this <a href="examples/box_search_example.ipynb">simple query script</a> to perform a query to the database at your RA,DEC.
+	      This will identify any lenses from your sample that may already exist in the database.
+	      If such lenses are found, then before injecting your sample you may:
+	      <ul>
+		<li>
+		  Remove them from your sample completely (you can still suggest updates to the existing ones or add data). <u>This is the recommended approach</u>.
+		</li>
+		<li>
+		  Inject them anyway and resolve the duplicate entries via the website functionality.
+		</li>
+	      </ul>
+	    </li>
+	    <li>
+	      Use this <a href="">upload script</a> to inject your lenses in the database.
+	      The script reports any conflicts, such as duplicates within your sample, non-matching coordinates, etc, that need to be resolved before uploading.
+	      You are free to choose which other SLED fields you want to include, besides the RA, DEC, and a lens image.
+	      It is recommended to upload the lenses with <b>restricted (private) access</b>, in order to avoid any mistakes.
+	    </li>
+	  </ol>	  
+	</p>
+	
+	
+	<h2>Final notes</h2>
+	<p>
+	  <ul>
+	    <li>
+	      Upon successful upload, the new lenses will appear in your <a href="{% url 'sled_users:user-profile' %}">user profile</a>.
+	      You will be the owner of these lenses and responsible for keeping them up-to-date.
+	    </li>
+	    <li>
+	      If you uploaded your lenses as <b>Private</b>, then you can select which other users or groups are able to see them; go to the bottom of your <a href="{% url 'sled_users:user-profile' %}#lenses">user profile</a> lens page and click the ‘Give access’ button.
+	      If you uploaded your lenses as <b>Public</b> then they will be temporarily stored as Private.
+	      They will be made available to all SLED users as soon as their mugshot images are inspected and approved by another SLED user.
+	      You can see the SLED users who have such an inspector role <a href="{% url 'sled_users:user-query' %}?role=Inspector">here</a>.
+	    </li>
+	    <li>
+	      You can optionally use <a href="">this script</a> to create a SLED collection with the lenses you just uploaded (or you can do it by hand from your user profile page).
+	    </li>
+	  </ul>
+	</p>
+	<br>
+      </div>
+    </div>
+    
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="how-to-inject-data">
+      <h1 class="jb-heading-2">
+	<label for="how-to-inject-data">
+	  How to inject data?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+    
+    
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-4">
+      <h1 class="jb-heading-2">
+	<label for="faq-4">
+	  How to update lenses?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-5">
+      <h1 class="jb-heading-2">
+	<label for="faq-5">
+	  How to update data?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+    
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-6">
+      <h1 class="jb-heading-2">
+	<label for="faq-6">
+	  How to delete lenses?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <h1 class="jb-heading-2">
+	<label for="faq-7">
+	  How to delete data?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+    
+  </div>
+  
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+<link href="{% static 'sled_users/css/sled_users.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}
+
+  
+{% block extrascripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous" type="text/javascript"></script>
+<script type="text/javascript" src="{% static 'sled_howto/js/sled_howto.js' %}"></script>
+{% endblock extrascripts %}
