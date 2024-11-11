@@ -43,6 +43,7 @@ class GenericImage(SingleObject,DirtyFieldsMixin):
     image = ResizedImageField(blank=False,
                               upload_to='generic',
                               force_format='PNG',
+                              help_text="The actual image.",
                               validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     
     class Meta():
@@ -227,7 +228,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
                                         max_digits=12,
                                         decimal_places=3,
                                         verbose_name="Exposure time",
-                                        help_text="The exposure time of the image [seconds].",
+                                        help_text="The exposure time of the image [s].",
                                         validators=[MinValueValidator(0.0,"Exposure time must be positive."),])
     pixel_size = models.DecimalField(blank=True,
                                      null=True,
@@ -247,6 +248,7 @@ class Imaging(SingleObject,DataBase,DirtyFieldsMixin):
     image = ResizedImageField(blank=True,
                               upload_to='imaging',
                               force_format='PNG',
+                              help_text="The actual image.",
                               validators=[FileExtensionValidator(['png','jpeg','jpg'])])
     url = models.URLField(blank=True,
                           max_length=300)
@@ -363,6 +365,7 @@ class Spectrum(SingleObject,DataBase,DirtyFieldsMixin):
     image = ResizedImageField(blank=True,
                               upload_to='spectrum',
                               force_format='PNG',
+                              help_text="A flux-wavelength plot of the spectrum.",
                               validators=[FileExtensionValidator(['png','jpeg','jpg'])])
 
     FIELDS_TO_CHECK = ['instrument','exposure_time','resolution','lambda_min','lambda_max','image','date_taken','info','future','access_level']
@@ -443,13 +446,13 @@ class Catalogue(SingleObject,DataBase,DirtyFieldsMixin):
                               max_digits=10,
                               decimal_places=7,
                               verbose_name="RA",
-                              help_text="Right ascension of detection [degrees]")
+                              help_text="Right ascension of detection [degrees].")
     decdet = models.DecimalField(blank=True,
                               null=True,
                               max_digits=10,
                               decimal_places=7,
                               verbose_name="DEC",
-                              help_text="Declination of detection [degrees]")
+                              help_text="Declination of detection [degrees].")
     mag = models.DecimalField(blank=True,
                               null=True,
                               default=None,
@@ -576,7 +579,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
     )
     tag = models.CharField(max_length=100,
                              verbose_name="Redshift Tag",
-                             help_text="Whether the redshift refers to the lens, the source, or anything else along the line-of-sight",
+                             help_text="Whether the redshift refers to the lens (LENS), the source (SOURCE), or anything else along the line-of-sight (LOS).",
                              choices=RedshiftTagChoices)
     
     RedshiftMethodChoices = (
@@ -587,7 +590,7 @@ class Redshift(SingleObject,DirtyFieldsMixin):
     )
     method = models.CharField(max_length=100,
                                 verbose_name="Method",
-                                help_text="The method used to determine the redshift",
+                                help_text="The method used to determine the redshift.",
                                 choices=RedshiftMethodChoices)
     
     info = models.TextField(blank=True,

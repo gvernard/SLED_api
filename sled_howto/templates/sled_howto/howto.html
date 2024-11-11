@@ -42,10 +42,11 @@
       </h1>
       <div class="p">
 	<br>
-	<h2>Prerequisites</h2>
+	<h2>Preparation</h2>
 	<p>
 	  You will need a <b>SLED user account</b>, at least the <b>RA and DEC</b> of your lenses, and an <b>image of each lens</b> (.jpeg, .png, or .jpg).
 	  More details on all the different information that one can upload with each lens can be found in the <a href="{% url 'sled_guide:sled-guide' %}#object-specs-lens">guide</a>.
+	  The recommended approach is to upload lenses as private (PRI) and then make them public at a later time once any mistakes will have been spotted and fixed.
 	</p>
 	
 	
@@ -78,7 +79,7 @@
 	      Use this <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_upload_lenses.ipynb" target="_blank">upload script</a> to inject your lenses in the database.
 	      The script reports any conflicts, such as duplicates within your sample, non-matching coordinates, etc, that need to be resolved before uploading.
 	      You are free to choose which other SLED fields you want to include, besides the RA, DEC, and a lens image.
-	      It is recommended to upload the lenses with <b>restricted (private) access</b>, in order to avoid any mistakes.
+	      It is recommended to upload the lenses with <b>restricted (private) access (PRI)</b>, in order to avoid any mistakes.
 	    </li>
 	  </ol>	  
 	</p>
@@ -92,10 +93,10 @@
 	      You will be the owner of these lenses and responsible for keeping them up-to-date.
 	    </li>
 	    <li>
-	      <b>Private vs Public</b> - If you uploaded your lenses with private access (PRI), then you can select which other users or groups are able to see them; go to the bottom of your <a href="{% url 'sled_users:user-profile' %}#lenses">user profile</a> lens page and click the ‘Give access’ button.
-	      If you uploaded your lenses with public access (PUB) then they will be temporarily stored as private.
-	      They will be made available to all SLED users as soon as their mugshot images are inspected and approved by another SLED user.
-	      You can see the SLED users who have such an inspector role <a href="{% url 'sled_users:user-query' %}?role=Inspector">here</a>.
+	      <b>Private vs Public</b> - If you uploaded your lenses with private access (PRI), then you can select which other users or groups are able to see them.
+	      You can either do this for each lens individually by clicking the 'Give access' button on its page, or select several lenses from your <a href="{% url 'sled_users:user-profile' %}#lenses">user profile</a> lens tab and click the ‘Give access’ button at the bottom of the page.
+	      Any lenses that are uploaded as public (PUB) will need to be visually confirmed by another SLED user with the role of an <a href="{% url 'sled_users:user-query' %}?role=Inspector">Inspector</a>.
+	      They are termorarily injected in the database as private and will be made available to all SLED users as soon as the related <a href="{% url 'sled_guide:sled-guide' %}#task-inspect-images">Inspect Images</a> task is completed.
 	    </li>
 	    <li>
 	      <b>A collection of your new lenses</b> - You can optionally use <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_create_collection.ipynb" target="_blank">this script</a> to create a SLED collection with the lenses you just uploaded (or you can do it by hand from your user profile page).
@@ -111,16 +112,83 @@
       <input class="accordion-checkbox" type="checkbox" id="how-to-inject-data">
       <h1 class="jb-heading-2">
 	<label for="how-to-inject-data">
-	  How to inject data?
+	  How to inject data associated to lenses?
 	</label>
       </h1>
       <div class="p">
+	<br>
+	<h2>Preparation</h2>
 	<p>
-	  Data that are associated with a lens can be added directly in its detail page.
-	  Catalogue data are managed by the database administrators and cannot be added/edited by the users.
-	  Mass injection of data is allowed only via the API.
-	  Public data that include an image, i.e. Imaging Data, Spectra, Generic Images, etc, need to be visually confirmed by an Inspector and are termorarily injected in the database as private.
+	  You will need a <b>SLED user account</b> and the lenses for which you want to upload data, e.g. have them gathered in a collection or know their <b>RA and DEC</b> (you don't have to be the owner of the lenses in order to upload and associate data to them).
+	  There are 6 types of data that can be associated to lenses, each with its own fields described in detail in the guide:
+	  <ul>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-imaging">Imaging data</a></li>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-spectrum">Spectrum</a></li>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-catalogue">Catalogue data</a></li>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-redshift">Redshift</a></li>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-redshift">Generic Image</a></li>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-redshift">Lens Model</a></li>
+	  </ul>
+	  The more of these fields that can be injected in SLED the better.
+	  The mandatory fields for each type are included in the example scripts below and will be indicated during submission time (if missing) through the website or API.
+	  The recommended approach is to upload data as private (PRI) and then make them public at a later time once any mistakes will have been spotted and fixed.
 	</p>
+	<p>
+	  <u><b>NOTE:</b> SLED automatically fetches some data for newly injected lenses as described in the <a href="{% url 'sled_guide:sled-guide' %}">guide</a>.</u>
+	</p>
+
+
+	<h2>A few images, spectra, etc</h2>
+	<p>
+	  A typical use case is having just a few images, redshifts, etc, that you are trying to inject for a single, or a few lenses.
+	  The best way to achieve this is to go directly to each lens page on the website, e.g. for <a href="https://sled.amnh.org/lenses/detail/5">Q2237+0305</a>, and click on the 'Add imaging data', 'Add redshift', etc, buttons.
+	</p>
+
+
+	<h2>Mass data injection</h2>
+	<p>
+	  When lots of data needs to be added for several lenses, then the best approach is to use scripts from the command line or ipython notebooks.
+	  Matching data to existing lenses happens through their <b>RA and DEC</b>, which should uniquely identify a lens in SLED.
+	  Follow these two steps: 
+	  <ol>
+	    <li>
+	      Use this <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_simple_query.ipynb" target="_blank">simple query script</a> to perform a query to the database at your RA,DEC.
+	      This will ensure that all the lenses that you are adding data to exist in the database.
+	      If some lenses are missing, then follow the instructions on <a href="#how-to-inject-lenses">how to inject new lenses</a> first.
+	    </li>
+	    <li>
+	      Use these scripts to upload each type of data:
+	      <ul>
+		<li><a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_upload_imaging_data.ipynb" target="_blank">Imaging data</a></li>
+		<li><a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_upload_spectra.ipynb" target="_blank">Spectrum</a></li>
+		<li><a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_upload_redshifts.ipynb" target="_blank">Redshift</a></li>
+		<li><a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_upload_generic_images.ipynb" target="_blank">Generic Image</a></li>	
+		<li>Catalogue data - can only be uploaded by the admins for now</li>
+		<li>Lens Model - coming soon</li>
+	      </ul>
+	      The scripts will report any conflicts, such as missing fields, non-matching coordinates, wrong values, etc, that need to be resolved before uploading.
+	      It is recommended to upload the data with <b>restricted (private) access (PRI)</b>, in order to avoid any mistakes.
+	    </li>
+	  </ol>
+	</p>
+
+
+	<h2>Final steps</h2>
+	<p>
+	  <ul>
+	    <li>
+	      <b>What's next?</b> - Upon successful upload, the fresh data will appear in your user profile under the respective tab, e.g. <a href="{% url 'sled_users:user-profile' %}#generic-images">here for Generic Images</a>.
+	      You will be the owner of these data and responsible for keeping them up-to-date.
+	    </li>
+	    <li>
+	      <b>Private vs Public</b> - If you uploaded your data with private access (PRI), then you can select which other users or groups are able to see them; locate the respective tab ('Imaging data', 'Sepctra', etc) in your <a href="{% url 'sled_users:user-profile' %}">user profile</a> page, select several objects that you want to share with other users and groups, and click the 'Give access' button at the bottom.
+	      If you uploaded Imaging data, Spectra, or Generic Images with public access (PUB) then they will be temporarily stored as private.
+	      The reason is that, similarly to lenses, their associated images will need to be inspected and approved by another SLED user with the role of an <a href="{% url 'sled_users:user-query' %}?role=Inspector">Inspector</a>.
+	      They will be made available to all SLED users as soon as the related <a href="{% url 'sled_guide:sled-guide' %}#task-inspect-images">Inspect Images</a> task is completed.
+	    </li>
+	  </ul>
+	</p>
+	<br>
       </div>
     </div>
     
@@ -174,6 +242,35 @@
 	BLA
       </div>
     </div>
+
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <h1 class="jb-heading-2">
+	<label for="faq-7">
+	  How to add a paper?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <h1 class="jb-heading-2">
+	<label for="faq-7">
+	  How to update a paper?
+	</label>
+      </h1>
+      <div class="p">
+	BLA
+      </div>
+    </div>
+
+
+    
     
   </div>
   

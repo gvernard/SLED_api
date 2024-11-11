@@ -39,3 +39,8 @@
 .form_table tr:last-child {
     border-bottom: 0px solid #ACACAC;
 }
+
+.choices {
+    font-style: italic;
+    color: #ACACAC;
+}

@@ -165,13 +165,18 @@ class SingleObject(models.Model,metaclass=AbstractModelMeta):
         access_level (`enum`): Determines if the object is public ('pub') or private ('pri').
     """
     
-    owner = models.ForeignKey('Users',on_delete=models.CASCADE) 
-    created_at = models.DateTimeField(auto_now_add=True)
-    modified_at = models.DateTimeField(auto_now=True)
+    owner = models.ForeignKey('Users',
+                              on_delete=models.CASCADE,
+                              help_text='A SLED user who will be responsible for an object, e.g. updating, deleting, etc.')
+    created_at = models.DateTimeField(auto_now_add=True,help_text="The date and time when the object was first created.")
+    modified_at = models.DateTimeField(auto_now=True,help_text="The date and time when the object was last modified.")
     class AccessLevel(models.TextChoices):
         PUBLIC = "PUB"
         PRIVATE = "PRI"
-    access_level = models.CharField(max_length=3,choices=AccessLevel.choices,default=AccessLevel.PRIVATE,help_text="Set public (PUB) or private (PRI) access to this object.")
+    access_level = models.CharField(max_length=3,
+                                    choices=AccessLevel.choices,
+                                    default=AccessLevel.PRIVATE,
+                                    help_text="Set public (PUB) or private (PRI) access to this object.")
 
     objects = models.Manager()
     accessible_objects = AccessManager()

@@ -6,35 +6,38 @@
 <div class="w3-sidebar w3-card w3-light-grey w3-bar-block my-side-bar">
   <h3 class="w3-bar-item">Contents</h3>
 
-  <a href="#users" class="w3-bar-item w3-button">User responsibilities and limits</a>
+  <a href="#users" class="w3-bar-item w3-button"><u>User responsibilities and limits</u></a>
   <ul>
     <li><a href="#users-user-profile" class="w3-bar-item w3-button">User profile</a></li>
     <li><a href="#users-roles" class="w3-bar-item w3-button">Roles</a></li>
     <li><a href="#users-limits" class="w3-bar-item w3-button">Limits</a></li>
   </ul>
 
-  <a href="#users-and-access" class="w3-bar-item w3-button">Users and access</a>
+  <a href="#users-and-access" class="w3-bar-item w3-button"><u>Users and access</u></a>
   <ul>
     <li><a href="#users-and-access-access-level" class="w3-bar-item w3-button">Access Level</a></li>
     <li><a href="#users-and-access-user-groups" class="w3-bar-item w3-button">User groups</a></li>
   </ul>
 
-  <a href="#querying" class="w3-bar-item w3-button">Querying</a>
+  <a href="#querying" class="w3-bar-item w3-button"><u>Querying</u></a>
   <ul>
     <li><a href="#querying-standard-queries" class="w3-bar-item w3-button">Standard queries</a></li>
     <li><a href="#querying-api-queries" class="w3-bar-item w3-button">API queries</a></li>
+    <li><a href="#querying-collections" class="w3-bar-item w3-button">Collections</a></li>
   </ul>
   
-  <a href="#object-specs" class="w3-bar-item w3-button">Object specifications</a>
+  <a href="#object-specs" class="w3-bar-item w3-button"><u>Object specifications</u></a>
   <ul>
     <li><a href="#object-specs-lens" class="w3-bar-item w3-button">Lens</a></li>
     <li><a href="#object-specs-imaging" class="w3-bar-item w3-button">Imaging data</a></li>
     <li><a href="#object-specs-spectrum" class="w3-bar-item w3-button">Spectrum</a></li>
+    <li><a href="#object-specs-catalogue" class="w3-bar-item w3-button">Catalogue</a></li>
+    <li><a href="#object-specs-redshift" class="w3-bar-item w3-button">Redshift</a></li>
+    <li><a href="#object-specs-genericimage" class="w3-bar-item w3-button">Generic Image</a></li>
+    <li><a href="#object-specs-model" class="w3-bar-item w3-button">Model</a></li>
   </ul>
 
-  <a href="#collections" class="w3-bar-item w3-button">Collections</a>
-
-  <a href="#tasks" class="w3-bar-item w3-button">Tasks</a>
+  <a href="#tasks" class="w3-bar-item w3-button"><u>Tasks</u></a>
 </div>
 
 
@@ -81,7 +84,7 @@
     <div id="users-limits">
       <h3>Limits</h3>
       <p>
-	Every user has a limited number of objects that they can create in the database per week and that they can own and manage in total. These numbers default to 100 and 1000 respectively, but they can be changed by the SuperAdmin upon request. These settings may be changed in the future to impose limits per object type, e.g. it makes sense to manage hundreds of lenses but not so much for groups or saved queries.
+	Every user has a limited number of objects that they can create in the database per week and that they can own and manage in total. These numbers default to 100 and 1000 respectively, but they can be changed by the <a href="{% url 'sled_users:user-query' %}?role=SuperAdmin">SuperAdmin</a> upon request. These settings may be changed in the future to impose limits per object type, e.g. it makes sense to manage hundreds of lenses but not so much for groups or saved queries.
       </p>
     </div>
     
@@ -119,7 +122,7 @@
 
     <div id="querying-user-queries">
       <p>
-	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models. For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search). Placing the mouse above each field label provides some information about it (units, etc). Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page. You can also save all or part of the returned lenses in a new or existing <a href="#collections">Collection</a>. The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future. It is possible to select which lenses and associated to download in .json format.
+	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models. For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search). Placing the mouse above each field label provides some information about it (units, etc). Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page. You can also save all or part of the returned lenses in a new or existing <a href="#querying-collections">Collection</a>. The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future. It is possible to select which lenses and associated to download in .json format.
       </p>
       <p>
 	<b>Coming soon</b>: querying lens Models and classification Scores.
@@ -192,19 +195,55 @@
       <b>Coming soon</b>
     </div>
 
+
+    <div id="querying-collections">
+      <h3>Collections</h3>
+      <p>
+	A Collection is a fixed list of lenses, as opposed to a (dynamic) query, that users can create. It can be private or public, its management after creation can be passed on to another SLED user, and lenses can be removed or added to it. The latter can happen either by selecting lenses from a query result, or through the detail page of a given lens. Collections can be <a href="{% url 'sled_collections:collections-list' %}">searched</a> by any user. Currently, there are only collections of lenses allowed, but this may be extended to models, etc, in the future.
+      </p>
+    </div>
+
+    
   </div>
   <hr>
 
 
 
+
+  
   
   <div class="jb-section" id="object-specs">  
     <h1>Object specifications</h1>
+    <p>
+      The information fields of all the types of objects that are stored in SLED are listed below.
+      There are a few fields common to all the objects that are explained here:
+    </p>
+    <table class="form_table">
+      {% for key, val in singleobject_model.items %}
+      <tr>
+	<td>{{key}}</td>
+	<td>{{val|safe}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <p>
+      The 'Instrument' and 'Band' fields appear under several of the data related objects below.
+      The SLED administrators are responsible for adding new combinations as necessary.
+      Their values are predefined in the database and the allowed choices are:
+    </p>
+    <table class="form_table">
+      {% for key, val in inst_band_model.items %}
+      <tr>
+	<td>{{key}}</td>
+	<td>{{val|safe}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    
+    
     
     <div id="object-specs-lens">
-
       <h5>Lens</h5>
-
       <table class="form_table">
 	{% for key, val in lens_model.items %}
 	<tr>
@@ -215,24 +254,98 @@
       </table>
     </div>
 
+    <div id="object-specs-imaging">
+      <h5>Imaging data</h5>
+      <p>
+	We don't store the actual data (e.g. .fits files) but an image of the lenses.
+	Public imaging data need to be visually confirmed by an Inspector and will be termorarily injected in the database as private.
+      </p>
+      <table class="form_table">
+	{% for key, val in imaging_model.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>
 
+    <div id="object-specs-spectrum">
+      <h5>Spectrum</h5>
+      <p>
+	We don't keep the actual spectrum, only the metadata about it. A plot of the spectrum is useful, however.
+	Public spectra need to be visually confirmed by an Inspector and will be termorarily injected in the database as private.
+      </p>
+      <table class="form_table">
+	{% for key, val in spectrum_model.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>
+      
+    <div id="object-specs-catalogue">
+      <h5>Catalogue</h5>
+      <p>
+	Catalogue data are managed by the database administrators and cannot be added/edited by the users.
+      </p>
+      <table class="form_table">
+	{% for key, val in catalogue_model.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>    
+    
+    <div id="object-specs-redshift">
+      <h5>Redshift</h5>
+      <p>
+	We currently do not associate the redshift to a spectrum where it might have been calculated from.
+      </p>
+      <table class="form_table">
+	{% for key, val in redshift_model.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>
+
+    <div id="object-specs-genericimage">
+      <h5>Generic Image</h5>
+      <p>
+	Can be anything: the field of view, a plot, a model, etc.
+	Public Generic Images need to be visually confirmed by an Inspector and will be termorarily injected in the database as private.
+      </p>
+      <table class="form_table">
+	{% for key, val in genericimage_model.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>
+
+    <div id="object-specs-model">
+      <h5>Model</h5>
+      <b>Coming soon</b>
+    </div>
+    
   </div>
   <hr>
 
 
 
   
-  <div class="jb-section" id="collections">
-    <h1>Collections</h1>
-    <p>
-      A Collection is a fixed list of lenses, as opposed to a (dynamic) query, that users can create. It can be private or public, its management after creation can be passed on to another SLED user, and lenses can be removed or added to it. The latter can happen either by selecting lenses from a query result, or through the detail page of a given lens. Collections can be <a href="{% url 'sled_collections:collections-list' %}">searched</a> by any user. Currently, there are only collections of lenses allowed, but this may be extended to models, etc, in the future.
-    </p>
-  </div>
-  <hr>
 
 
 
-  
   <div class="jb-section" id="tasks">
     <h1>Tasks</h1>
     <p>
