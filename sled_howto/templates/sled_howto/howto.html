@@ -269,14 +269,25 @@
 	
 	<h2>Preparation</h2>
 	<p>
-	  You will need a <b>SLED user account</b> and the lenses that you want to include in your collection, e.g. knowing their RA and DEC or from the result of a query.
-	  The recommended approach is to create a collection as private (PRI) and then make it public at a later time once any mistakes will have been spotted and fixed.
+	  You will need a <b>SLED user account</b>, the <a href="https://en.wikipedia.org/wiki/Bibcode">bibcode</a> of the paper (e.g. from ADS), the lenses that are part of the paper, e.g. getting their <b>RA and DEC</b> from exporting an existing collection, and the association of each lens to a paper through 3 possible flags: <b>discovery</b>, <b>classification</b>, and <b>model</b>.
+	  All the lenses will need to be already injected in SLED and made <b>public</b> - no private lenses can be associated with papers.	      
+	</p>
+		
+	<h2>Adding a paper</h2>
+	<p>
+	  Papers can be added only through the API - there is no associated web interface for that.
+	  <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_create_paper.ipynb">This script</a> allows for uploading a paper to SLED and it will report any conflicts, such as non-matching coordinates, existing paper, etc, that need to be resolved before uploading.
+	  SLED retrieves information about the paper (e.g. authors, year, etc) automatically from ADS based on the provided bibcode.
+	</p>
+
+	<h2>Important note</h2>
+	<p>
+	  Papers should be immutable collections of lenses, therefore updating them is not straightforward by design.
+	  If any mistake is spotted after uploading a paper, e.g. omitting a lens or wrongly including another one, then the paper will have to be deleted and re-uploaded.
+	  There is a safeguard in place to force exporting the paper before deleting in, which ensures no data is lost.
+	  The exported .json file can serve as a starting point to fix mistakes and re-upload the paper.
 	</p>
 	
-	
-	<h2>A few lenses</h2>
-
-
 	<br>
 	<br>
       </div>
