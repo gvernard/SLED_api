@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'nolastlogin',
     'captcha',
     'axes',
+    'email_obfuscator',
 ]
 
 SITE_ID = 1

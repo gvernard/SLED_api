@@ -1,0 +1,23 @@
+{% extends 'modal_base.html' %}
+{% load static %}
+
+{% block title %}
+Register to the SLED Slack workspace?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container-modal">
+
+  <div class="jb-modal-field">
+    <p>
+      Click <a href="https://join.slack.com/t/sled/shared_invite/zt-2u9apdo8z-UaBySTl2dM0MCMjN3brDRg">here</a> to join the SLED Slack workspace.
+    </p>
+    <p>
+      Make sure you use the same email as your SLED account: <b>{{ user.email }}</b>
+    </p>
+  </div>
+  
+</div>
+{% endblock content %}
+
+

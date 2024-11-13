@@ -1,23 +1,74 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load email_obfuscator %}
+
 
 {% block content %}
-
+{% include "modal_container.html" %}
 
 <div class="jb-container">
   
+  <h1>Frequently Asked Questions</h1>
+  <p>
+    Most frequent questions will regard the operations at the core of each database: <b>query</b>, <b>add</b>, <b>update</b>, and <b>delete</b>.
+    For most of these actions, you will need a <b>SLED user account</b>, so if you don't have one yet you can create one <a href="{% url 'register' %}">here</a>.
+  </p>
+  <p>
+    SLED allows for a lot of flexibility regarding database operations through its ownership based design, i.e. the users who own lenses, etc, are responsible for maintaining them.
+    There are some safeguards built into place as well, e.g. when deleting public lenses.
+  </p>
+  <p>
+    Various other topics are covered here too, for example, how to gain access to actual science quality data (SLED only gathers and stores metadata, including images).
+    This is a continuously evolving list of questions and we keep adding information to it through user feedback and further development.
+  </p>
   
   
   <div>
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-14">
+      <h1 class="jb-heading-2">
+	<label for="faq-14">
+	  I cannot find an answer, where to get help?
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	If you cannot find an answer to your question here, please send a message to: {{ 'sled-info@sled.amnh.org'|obfuscate_mailto }}
+	<br>
+	<br>
+	If you haven't done so yet, you can <a href="" class="slack-invite" data-form-url="{% url 'sled_howto:slack-register-user' request.user.pk|default_if_none:1 %}">join the SLED Slack workspace</a> too.
+	<br>
+	<br>
+      </div>
+    </div>
+
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-15">
+      <h1 class="jb-heading-2">
+	<label for="faq-15">
+	  Is there a Slack workspace for SLED?
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	Of course there is! Click <a href="" class="slack-invite" data-form-url="{% url 'sled_howto:slack-register-user' request.user.pk|default_if_none:1 %}">here</a> to join.
+	<br>
+	<br>
+      </div>
+    </div>
+
+    
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-2">
       <h1 class="jb-heading-2">
 	<label for="faq-2">
-	  How to make a simple RA,DEC query?
+	  How to make a simple RA,DEC &nbsp;<b>query</b>&nbsp;?
 	</label>
       </h1>
       <div class="p">
-	BLA
+	Coming soon
       </div>
     </div>
     
@@ -25,19 +76,32 @@
       <input class="accordion-checkbox" type="checkbox" id="faq-3">
       <h1 class="jb-heading-2">
 	<label for="faq-3">
-	  How to query the database using all its advanced features?
+	  How to &nbsp;<b>query</b>&nbsp; the database using all its advanced features?
 	</label>
       </h1>
       <div class="p">
-	BLA
+	Coming soon
       </div>
     </div>
+
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-12">
+      <h1 class="jb-heading-2">
+	<label for="faq-12">
+	  Can I run &nbsp;<b>massive queries</b>&nbsp; involving the entire database?
+	</label>
+      </h1>
+      <div class="p">
+	Coming soon
+      </div>
+    </div>  
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="how-to-inject-lenses">
       <h1 class="jb-heading-2">
 	<label for="how-to-inject-lenses">
-	  How to inject new lenses?
+	  How to &nbsp;<b>add</b>&nbsp; new lenses?
 	</label>
       </h1>
       <div class="p">
@@ -112,7 +176,7 @@
       <input class="accordion-checkbox" type="checkbox" id="how-to-inject-data">
       <h1 class="jb-heading-2">
 	<label for="how-to-inject-data">
-	  How to inject data associated to lenses?
+	  How to &nbsp;<b>add</b>&nbsp; data associated to lenses?
 	</label>
       </h1>
       <div class="p">
@@ -126,8 +190,8 @@
 	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-spectrum">Spectrum</a></li>
 	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-catalogue">Catalogue data</a></li>
 	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-redshift">Redshift</a></li>
-	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-redshift">Generic Image</a></li>
-	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-redshift">Lens Model</a></li>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-genericimage">Generic Image</a></li>
+	    <li><a href="{% url 'sled_guide:sled-guide' %}#object-specs-model">Lens Model</a></li>
 	  </ul>
 	  The more of these fields that can be injected in SLED the better.
 	  The mandatory fields for each type are included in the example scripts below and will be indicated during submission time (if missing) through the website or API.
@@ -192,85 +256,156 @@
       </div>
     </div>
     
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <h1 class="jb-heading-2">
+	<label for="faq-7">
+	  How to &nbsp;<b>add</b>&nbsp; a paper?
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	
+	<h2>Preparation</h2>
+	<p>
+	  You will need a <b>SLED user account</b> and the lenses that you want to include in your collection, e.g. knowing their RA and DEC or from the result of a query.
+	  The recommended approach is to create a collection as private (PRI) and then make it public at a later time once any mistakes will have been spotted and fixed.
+	</p>
+	
+	
+	<h2>A few lenses</h2>
+
+
+	<br>
+	<br>
+      </div>
+    </div>
+
+
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-16">
+      <h1 class="jb-heading-2">
+	<label for="faq-16">
+	  How to &nbsp;<b>add</b>&nbsp; a collection?
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	<h2>Preparation</h2>
+	<p>
+	  You will need a <b>SLED user account</b> and the lenses that you want to include in your collection, e.g. knowing their RA and DEC or from the result of a query.
+	  The recommended approach is to create a collection as private (PRI) and then make it public at a later time once any mistakes will have been spotted and fixed.
+	</p>
+	
+	
+	<h2>A few lenses</h2>
+	<p>
+	  If you have only a handful of new lenses to include in your collection, then start by <a href="{% url 'lenses:lens-query' %}">performing a query</a> based on their RA and DEC.
+	  You can select which of the returned lenses you want (click the checkbox next to each lens) and then click the 'Make collection' button at the bottom of the query result page.
+	  Follow the steps to create a collection that will contain the lenses you just selected.
+	  You can repeat this step to add more lenses to your collection.
+	</p>
+	
+	
+	<h2>Large numbers of lenses</h2>
+	<p>
+	  If you have a collection that includes several lenses from start, then the best option is to use the API to create it.
+	  You will need to know the RA and DEC of the target lenses beforehand and use <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_create_collection.ipynb" target="_blank">this script</a> to create a collection that will contain them.
+	  The script reports any conflicts, such as non-matching coordinates from your sample, existing collection name, etc, that need to be resolved before uploading.
+	</p>
+	
+	
+	<h2>Final steps</h2>
+	<p>
+	  <ul>
+	    <li>
+	      <b>What's next?</b> - Upon successful upload, the new collection will appear in your <a href="{% url 'sled_collections:collections-list' %}">collection list</a>.
+	      From this page, you can select a collection, go to its main page, and update its details or keep adding/removing lenses from it.
+	      Finally, you can add any specific lens to your collection by clicking the 'Add to collection' button on its main page, e.g. add <a href="https://sled.amnh.org/lenses/detail/5">Q2237+0305</a> to an existing collection.
+	    </li>
+	    <li>
+	      <b>Private vs Public</b> - If you uploaded your collection with private access (PRI), then you can select which other users or groups are able to see it by clicking the 'Give access' button on its page.
+	      Public collections are immediately visible to all SLED users.
+	    </li>
+	    <li>
+	      <b>Querying collections</b> - It is possible to restrict the result of any query on lenses included in one or more collections.
+	      The names of these collections can be specified in the 'Management' tab on the <a href="{% url 'lenses:lens-query' %}">main query page</a>.
+	    </li>
+	  </ul>
+	</p>
+	<br>
+      </div>
+    </div>
+
     
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-4">
       <h1 class="jb-heading-2">
 	<label for="faq-4">
-	  How to update lenses?
+	  How to &nbsp;<b>update</b>&nbsp; lenses?
 	</label>
       </h1>
       <div class="p">
-	BLA
+	Coming soon
       </div>
     </div>
+
+
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-5">
       <h1 class="jb-heading-2">
 	<label for="faq-5">
-	  How to update data?
+	  How to &nbsp;<b>update</b>&nbsp; data?
 	</label>
       </h1>
       <div class="p">
-	BLA
+	Coming soon
       </div>
     </div>
     
-    
-    <div class="c c-user">
-      <input class="accordion-checkbox" type="checkbox" id="faq-6">
-      <h1 class="jb-heading-2">
-	<label for="faq-6">
-	  How to delete lenses?
-	</label>
-      </h1>
-      <div class="p">
-	BLA
-      </div>
-    </div>
-    
-    <div class="c c-user">
-      <input class="accordion-checkbox" type="checkbox" id="faq-7">
-      <h1 class="jb-heading-2">
-	<label for="faq-7">
-	  How to delete data?
-	</label>
-      </h1>
-      <div class="p">
-	BLA
-      </div>
-    </div>
-
 
     <div class="c c-user">
-      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <input class="accordion-checkbox" type="checkbox" id="faq-9">
       <h1 class="jb-heading-2">
-	<label for="faq-7">
-	  How to add a paper?
+	<label for="faq-9">
+	  How to &nbsp;<b>update</b>&nbsp; a paper?
 	</label>
       </h1>
       <div class="p">
-	BLA
+	Coming soon
+      </div>
+    </div>
+    
+    
+   
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-10">
+      <h1 class="jb-heading-2">
+	<label for="faq-10">
+	  Is &nbsp;<b>deleting</b>&nbsp; lenses, data, and anything else possible?
+	</label>
+      </h1>
+      <div class="p">
+	Coming soon
       </div>
     </div>
 
 
     <div class="c c-user">
-      <input class="accordion-checkbox" type="checkbox" id="faq-7">
+      <input class="accordion-checkbox" type="checkbox" id="faq-8">
       <h1 class="jb-heading-2">
-	<label for="faq-7">
-	  How to update a paper?
+	<label for="faq-8">
+	  What about actual &nbsp;<b>scientific data</b>?
 	</label>
       </h1>
       <div class="p">
-	BLA
+	Coming soon
       </div>
     </div>
-
-
-    
     
   </div>
   
@@ -284,6 +419,7 @@
 
   
 {% block extrascripts %}
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous" type="text/javascript"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_howto/js/sled_howto.js' %}"></script>
 {% endblock extrascripts %}

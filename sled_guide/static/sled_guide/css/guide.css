@@ -44,3 +44,28 @@
     font-style: italic;
     color: #ACACAC;
 }
+
+
+
+.tasks-table td {
+    vertical-align: top;
+}
+
+.tasks-table td:first-child {
+    width: 180px;
+    font-size: 14pt;
+}
+
+.tasks-table td:nth-child(2) {
+    width: 180px;
+    padding-left: 10px;
+}
+
+.tasks-table td:nth-child(3) {
+    padding-left: 10px;
+}
+
+.soon {
+    color: gold;
+    font-weight: bold;
+}
