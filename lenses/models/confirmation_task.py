@@ -978,6 +978,7 @@ class AcceptNewUser(ConfirmationTask):
                 'last_name': task_owner.last_name,
                 'protocol': 'https',
                 'domain': site.domain,
+                'response': self. heard_from().get().response_comment,
                 'user_url': task_owner.get_absolute_url(),
                 'username': task_owner.username,
             }
