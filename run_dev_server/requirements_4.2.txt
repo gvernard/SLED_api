@@ -21,6 +21,7 @@ django-storages[s3]
 django-axes[ipware]==6.4.0
 django-csp==3.8
 django-resized==1.0.2
+django-email-obfuscator==0.1.5
 drf-extra-fields==3.7.0
 boto3==1.23.10
 astropy==6.0.1

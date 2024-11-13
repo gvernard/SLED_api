@@ -16,4 +16,14 @@ $(document).ready(function() {
 	$(hash).trigger("click");
 	$('html,body').animate({scrollTop: $(hash).offset().top},'slow');
     }
+
+
+    $(".slack-invite").click(function(e){
+	e.preventDefault();
+	$(this).modalFormTrigger({
+	    formURL: $(this).data("form-url"),
+	    modalID: "#id-modal",
+	});
+    });
+    
 });

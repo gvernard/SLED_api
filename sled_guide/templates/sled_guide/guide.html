@@ -38,6 +38,14 @@
   </ul>
 
   <a href="#tasks" class="w3-bar-item w3-button"><u>Tasks</u></a>
+
+  <a href="#auto-tasks" class="w3-bar-item w3-button"><u>Automated tasks</u></a>
+  <ul>
+    <li><a href="#auto-fetching-data" class="w3-bar-item w3-button">Fetching data</a></li>
+    <li><a href="#auto-pending-tasks" class="w3-bar-item w3-button">Pending tasks</a></li>
+    <li><a href="#auto-future-data" class="w3-bar-item w3-button">Future data</a></li>
+    <li><a href="#auto-backups" class="w3-bar-item w3-button">Backups</a></li>
+  </ul>
 </div>
 
 
@@ -125,7 +133,7 @@
 	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models. For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search). Placing the mouse above each field label provides some information about it (units, etc). Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page. You can also save all or part of the returned lenses in a new or existing <a href="#querying-collections">Collection</a>. The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future. It is possible to select which lenses and associated to download in .json format.
       </p>
       <p>
-	<b>Coming soon</b>: querying lens Models and classification Scores.
+	<span class="soon">Coming soon</span>: querying lens Models and classification Scores.
       </p>
     </div>
       
@@ -192,7 +200,7 @@
       </table>
 
       <h5>Models</h5>
-      <b>Coming soon</b>
+      <span class="soon">Coming soon</span>
     </div>
 
 
@@ -244,6 +252,14 @@
     
     <div id="object-specs-lens">
       <h5>Lens</h5>
+      <p>
+	Everything in SLED (papers, collections, models, etc) is 'anchored' around lenses.
+	The minimum requirements for a lens are its coordinates and a 'mugshot' image.
+	This image doesn't need to be of scientific quality and can just be a pretty, colored, processed, etc, image of the lens.
+	Images of public lenses will need to be visually inspected first through an <a href="#task-inspect-images">Image Inspection</a> task.
+	The allowed choices of fields like 'image_conf', 'lens_type', etc, are pre-defined - additional choices are possible by contacting the admins.
+	The 'score' field is temporary and will be replaced in the future.
+      </p>
       <table class="form_table">
 	{% for key, val in lens_model.items %}
 	<tr>
@@ -257,8 +273,11 @@
     <div id="object-specs-imaging">
       <h5>Imaging data</h5>
       <p>
-	We don't store the actual data (e.g. .fits files) but an image of the lenses.
-	Public imaging data need to be visually confirmed by an Inspector and will be termorarily injected in the database as private.
+	These are images of the system taken with a specific instrument configuration.
+	We do not store the actual data, for example, the raw pixel values in .fits format.
+	We just store an image of the lens in a common format (e.g. .png) and its metadata - at least the 'instrument', 'band', and 'date_taken' fields.
+	The allowed choices for the 'instrument' and 'band' fields are pre-defined - additional choices are possible by contacting the admins.
+	Public data will need to be visually inspected first through an <a href="#task-inspect-images">Image Inspection</a> task.
       </p>
       <table class="form_table">
 	{% for key, val in imaging_model.items %}
@@ -273,8 +292,10 @@
     <div id="object-specs-spectrum">
       <h5>Spectrum</h5>
       <p>
-	We don't keep the actual spectrum, only the metadata about it. A plot of the spectrum is useful, however.
-	Public spectra need to be visually confirmed by an Inspector and will be termorarily injected in the database as private.
+	Similarly to imaging data, we only keep metadata (at least the 'instrument' and 'date_taken' fields) and a plot of the spectrum.
+	A script to help make the flux-wavelength plot can be found <a href="">here</a>.
+	The allowed choices for the 'instrument' field are pre-defined - additional choices are possible by contacting the admins.
+	Public spectra will need to be visually inspected first through an <a href="#task-inspect-images">Image Inspection</a> task.
       </p>
       <table class="form_table">
 	{% for key, val in spectrum_model.items %}
@@ -289,7 +310,7 @@
     <div id="object-specs-catalogue">
       <h5>Catalogue</h5>
       <p>
-	Catalogue data are managed by the database administrators and cannot be added/edited by the users.
+	Catalogue data are managed by the database administrators and cannot be currently added/edited by the users.
       </p>
       <table class="form_table">
 	{% for key, val in catalogue_model.items %}
@@ -305,6 +326,7 @@
       <h5>Redshift</h5>
       <p>
 	We currently do not associate the redshift to a spectrum where it might have been calculated from.
+	The required fields are: 'value', 'tag', and 'method'.
       </p>
       <table class="form_table">
 	{% for key, val in redshift_model.items %}
@@ -319,8 +341,10 @@
     <div id="object-specs-genericimage">
       <h5>Generic Image</h5>
       <p>
-	Can be anything: the field of view, a plot, a model, etc.
-	Public Generic Images need to be visually confirmed by an Inspector and will be termorarily injected in the database as private.
+	This can be in fact any image related to a lens that doesn't fit in the categories above.
+	For example, it can be an image showing the environment of the lens, or even a plot of some sort (a model, kinematics, etc).
+	The required fields are 'name' and 'info'.
+	Public images will need to be visually inspected first through an <a href="#task-inspect-images">Image Inspection</a> task.
       </p>
       <table class="form_table">
 	{% for key, val in genericimage_model.items %}
@@ -334,7 +358,7 @@
 
     <div id="object-specs-model">
       <h5>Model</h5>
-      <b>Coming soon</b>
+      <span class="soon">Coming soon</span>
     </div>
     
   </div>
@@ -349,9 +373,19 @@
   <div class="jb-section" id="tasks">
     <h1>Tasks</h1>
     <p>
-      There is a number of tasks that are important for ensuring the quality of science that SLED can be used for. For example, if a colleague cannot perform their duties of keeping lenses (and other objects) up-to-date anymore for whatever reason, then they can cede their ownership to another user. This will create a 'Cede Ownership' task that will need to be resolved. There are also other tasks that can involve 1) any two SLED users, 2) a user and themselves (this is just a way to ensure that information is not lost, e.g. after a logout), and 3) a user and an Admin user.
+      There is a number of tasks that are important for ensuring the quality of science that SLED can be used for.
+      For example, if a colleague cannot perform their duties of keeping lenses up-to-date anymore for whatever reason, then they can cede their ownership to another user.
+      There are various types of tasks that are detailed below, but in general any task can involve:
+      <ul>
+	<li>any two SLED users</li>
+	<li>a user and an Admin user</li>
+	<li>a user and themselves</li>
+      </ul>
+      The latter is just a way to ensure that information is not lost, e.g. after a logout.
+      The full list of pending and completed tasks addressed to and initiated by a user can be found <a href="{% url 'sled_tasks:tasks-list' %}">here</a>.
+      It is recommended to delete old completed tasks.
     </p>
-    <table>
+    <table class="tasks-table">
       <thead>
 	<tr>
 	  <th>Task name</th>
@@ -362,76 +396,135 @@
 	<tr>
 	  <td>Cede ownership</td>
 	  <td>Any two users</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
-	<tr>
+	<tr id="task-inspect-images">
 	  <td>Inspect images</td>
 	  <td>A user and an Inspector</td>
-	  <td></td>
+	  <td>
+	    <p>
+	      In order to ensure the quality of images stored in SLED and put a safeguard in place for mistakes and abuse, all public images in SLED need to be inspected.
+	      This task is triggered any time an image is uploaded in SLED as public, i.e. accessible by all SLED users, or made public from private.
+	      Parent objects that contain images (lenses, imaging data, spectra, and generic images) will remain private until this task is completed.
+	      The image inspection is done by a few SLED users who have been assigned the role of an <a href="{% url 'sled_users:user-query' %}?role=Inspector">Inspector</a> (see also <a href="#users-roles">user roles</a> above).
+	      These inspectors can reject an image, providing an explanation of what was the problem.
+	      Once the task is completed, the parent objects of all approved images will be made public, while the rejected ones will remain private.
+	    </p>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Request update</td>
 	  <td>Any two users</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Ask to join group</td>
 	  <td>Any two users</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Make private</td>
 	  <td>A user and an Admin</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Delete object</td>
 	  <td>A user and an Admin</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Register new user</td>
 	  <td>A user and an Admin</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
 	<tr id="task-resolve-duplicates">
 	  <td>Resolve duplicates</td>
 	  <td>A user and themselves</td>
-	  <td></td>
+	  <td>
+	    <p>
+	      There is an automatic check for duplicate lenses in the database based on the RA, DEC.
+	      If the given coordinates are within 10 arcsec of an existing lens then the new lens is flagged as potential duplicate.
+	      This check includes all the lenses accessible to the user at the time, both private and public (see <a href="#users-and-access-access-level">Access Level</a>).
+	      If a submitted lens is a duplicate then there are the following options in order to proceed:
+	    </p>
+	    <ol>
+	      <li><i>Do nothing</i>: The lens is ignored and not injected in the database.</li>
+	      <li><i>Distinct lens</i>: The lens is treated as a distinct entry in the database, despite its proximity to an existing one, and injected.</li>
+	      <li><i>Merge</i>: All the information of the new lens will be suggested to be merged into the existing one. A 'Merge' task will be created for the owner of the existing lens to resolve.</li>
+	    </ol>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Merge lenses</td>
 	  <td>Any two users</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
 	<tr>
 	  <td>Ask private access</td>
 	  <td>Any two users</td>
-	  <td></td>
+	  <td>
+	    <span class="soon">Coming soon</span>
+	  </td>
 	</tr>
       </tbody>
     </table>
-
-
-    <div id="adding-objects-lenses">
-      <h3>Resolve Duplicates</h3>
-      <p>
-	There is an automatic check for duplicate lenses in the database based on the RA, DEC: if the given coordinates are within 10 arcsec of an existing lens then the new lens is flagged as potential duplicate. This check includes all the lenses accessible to the user at the time, both private and public (see <a href="#users-and-access-access-level">Access Level</a>). If a submitted lens is a duplicate then there are the following options in order to proceed:
-      </p>
-      <ol>
-	<li><i>Do nothing</i>: The lens is ignored and not injected in the database.</li>
-	<li><i>Distinct lens</i>: The lens is treated as a distinct entry in the database, despite its proximity to an existing one, and injected.</li>
-	<li><i>Merge</i>: All the information of the new lens will be suggested to be merged into the existing one. A 'Merge' task will be created for the owner of the existing lens to resolve.</li>
-      </ol>
-      <p>
-	The mugshot of every public lens needs to be visually confirmed by an Inspector before the lens is actually made public. Such lenses are termorarily injected in the database as private and automatically changed to public if approved by the Inspector.
-      </p>
-    </div>
-
     
   </div>
   <hr>
 
+
+  <div class="jb-section" id="auto-tasks">
+    <h1>Automated tasks</h1>
+    <p>
+
+      <div id="auto-fetching-data">
+	<h3>Fetching data</h3>
+	<p>
+	  <span class="soon">Coming soon</span>
+	</p>
+      </div>
+
+      <div id="auto-pending-tasks">
+	<h3>Pending tasks</h3>
+	<p>
+	  <span class="soon">Coming soon</span>
+	</p>
+      </div>
+
+
+      <div id="auto-future-data">
+	<h3>Future data</h3>
+	<p>
+	  <span class="soon">Coming soon</span>
+	</p>
+      </div>
+
+
+      <div id="auto-backups">
+	<h3>Backups</h3>
+	<p>
+	  <span class="soon">Coming soon</span>
+	</p>
+      </div>
+
+    </p>
+  </div>
+
+  
   
   <div class="whitespace">
   </div>

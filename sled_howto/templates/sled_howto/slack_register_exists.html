@@ -1,0 +1,17 @@
+{% extends 'modal_base.html' %}
+{% load static %}
+
+{% block title %}
+Register to the SLED Slack workspace?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container-modal">
+
+  <div class="invalid jb-modal-field">
+    A user with the email <b>{{ user.email }}</b> already exists in the SLED Slack workspace!
+  </div>
+  
+</div>
+{% endblock content %}
+

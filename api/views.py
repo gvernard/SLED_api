@@ -402,8 +402,15 @@ class QueryLenses(APIView):
         indices,neis = Lenses.proximate.get_DB_neighbours_anywhere_many(ras,decs,user=user)
         lenses = list(chain(*neis))
         serializer = LensDownSerializer(lenses,many=True)
+
+        if len(serializer.data) == len(ras):
+            message = "All coordinates match to existing lenses in the database."
+        else:
+            message = str(len(serializer.data)) + " lenses exist in the database out of the queried "+ str(len(ras)) + " RA,DEC locations."
+        
         return Response(
             {
+                'summary': message,
                 'existing_at': indices,
                 'lenses':serializer.data
             }

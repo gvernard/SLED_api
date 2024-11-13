@@ -1,0 +1,19 @@
+{% extends 'modal_base.html' %}
+{% load static %}
+
+{% block title %}
+Register to the SLED Slack workspace?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container-modal">
+
+  <div class="invalid jb-modal-field">
+    You need to <a href="{% url 'register' %}">register</a> or <a href="{% url 'login' %}">login</a> to SLED first!
+  </div>
+  
+</div>
+{% endblock content %}
+
+
+
