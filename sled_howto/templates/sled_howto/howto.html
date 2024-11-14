@@ -7,23 +7,28 @@
 {% include "modal_container.html" %}
 
 <div class="jb-container">
+
+
+  <div class="jb-section prologue">
+    <h1>Frequently Asked Questions</h1>
+    <div class="">
+      <p>
+	Most frequent questions will regard the operations at the core of each database: <b>query</b>, <b>add</b>, <b>update</b>, and <b>delete</b>.
+	For most of these actions, you will need a <b>SLED user account</b>, so if you don't have one yet you can create one <a href="{% url 'register' %}">here</a>.
+      </p>
+      <p>
+	SLED allows for a lot of flexibility regarding database operations through its ownership based design, i.e. the users who own lenses, etc, are responsible for maintaining them.
+	There are some safeguards built into place as well, e.g. when deleting public lenses.
+      </p>
+      <p>
+	Various other topics are covered here too, for example, how to gain access to actual science quality data (SLED only gathers and stores metadata, including images).
+	This is a continuously evolving list of questions and we keep adding information to it through user feedback and further development.
+      </p>
+    </div>
+  </div>
   
-  <h1>Frequently Asked Questions</h1>
-  <p>
-    Most frequent questions will regard the operations at the core of each database: <b>query</b>, <b>add</b>, <b>update</b>, and <b>delete</b>.
-    For most of these actions, you will need a <b>SLED user account</b>, so if you don't have one yet you can create one <a href="{% url 'register' %}">here</a>.
-  </p>
-  <p>
-    SLED allows for a lot of flexibility regarding database operations through its ownership based design, i.e. the users who own lenses, etc, are responsible for maintaining them.
-    There are some safeguards built into place as well, e.g. when deleting public lenses.
-  </p>
-  <p>
-    Various other topics are covered here too, for example, how to gain access to actual science quality data (SLED only gathers and stores metadata, including images).
-    This is a continuously evolving list of questions and we keep adding information to it through user feedback and further development.
-  </p>
   
-  
-  <div>
+  <div class="jb-section questions">
 
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-14">
@@ -62,7 +67,7 @@
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-2">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-2">
 	  How to make a simple RA,DEC &nbsp;<b>query</b>&nbsp;? - coming soon
 	</label>
@@ -74,7 +79,7 @@
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-3">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-3">
 	  How to &nbsp;<b>query</b>&nbsp; the database using all its advanced features? - coming soon
 	</label>
@@ -87,7 +92,7 @@
 
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-12">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-12">
 	  Can I run &nbsp;<b>massive queries</b>&nbsp; involving the entire database? - coming soon
 	</label>
@@ -354,7 +359,7 @@
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-4">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-4">
 	  How to &nbsp;<b>update</b>&nbsp; lenses? - coming soon
 	</label>
@@ -368,7 +373,7 @@
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-5">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-5">
 	  How to &nbsp;<b>update</b>&nbsp; data? - coming soon
 	</label>
@@ -381,7 +386,7 @@
 
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-9">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-9">
 	  How to &nbsp;<b>update</b>&nbsp; a paper? - coming soon
 	</label>
@@ -395,7 +400,7 @@
    
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-10">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-10">
 	  Is &nbsp;<b>deleting</b>&nbsp; lenses, data, and anything else possible? - coming soon
 	</label>
@@ -408,7 +413,7 @@
 
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-8">
-      <h1 class="jb-heading-2">
+      <h1 class="coming-soon jb-heading-2">
 	<label for="faq-8">
 	  What about actual &nbsp;<b>scientific data</b>? - coming soon
 	</label>
@@ -426,6 +431,7 @@
 
 {% block extrastyles %}
 <link href="{% static 'sled_users/css/sled_users.css' %}" rel="stylesheet" />
+<link href="{% static 'sled_howto/css/howto.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
   
