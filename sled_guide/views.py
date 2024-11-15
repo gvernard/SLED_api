@@ -1,12 +1,84 @@
 from django.apps import apps
 from django.db import models
 from django.shortcuts import render
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.http import HttpResponse
 from django.views.generic import TemplateView
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
+
+from bootstrap_modal_forms.generic import BSModalFormView,BSModalReadView
+from bootstrap_modal_forms.mixins import is_ajax
+
 from lenses.forms import *
-from lenses.models import Collection, Lenses, Imaging, Spectrum, Catalogue, Redshift, GenericImage, SingleObject
+from lenses.models import Collection, Lenses, Imaging, Spectrum, Catalogue, Redshift, GenericImage, SingleObject, Users
 from collections import OrderedDict
+from sled_core.slack_api_calls import check_slack_user
 
 
+
+class Help(TemplateView):
+    template_name = "sled_guide/help.html"
+
+class CoCView(TemplateView):
+    template_name = "sled_guide/coc.html"
+
+
+
+
+class HowToView(TemplateView):
+    template_name = "sled_guide/howto.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(HowToView,self).get_context_data(**kwargs)
+        return context
+
+
+
+'''
+class SlackRegisterView(BSModalFormView):
+    template_name = 'sled_guide/slack_register.html'
+    form_class = SlackRegisterForm
+    success_url = reverse_lazy('sled_guide:sled-howto')
+
+    def get_initial(self):
+        if self.request.user.is_authenticated:
+            return {'email':self.request.user.email}
+        else:
+            return {}        
+
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            msg = "You shall receive a Slack workspace invitation shortly."
+            messages.add_message(self.request,messages.WARNING,msg)
+        response = super().form_valid(form)
+        return response
+'''
+
+class SlackRegisterView(BSModalReadView):
+    model = Users
+    context_object_name = 'user'
+
+    #def get_queryset(self):
+    #    return Users.objects.filter(pk=self.request.user.pk)
+
+
+    def get_template_names(self):
+        if self.request.user.is_authenticated:
+            errors,exists = check_slack_user(self.request.user.email)
+            if exists:
+                return ['sled_guide/slack_register_exists.html']
+            else:
+                return ['sled_guide/slack_register.html']
+        else:
+            return ['sled_guide/slack_register_unauthenticated.html']
+    
+
+
+
+
+    
 def get_model_fields(model_name,types_to_ex,names_to_ex):
     model_ref = apps.get_model(app_label="lenses",model_name=model_name)    
     model_fields = model_ref._meta.get_fields(include_parents=False)
@@ -177,3 +249,6 @@ class GuideView(TemplateView):
         context['catalogue_form'] = fields_help
         
         return context
+
+
+    

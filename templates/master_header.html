@@ -91,8 +91,7 @@
 	    <td><a href="{% url 'sled_papers:paper-query' %}">Papers</a></td>
 	    <td><a href="{% url 'sled_users:user-query' %}">Users</a></td>
 	    <td><a href="{% url 'sled_groups:group-list' %}">Groups</a></td>
-	    <td><a href="{% url 'sled_guide:sled-guide' %}">Guide</a></td>
-	    <td><a href="{% url 'sled_howto:sled-howto' %}">FAQ</a></td>
+	    <td><a href="{% url 'sled_guide:help' %}">Help & Docs</a></td>
 	    {% if user.is_authenticated %}
 	    <td>
 	      <a href="{% url 'sled_users:user-profile' %}">{{ user.username }}</a>

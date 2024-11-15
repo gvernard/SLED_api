@@ -42,7 +42,7 @@
 	If you cannot find an answer to your question here, please send a message to: {{ 'sled-info@sled.amnh.org'|obfuscate_mailto }}
 	<br>
 	<br>
-	If you haven't done so yet, you can <a href="" class="slack-invite" data-form-url="{% url 'sled_howto:slack-register-user' request.user.pk|default_if_none:1 %}">join the SLED Slack workspace</a> too.
+	If you haven't done so yet, you can <a href="" class="slack-invite" data-form-url="{% url 'sled_guide:slack-register-user' request.user.pk|default_if_none:1 %}">join the SLED Slack workspace</a> too.
 	<br>
 	<br>
       </div>
@@ -58,7 +58,7 @@
       </h1>
       <div class="p">
 	<br>
-	Of course there is! Click <a href="" class="slack-invite" data-form-url="{% url 'sled_howto:slack-register-user' request.user.pk|default_if_none:1 %}">here</a> to join.
+	Of course there is! Click <a href="" class="slack-invite" data-form-url="{% url 'sled_guide:slack-register-user' request.user.pk|default_if_none:1 %}">here</a> to join.
 	<br>
 	<br>
       </div>
@@ -66,39 +66,67 @@
 
     
     <div class="c c-user">
-      <input class="accordion-checkbox" type="checkbox" id="faq-2">
-      <h1 class="coming-soon jb-heading-2">
-	<label for="faq-2">
-	  How to make a simple RA,DEC &nbsp;<b>query</b>&nbsp;? - coming soon
+      <input class="accordion-checkbox" type="checkbox" id="web-query">
+      <h1 class="jb-heading-2">
+	<label for="web-query">
+	  How to make a &nbsp;<b>query</b>&nbsp;?
 	</label>
       </h1>
-
-      
       <div class="p">
+	<br>
+	<h2>Preparation</h2>
+	<p>
+	  Before experimenting with queries yourself, have a look that the <a href="{% url 'sled_queries:lens-all-collections' %}">standard queries and collections</a> first.
+	  Maybe what you are looking for is already there.
+	</p>
+	
+	<h2>Querying</h2>
+	<p>
+	  The <a href="{% url 'lenses:lens-query' %}">web interface</a> is the place to start for both simple and advanced queries.
+	  Joined queries, the real power of SLED, are straightforward.
+	  All the query fields are explained in the <a href="{% url 'sled_guide:sled-guide' %}#querying-api-queries">guide</a>.
+	</p>
 	
 	<h2>Processing the result</h2>
 	<p>
 	  <ul>
 	    <li>
-	      <b>Export the result</b> - asdfas dfasd
+	      <b>Export the result</b> - the returned lenses can be downloaded in .json format by clicking on the 'Export .json' button at the end of the query result list.
+	      It is possible to select which lens fields to download and any related data to attch to them.
 	    </li>
 	    <li>
-	      <b>Make a collection</b> - asdfas dfasd
+	      <b>Make a collection</b> - you can select some or all returned lenses by clicking on the checkboxes and create a new collection, or add them to an existing one.
 	    </li>
 	    <li>
-	      <b>Save the query</b> - adsfas dfasd 
+	      <b>Save the query</b> - the query parameters can be saved by cliking the 'Save query' button at the top of the query results.
+	      Saved queries can be accessed in your <a href="{% url 'sled_queries:queries-list' %}">user profile</a>.
+	      In contrast to a collection, these queries are dynamic and will return any newly injected lenses when used.
 	    </li>
 	  </ul>
 	</p>
-
+	<br>
       </div>
     </div>
+
+
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="faq-2">
+      <h1 class="coming-soon jb-heading-2">
+	<label for="faq-2">
+	  <b>Querying</b>&nbsp; the API for the RA,DEC only? - coming soon
+	</label>
+      </h1>
+      <div class="p">
+	Coming soon
+      </div>
+    </div>
+    
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-3">
       <h1 class="coming-soon jb-heading-2">
 	<label for="faq-3">
-	  How to &nbsp;<b>query</b>&nbsp; the database using all its advanced features? - coming soon
+	  How to make an API &nbsp;<b>query</b>&nbsp; using all the advanced features? - coming soon
 	</label>
       </h1>
       <div class="p">
@@ -111,7 +139,7 @@
       <input class="accordion-checkbox" type="checkbox" id="faq-12">
       <h1 class="coming-soon jb-heading-2">
 	<label for="faq-12">
-	  Can I run &nbsp;<b>massive queries</b>&nbsp; involving the entire database? - coming soon
+	  What about &nbsp;<b>massive queries</b>&nbsp; involving the entire database? - coming soon
 	</label>
       </h1>
       <div class="p">
@@ -448,12 +476,12 @@
 
 {% block extrastyles %}
 <link href="{% static 'sled_users/css/sled_users.css' %}" rel="stylesheet" />
-<link href="{% static 'sled_howto/css/howto.css' %}" rel="stylesheet" />
+<link href="{% static 'sled_guide/css/howto.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
   
 {% block extrascripts %}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
-<script type="text/javascript" src="{% static 'sled_howto/js/sled_howto.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_guide/js/howto.js' %}"></script>
 {% endblock extrascripts %}

@@ -1,0 +1,34 @@
+{% extends 'master_header.html' %}
+{% load static %}
+
+{% block content %}
+<div class="jb-container">
+  <br>
+  <br>
+
+  <h3>Guide</h3>
+
+  <a href="{% url 'sled_guide:sled-guide' %}">here</a>
+
+
+  <h3>FAQ</h3>
+
+  <a href="{% url 'sled_guide:sled-howto' %}">here</a>
+
+
+  <h3>Code of Conduct</h3>
+
+  <a href="{% url 'sled_guide:sled-coc' %}">here</a>
+
+  
+  
+</div>
+{% endblock content %}
+
+
+{% block extrastyles %}
+{% endblock extrastyles %}
+
+
+{% block extrascripts %}
+{% endblock extrascripts %}
