@@ -97,7 +97,18 @@ class GuideView(TemplateView):
         fields_help = get_model_fields('GenericImage',['ForeignKey','GM2MRelation','ManyToManyField','BigAutoField'],['created_at','modified_at','access_level'])
         context['genericimage_model'] = fields_help
 
-
+        # Management options
+        down_form = ManagementQueryForm(user=self.request.user)
+        management_options = { field.name: field.help_text for field in down_form }
+        management_options["owner"] += " You must know the correct user names in advance."
+        management_options["collections"] += " You must know the correct collection names in advance."
+        context["management_options"] = management_options
+        
+        # Download options
+        down_form = DownloadChooseForm()
+        context["down_lens_options"] = down_form.fields['lens_options'].choices
+        context["down_related_options"] = down_form.fields['related'].choices
+            
 
 
         ######################## QUERY FORM FIELDS ########################

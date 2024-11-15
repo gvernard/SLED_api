@@ -926,11 +926,11 @@ class ManagementQueryForm(forms.Form):
     access_level = forms.ChoiceField(choices=access_choices,
                                      required=False,
                                      label="Access level",
-                                     help_text='Select public or private lenses only')
+                                     help_text='Select public or private lenses only.')
     owner = forms.ModelMultipleChoiceField(queryset=Users.objects.all(),
                                            required=False,
                                            label='Owned by',
-                                           help_text="Select one or more users")
+                                           help_text="Select one or more users (OR clause).")
     #collections = forms.ModelChoiceField(queryset=Collection.objects.all(),
     #                                     required=False,
     #                                     empty_label='---------',
@@ -941,7 +941,7 @@ class ManagementQueryForm(forms.Form):
                                                  required=False,
                                                  widget=s2forms.Select2MultipleWidget(attrs={'class':'my-select2 collections-select','data-placeholder':'Select one or more collections','data-allow-clear':False,'width':'300px'}),
                                                  label='In collection',
-                                                 help_text="Select one or more collections")
+                                                 help_text="Select one or more collections.")
     collections_and = forms.BooleanField(required=False,
                                         label='Collection AND/OR',
                                         help_text="Join the selected collections as an AND or OR clause.",
@@ -996,25 +996,49 @@ class DownloadForm(BSModalForm):
                            )
     
 class DownloadChooseForm(BSModalForm):
-    ids = forms.CharField(widget=forms.HiddenInput())
+    ids = forms.CharField(widget=forms.HiddenInput(),
+                          required=False)
     N = forms.IntegerField(required=False,
                            label="N<sub>images,min</sub>",
                            help_text="Minimum number of source images.",
                            widget=forms.NumberInput(attrs={"disabled": True}),
                            )
-
+    
     OPTIONS = (
-        ("redshift", "Redshifts"),
         ("imaging", "Imaging Data"),
         ("spectrum", "Spectra"),
         ("catalogue", "Catalogue Data"),
+        ("redshift", "Redshifts"),
         ("genericimage", "Generic Images"),
-        ("papers", "Papers"),
         #("models", "Models"),
+        ("papers", "Papers"),
     )
-    related = forms.MultipleChoiceField(required=False,widget=forms.CheckboxSelectMultiple,choices=OPTIONS)
+    related = forms.MultipleChoiceField(required=False,
+                                        widget=forms.CheckboxSelectMultiple,
+                                        help_text="Select which related data to download.",
+                                        choices=OPTIONS)
 
+
+    LENS_OPTIONS = (
+        ('ra','RA'),
+        ('dec','DEC'), # These are just to have something initial choices, overrriden in __init__
+    )
+    lens_options = forms.MultipleChoiceField(required=True,
+                                             widget=forms.CheckboxSelectMultiple,
+                                             help_text="Select which lens fields to download.",
+                                             choices=LENS_OPTIONS)
     
+    
+    def __init__(self, *args, **kwargs):
+        super(DownloadChooseForm, self).__init__(*args, **kwargs)
+        fields = Lenses._meta.get_fields()
+        LENS_OPTIONS = []
+        for field in fields:
+            if field.get_internal_type() not in ['ForeignKey','GM2MRelation','ManyToManyField','BigAutoField'] and field.name not in ['created_at','modified_at']:
+                LENS_OPTIONS.append( (field.name,field.verbose_name) )
+        self.fields['lens_options'].choices = LENS_OPTIONS
+        self.fields['lens_options'].initial = ['ra','dec']
+
     def clean_related(self):
         # This reverses the choices (passing the unselected choices)
         available_choices = [ choice[0] for choice in self.fields['related'].choices ]
@@ -1022,7 +1046,15 @@ class DownloadChooseForm(BSModalForm):
         reverse_choices = list(set(available_choices) - set(choices))
         return reverse_choices
 
-        
+    def clean_lens_options(self):
+        # This reverses the choices (passing the unselected choices)
+        available_choices = [ choice[0] for choice in self.fields['lens_options'].choices ]
+        choices = self.cleaned_data['lens_options']
+        reverse_choices = list(set(available_choices) - set(choices))
+        return reverse_choices
+
+
+    
    
     
 

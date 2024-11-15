@@ -13,6 +13,21 @@
 }
 
 
+.down-options {
+    table-layout: fixed;
+    width: 1000px;
+}
+
+.down-options td {
+    vertical-align: top;
+    border-top: 0px solid #ACACAC;
+}
+
+.middle {
+    width: 80px;
+}
+
+
 .form_table {
     table-layout: fixed;
     width: 1000px;

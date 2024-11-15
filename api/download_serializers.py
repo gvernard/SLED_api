@@ -183,14 +183,21 @@ class LensDownSerializerAll(serializers.ModelSerializer):
 
         
     def __init__(self, *args, **kwargs):
-        # Instantiate the superclass normally
         super(LensDownSerializerAll, self).__init__(*args, **kwargs)
 
         fields_to_remove = self.context.get('fields_to_remove')
         for field in fields_to_remove:
             self.fields.pop(field)
 
-            
+        lens_fields = self.context.get('lens_fields')
+        if lens_fields is not None:
+            allowed = set(lens_fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
+
+
+        
         
     def to_representation(self, instance):
         ret = super().to_representation(instance)

@@ -362,14 +362,15 @@ class ExportToJSON(ModalIdsBaseMixin):
         if not ids:
             ids = query_utils.get_combined_qset(self.request.GET,self.request.user)
         ids_str = ','.join(ids)
-        return {'ids': ids_str,'N':len(ids)}
+        return {'ids': ids_str, 'N':len(ids), 'non_lens_fields': ['ids','N','related']}
 
     def my_form_valid(self,form):
         ids = form.cleaned_data['ids'].split(',')
-        fields_to_remove = form.cleaned_data['related']
-        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids).prefetch_related('imaging')
+        related_to_remove = form.cleaned_data['related']
+        lens_to_remove = form.cleaned_data['lens_options']
+        lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
         
-        serializer = LensDownSerializerAll(lenses,many=True,context={'fields_to_remove': fields_to_remove})
+        serializer = LensDownSerializerAll(lenses,many=True,context={'fields_to_remove': related_to_remove + lens_to_remove})
         data = JSONRenderer().render(serializer.data)
                 
         response = HttpResponse(data,content_type='application/json')

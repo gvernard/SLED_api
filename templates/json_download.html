@@ -18,9 +18,32 @@ Download as .json?
   </div>
   {% endif %}
   
-  You will download details for <b>{{ form.N.value }}</b> lenses.
-  <br>
-  <br>
+  You will download details for <b>{{ form.N.value }}</b> lenses.<br>
+  Select which lens fields you require (described <a href="{% url 'sled_guide:sled-guide' %}#object-specs-lens" target="_blank">here</a>):<br>
+
+  {% if form.lens_options.errors %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.lens_options.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}  
+  <table class="jb-table-no-lines center">
+    {% for radio in form.lens_options %}
+    <tr>
+      <td>
+	{{ radio.tag }}
+      </td>
+      <td>
+	<label for="{{ radio.id_for_label }}">{{ radio.choice_label|safe }}</label>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  
   You may <b>optionally</b> fetch additional data:
   <table class="jb-table-no-lines center">
     {% for radio in form.related %}

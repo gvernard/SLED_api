@@ -1,8 +1,13 @@
 .center {
     width: 200px;
-    margin-left: 160px;
+    margin: 10px 0px 10px 160px;
 }
 
 .center label {
     margin-bottom: 0px;
+}
+
+.center td {
+    margin: 0px;
+    padding: 2px;
 }

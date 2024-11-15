@@ -22,8 +22,8 @@
   <a href="#querying" class="w3-bar-item w3-button"><u>Querying</u></a>
   <ul>
     <li><a href="#querying-standard-queries" class="w3-bar-item w3-button">Standard queries</a></li>
-    <li><a href="#querying-api-queries" class="w3-bar-item w3-button">API queries</a></li>
     <li><a href="#querying-collections" class="w3-bar-item w3-button">Collections</a></li>
+    <li><a href="#querying-api-queries" class="w3-bar-item w3-button">API queries</a></li>
   </ul>
   
   <a href="#object-specs" class="w3-bar-item w3-button"><u>Object specifications</u></a>
@@ -130,7 +130,13 @@
 
     <div id="querying-user-queries">
       <p>
-	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models. For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search). Placing the mouse above each field label provides some information about it (units, etc). Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page. You can also save all or part of the returned lenses in a new or existing <a href="#querying-collections">Collection</a>. The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future. It is possible to select which lenses and associated to download in .json format.
+	You can perform joined queries on Lenses, data (Redshifts, Imaging Data, Spectra, and Catalogue Data), and Models.
+	For the position of the lens, you can limit the coordinates in a rectangular (box search) or in a circle around some point (Cone search).
+	Placing the mouse above each field label provides some information about it (units, etc).
+	Once you have filled in a few query fields, then you can save the query and access or modify it in your <a href="#users-user-profile">User profile</a> page.
+	You can also save all or part of the returned lenses in a new or existing <a href="#querying-collections">Collection</a>.
+	The Collection will contain the returned results at the time of creation while the query will return any new lenses that may be added in the future.
+	It is possible to select which lenses and associated to download in .json format.
       </p>
       <p>
 	<span class="soon">Coming soon</span>: querying lens Models and classification Scores.
@@ -140,7 +146,19 @@
     <div id="querying-standard-queries">
       <h3>Standard queries</h3>
       <p>
-	These are some very common queries that are centrally available, for example, to return all the lensed quasars, lensed supernovae, lenses with HST data, etc. For comments or additions to these standard queries please contact the administrators.
+	These are some very common queries that are centrally available, for example, to return all the lensed quasars, lensed supernovae, lenses with HST data, etc.
+	For comments or additions to these standard queries please contact the administrators.
+      </p>
+    </div>
+
+    <div id="querying-collections">
+      <h3>Collections</h3>
+      <p>
+	A Collection is a fixed list of lenses, as opposed to a (dynamic) query, that users can create.
+	It can be private or public, its management after creation can be passed on to another SLED user, and lenses can be removed or added to it.
+	The latter can happen either by selecting lenses from a query result, or through the detail page of a given lens.
+	Collections can be <a href="{% url 'sled_collections:collections-list' %}">searched</a> by any user.
+	Currently, there are only collections of lenses allowed, but this may be extended to models, etc, in the future.
       </p>
     </div>
     
@@ -201,17 +219,54 @@
 
       <h5>Models</h5>
       <span class="soon">Coming soon</span>
+
+      <h5>Management</h5>
+      <table class="form_table">
+	{% for key,val in management_options.items %}
+	<tr>
+	  <td>{{key}}</td>
+	  <td>{{val|safe}}</td>
+	</tr>
+	{% endfor %}
+      </table>
+
+      <h5>Download options</h5>
+      <table class="down-options">
+	<tr>
+
+	  <td>
+	    <p>
+	      These are the possible options for which lens fields (described below) to download as part of a query:
+	    </p>
+            <table class="form_table">
+	      {% for item in down_lens_options %}
+	      <tr>
+		<td>{{item.0}}</td>
+		<td>{{item.1|safe}}</td>
+	      </tr>
+	      {% endfor %}
+	    </table>
+	  </td>
+	  <td class="middle"></td>
+	  <td>
+	    <p>
+	      These are the data fields (described below) related to each lens that can be downloaded as part of a query:
+	    </p>
+            <table class="form_table">
+	      {% for item in down_related_options %}
+	      <tr>
+		<td>{{item.0}}</td>
+		<td>{{item.1}}</td>
+	      </tr>
+	      {% endfor %}
+	    </table>
+	  </td>
+
+	</tr>
+      </table>
     </div>
 
 
-    <div id="querying-collections">
-      <h3>Collections</h3>
-      <p>
-	A Collection is a fixed list of lenses, as opposed to a (dynamic) query, that users can create. It can be private or public, its management after creation can be passed on to another SLED user, and lenses can be removed or added to it. The latter can happen either by selecting lenses from a query result, or through the detail page of a given lens. Collections can be <a href="{% url 'sled_collections:collections-list' %}">searched</a> by any user. Currently, there are only collections of lenses allowed, but this may be extended to models, etc, in the future.
-      </p>
-    </div>
-
-    
   </div>
   <hr>
 

@@ -196,10 +196,11 @@ class PaperExportToCSVView(BSModalFormView):
     def form_valid(self,form):
         if not is_ajax(self.request.META):
             ids = form.cleaned_data['ids'].split(',')
-            fields_to_remove = form.cleaned_data['related']
-            lenses = Lenses.accessible_objects.in_ids(self.request.user,ids).prefetch_related('imaging')
+            related_to_remove = form.cleaned_data['related']
+            lens_to_remove = form.cleaned_data['lens_options']
+            lenses = Lenses.accessible_objects.in_ids(self.request.user,ids)
             
-            serializer = LensDownSerializerAll(lenses,many=True,context={'fields_to_remove': fields_to_remove})
+            serializer = LensDownSerializerAll(lenses,many=True,context={'fields_to_remove': related_to_remove + lens_to_remove})
             data = JSONRenderer().render(serializer.data)
             
             response = HttpResponse(data,content_type='application/json')

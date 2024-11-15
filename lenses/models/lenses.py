@@ -198,7 +198,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
                                     null=True,
                                     max_digits=6,
                                     decimal_places=4,
-                                    verbose_name="Separation",
+                                    verbose_name="Image separation",
                                     help_text="An estimate of the maximum image separation or arc radius [arcsec]. Must be positive and <100.",
                                     validators=[MinValueValidator(0.0,"Separation must be positive."),
                                                 MaxValueValidator(100,"Separation must be less than 10 arcsec.")])

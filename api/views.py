@@ -445,35 +445,35 @@ class QueryLensesFull(APIView):
             else:
                 forms_with_errors.append(name) 
                 error_messages.append(form.errors)
-        
+
+        down_form = forms.DownloadChooseForm(request.data,prefix="download")
+        if not down_form.is_valid():
+            forms_with_errors.append("download")
+            error_messages.append(down_form.errors)
+            
         if len(forms_with_errors) > 0:
             return Response({'errors':error_messages})
         else:
-
             qset = query_utils.combined_query(
-                lens_form.cleaned_data, redshift_form.cleaned_data, imaging_form.cleaned_data,
-                spectrum_form.cleaned_data, catalogue_form.cleaned_data, management_form.cleaned_data, user)
+                lens_form.cleaned_data,
+                redshift_form.cleaned_data,
+                imaging_form.cleaned_data,
+                spectrum_form.cleaned_data,
+                catalogue_form.cleaned_data,
+                management_form.cleaned_data,
+                user
+            )
 
             #print('qset finished in', time.time()-t1)
             #print('qset size: ', qset.count())
 
-
-            fields = ["redshift", "imaging", "spectrum", "catalogue", "genericimage", "papers"]
-            fields_to_remove = []
-            for field in fields:
-                key = 'download_choices-'+field
-                if key in request.data.keys():
-                    val = int(request.data[key])
-                    if val == 0:
-                        fields_to_remove.append(field)
-                else:
-                    fields_to_remove.append(field)
-            
-            serializer = LensDownSerializerAll(qset, many=True, context={'fields_to_remove':fields_to_remove})
+            related_to_remove = down_form.cleaned_data['related']
+            lens_to_remove = down_form.cleaned_data['lens_options']
+            serializer = LensDownSerializerAll(qset, many=True, context={'fields_to_remove': related_to_remove + lens_to_remove})
             lensjsons = serializer.data
             #print(lensjsons)
 
-            return Response({'lenses':lensjsons, 'errors':''})
+            return Response({'lenses':lensjsons, 'errors':[]})
 
 
 class QueryPapers(APIView):
