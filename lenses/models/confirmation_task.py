@@ -980,6 +980,8 @@ class AcceptNewUser(ConfirmationTask):
                 'domain': site.domain,
                 'response': self. heard_from().get().response_comment,
                 'user_url': task_owner.get_absolute_url(),
+                'coc_url': reverse('sled_guide:sled-coc'),
+                'help_url': reverse('sled_guide:help'),
                 'username': task_owner.username,
             }
             html_message = html_message.render(mycontext)
