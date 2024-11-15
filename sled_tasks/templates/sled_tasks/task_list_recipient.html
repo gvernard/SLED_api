@@ -51,12 +51,10 @@
           View
         </button>
         {% else %}
-        {% if task.cargo.user_admin == request.user.username %}
         <button type="button" id="view-task" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_tasks:tasks-detail-admin-recipient' task.id %}">
           <img src="{% static 'icons/send-fill.svg' %}">
           Respond
         </button>
-        {% endif %}
         {% endif %}
         
         {% else %}
