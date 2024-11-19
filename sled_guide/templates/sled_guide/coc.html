@@ -1,67 +1,95 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load email_obfuscator %}
+
 
 {% block content %}
 <div class="jb-container">
   <br>
   <br>
 
-  <h1 id="code-of-conduct-for-the-strong-lensing-database-sled-">Code of Conduct for the Strong Lensing Database (SLED)</h1>
-  
+  <h1 id="code-of-conduct-for-the-strong-lensing-database-sled-">Code of Conduct for the Strong Lensing Database (SLED)</h1>  
   <p>
-    Welcome to the Strong Lensing Database (SLED), a collaborative database platform dedicated to the listing of gravitational lenses and ancillary data. To ensure a positive and respectful environment, we ask all users to adhere to the following guidelines.
-  </p>
-  
-  <hr>
-  
-  <h2 id="-1-community-standards-"><strong>1. Community Standards</strong></h2>
-  <p>
-    SLED aims to foster an open, respectful, and scientifically rigorous community. By participating in SLED, you agree to:
-  </p>
-  <ul>
-    <li><strong>Respect Others:</strong> Engage with all users in a polite, constructive, and professional manner, regardless of their background or opinions.</li>
-    <li><strong>Scientific Transparency:</strong> Share data openly and transparently when permitted or by choice, respecting ownership and privacy where applicable.</li>
-    <li><strong>Integrity and Accuracy:</strong> Ensure all shared content is accurate and scientifically relevant.</li>
-  </ul>
-  
-  <hr>
-  
-  <h2 id="-2-appropriate-use-of-the-platform-"><strong>2. Appropriate Use of the Platform</strong></h2>
-  
-  <h3 id="-data-sharing-and-contributions-"><strong>Data Sharing and Contributions</strong></h3>
-  <ul>
-    <li>Contributions should be directly related to gravitational lensing and align with the goals of the community.</li>
-    <li>Users may choose to keep their data private or share it publicly. When sharing publicly, contributions must be clear and well-documented.</li>
-  </ul>
-  
-  <h3 id="-content-restrictions-"><strong>Content Restrictions</strong></h3>
-  <ul>
-    <li>Uploading offensive, unrelated, or inappropriate images or content is strictly prohibited and will result in immediate action, starting with a ban.</li>
-    <li>Contributions should focus on gravitational lensing; unrelated materials disrupt the community&#39;s goals.</li>
-  </ul>
-  <hr>
-  
-  <h2 id="-3-citing-and-acknowledging-sled-"><strong>3. Citing and Acknowledging SLED</strong></h2>
-  <p>
-    SLED is a community resource, and proper citation ensures its recognition and continued growth. If SLED is used in a publication:
-  </p>
-  <ul>
-    <li><strong>Citations:</strong> Include a citation for the database: DOI REPLACE_PLACE_HOLDER_DOI</li>
-    <li><strong>Acknowledgment:</strong> Add the following statement to your publication&#39;s acknowledgment section:<blockquote>
-	<p>&quot;This work utilized data and resources provided by the Strong Lensing Database (SLED, DOI: REPLACE_PLACE_HOLDER_DOI).&quot;</p>
-      </blockquote>
-    </li>
-    <li>If specific datasets or images are used, credit the contributors appropriately.</li>
-  </ul>
-  
-  <h2 id="-5-contact-and-feedback-"><strong>5. Contact and Feedback</strong></h2>
-  <p>
-    We value your feedback to help improve SLED. If you encounter issues, violations, or have suggestions, please reach out to us at GIORGOS@hotmail.co.uk.gr
+    Welcome to the Strong Lensing Database (SLED), a collaborative database platform dedicated to the listing of gravitational lenses and ancillary data.
+    To ensure a positive and respectful environment, we ask all users to adhere to the following guidelines.
   </p>
   <hr>
+
+
+  <div class="jb-section">
+    <h2 id="-1-community-standards-">SLED is part of AMNH</h2>
+    <p>
+      SLED is part of the department of astronomy of the American Museum of Natural History.
+      Under the museum guidelines, SLED users should agree to the <a href="https://digitallibrary.amnh.org/info/end-user-agreement">general terms and conditions of the AMNH Library Digital Repository</a>.
+      These guidelines should supersede the rest of this code of conudct in case of conflict.
+    </p>
+  </div>
   
-  <p>
-    By contributing to SLED, you help advance gravitational lensing research and foster a vibrant scientific community. Thank you for upholding these standards and contributing responsibly!
+  
+  <div class="jb-section">
+    <h2 id="-1-community-standards-">Community Standards</h2>
+    <p>
+      SLED aims to foster an open, respectful, and scientifically rigorous community. By participating in SLED, you agree to:
+    </p>
+    <ul>
+      <li><strong>Respect Others</strong>: Engage with all users in a polite, constructive, and professional manner, regardless of their background or opinions.</li>
+      <li><strong>Scientific Transparency</strong>: Share data openly and transparently when permitted or by choice, respecting ownership and privacy where applicable.</li>
+      <li><strong>Integrity and Accuracy</strong>: Ensure all shared content is accurate and scientifically relevant.</li>
+    </ul>
+  </div>
+
+  
+  <div class="jb-section">
+    <h2 id="-2-appropriate-use-of-the-platform-">Appropriate Use of the Platform</h2>
+  
+    <h4 id="-data-sharing-and-contributions-">Data Sharing and Contributions</h3>
+    <ul>
+      <li>Contributions should be directly related to gravitational lensing and align with the goals of the community.</li>
+      <li>Users may choose to keep their data private or share it publicly. When sharing publicly, contributions must be clear and well-documented.</li>
+    </ul>
+    
+    <h4 id="-content-restrictions-">Content Restrictions</h3>
+    <ul>
+      <li>Uploading offensive, unrelated, or inappropriate images or content is strictly prohibited and will result in immediate action, starting with locking your user account all the way to permanent ban from using SLED's resources.</li>
+      <li>Contributions should focus on gravitational lensing; unrelated materials disrupt the community&#39;s goals.</li>
+    </ul>
+  </div>
+
+  
+  <div class="jb-section">
+    <h2 id="-3-citing-and-acknowledging-sled-">Citing and Acknowledging SLED</h2>
+    <p>
+      SLED is a community resource, and proper citation ensures its recognition and continued growth. If SLED is used in a publication:
+    </p>
+    <ul>
+      <li><u>Citations</u>: Include the following citation for the database: Vernardos et al. (2025)</li>
+      <li><u>Acknowledgment</u>: Add the following statement to your publication&#39;s acknowledgment section:
+	<blockquote>
+	  <p><i>&quot;This work utilized data and resources provided by the Strong Lensing Database (SLED).&quot;</i></p>
+	</blockquote>
+      </li>
+      <li>If specific datasets, images, collections, etc are used, credit the contributors appropriately, for example:
+	<blockquote>
+	  <p><i>&quot;We used the collection of Euclid lens candidates maintained by G. Vernardos, C. Lemon, and F. Dux.&quot;</i></p>
+	</blockquote>
+      </li>
+    </ul>
+  </div>
+
+  
+  <div class="jb-section">
+    <h2 id="-5-contact-and-feedback-">Contact and Feedback</h2>
+    <p>
+      We value your feedback to help improve SLED.
+      If you encounter issues, violations, or have suggestions, please reach out to us at {{ 'sled-info@sled.amnh.org'|obfuscate_mailto }}
+    </p>
+  </div>
+  <hr>
+
+  
+  <p class="outro">
+    By contributing to SLED, you help advance gravitational lensing research and foster a vibrant scientific community.<br>
+    Thank you for upholding these standards and contributing responsibly!
   </p>
 
 </div>
@@ -69,6 +97,7 @@
 
 
 {% block extrastyles %}
+<link href="{% static 'sled_guide/css/coc.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
 
 

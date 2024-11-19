@@ -1,0 +1,14 @@
+blockquote {
+    display: block;
+    margin: 12px 2px;
+}
+
+
+.outro {
+    width: 80%;
+    margin: 40px auto;
+    padding: 20px 10px;
+    text-align: center;
+    border: 2px solid #6F73DD;
+    border-radius: 25px;
+}

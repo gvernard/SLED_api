@@ -6,22 +6,31 @@
   <br>
   <br>
 
-  <h3>Guide</h3>
+  <h3>Frequently Asked Questions</h3>
+  <p>
+    A list of frequently asked questsions, as well as several &quot;How to&quot; guides can be found <a href="{% url 'sled_guide:sled-howto' %}">here</a>.
+    This is the place to start if you just joined SLED, or if you are trying to achieve something specific, e.g. how to inject or download lenses and associated data, upload a paper, etc.
+  </p>
 
-  <a href="{% url 'sled_guide:sled-guide' %}">here</a>
-
-
-  <h3>FAQ</h3>
-
-  <a href="{% url 'sled_guide:sled-howto' %}">here</a>
-
-
+  <h3>Features guide</h3>
+  <p>
+    Details on the implementation of SLED can be found in <a href="{% url 'sled_guide:sled-guide' %}">this guide</a>.
+    This is the place to look for a description of user roles, private and public access, specification of all the fields that are stored in the database, descriptions of all the tasks, etc.
+    This is a technical guide but it can also be used for reference, e.g. when someone is looking for a complete description of all the queryable fields.
+  </p>
+  
   <h3>Code of Conduct</h3>
+  <p>
+    SLED constitutes a community of users that is based on mutual trust and respect.
+    The highest standard of research with SLED can be achieved through academic integrity and respect.
+    Every user is expected to read and adhere to the <a href="{% url 'sled_guide:sled-coc' %}">code of conduct</a>.
+  </p>
 
-  <a href="{% url 'sled_guide:sled-coc' %}">here</a>
-
-  
-  
+  <h3>Acknowledgements</h3>
+  <p>
+    SLED is supported by the American Museum of Natural History that kindly provides web hosting, resources, and infrastructure support.
+    In particular, thanks goes to: Sajesh, Lawrence, and Paul from the IT team.
+  </p>  
 </div>
 {% endblock content %}
 
