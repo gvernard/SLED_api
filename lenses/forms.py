@@ -622,12 +622,14 @@ class ImagingQueryForm(DataBaseQueryForm):
     band = forms.ModelChoiceField(
         label = 'Band',
         queryset = Band.objects.all(),
+        to_field_name = "name",
         required = False,
     )
     instrument = forms.ModelMultipleChoiceField(
         label = 'Instrument',
         #queryset = Instrument.objects.filter(base_types__icontains='Imaging'),
         queryset = Instrument.objects.all(),
+        to_field_name = "name",
         required = False,
         widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
                                                       'data-placeholder':'Select an instrument',
@@ -682,6 +684,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
         label = 'Instrument',
         #queryset = Instrument.objects.filter(base_types__icontains='Spectrum'),
         queryset = Instrument.objects.all(),
+        to_field_name = "name",
         required = False,
         widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
                                                       'data-placeholder':'Select an instrument',
@@ -737,7 +740,7 @@ class SpectrumQueryForm(DataBaseQueryForm):
                                         )
 
     def clean(self):
-        super(SpectrumQueryForm,self).clean()        
+        super(SpectrumQueryForm,self).clean()
         if self.cleaned_data.get('exposure_time_min') and self.cleaned_data.get('exposure_time_max'):
             if float(self.cleaned_data.get('exposure_time_min')) > float(self.cleaned_data.get('exposure_time_max')):
                 self.add_error('__all__','The maximum exposure time is lower than the minimum.')
@@ -755,6 +758,7 @@ class CatalogueQueryForm(DataBaseQueryForm):
         label = 'Instrument',
         #queryset = Instrument.objects.filter(base_types__icontains='Catalogue'),
         queryset = Instrument.objects.all(),
+        to_field_name = "name",
         required = False,
         widget = s2forms.Select2MultipleWidget(attrs={'class':'my-select2 jb-myselect2',
                                                       'data-placeholder':'Select an instrument',
