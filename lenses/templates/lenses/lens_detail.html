@@ -105,7 +105,7 @@
 	  <h1 class="jb-heading-2">Admin actions</h1>
 	  
 	  <div>
-	    <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}" data-sled-onload="set_modal_update">
+	    <button type="button" class="sled-modal-wide jb-submit-button-1" data-form-url="{% url 'lenses:lens-update-modal' lens.id %}" data-sled-onload="set_modal_update_lens">
 	      <img src="{% static 'icons/pencil.svg' %}" alt="pencil">
 	      Update lens
 	    </button>
@@ -587,6 +587,7 @@
 <script type="text/javascript" src="{% static 'js/tooltipster.bundle.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'js/set_help.js' %}"></script>
 <script type="text/javascript" src="{% static 'lenses/js/autocomplete.js' %}"></script>
+<script type="text/javascript" src="{% static 'lenses/js/lens_update_modal.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_single_objects/js/so_cede_ownership.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_single_objects/js/so_give_revoke_access.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_papers/js/paper_quick_query.js' %}"></script>

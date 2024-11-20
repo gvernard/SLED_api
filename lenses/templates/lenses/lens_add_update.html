@@ -91,6 +91,14 @@
 			    </td>
                             <td>{{ form.flag }}</td>
                           </tr>
+                          <tr>
+                            <td>{{ form.score.errors }}</td>
+			    <td>
+			      <div class="sled-help-tooltip">{{ form.score.label|safe }}</div>
+			      <div class="sled-help-tooltip-content">{{ form.score.help_text|safe }}</div>
+			    </td>
+                            <td>{{ form.score }}</td>
+                          </tr>
 			  {% if request.resolver_match.url_name == 'lens-add' %}
                           <tr>
                             <td>{{ form.access_level.errors }}</td>

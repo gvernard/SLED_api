@@ -103,6 +103,18 @@ Update Lens {{ lens.name }}
 		</td>
                 <td>{{ form.flag }}</td>
               </tr>
+              <tr>
+		<td>
+		  <div class="invalid jb-modal-field">
+		    {{ form.score.errors }}
+		  </div>
+                </td>
+		<td>
+		  <div class="sled-help-tooltip">{{ form.score.label|safe }}</div>
+		  <div class="sled-help-tooltip-content">{{ form.score.help_text|safe }}</div>
+		</td>
+                <td>{{ form.score }}</td>
+              </tr>
             </table>
           </div>
         </td>
