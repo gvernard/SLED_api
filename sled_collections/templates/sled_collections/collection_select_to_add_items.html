@@ -19,10 +19,13 @@ Select one of your collections to add the items
     </ul>
   </div>
   {% endif %}
-  
-  
+
   <div>
-    {{ form.target_collection }}
+  {% if form.Ncols.value == 0 %}
+  You don't currently have any collections!
+  {% else %}
+  {{ form.target_collection }}
+  {% endif %}
   </div>
   
   {{ form.ids }}
@@ -31,9 +34,11 @@ Select one of your collections to add the items
 
 
 {% block action_button %}
+{% if form.Ncols.value != 0 %}
 <button type="submit" class="jb-submit-button-1">
   <img src="{% static 'icons/plus.svg' %}" >
   Add to collection
 </button>
+{% endif %}
 {% endblock action_button %}
 

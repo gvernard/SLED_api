@@ -162,12 +162,15 @@ class CollectionAddItemsForm(BSModalForm):
                                                widget=forms.RadioSelect(attrs={'class':'jb-select-radio'})
                                                )
     obj_type = 'dum'  # necessary to define self.obj_type
+    Ncols = forms.IntegerField(required=False,widget=forms.HiddenInput()) # The number of collecitons owned
 
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         self.obj_type = kwargs.pop('obj_type')
         super().__init__(*args, **kwargs)
-        self.fields['target_collection'].queryset = Collection.accessible_objects.owned(self.user).filter(item_type__exact=self.obj_type)
+        collections = Collection.accessible_objects.owned(self.user).filter(item_type__exact=self.obj_type)
+        self.fields['target_collection'].queryset = collections
+        self.fields['Ncols'].initial = collections.count()
 
     def clean(self):
         col = self.cleaned_data.get('target_collection')
