@@ -169,10 +169,6 @@ class CollectionDeleteView(BSModalDeleteView):
         messages.add_message(self.request,messages.ERROR,"The collection is already in a CedeOwnership task.")
         return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
    
-    def delete(self, *args, **kwargs):
-        self.object = self.get_object()
-        return super().delete(*args, **kwargs)
-
     
 @method_decorator(login_required,name='dispatch')
 class CollectionUpdateView(BSModalUpdateView):
