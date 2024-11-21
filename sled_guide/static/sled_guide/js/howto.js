@@ -25,5 +25,12 @@ $(document).ready(function() {
 	    modalID: "#id-modal",
 	});
     });
+
+    $('.same-page').click(function(e){
+	e.preventDefault();
+	var hash = $(this).attr('href');
+	$(hash).trigger("click");
+	$('html,body').animate({scrollTop: $(hash).offset().top},'slow');
+    });
     
 });
