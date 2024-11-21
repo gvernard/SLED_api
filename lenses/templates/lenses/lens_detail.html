@@ -482,8 +482,7 @@
 	    </div>
 	  </td>
 	  <td>
-	    SLED team: Plotting is currently disabled due to a CSP conflict.
-	    <div id="plot"></div>
+	    <div id="plot" class="no-inline-styles"></div>
 	  </td>
       </table>
     </div>
@@ -568,12 +567,12 @@
   </div>
   
 </div>
-
 {% endblock content %}
 
 
 {% block extrastyles %}
 <link href="{% static 'lenses/css/lens_detail.css' %}" rel="stylesheet" />
+<link href="{% static 'lenses/css/plotly.css' %}" rel="stylesheet" />
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster.bundle.min.css' %}" />
 <link rel="stylesheet" type="text/css" href="{% static 'css/vendors/tooltipster-sideTip-shadow.min.css' %}" />
@@ -600,7 +599,7 @@
 <script type="text/javascript" src="{% static 'sled_data/js/spectrum_create.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_data/js/spectrum_update.js' %}"></script>
 {{ form.media.js }}
-<script type="text/javascript" src="https://cdn.plot.ly/plotly-strict-2.32.0.min.js" integrity="sha384-io8r9i/U73rQsMlreg2vHY1FEIAc4xlJf2lyiFLOD22l55ZRCazujEhU11TZvBBz" crossorigin="anonymous"></script>
+<script type="text/javascript" src="https://cdn.plot.ly/plotly-3.0.0-rc.0.min.js" integrity="sha384-9w6OI0rUXGHLv1zvRelQbhBtgIjZlCDaFqTcGQSFgqC+20e5RjXcy479qmgLUKNF" crossorigin="anonymous"></script>
 <script type="text/javascript" nonce="{{request.csp_nonce}}">
   // Create the array holding all the detections in ra,dec per instrument-band
   var data = [];
@@ -672,7 +671,7 @@
       $('.sled-catalogue-checkbox:checked').each(function(i){
           data_to_plot.push( data[$(this).val()] );
       });
-      //Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
+      Plotly.newPlot('plot',data_to_plot,layout,{displayModeBar: false});
   }
 
 
