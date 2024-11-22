@@ -92,7 +92,7 @@
 	  <ul>
 	    <li>
 	      <b>Export the result</b> - the returned lenses can be downloaded in .json format by clicking on the 'Export .json' button at the end of the query result list.
-	      It is possible to select which lens fields to download and any related data to attch to them.
+	      It is possible to select which lens fields to download and any related data to attach to them.
 	    </li>
 	    <li>
 	      <b>Make a collection</b> - you can select some or all returned lenses by clicking on the checkboxes and create a new collection, or add them to an existing one.
@@ -100,7 +100,7 @@
 	    <li>
 	      <b>Save the query</b> - the query parameters can be saved by cliking the 'Save query' button at the top of the query results.
 	      Saved queries can be accessed in your <a href="{% url 'sled_queries:queries-list' %}">user profile</a>.
-	      In contrast to a collection, these queries are dynamic and will return any newly injected lenses when used.
+	      In contrast to a collection, these queries are dynamic and will return the latest sample of matching lenses from the database each time they are used.
 	    </li>
 	  </ul>
 	</p>
@@ -111,26 +111,42 @@
 
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-2">
-      <h1 class="coming-soon jb-heading-2">
+      <h1 class="jb-heading-2">
 	<label for="faq-2">
-	  <b>Querying</b>&nbsp; the API for the RA,DEC only? - coming soon
+	  <b>Querying</b>&nbsp; the API for the RA,DEC only?
 	</label>
       </h1>
       <div class="p">
-	Coming soon
+	<br>
+	<p>
+	  A frequent use case is to check whether a list of locations on the sky matches with something in SLED.
+	  <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_simple_query.ipynb" target="_blank">This script</a> is a simple way to achieve this quickly.
+	  Note that if you are checking \( \mathcal{O}(10^2) \) of locations this may become impractical.
+	</p>
+	<br>
       </div>
     </div>
     
     
     <div class="c c-user">
       <input class="accordion-checkbox" type="checkbox" id="faq-3">
-      <h1 class="coming-soon jb-heading-2">
+      <h1 class="jb-heading-2">
 	<label for="faq-3">
-	  How to make an API &nbsp;<b>query</b>&nbsp; using all the advanced features? - coming soon
+	  How to make an API &nbsp;<b>query</b>&nbsp; using all the advanced features?
 	</label>
       </h1>
       <div class="p">
-	Coming soon
+	<br>
+	<p>
+	  Joined queries are the real power of SLED and they can be performed equally well by the web interface and the API.
+	  There are just too many combinations of query fields to document.
+	  A generic example is shown in <a href="https://github.com/gvernard/SLED_api/blob/master/examples/howto_advanced_query.ipynb" target="_blank">this script</a>.
+	  This example can be used as the basis for more creative queries by modifying and expanding it. 
+	  All the available query fields are explained in the <a href="{% url 'sled_guide:sled-guide' %}#querying-api-queries">guide</a>.
+	  Note that the lens properties and associated data to download can also be specificed as query parameters.
+	  If your desired query is too complex to be achieved through this querying mechanism, please get in touch with us: {{ 'sled-info@sled.amnh.org'|obfuscate_mailto }}
+	</p>
+	<br>
       </div>
     </div>
 
@@ -163,12 +179,10 @@
 	  The recommended approach is to upload lenses as private (PRI) and then make them public at a later time once any mistakes will have been spotted and fixed.
 	</p>
 	
-	
 	<h2>A few lenses</h2>
 	<p>
 	  If you have only a handful of new lenses to inject, then use the <a href="{% url 'lenses:lens-add' %}">web interface</a>.
 	</p>
-	
 	
 	<h2>Large numbers of lenses</h2>
 	<p>
@@ -197,7 +211,6 @@
 	    </li>
 	  </ol>	  
 	</p>
-	
 	
 	<h2>Final steps</h2>
 	<p>
@@ -251,13 +264,11 @@
 	  <u><b>NOTE:</b> SLED automatically fetches some data for newly injected lenses as described in the <a href="{% url 'sled_guide:sled-guide' %}#auto-fetching-data">guide</a>.</u>
 	</p>
 
-
 	<h2>A few images, spectra, etc</h2>
 	<p>
 	  A typical use case is having just a few images, redshifts, etc, that you are trying to inject for a single, or a few lenses.
 	  The best way to achieve this is to go directly to each lens page on the website, e.g. for <a href="https://sled.amnh.org/lenses/detail/5">Q2237+0305</a>, and click on the 'Add imaging data', 'Add redshift', etc, buttons.
 	</p>
-
 
 	<h2>Mass data injection</h2>
 	<p>
@@ -285,7 +296,6 @@
 	    </li>
 	  </ol>
 	</p>
-
 
 	<h2>Final steps</h2>
 	<p>
@@ -505,4 +515,5 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
 <script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
 <script type="text/javascript" src="{% static 'sled_guide/js/howto.js' %}"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" integrity="sha384-Wuix6BuhrWbjDBs24bXrjf4ZQ5aFeFWBuKkFekO2t8xFU0iNaLQfp2K6/1Nxveei" crossorigin="anonymous"></script>
 {% endblock extrascripts %}
