@@ -19,7 +19,7 @@ EMAIL_PORT = os.environ['DJANGO_EMAIL_PORT']
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = False
 
-ALLOWED_HOSTS = ['127.0.0.1','127.0.1.1','localhost','sled.amnh.org','216.73.242.43']
+ALLOWED_HOSTS = ['127.0.0.1','127.0.1.1','localhost','sled.amnh.org','216.73.242.43','sci-web-003.amnh.org']
 
 DATABASES = {
     'default': {
