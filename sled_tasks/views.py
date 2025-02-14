@@ -207,6 +207,7 @@ class TaskMergeDetailOwnerView(BSModalReadView):
         responses = list(self.object.get_all_responses().annotate(name=F('recipient__username')).values('name','response','created_at','response_comment'))
         context['response'] = {}
         response = json.loads(responses[0]['response_comment'])
+        print('let us get that context data like items and stuff')
         if response['response'] == '':
             context['response']['response'] = ''
             context['response']['name'] = responses[0]['name']
@@ -281,6 +282,7 @@ class TaskResolveDuplicatesCompleteDetailView(BSModalReadView):
         
         choices = [None]*len(ras)
         insert_dict = json.loads(response["response"])
+        print('here is the insert_dict in get_context_data', insert_dict)
         for i in range(0,len(insert_dict)):
             index = int(insert_dict[i]["index"])
             choice = insert_dict[i]["insert"]
@@ -498,9 +500,10 @@ class TaskMergeDetailView(TemplateView):
             if myform.is_valid():
                 # Hack to pass the insert_form responses to the task
                 my_response_comment = json.dumps(myform.cleaned_data)
-                my_response = myform.cleaned_data['response']
-                task.responses_allowed = [my_response]
-                task.registerAndCheck(request.user,my_response,my_response_comment)
+                my_response = myform.cleaned_data
+                task.responses_allowed = [my_response['response']]
+                print(my_response['response'], my_response_comment)
+                task.registerAndCheck(request.user,my_response['response'],my_response_comment)
                 return TemplateResponse(request,'simple_message.html',context={'message':'You have responded successfully to this task.'})
             else:
                 context['form'] = myform

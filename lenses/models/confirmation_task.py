@@ -339,12 +339,13 @@ class ConfirmationResponse(models.Model):
     recipient = models.ForeignKey('Users', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now=True)
     # response: just yes or now, pre-defined in database model.
-    response = models.CharField(max_length=100, help_text="The response of a given user to a given confirmation task.")
-    response_comment = models.CharField(max_length=10000,
+    response = models.CharField(max_length=10000, help_text="The response of a given user to a given confirmation task.")
+    #there is a strange bug where it complains about response_comment being too long (>100) even though the max length was 1000
+    # so I have changed it to 1001 and forced the migration fixing the issue on my local server
+    response_comment = models.CharField(max_length=1001,
                                         help_text="A comment (optional) from the recipient on the given response.",
                                         validators=[validate_language],
                                         )
-
 
 
 
@@ -618,6 +619,7 @@ class ResolveDuplicates(ConfirmationTask):
         objs_to_merge = []
         objs_to_merge_in = []
         for i in range(0,len(objects)):
+            #loop through uploaded objects that have matched duplicate
             index = str(i)
             if index in index_insert.keys():
                 if index_insert[index] == 'yes':
@@ -637,8 +639,8 @@ class ResolveDuplicates(ConfirmationTask):
                     objs_to_make_public.append(objects[i])
                 else:
                     objs_to_add.append(objects[i])
-                
-                    
+
+
         if len(objs_to_make_public) > 0:
             ids = [obj.object.pk for obj in objs_to_make_public]
             lenses = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,ids)
@@ -682,7 +684,7 @@ class ResolveDuplicates(ConfirmationTask):
             # Fetch all the existing lenses
             ids = [int(id) for id in objs_to_merge_in]
             existing = apps.get_model(app_label="lenses",model_name='Lenses').accessible_objects.in_ids(self.owner,ids)
-            
+
             for i in range(0,len(objs_to_merge)):
                 if mode == "add":
                     # Create a new PRI lens
