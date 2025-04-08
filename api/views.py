@@ -181,6 +181,23 @@ class UploadLenses(APIView):
 
     def post(self, request):
         try:
+            #The following is for help with testing, where the initial database 
+            # instance gives Cameron too many lenses and redshifts
+            """user = Users.objects.get(username='Giorgos')
+            user.limitsandroles.is_inspector = True
+            user.limitsandroles.save()
+            for lens in Lenses.objects.all():
+                lens.owner = user
+                lens.save()
+
+            for z in Redshift.objects.all():
+                z.owner = user
+                z.save()
+                
+            user = Users.objects.get(username='Cameron')
+            user.limitsandroles.limit_add_per_week = 1000
+            user.limitsandroles.save()"""
+            
             data = json.loads(request.body)
 
             # Create a formset similar to the one in LensAddView

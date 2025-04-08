@@ -803,7 +803,7 @@ class LensResolveDuplicatesView(TemplateView):
                 formset_initial.append({'index':index})
 
             FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0,formset=forms.ResolveDuplicatesFormSet)
-            myformset = FormSetFactory(initial=formset_initial,form_kwargs={"existing_list":existing})
+            myformset = FormSetFactory(initial=formset_initial,form_kwargs={"existing_list":[existing[i] for i in indices]})
 
             form_array = [None]*len(objs)
             for i,index in enumerate(indices):
@@ -829,7 +829,7 @@ class LensResolveDuplicatesView(TemplateView):
         if referer == request.path and request.user == task.owner:
             objs,indices,existing = self.get_objs_and_existing(task,request.user)
             FormSetFactory = formset_factory(form=forms.ResolveDuplicatesForm,extra=0,formset=forms.ResolveDuplicatesFormSet)
-            myformset = FormSetFactory(data=request.POST,form_kwargs={"existing_list":existing})
+            myformset = FormSetFactory(data=request.POST,form_kwargs={"existing_list":[existing[i] for i in indices]})
             
             if myformset.is_valid():
                 # Hack to pass the insert_form responses to the task

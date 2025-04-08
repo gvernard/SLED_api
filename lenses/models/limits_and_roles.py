@@ -18,7 +18,7 @@ class LimitsAndRoles(models.Model):
                                             validators=[MinValueValidator(0,"This limit cannot be negative"),
                                                         MaxValueValidator(25000,"Wow, that's a lot of items owned, are you sure?")])
     limit_add_per_week = models.IntegerField(blank=False,
-                                             default=100,
+                                             default=1000,
                                              verbose_name="Per week",
                                              help_text="The total number of items added in a week.",
                                              validators=[MinValueValidator(0,"This limit cannot be negative"),
