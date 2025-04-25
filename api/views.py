@@ -450,7 +450,7 @@ class QueryLensesFull(APIView):
         imaging_form = forms.ImagingQueryForm(request.data,prefix="imaging")
         spectrum_form = forms.SpectrumQueryForm(request.data,prefix="spectrum")
         catalogue_form = forms.CatalogueQueryForm(request.data,prefix="catalogue")
-        management_form = forms.ManagementQueryForm(request.data,prefix="management")
+        management_form = forms.ManagementQueryForm(request.data,prefix="management",user=user)
         forms_with_fields = []
         forms_with_errors = []
         zipped = zip(['lenses','redshift','imaging','spectrum','catalogue','management'],[lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,management_form])
