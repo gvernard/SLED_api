@@ -1,0 +1,42 @@
+#  ATTENTION:
+#   This file needs to be under version control.
+#   If you have to include sensitive information in it then just copy and rename it.
+services:
+  db:
+    image: mariadb:10.4
+    container_name: SLED_database
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 54321
+      MYSQL_DATABASE: strong_lenses_database
+      MYSQL_USER: sled_root
+      MYSQL_PASSWORD: 12345
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "localhost", "-u", "root", "-p54321", "-e", "SELECT 1"]
+      timeout: 5s
+      retries: 10
+    volumes:
+      - data:/var/lib/mysql
+      
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    container_name: SLED_server
+    command: sh -c "cd SLED_api/ && cp run_dev_server/settings_development.py mysite/settings.py && python3 manage.py makemigrations --noinput && python3 manage.py migrate --noinput && python3 manage.py collectstatic --noinput && python3 manage.py runserver 0.0.0.0:8000"
+    #restart: always
+    volumes:
+      - <SLED_api>:/SLED/SLED_api
+      - <init_SLED>/files:/files
+      - <init_SLED>/static:/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  data:

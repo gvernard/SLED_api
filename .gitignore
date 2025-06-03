@@ -1,7 +1,6 @@
 automated_scripts/cron_file.txt
 mysite/wsgi.py.*
 run_dev_server/docker-compose-mine.yaml*
-run_dev_server/docker-compose.yaml*
 mysite/sled-envvars.py
 
 # Environment file - added 6/3/24 by Lawrence Levinson (llevinson@amnh.org)
