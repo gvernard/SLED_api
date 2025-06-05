@@ -334,6 +334,20 @@
   </div>
 
   
+  <!-- Add a new lens model button  -->
+  <div id="lensmodels" class="jb-section jb-table-no-lines">
+    <h1 class="jb-heading-2">Lens models<h1>
+    {% if lens_models %}
+		
+	<!--if lens_models is not empty, it returns I found a lens model with a variable at the end that is defined in views.py (get context data function)  -->
+	{% endif %}
+    <button type="submit" class="jb-submit-button-1" data-form-url="{% url 'sled_lens_models:test' lens=lens.id %}" data-sled-onload="set_modal_lens_model_create">
+      <img src="{% static 'icons/plus.svg' %}">
+      Add Lens Model
+	  <!-- This is the add lens model button that will eventually have the form to upload -->
+    </button>
+  </div>
+
   
   <!-- Div containing all the imaging data  -->
   <div id="imaging" class="jb-section jb-table-no-lines">

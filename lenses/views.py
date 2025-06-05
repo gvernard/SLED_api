@@ -592,6 +592,7 @@ class LensDetailView(DetailView):
         context["redshifts"] = redshifts
         context["generic_images"] = generic_images
         context["all_collections"] = cols
+        context["lens_models"] = ['aaaa','bbb','ccc']
         return context
     
 

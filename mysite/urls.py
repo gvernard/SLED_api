@@ -65,6 +65,7 @@ urlpatterns = [
     path('sled_limits/', include('sled_limits.urls'), name='sled_limits'),
     path('captcha/', include('captcha.urls')),
     path('sled_guide/', include('sled_guide.urls'),name='sled_guide'),
+    path('sled_lens_models/', include('sled_lens_models.urls'), name='sled_lens_models'),
 #    path('sled_core/', include('sled_core.urls'), name='sled_core'),
 ]
 
