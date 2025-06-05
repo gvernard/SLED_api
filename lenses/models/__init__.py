@@ -10,5 +10,6 @@ from .sledquery import SledQuery
 from .datamodel import Instrument, Band, DataBase, Imaging, Spectrum, Catalogue, Redshift, GenericImage
 from .paper import Paper, PaperLensConnection
 from .persistent_message import PersistentMessage
+from .lens_model import LensModel
 
 default_app_config = 'lenses.apps.SledActstreamConfig'

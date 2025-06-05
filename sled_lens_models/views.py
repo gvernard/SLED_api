@@ -27,7 +27,7 @@ from bootstrap_modal_forms.mixins import is_ajax
 
 from lenses.forms import LensQueryForm,DownloadForm
 from lenses.query_utils import get_combined_qset
-#from .forms import *
+from .forms import *
 from lenses.models import Collection, Lenses, ConfirmationTask
 from urllib.parse import urlparse
 from random import randint
@@ -47,11 +47,12 @@ class LensModelDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         #add all the context it needs (?)
 
-class test(DetailView):
-    model = Lenses
-    template_name = 'lenses/test.html'
-    context_object_name = 'test'
-    test = 'hi does this work?'
+@method_decorator(login_required,name='dispatch')
+class test(BSModalCreateView):
+    template_name = 'sled_lens_models/lens_model_create.html'
+    form_class = LensModelCreateFormModal
+    #context_object_name = 'test'
+    #test = 'hi does this work?'
     #return test
 
 
