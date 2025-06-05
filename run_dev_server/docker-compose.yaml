@@ -29,9 +29,9 @@ services:
     command: sh -c "cd SLED_api/ && cp run_dev_server/settings_development.py mysite/settings.py && python3 manage.py makemigrations --noinput && python3 manage.py migrate --noinput && python3 manage.py collectstatic --noinput && python3 manage.py runserver 0.0.0.0:8000"
     #restart: always
     volumes:
-      - /Users/catherinehou/desktop/sled/SLED_api:/SLED/SLED_api
-      - /Users/catherinehou/desktop/sled/init_SLED/files:/files
-      - /Users/catherinehou/desktop/sled/init_SLED/static:/static
+      - <SLED_api>:/SLED/SLED_api
+      - <init_SLED>/files:/files
+      - <init_SLED>/static:/static
     ports:
       - "8000:8000"
     depends_on:
