@@ -17,11 +17,11 @@ import inspect
 from itertools import groupby
 from operator import itemgetter
 
-from . import SingleObject, AdminCollection
+from . import SingleObject, AdminCollection, Lenses
 from mysite.language_check import validate_language
 
 
-class Lens_Models(SingleObject):
+class LensModels(SingleObject,DirtyFieldsMixin):
     """
     Describes lens models in a one to many relationship.
     Attributes:
@@ -41,13 +41,26 @@ class Lens_Models(SingleObject):
                                    help_text="A description for your lens model.",
                                    validators=[validate_language],
                                    )
+    category = models.CharField(max_length=100,
+                                verbose_name="Category",
+                                help_text="Lens Model Category Type.",
+                                validators=[validate_language])
+
     lens = models.ForeignKey(Lenses,
                              null=True,
                              on_delete=models.SET_NULL,
                              related_name="%(class)s")
+    
+    info = models.TextField(blank=True,
+                            null=True,
+                            default='',
+                            help_text="Description of any important aspects of the model.",
+                            validators=[validate_language],
+                            )
+
 
     class Meta():
-        ordering = ["name"]
+        ordering = ["created_at"]
         db_table = "lensmodels"
         verbose_name = "Lens Model"
         verbose_name_plural = "Lens Models"

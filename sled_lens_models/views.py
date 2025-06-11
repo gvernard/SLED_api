@@ -56,57 +56,53 @@ class test(CreateView):
     #return test
     #test.html must go inside of the templates folder in my app (move from lens directory)
 
-class LensModelCreateView(CreateView):
-    model = Lenses
-    template_name = lens_model_create.html #this links to the associated template html file
-    fields = ['model_type', 'method', 'creator', 'info,'] #fields in create button template
-
-    def form_valid(self,form):
-        form.instance.creator = self.request.user
-        return super().form_valid(form)
+class LensModelCreateView(BSModalCreateView):
+    model = LensModels #must correspond to a class in the models.py file
+    template_name = 'sled_lens_models/lens_model_create.html' #this links to the associated template html file
+    form_class = LensModelCreateFormModal
 
 
-  template_name = 'sled_collections/collection_create.html'
-    form_class = CollectionCreateForm
-    success_url = reverse_lazy('sled_collections:collections-list')
+    def get_template_names(self):
+        model_name = self.kwargs.get('model')
+        return ['sled_lens_models/lens_model_create.html']
+        #grab the correct template from the templates folder
 
     def get_initial(self):
-        ids = self.request.GET.getlist('ids')
-        if not ids:
-            ids = get_combined_qset(self.request.GET,self.request.user)
-        ids_str = ','.join(ids)
-        item_type = self.kwargs['obj_type']
-        return {'ids': ids_str,'item_type':item_type}
-
+        owner = self.request.user
+        lens = Lenses.objects.get(id=self.kwargs.get('lens'))
+        return {'owner': owner, 'lens': lens}
+        #populates certain fields automatically (user and lens in question)
+    
     def get_form_kwargs(self):
-        kwargs = super(CollectionCreateView,self).get_form_kwargs()
+        kwargs = super(LensModelCreateView,self).get_form_kwargs() #LensModelsCreateView is from the view.py folder and is a class
         kwargs['user'] = self.request.user
         return kwargs
+        #when searching back for this lens, when finding its kwargs (which is information about it stored in a database), it can also find a user being the person who added the model
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        ids = self.request.GET.getlist('ids')
-        ids_str = ','.join(ids)
-        obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
-        context['items'] = obj_model.accessible_objects.in_ids(self.request.user,ids)
-        return context
+    #add form valid and invalid filters
 
-    def form_valid(self,form):
-        if not is_ajax(self.request.META):
-            ids = form.cleaned_data['ids'].split(',')
-            obj_model = apps.get_model(app_label='lenses',model_name=self.kwargs['obj_type'])
-            items = obj_model.accessible_objects.in_ids(self.request.user,ids)
-            name = form.cleaned_data['name']
-            description = form.cleaned_data['description']
-            access_level = form.cleaned_data['access_level']
-            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type=self.kwargs['obj_type'])
-            mycollection.save()
-            mycollection.myitems = items
-            mycollection.save()
-            messages.add_message(self.request,messages.SUCCESS,"Collection <b>"+name+"</b> was successfully created!")
-            return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
-        else:
-            response = super().form_valid(form)
-            return response
+    # def get_success_url(self):
+    #     return reverse('lenses:lens-detail', kwargs={'pk':self.kwargs.get('lens')})
+    #     #redirects user to lens detail page after sucess form submits 
+        
+        
+    #     def get_queryset(self):
+    #     #note: self allows the user to modify this specific lens not all lenses
+    #     model = apps.get_model(app_label='lenses', model_name=self.kwargs.get('model'))
+    #     return model.accessible_objects.owned(self.request.user)
+    #     #returns queryset based on what the editor can view (can be helpful for access level) (only needed when looking up existing set not creating new)
+
+    #     def get_form_class(self):
+    #     model_name = self.kwargs.get('model')
+    #     return forms.LensModelCreateFormModal
+    #     #displays the form to the user
+
+
+
+        #uncomment when success message is displayed
+    
+    #add a success message function when ready
+
+#class LensModelUpdate(BSModalUpdateView):
 
         
