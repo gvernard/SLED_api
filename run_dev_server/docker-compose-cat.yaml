@@ -5,7 +5,7 @@ services:
   db:
     image: mariadb:10.4
     container_name: SLED_database
-    restart: always
+    restart: on-failure
     environment:
       MYSQL_ROOT_PASSWORD: 54321
       MYSQL_DATABASE: strong_lenses_database
