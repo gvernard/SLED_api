@@ -70,12 +70,15 @@ class DataDetailView(BSModalReadView):
 
 @method_decorator(login_required,name='dispatch')
 class DataCreateView(BSModalCreateView):
-    success_message = 'Success: %(obj_type)s was successfully added.'
+    success_message = 'Success: %(obj_type)s was successfully added.' 
+    #shows a message when object is successfully created
     inspect = False
     
     def get_queryset(self):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return model.accessible_objects.owned(self.request.user)
+        #gets correct model class from apps registry and returns queryset filtered by objects curent user owns 
+        #Means it returns specific data from the sled website and returns a list based on what is owned by the person
 
     def get_template_names(self):
         model_name = self.kwargs.get('model')
@@ -92,6 +95,7 @@ class DataCreateView(BSModalCreateView):
         else:
             # Maybe return some default error template here
             pass
+        #this retrives the proper html template based on the model url parameter (see later)
 
     def get_form_class(self):
         model_name = self.kwargs.get('model')
@@ -108,16 +112,19 @@ class DataCreateView(BSModalCreateView):
         else:
             # Maybe return some default error template here
             pass
+        #returns appropriate django form class based on model name 
         
     def get_initial(self):
         owner = self.request.user
         lens = Lenses.objects.get(id=self.kwargs.get('lens'))
         return {'owner': owner,'lens': lens}
+    #returns values for the form (if owner is set to current user and lens is fetched by id from url kwargs - dictionary of values)
 
     def get_form_kwargs(self):
         kwargs = super(DataCreateView,self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
+    #adding current user to form's kwargs-useful if the form needs adjusting 
 
     def form_valid(self,form):
         if not is_ajax(self.request.META):
@@ -145,13 +152,15 @@ class DataCreateView(BSModalCreateView):
 
         response = super(DataCreateView,self).form_valid(form)
         return response
-
+    #handles what happens if the form is valid (creates new object, sets existance flag to true, saves object, adds tasks if access level is public, manages privacy level)
     def form_invalid(self,form):
         response = super(DataCreateView,self).form_invalid(form)
         return response
+    #handles what happens if the form is invalid (calls parents form invalid and returns response)
 
     def get_success_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.kwargs.get('lens')})
+    #redirects the user to lens detail page after successful form submission
 
     def get_success_message(self):
         # HERE
@@ -161,6 +170,7 @@ class DataCreateView(BSModalCreateView):
         else:
             model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
             return self.success_message % dict(obj_type=model._meta.verbose_name.title())
+    #creates success message, but if inspect is true it sends s special warning messages
 
 
 

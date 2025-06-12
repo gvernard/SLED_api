@@ -145,18 +145,27 @@ class RedshiftCreateFormModal(BSModalModelForm):
     field_order = ['value','dvalue_max','dvalue_min','tag','method','paper','spectrum','info']
 
     class Meta:
+        #class meta is a django required inner class that defines how a form connects to a model
         model = Redshift
+        #says form is based on a redshift model
         exclude = ['spectrum']
+        #says do not include the specrum field in the form, even though its in the model
         widgets = {
             'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
+            #info field is a text area
             'owner': forms.HiddenInput(),
+            #owner and lens fields are hidden input (predefined in template)
             'lens': forms.HiddenInput(),
         }
-        
+        #widgets customizes how individual fields look
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop('user', None)
         super(RedshiftCreateFormModal, self).__init__(*args, **kwargs)
         self.fields['info'].widget.attrs['placeholder'] = self.fields['info'].help_text
+        #this runs when a form is creater, pulls out the user value from the view and saves it for use in form
+        #super() calls the base class model form to finish setting up the form
+        #sets placeholder text of the info field to be the same as its help text 
 
     def clean(self):
         super(RedshiftCreateFormModal,self).clean()
@@ -164,7 +173,12 @@ class RedshiftCreateFormModal(BSModalModelForm):
         if check["errors"]:
             for error in check["errors"]:
                 self.add_error('__all__',error)
-        return
+        #this says if there are error messages returned by check, they are added as non-field-specific errors 
+        return   
+        #returns cleaned data
+    #custom validation method  - calls default clean logic to validate fields individually
+    #calls a method to check limits 
+    #passes 1 and the name of the model redshift to check
 
 class GenericImageCreateFormModal(BSModalModelForm):
     field_order = ['name','info','image']
