@@ -3,7 +3,7 @@ from . import views
 
 app_name = 'sled_lens_models'
 urlpatterns = [
-    path('lens-model-detail/<int:pk>',views.LensModelDetailView.as_view(),name='lens-model-detail-view'),
+    path('lens-model-detail/<int:pk>',views.LensModelDetailView.as_view(),name='lens-model-detail'),
     path('test/<int:lens>', views.test.as_view(), name='test'),
     path('lens-models-create/<int:lens>', views.LensModelCreateView.as_view(), name='lens-model-create'),
     #path('lens-models-update/<int:pk>', views.CollectionRemoveItemsView.as_view(), name='collection-remove-items'),

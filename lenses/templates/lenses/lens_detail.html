@@ -338,7 +338,7 @@
   
   <!-- Add a new lens model button  -->
   <div id="lensmodels" class="jb-section jb-table-no-lines">
-    <h1 class="jb-heading-2">Lens Models<h1>
+    <h1 class="jb-heading-2">Lens Models</h1>
     {% if lens_models %}
 	<table>
       <thead>
@@ -351,8 +351,22 @@
 	</tr>
       </thead>
       <tbody>
+
+	{% for lens_model in lens_models %}
+	 <tr>
+            <td>{{ lens_model.name }}</td>
+            <td>{{ lens_model.description }}</td>
+            <td>{{ lens_model.category }}</td>
+            <td><a href="{{ lens_model.get_absolute_url }}">View</a></td>
+	</tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No lens models yet.</p>
+  {% endif %}
+ 
 	<!--if lens_models is not empty, it returns I found a lens model with a variable at the end that is defined in views.py (get context data function)  -->
-	{% endif %}
 	
     <button type="submit" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_lens_models:lens-model-create' lens=lens.id %}">
       <img src="{% static 'icons/plus.svg' %}">

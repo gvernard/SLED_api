@@ -49,7 +49,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     lens = models.ForeignKey(Lenses,
                              null=True,
                              on_delete=models.SET_NULL,
-                             related_name="%(class)s")
+                             related_name='lens_models')
     
     info = models.TextField(blank=True,
                             null=True,
@@ -70,7 +70,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     #defines how object appears when converted to a string 
 
     def get_absolute_url(self):
-        return reverse('sled_lens_models:lens-models-detail',kwargs={'pk':self.id})
+        return reverse('sled_lens_models:lens-model-detail',kwargs={'pk':self.id})
     #this does not exist yet(must code) - calls lens model detail view
     #(?) first partis app and second part is view
     

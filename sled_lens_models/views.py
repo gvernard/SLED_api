@@ -36,6 +36,8 @@ import csv
 '''class LensModelSplitListView():'''
 
 class LensModelDetailView(DetailView):
+
+
     model = Lenses
     template_name = 'lenses/lens_detail.html'
     context_object_name = 'lens'
@@ -45,7 +47,11 @@ class LensModelDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        lens = context['lens']
+        # Add related lens models to the context
+        context['lens_models'] = LensModels.objects.filter(lens=lens)
         #add all the context it needs (?)
+        return context
 
 
 class test(CreateView):
@@ -61,6 +67,11 @@ class LensModelCreateView(BSModalCreateView):
     template_name = 'sled_lens_models/lens_model_create.html' #this links to the associated template html file
     form_class = LensModelCreateFormModal
 
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['lens_models'] = LensModels.objects.filter(lens=self.object)
+        return context
 
     def get_template_names(self):
         model_name = self.kwargs.get('model')
