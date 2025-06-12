@@ -81,9 +81,9 @@ class LensModelCreateView(BSModalCreateView):
     
     #add form valid and invalid filters
 
-    # def get_success_url(self):
-    #     return reverse('lenses:lens-detail', kwargs={'pk':self.kwargs.get('lens')})
-    #     #redirects user to lens detail page after sucess form submits 
+    def get_success_url(self):
+        return reverse('lenses:lens-detail', kwargs={'pk':self.kwargs.get('lens')})
+        #redirects user to lens detail page after sucess form submits 
         
         
     #     def get_queryset(self):

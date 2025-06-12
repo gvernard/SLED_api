@@ -31,7 +31,7 @@ from itertools import chain
 
 from rest_framework.renderers import JSONRenderer
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift, GenericImage
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, SledQuery, Band, Redshift, GenericImage, LensModels
 from api.download_serializers import LensDownSerializer,LensDownSerializerAll
 from . import forms
 from . import query_utils
@@ -551,8 +551,14 @@ class LensDetailView(DetailView):
 
 
         # Redshifts
-        redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])\
 
+        #Lens Models
+        #lens_models = LensModels.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        lens_models = LensModels.objects.all() 
+        #this is a query in the lens models table and fetches all accessible objects to the user 
+        print(lens_models)
+        print(self.request.user.id)
         # Generic images
         generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
         
@@ -592,7 +598,8 @@ class LensDetailView(DetailView):
         context["redshifts"] = redshifts
         context["generic_images"] = generic_images
         context["all_collections"] = cols
-        context["lens_models"] = ['aaaa','bbb','ccc']
+        context["lens_models"] = lens_models
+       
         return context
     
 
