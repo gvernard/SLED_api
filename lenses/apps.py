@@ -18,5 +18,6 @@ class LensesConfig(AppConfig):
         registry.register(self.get_model('Catalogue'))
         registry.register(self.get_model('Redshift'))
         registry.register(self.get_model('GenericImage'))
+        registry.register(self.get_model('LensModels'))
 
         import lenses.signals

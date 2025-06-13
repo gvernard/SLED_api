@@ -76,3 +76,38 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     
 
 
+    def save(self,*args,**kwargs):
+        if self._state.adding:
+            # Creating object for the first time, calling save first to create a primary key
+            super(LensModels,self).save(*args,**kwargs)
+            if self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+        else:
+            # Updating object
+            dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
+            dirty.pop("owner",None) # Do not report ownership changes
+
+            ref_name = self.name
+            
+            if "access_level" in dirty.keys():
+                # Report only when making public
+                if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
+                    action.send(self.owner,target=self.lens,verb='MadePublicTargetLog',level='success',object_name=ref_name)
+                if dirty["access_level"]["saved"] == "PUB" and dirty["access_level"]["current"] == "PRI":
+                    action.send(self.owner,target=self.lens,verb='MadePrivateTargetLog',level='error',object_name=ref_name)
+                dirty.pop("access_level",None) # remove from any subsequent report
+
+            if len(dirty) > 0 and self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
+
+            super(LensModels,self).save(*args,**kwargs)
+
+    
+# Assign view permission to the owner of a new model
+@receiver(post_save,sender=LensModels)
+def handle_new_lens_model(sender,**kwargs):
+    created = kwargs.get('created')
+    if created: # a new lens model was added
+        lens_model = kwargs.get('instance')
+        perm = 'view_'+lens_model._meta.model_name
+        assign_perm(perm,lens_model.owner,lens_model) # lens_model here is not a list, so giving permission ot the user is guaranteed 
