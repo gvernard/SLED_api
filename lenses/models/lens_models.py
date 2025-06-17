@@ -30,6 +30,8 @@ class LensModels(SingleObject,DirtyFieldsMixin):
         lens - Uses a foreign key to the lens associated with each model
         
     """
+
+
     name = models.CharField(max_length=30,
                             help_text="A name for your lens model.",
                             unique=True,
@@ -57,6 +59,8 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                             help_text="Description of any important aspects of the model.",
                             validators=[validate_language],
                             )
+    
+    file = models.FileField(upload_to='lens_model_files/', blank=True, null=True)
 
 
     class Meta():

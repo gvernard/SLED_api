@@ -10,6 +10,7 @@ from lenses.models.lens_models import LensModels
 
 class LensModelCreateFormModal(BSModalModelForm):
     #field_order = ['name', 'description', 'category', 'info']
+    file = forms.FileField(required=True) 
 
 
     class Meta:
@@ -29,6 +30,12 @@ class LensModelCreateFormModal(BSModalModelForm):
         self.user = kwargs.pop('user', None)
         super(LensModelCreateFormModal, self).__init__(*args, **kwargs)
         self.fields['description'].widget.attrs['placeholder'] = self.fields['description'].help_text
+
+    def clean_upload(self):
+        file = self.cleaned_data.get('file') #check file field for name
+        if not file.name.endswith('.tar.gz'):
+            raise forms.ValidationError("Only .tar.gz files are allowed.")
+        return file
 
     def clean(self):
         super(LensModelCreateFormModal,self).clean()

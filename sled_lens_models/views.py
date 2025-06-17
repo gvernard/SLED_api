@@ -13,6 +13,7 @@ from django.apps import apps
 from django.urls import reverse,reverse_lazy
 from django.db.models import Q
 from django.contrib import messages
+from django import forms
 
 from guardian.shortcuts import get_objects_for_user, get_objects_for_group, get_users_with_perms, get_groups_with_perms
 
@@ -35,23 +36,31 @@ import csv
 
 '''class LensModelSplitListView():'''
 
+
 class LensModelDetailView(DetailView):
-
-
     model = Lenses
-    template_name = 'lenses/lens_detail.html'
-    context_object_name = 'lens'
+    template_name = 'sled_lens_models/lens_model_detail.html'
+    context_object_name = 'lens_model'  #getting all lens models
 
     def get_queryset(self):
-        return Lenses.accessible_objects.all(self.request.user)
+        return LensModels.accessible_objects.all(self.request.user)  #match model
+    
+
+    def get_template_names(self):
+        model_name = self.kwargs.get('model')
+        return ['sled_lens_models/lens_model_detail.html']
+        #grab the correct template from the templates folder
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         lens = context['lens']
-        # Add related lens models to the context
-        context['lens_models'] = LensModels.objects.filter(lens=lens)
-        #add all the context it needs (?)
+
+        # Only get models for THIS lens
+        #context['lens'] = lens.lens_models.order_by('-date_created')  # uses related_name from ForeignKey
+        context['lens_models'] = lens.lens_models.all()  # uses related_name from ForeignKey
         return context
+    
+
 
 
 class test(CreateView):
@@ -72,6 +81,7 @@ class LensModelCreateView(BSModalCreateView):
         context = super().get_context_data(**kwargs)
         context['lens_models'] = LensModels.objects.filter(lens=self.object)
         return context
+        form_class = LensModelCreateForm
 
     def get_template_names(self):
         model_name = self.kwargs.get('model')
@@ -90,6 +100,9 @@ class LensModelCreateView(BSModalCreateView):
         return kwargs
         #when searching back for this lens, when finding its kwargs (which is information about it stored in a database), it can also find a user being the person who added the model
     
+    def form_valid(self, form):
+        form.instance.owner = self.request.user
+        return super().form_valid(form)
     #add form valid and invalid filters
 
     def get_success_url(self):

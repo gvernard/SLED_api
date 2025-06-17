@@ -467,6 +467,7 @@ class LensDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        lens = context['lens']  
         
         #context['imagings'] = context['lens'].imaging.all(self.request.user)
         qset = Imaging.accessible_objects.all(self.request.user).filter(lens=context['lens']).filter(exists=True)
@@ -551,14 +552,11 @@ class LensDetailView(DetailView):
 
 
         # Redshifts
-        redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=context['lens'])\
+        redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=lens)
 
-        #Lens Models
-        #lens_models = LensModels.accessible_objects.all(self.request.user).filter(lens=context['lens'])
-        lens_models = LensModels.objects.all() 
-        #this is a query in the lens models table and fetches all accessible objects to the user 
-        print(lens_models)
-        print(self.request.user.id)
+        # Lens Models
+        lens_models = LensModels.objects.filter(lens=lens)
+       
         # Generic images
         generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
         
