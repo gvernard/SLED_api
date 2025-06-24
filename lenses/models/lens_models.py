@@ -60,7 +60,8 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                             validators=[validate_language],
                             )
     
-    file = models.FileField(upload_to='lens_model_files/', blank=True, null=True)
+    file = models.FileField(upload_to='lens_models/', blank=True, null=True)
+    #must define a place to put the files to upload
 
 
     class Meta():

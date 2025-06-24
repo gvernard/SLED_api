@@ -33,6 +33,10 @@ from lenses.models import Collection, Lenses, ConfirmationTask
 from urllib.parse import urlparse
 from random import randint
 import csv
+import os 
+import tarfile
+import tempfile
+from pathlib import Path
 
 '''class LensModelSplitListView():'''
 
@@ -99,11 +103,49 @@ class LensModelCreateView(BSModalCreateView):
         kwargs['user'] = self.request.user
         return kwargs
         #when searching back for this lens, when finding its kwargs (which is information about it stored in a database), it can also find a user being the person who added the model
-    
+
+    #after forms.save, 
+
     def form_valid(self, form):
         form.instance.owner = self.request.user
+        self.object = form.save()
+        try:
+            validate_coolest_file(self.object.file.path)
+        except ValidationError as e:
+            form.add_error('file', e)
+            return self.form_invalid(form)
         return super().form_valid(form)
+   
+
     #add form valid and invalid filters
+    
+
+    def validate_coolest(tar_path):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            #creates a temporary directory to extract .tar.gz contents
+            with tarfile.open(tar_path, "r:gz") as tar:
+                #opens and extracts the tarfile into temporary directory
+                #r:gz means read and decompress using gzip
+                tar.extractall(path=tmpdir)
+            
+            tmp_path=Path(tmpdir)
+            #converts string tmpdir path into a path fro object
+            required_files=['config.json']
+            required_dir=['models','data']
+            #list of things that must exist in the tar.gz file
+
+            contents= {p.name for p in tmp_path.iterdir()}
+            #creates a set of item names and returns filenames/directories
+
+            for req in required_files:
+                if req not in required_files:
+                    return False, f"missing required files: {req}"
+                
+            for req in required_dir:
+                if req not in contents:
+                    return False, f"missing required directory: {req}"
+            #checks that each required folder is in extracted archive     
+            return True, None #returns validations success and no error message
 
     def get_success_url(self):
         return reverse('lenses:lens-detail', kwargs={'pk':self.kwargs.get('lens')})

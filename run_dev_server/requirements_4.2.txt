@@ -35,3 +35,4 @@ requests>=2.27.1
 langdetect>=1.0.9
 alt-profanity-check>=1.4.2
 python-dotenv==1.0.1
+coolest
