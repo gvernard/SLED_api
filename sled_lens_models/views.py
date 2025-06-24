@@ -29,7 +29,7 @@ from bootstrap_modal_forms.mixins import is_ajax
 from lenses.forms import LensQueryForm,DownloadForm
 from lenses.query_utils import get_combined_qset
 from .forms import *
-from lenses.models import Collection, Lenses, ConfirmationTask
+from lenses.models import Collection, Lenses, ConfirmationTask, LensModels
 from urllib.parse import urlparse
 from random import randint
 import csv
@@ -42,7 +42,7 @@ from pathlib import Path
 
 
 class LensModelDetailView(DetailView):
-    model = Lenses
+    model = LensModels
     template_name = 'sled_lens_models/lens_model_detail.html'
     context_object_name = 'lens_model'  #getting all lens models
 
@@ -50,19 +50,19 @@ class LensModelDetailView(DetailView):
         return LensModels.accessible_objects.all(self.request.user)  #match model
     
 
-    def get_template_names(self):
-        model_name = self.kwargs.get('model')
-        return ['sled_lens_models/lens_model_detail.html']
-        #grab the correct template from the templates folder
+    #def get_template_names(self):
+    #    model_name = self.kwargs.get('model')
+    #    return ['sled_lens_models/lens_model_detail.html']
+    #    #grab the correct template from the templates folder
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        lens = context['lens']
+    #def get_context_data(self, **kwargs):
+        #context = super().get_context_data(**kwargs)
+        #lens_model = context['lens']
 
         # Only get models for THIS lens
         #context['lens'] = lens.lens_models.order_by('-date_created')  # uses related_name from ForeignKey
-        context['lens_models'] = lens.lens_models.all()  # uses related_name from ForeignKey
-        return context
+        #context['lens_models'] = lens.lens_models.all()  # uses related_name from ForeignKey
+        #return context
     
 
 
