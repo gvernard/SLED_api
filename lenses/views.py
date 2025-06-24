@@ -554,9 +554,11 @@ class LensDetailView(DetailView):
         # Redshifts
         redshifts = Redshift.accessible_objects.all(self.request.user).filter(lens=lens)
 
-        # Lens Models
-        lens_models = LensModels.objects.filter(lens=lens)
-       
+        #Lens Models
+        #this is a query in the lens models table and fetches all accessible objects to the user
+        lens_models = LensModels.accessible_objects.all(self.request.user).filter(lens=context['lens'])
+        
+
         # Generic images
         generic_images = GenericImage.accessible_objects.all(self.request.user).filter(lens=context['lens'])
         
