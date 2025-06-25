@@ -34,9 +34,14 @@ from urllib.parse import urlparse
 from random import randint
 import csv
 import os 
-import tarfile
+import tarfile 
 import tempfile
 from pathlib import Path
+import numpy
+import coolest
+from coolest.api.analysis import Analysis
+from coolest.api.plotting import ModelPlotter, MultiModelPlotter
+from coolest.api import util
 
 '''class LensModelSplitListView():'''
 
@@ -103,49 +108,51 @@ class LensModelCreateView(BSModalCreateView):
         kwargs['user'] = self.request.user
         return kwargs
         #when searching back for this lens, when finding its kwargs (which is information about it stored in a database), it can also find a user being the person who added the model
+   
+    
+    def validate_coolest(tar_path):
+        with tempfile.TemporaryDirectory() as tmpdir:
+        # Extract tar.gz contents
+            with tarfile.open(tar_path, "r:gz") as tar:
+                #open the tarpath and read it in (r) as a gz file
+                tar.extractall(path=tmpdir)
+                #extract everything in the tarfile and put it in the tmpdir
+                names = tar.getnames()
+                #find the names of every file in the archive, now in the temp directory
 
-    #after forms.save, 
+        # Find all .json files in the archive (thing files are stored in)
+            json_files = [name for name in names if name.endswith('.json')]
+            #says for every name in the names list, if the name ends with .json, add that name to the json_files list
 
+        # if the file contains more than 1 .json file, return a error 
+            if len(json_files) != 1:
+                return False, "Archive must contain exactly one .json file"
+
+        # Build full path to the .json file: uses Path function to define the path of the temporary directory and adds on name of the json file
+            file_path = Path(tmpdir) / json_files[0]
+
+        # Try to load with COOLEST, and if it doesn't load, return error saying it is not in the correct format
+            try:
+                coolest_obj = util.get_coolest_object(file_path, verbose=False)
+            except Exception:
+                return False, "Incorrect Format, must match COOLEST Guidelines"
+
+            return True, None
+
+    
     def form_valid(self, form):
         form.instance.owner = self.request.user
-        self.object = form.save()
+        #puts the form owner as the user
         try:
             validate_coolest_file(self.object.file.path)
+        #tries to validate the COOLEST format
         except ValidationError as e:
             form.add_error('file', e)
             return self.form_invalid(form)
+        #If there is an error, return an error
+        self.object = form.save()
+        #save the file and return the valid form message
         return super().form_valid(form)
-   
-
-    #add form valid and invalid filters
-    
-
-    def validate_coolest(tar_path):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            #creates a temporary directory to extract .tar.gz contents
-            with tarfile.open(tar_path, "r:gz") as tar:
-                #opens and extracts the tarfile into temporary directory
-                #r:gz means read and decompress using gzip
-                tar.extractall(path=tmpdir)
-            
-            tmp_path=Path(tmpdir)
-            #converts string tmpdir path into a path fro object
-            required_files=['config.json']
-            required_dir=['models','data']
-            #list of things that must exist in the tar.gz file
-
-            contents= {p.name for p in tmp_path.iterdir()}
-            #creates a set of item names and returns filenames/directories
-
-            for req in required_files:
-                if req not in required_files:
-                    return False, f"missing required files: {req}"
-                
-            for req in required_dir:
-                if req not in contents:
-                    return False, f"missing required directory: {req}"
-            #checks that each required folder is in extracted archive     
-            return True, None #returns validations success and no error message
 
     def get_success_url(self):
         return reverse('lenses:lens-detail', kwargs={'pk':self.kwargs.get('lens')})

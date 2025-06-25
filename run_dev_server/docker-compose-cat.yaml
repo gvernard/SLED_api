@@ -30,8 +30,11 @@ services:
     #restart: always
     volumes:
       - /Users/catherinehou/desktop/sled/SLED_api:/SLED/SLED_api
+      #where code is located
       - /Users/catherinehou/desktop/sled/init_SLED/files:/files
+      #where files will be stored
       - /Users/catherinehou/desktop/sled/init_SLED/static:/static
+      #images and files that are not expected to change 
     ports:
       - "8000:8000"
     depends_on:
