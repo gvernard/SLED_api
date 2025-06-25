@@ -1,39 +1,22 @@
-{% extends "modal_base.html" %}
+{% extends "master_header.html" %}
 {% load project_tags %}
-
-{% block title %}
-  {% if lens %}
-    {{ lens.name }}
-  {% else %}
-    Lens Detail
-  {% endif %}
-{% endblock %}
 
 {% block content %}
 <div class="jb-container jb-table-no-lines">
+
+  <h2>
+    Temporary detail page for a Lens Model
+  </h2>
+
+  
   <table>
-    <tr><td>Name:</td><td>{{ lens.owner|get_user_link|safe }}</td></tr>
-    <tr><td>Access level:</td><td>{{ lens.access_level }}</td></tr>
-    <tr><td>Date created:</td><td>{{ lens.date_created }}</td></tr>
-    <tr><td>Description:</td><td>{{ lens.description|default:"-" }}</td></tr>
+    <tr><td>Owned by:</td><td>{{ lens_model.owner.id|get_user_link|safe }}</td></tr>
+    <tr><td>Name:</td><td>{{ lens_model.name }}</td></tr>
+    <tr><td>Access level:</td><td>{{ lens_model.access_level }}</td></tr>
+    <tr><td>Date created:</td><td>{{ lens_model.date_created }}</td></tr>
+    <tr><td>Description:</td><td>{{ lens_model.description|default:"-" }}</td></tr>
   </table>
 
-  {% if lens_models %}
-    <h3>Lens Models for {{ lens.name }}</h3>
-    <ul>
-      {% for model in lens_models %}
-        <li>
-          <a href="{% url 'sled_lens_models:lens-models-detail' model.pk %}">{{ model.name }}</a>
-           - {{ model.mass_model|default:"(no mass model)" }}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>No lens models available for this lens.</p>
-  {% endif %}
 
-  {% if imaging and imaging.future %}
-    <p>Future</p>
-  {% endif %}
 </div>
 {% endblock content %}
