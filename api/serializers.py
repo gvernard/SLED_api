@@ -4,10 +4,13 @@ from lenses.models import Users, SledGroup, Lenses, DataBase, Imaging, Spectrum,
 from rest_framework import serializers, fields
 from rest_framework.validators import UniqueValidator
 from drf_extra_fields.fields import Base64ImageField
-import ads
 from itertools import chain
 from django.utils import timezone
-       
+#import ads
+import requests
+from urllib.parse import urlencode
+
+
 ### Users autocomplete
 ################################################################################
 class UsersSerializer(serializers.HyperlinkedModelSerializer):
@@ -482,18 +485,26 @@ class PaperUploadListSerializer(serializers.ListSerializer):
 
         ## Check ADS if bibcodes are valid and fetch data that will be added to validated_data
         ## Check only at the end in order not to waste calls to the ADS API.
-        ads.config.token = os.environ['DJANGO_ADS_API_TOKEN']
-        r = ads.RateLimits('SearchQuery')
-        q = ads.SearchQuery(bibcode="2022MNRAS.516.1347V") # random bibcode to test the remaining queries
-        q.execute()
-        print('Remaining ADS api calls: ',r.limits['remaining'])
-        if r.limits['remaining'] == 0:
-            raise serializers.ValidationError('Daily limit of contacting the ADS API has been reached. Try again in 24 hours!')
+        token = os.environ['DJANGO_ADS_API_TOKEN']
+
+        ## r = ads.RateLimits('SearchQuery')
+        ## #q = ads.SearchQuery(bibcode="2022MNRAS.516.1347V") # random bibcode to test the remaining queries
+        ## q = list(ads.SearchQuery(author="^Vernardos"))
+        ## #q.execute()
+        ## print('Remaining ADS api calls: ',r.limits['remaining'])
+        ## if r.limits['remaining'] == 0:
+        ##     raise serializers.ValidationError('Daily limit of contacting the ADS API has been reached. Try again in 24 hours!')
 
         not_in_ads = []
         in_ads = []
         for code in bibcodes:
-            articles = list(ads.SearchQuery(q='(alternate_bibcode:"'+code+'" OR bibcode:"'+code+'")',fl=['recid','title','year','first_author','author']))
+            #articles = list(ads.SearchQuery(q='(alternate_bibcode:"'+code+'" OR bibcode:"'+code+'")',fl=['recid','title','year','first_author','author']))
+
+            encoded_query = urlencode({"q": "bibcode:"+code+" OR alternate_bibcode:"+code,"fl": "title,bibcode,alternate_bibcode,id,year,first_author,author"})
+            response = requests.get("https://api.adsabs.harvard.edu/v1/search/query?{}".format(encoded_query),headers={'Authorization': 'Bearer ' + token})
+            response_json = response.json()
+            articles = response_json["response"]["docs"]
+            
             if len(articles) == 0:
                 not_in_ads.append(code)
             else:
@@ -506,15 +517,15 @@ class PaperUploadListSerializer(serializers.ListSerializer):
 
         ads_ids = []
         for i,paper in enumerate(papers):
-            ads_ids.append(in_ads[i].recid)
-            paper["ads_id"]       = in_ads[i].recid
-            paper["title"]        = in_ads[i].title[0]
-            paper["year"]         = in_ads[i].year
-            paper["first_author"] = in_ads[i].first_author
-            if len(in_ads[i].author) > 2:
+            ads_ids.append(in_ads[i]["id"])
+            paper["ads_id"]       = in_ads[i]["id"]
+            paper["title"]        = in_ads[i]["title"][0]
+            paper["year"]         = in_ads[i]["year"]
+            paper["first_author"] = in_ads[i]["first_author"]
+            if len(in_ads[i]["author"]) > 2:
                 paper["cite_as"] = paper["first_author"] + ' et al. (' + paper["year"] + ')'
             else:
-                paper["cite_as"] = ' and '.join(in_ads[i].author) + ' (' + paper["year"] + ')'
+                paper["cite_as"] = ' and '.join(in_ads[i]["author"]) + ' (' + paper["year"] + ')'
         #print(ads_ids)
         
         
