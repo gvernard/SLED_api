@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.apps import apps
 from django.urls import reverse
 from django.db.models import Q, CheckConstraint, UniqueConstraint
@@ -9,13 +9,14 @@ from django.db.models import Q, CheckConstraint, UniqueConstraint
 from gm2m import GM2MField
 import simplejson as json
 from actstream import action
+from actstream.models import action_object_stream
 from dirtyfields import DirtyFieldsMixin
 
 import inspect
 from itertools import groupby
 from operator import itemgetter
 
-from . import SingleObject, Lenses, Users
+from . import SingleObject, Lenses, Users, AdminCollection
 
 
 class Paper(SingleObject):
@@ -114,3 +115,13 @@ class PaperLensConnection(models.Model):
     #    constraints = [
     #        UniqueConstraint(fields=['lens'],condition=Q(discovery=True),name='unique_discovery')
     #    ]
+
+
+
+@receiver(pre_delete,sender=Paper)
+def my_handler(sender, instance, **kwargs):
+    ad_col = AdminCollection.objects.filter( Q(item_type="Paper") & Q(admincollection_myitems__gm2m_pk=instance.id) )
+    stream = action_object_stream(ad_col[0])
+    stream.delete()
+
+    
