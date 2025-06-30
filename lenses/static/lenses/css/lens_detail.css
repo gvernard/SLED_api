@@ -96,3 +96,7 @@
     border-radius: 0;
     display: none;
 }
+
+.side-by-side {
+    float:left;
+}

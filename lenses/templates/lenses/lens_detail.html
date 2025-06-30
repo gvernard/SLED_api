@@ -259,6 +259,10 @@
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
 	    </button>	
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:generic-image-delete' generic_image.id %}">
+	      <img src="{% static 'icons/trash.svg' %}">
+	      Delete
+	    </button>	
 	    {% endif %}
 	  </div>
 	</div>
@@ -312,16 +316,22 @@
 	  <td>
 	    {{ redshift.info }}
 	  </td>
+	  {% if redshift.owner == user %}
 	  <td>
-	    {% if redshift.owner == user %}
-	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}" data-sled-onload="set_modal_redshift_update">
+	    <button type="button" class="side-by-side sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}" data-sled-onload="set_modal_redshift_update">
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
-	    </button>	
-	    {% else %}
+	    </button>
+	    <button type="button" class="side-by-side sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-delete' redshift.id %}">
+	      <img src="{% static 'icons/trash.svg' %}">
+	      Delete
+	    </button>
+  	  </td>
+	  {% else %}
+	  <td>
 	    {{ redshift.owner }}
-	    {% endif %}
 	  </td>
+	  {% endif %}
 	</tr>
 	{% endfor %}
       </tbody>
@@ -361,7 +371,11 @@
 		<button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:imaging-update' image.id %}" data-sled-onload="set_modal_imaging_update">
 		  <img src="{% static 'icons/pencil.svg' %}">
 		  Update
-		</button>	
+		</button>
+		<button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:imaging-delete' image.id %}">
+		  <img src="{% static 'icons/trash.svg' %}">
+		  Delete
+		</button>
 		{% endif %}
 	      </div>
 	    </div>
@@ -424,7 +438,11 @@
 	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-update' spec.id %}" data-sled-onload="set_modal_spectrum_update">
 	      <img src="{% static 'icons/pencil.svg' %}">
 	      Update
-	    </button>	
+	    </button>
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:spectrum-delete' spec.id %}">
+	      <img src="{% static 'icons/trash.svg' %}">
+	      Delete
+	    </button>
 	    {% endif %}
 	  </div>
 	</div>
