@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.apps import apps
 from django.urls import reverse
 from django.db.models import F
+from django.core.files.storage import default_storage
 
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm,remove_perm
@@ -16,6 +17,7 @@ from dirtyfields import DirtyFieldsMixin
 import inspect
 from itertools import groupby
 from operator import itemgetter
+import os
 
 from . import SingleObject, AdminCollection, Lenses
 from mysite.language_check import validate_language
@@ -106,6 +108,17 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
 
             super(LensModels,self).save(*args,**kwargs)
+                
+        fname = self.file.name
+        #name associated with file from form field
+        dum,file_ext = os.path.splitext(fname)
+        #split the string of the name at the dot -- left = file name without extension and right side is the extension
+        sled_fname = self.file.field.upload_to + "/" + str( self.pk ) + ".tar." + file_ext
+        if fname != sled_fname:
+            default_storage.copy(fname,sled_fname)
+            self.file.name = sled_fname
+            super().save(*args, **kwargs)
+            default_storage.mydelete(fname)
 
     
 # Assign view permission to the owner of a new model

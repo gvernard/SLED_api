@@ -422,7 +422,7 @@ class Lenses(SingleObject,DirtyFieldsMixin):
             super(Lenses,self).save(*args,**kwargs)
 
                 
-        # Create new file and remove old one
+        # Create new file and remove old one -- changes mugshot name to something linked to specific lens
         fname = self.mugshot.name
         dum,file_ext = os.path.splitext(fname)
         sled_fname = self.mugshot.field.upload_to + "/" + str( self.pk ) + file_ext

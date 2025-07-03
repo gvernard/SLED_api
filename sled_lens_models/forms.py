@@ -33,16 +33,18 @@ class LensModelCreateFormModal(BSModalModelForm):
 
     def clean_upload(self):
         file = self.cleaned_data.get('file') #check file field for name
-        if not file.name.endswith('.tar.gz'):
-            raise forms.ValidationError("Only .tar.gz files are allowed.")
         return file
 
-    def clean(self):
-        super(LensModelCreateFormModal,self).clean()
+    #must read clean_[form field name]
+    def clean_file(self):
+        upload = self.cleaned_data.get('file')
         check = self.user.check_all_limits(1,self._meta.model.__name__)
+        #checks if the user can upload models
         if check["errors"]:
             for error in check["errors"]:
                 self.add_error('__all__',error)
-        return self.cleaned_data
+        if not upload.name.endswith('.tar.gz'):
+            raise forms.ValidationError("Only .tar.gz files are allowed.")
+        return upload
 
- 
+  
