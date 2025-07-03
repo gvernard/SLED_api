@@ -20,7 +20,7 @@ from actstream.models import following, target_stream, Action
 from operator import attrgetter
 from itertools import chain
 
-from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift, GenericImage, LimitsAndRoles
+from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, SledQuery, Imaging, Spectrum, Catalogue, Paper, PersistentMessage, Band, Instrument, Redshift, GenericImage, LimitsAndRoles, LensModels
 from .forms import UserUpdateForm,UsersSearchForm
 from .decorators import admin_access_only
 
@@ -233,10 +233,15 @@ class UserProfileView(TemplateView):
         redshifts_page_number = request.GET.get('redshifts-page',1)
         redshifts_page = redshifts_paginator.get_page(redshifts_page_number)
 
-        # Paginator for Redshift
+        # Paginator for GenericImage
         generic_image_paginator = Paginator(owned_objects["GenericImage"],50)
         generic_image_page_number = request.GET.get('generic-images-page',1)
         generic_image_page = generic_image_paginator.get_page(generic_image_page_number)
+
+        # Paginator for LensModels
+        lens_models_paginator = Paginator(owned_objects["LensModels"],50)
+        lens_models_page_number = request.GET.get('lens-models-page',1)
+        lens_models_page = lens_models_paginator.get_page(lens_models_page_number)
 
 
         #recipient = ConfirmationTask.custom_manager.all_as_recipient(self.request.user)
@@ -307,6 +312,9 @@ class UserProfileView(TemplateView):
                  'N_generic_image_total': generic_image_paginator.count,
                  'generic_image_range': generic_image_paginator.page_range,
                  'generic_images': generic_image_page,
+                 'N_lens_models_total': lens_models_paginator.count,
+                 'lens_models_range': lens_models_paginator.page_range,
+                 'lens_models': lens_models_page,
                  'collections': qset_cols,
                  'collections_users': cols_users_with_access,
                  'collections_groups': cols_groups_with_access,

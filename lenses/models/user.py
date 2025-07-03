@@ -21,7 +21,7 @@ from . import SledGroup, SingleObject, ConfirmationTask, Collection, AdminCollec
 from mysite.language_check import validate_language
 
 # Dummy array containing the primary objects in the database. Should be called from a module named 'constants.py' or similar.
-objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue","Redshift","GenericImage"]#,"Finders","Scores","ModelMethods","Models","FutureData","Data"]
+objects_with_owner = ["Lenses","ConfirmationTask","Collection","Imaging","Spectrum","Catalogue","Redshift","GenericImage","LensModels"]#,"Finders","Scores","ModelMethods"]
 
 
 

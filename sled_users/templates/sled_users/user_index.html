@@ -1057,6 +1057,133 @@
     </div>
     
     
+
+    
+    <div class="c c-user">
+      <input class="accordion-checkbox" type="checkbox" id="lens-models">
+      <h1 class="jb-heading-2">
+	<label for="lens-models">
+	  My Lens Models ({{ N_lens_models_total }})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if user.is_superuser %}
+	<p>
+	  The admin owns all the automatically fetched data, which are too many to display here.
+	  Instead, if the admin needs to update or delete data then they can do it at each lens detail page.
+	</p>
+	{% else %}
+	
+	{% if generic_images|length == 0 %}
+	No Lens Models owned
+	{% else %}
+	<form id="lens-models-form" class="ids-form" method="POST">
+          {% csrf_token %}
+	  
+	  <div>
+	    {% include "pagination_top.html" with qset=lens_models request=request qset_range=lens_models_range qset_total=N_lens_models_total target="lens-models" %}
+	    
+	    <input name="obj_type" type="hidden" value="LensModels" />
+	    <table class="items-list">
+	      <thead>
+		<tr>
+		  <th></th>
+		  <th></th>
+		  <th>Lens</th>
+		  <th>Name</th>
+		  <th>Info</th>
+		  <th>Access level</th>
+		  <th>Accessible by</th>
+		  <th>&nbsp;</th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for lens_model in lens_models %}
+		<tr>
+		  <td><input name="ids" type="checkbox" value="{{ lens_model.id }}"></td>
+		  <td><img class="sled-mugshot-icon" src="{{ lens_model.lens.mugshot.url }}"></td>
+		  <td>
+		    <a href="{{ lens_model.lens.get_absolute_url }}">{{ lens_model.lens }}</a>
+		    {% if lens_model.is_orphan %}
+		    <span class="jb-bold jb-color-red">DELETED</span>
+		    {% else %}
+		    {% can_access lens_model.lens user as flag %}
+		    {% if not flag %}
+		    <button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'lenses:lens-ask-access' lens_model.lens.pk %}">
+		      <img src="{% static 'icons/send-fill.svg' %}">
+		      Ask access
+		    </button>
+		    {% endif %}
+		    {% endif %}
+		  </td>
+		  <td>
+		    {{ lens_model.name }}
+		  </td>
+		  <td>
+		    {{ lens_model.info }}
+		  </td>
+		  <td class="access-level">
+		    {{ lens_model.access_level }}
+		  </td>
+		  <td>
+		    {{ lens_model.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens_model.getGroupsWithAccessNoOwner|join:"," }}</em>
+		  </td>
+		  <td>
+		    {% if lens_model.owner == user %}
+		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:lens-model-update' generic_image.id %}">
+		      <img src="{% static 'icons/pencil.svg' %}">
+		      Update
+		    </button>	
+		    {% endif %}
+		  </td>
+		</tr>
+		{% endfor %}
+	    </table>
+	    <button type="button" class="sled-toggle-all btn btn-sm btn-light" value="select">Toggle select all</button>
+	    <button type="button" class="sled-toggle-access btn btn-sm btn-light" value="PUB">Show PUB</button>
+	  </div>	 
+	  {% include "pagination_bottom.html" with qset=lens_models request=request qset_range=lens_models_range qset_total=N_lens_models_total target="lens-models" %}
+	  
+	  <div>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-revoke-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
+	      <img src="{% static 'icons/person-dash-fill.svg' %}" >
+	      Revoke access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-give-access' %}" data-sled-onload="set_modal_so_give_revoke_access">
+	      <img src="{% static 'icons/person-plus-fill.svg' %}" >
+	      Give access
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-public' %}">
+	      <img src="{% static 'icons/people-fill.svg' %}" >
+	      Make public
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-make-private' %}">
+	      <img src="{% static 'icons/lock-fill.svg' %}" >
+	      Make private
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'so:so-cede-ownership' %}" data-sled-onload="set_modal_so_cede_ownership">
+	      <img src="{% static 'icons/forward-fill.svg' %}" >
+	      Cede ownership
+	    </button>
+	    <button type="button" class="sled-process-ids jb-submit-button-1" data-form-url="{% url 'sled_data:data-delete-many' %}">
+	      <img src="{% static 'icons/trash.svg' %}" >
+	      Delete
+	    </button>
+	  </div>
+	  
+	</form>
+	{% endif %}
+	<br>
+	<br>
+	
+	{% endif %}
+	<br>
+      </div>
+    </div>
+
+
+
     
     
     
