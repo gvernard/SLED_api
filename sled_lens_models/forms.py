@@ -10,11 +10,11 @@ from lenses.models.lens_models import LensModels
 
 class LensModelCreateFormModal(BSModalModelForm):
     #field_order = ['name', 'description', 'category', 'info']
-    file = forms.FileField(required=True) 
+    #form_file = forms.FileField(required=True) #adds a new file field
 
 
     class Meta:
-        model = LensModels
+        model = LensModels #inherits all form fields from lens models
         #this is the name of the class from lens_models.py
         fields = '__all__'
         widgets = {
@@ -32,19 +32,23 @@ class LensModelCreateFormModal(BSModalModelForm):
         self.fields['description'].widget.attrs['placeholder'] = self.fields['description'].help_text
 
     def clean_upload(self):
-        file = self.cleaned_data.get('file') #check file field for name
+        file = self.cleaned_data.get('form_file') #check file field for name
         return file
 
     #must read clean_[form field name]
-    def clean_file(self):
-        upload = self.cleaned_data.get('file')
+    def clean_coolest_file(self):
+        upload = self.cleaned_data.get('coolest_file')
         check = self.user.check_all_limits(1,self._meta.model.__name__)
         #checks if the user can upload models
         if check["errors"]:
             for error in check["errors"]:
                 self.add_error('__all__',error)
-        if not upload.name.endswith('.tar.gz'):
-            raise forms.ValidationError("Only .tar.gz files are allowed.")
-        return upload
 
-  
+        if not upload:
+            raise forms.ValidationError("No file was uploaded.")
+        
+        if not upload.name.endswith('.tar.gz'):
+            raise forms.ValidationError("File must be a .tar.gz archive.")
+        
+        return upload
+    

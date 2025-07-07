@@ -62,7 +62,8 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                             validators=[validate_language],
                             )
     
-    file = models.FileField(upload_to='lens_models/', blank=True, null=True)
+    coolest_file = models.FileField(upload_to='lens_models/', blank=True, null=True)
+
     #must define a place to put the files to upload
 
 
@@ -109,14 +110,14 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
             super(LensModels,self).save(*args,**kwargs)
                 
-        fname = self.file.name
+        fname = self.coolest_file.name
         #name associated with file from form field
         dum,file_ext = os.path.splitext(fname)
         #split the string of the name at the dot -- left = file name without extension and right side is the extension
-        sled_fname = self.file.field.upload_to + "/" + str( self.pk ) + ".tar." + file_ext
+        sled_fname = self.coolest_file.field.upload_to + "/" + str( self.pk ) + ".tar." + file_ext
         if fname != sled_fname:
             default_storage.copy(fname,sled_fname)
-            self.file.name = sled_fname
+            self.coolest_file.name = sled_fname
             super().save(*args, **kwargs)
             default_storage.mydelete(fname)
 

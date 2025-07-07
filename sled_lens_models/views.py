@@ -57,6 +57,74 @@ class LensModelDetailView(DetailView):
 
     def get_queryset(self):
         return LensModels.accessible_objects.all(self.request.user)  #match model
+
+    def extract_coolest_info(self, tar_path):
+        with tempfile.TemporaryDirectory() as tmpdir:
+        # Extract tar.gz contents
+            with tarfile.open(tar_path, "r:gz") as tar:
+                #open the tarpath and read it in (r) as a gz file
+                tar.extractall(path=tmpdir)
+                #extract everything in the tarfile and put it in the tmpdir
+                 
+                extracted_items = os.listdir(tmpdir)
+                #this lists everything thaast was deposited in the temporary directory
+                extracted_items_path=os.path.join(tmpdir, extracted_items[0])
+                #creates a path by joining the path of the directory and adding the name of directory created (there will be more than one file in the tar.gz usually)
+                
+                #if the tar.gz file opens into a directory, it creates a new list of things inside that directory. Otherwise, it keeps list
+                if os.path.isdir(extracted_items_path):
+                    extracted_files = os.listdir(extracted_items_path)
+                else:
+                    extracted_files = extracted_items
+                json_files = [name for name in extracted_files if name.endswith('.json')]
+                 #adds all files that end in .json
+                json_file = json_files[0]
+                extracted_json_path = os.path.join(extracted_items_path, json_file)
+                #creates path for json file
+                target_path = os.path.splitext(extracted_json_path)[0]
+
+
+
+                #start extracting values
+                coolest_util = util.get.coolest_object(target_path, verbose = False)
+                lensing_entities = [type(le).__name__ for le in coolest_util.lensing_entities] #gets all lensing objects
+
+                source_index = 2 #may be subject to change (gets source type)
+                
+                source_light_model = [type(m).__name__ for m in coolest_util.lensing_entities[source_index].light_model] #gives source light model
+
+                #run necessary analysis on coolest_util
+                analysis = Analysis(coolest_util, target_path, supersamplings=5)
+
+                #set up custom coordinates to evaluate light profiles consistently
+                coord_orig = util.get_coordinates(coolest_util)
+                x_orig, y_orig = coord_orig.pixel_coordinates
+                #print(coord_orig.plt_extent)
+                coord_src = coord_orig.create_new_coordinates(pixel_scale_factor=0.1, grid_shape=(1.42, 1.42))
+                x_src, y_src = coord_src.pixel_coordinates
+                #print(coord_src.plt_extent)
+
+                #gets the effective radius of source surface brightness
+                r_eff_source = analysis.effective_radius_light(center=(0, 0), coordinates=coord_src, 
+                                                outer_radius=1., entity_selection=[2])
+                
+                #gets the einstein radius of source surface brightness
+                ein_rad = analysis.effective_einstein_radius(entity_selection=[0, 1]) 
+
+                
+                
+                #plotting images 
+
+                #initialize the plotters
+                plotter = ModelPlotter(coolest_util, coolest_directory=os.path.dirname(target_path))
+                norm = Normalize(-0.005, 0.05) # LogNorm(2e-3, 5e-2)
+
+
+
+
+
+
+
     
 
     #def get_template_names(self):
@@ -83,6 +151,12 @@ class test(CreateView):
     test = 'hi does this work?'
     #return test
     #test.html must go inside of the templates folder in my app (move from lens directory)
+
+def print_info(coolest_object):
+    source_index = 2  # index of the source galaxy in the list of `lensing entities`
+    print("Lensing entities:", [type(le).__name__ for le in coolest_object.lensing_entities])
+    print("Source light model:", [type(m).__name__ for m in coolest_object.lensing_entities[source_index].light_model])
+    #from COOLEST website - prints name of lensing entities and source light model 
 
 class LensModelCreateView(BSModalCreateView):
     model = LensModels #must correspond to a class in the models.py file
@@ -125,7 +199,7 @@ class LensModelCreateView(BSModalCreateView):
                 #extract everything in the tarfile and put it in the tmpdir
                  
                 extracted_items = os.listdir(tmpdir)
-                #this lists everything that was deposited in the temporary directory
+                #this lists everything thaast was deposited in the temporary directory
                 extracted_items_path=os.path.join(tmpdir, extracted_items[0])
                 #creates a path by joining the path of the directory and adding the name of directory created (there will be more than one file in the tar.gz usually)
                 
@@ -171,7 +245,7 @@ class LensModelCreateView(BSModalCreateView):
 
     def form_valid(self, form):
         form.instance.owner = self.request.user
-        uploaded_file = form.cleaned_data['file']
+        uploaded_file = form.cleaned_data['coolest_file']
         name = form.cleaned_data['name']  # Assuming your form has a 'name' field
         if LensModels.objects.filter(name=name).exists():
             form.add_error('name', 'A model with this name already exists.')
@@ -194,12 +268,12 @@ class LensModelCreateView(BSModalCreateView):
                 #run the coolest validation on the temporary path 
                 if not is_valid:
                     #if the file is not valid, remove the path and return an error message to the file field
-                    form.add_error('file', error_message)
+                    form.add_error('coolest_file', error_message)
                     return self.form_invalid(form)
             #if it fails, remove the temporary path and return a file error
             except Exception as e:
                 #exception as e means that it will print the error message popping up from the validation error
-                form.add_error('file', str(e))
+                form.add_error('coolest_file', str(e))
                 #adds the exception as a string to the file field errors
                 return self.form_invalid(form)
                 #if the file fails the coolest test, return an error with an invalide form message

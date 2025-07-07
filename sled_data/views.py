@@ -170,7 +170,7 @@ class DataCreateView(BSModalCreateView):
         else:
             model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
             return self.success_message % dict(obj_type=model._meta.verbose_name.title())
-    #creates success message, but if inspect is true it sends s special warning messages
+    #creates success message, but if inspect is true it sends s special warning message
 
 
 
