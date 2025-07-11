@@ -15,7 +15,24 @@
     <tr><td>Access level:</td><td>{{ lens_model.access_level }}</td></tr>
     <tr><td>Date created:</td><td>{{ lens_model.date_created }}</td></tr>
     <tr><td>Description:</td><td>{{ lens_model.description|default:"-" }}</td></tr>
+    <tr><td>Lensing Entities:</td><td>{{lensing_entities }}</td></tr>
+    <tr><td>Effective Radius:</td><td>{{ r_eff }}</td></tr>
+    <tr><td>Source Entities:</td><td>{{ source_light_model}}</td></tr>
   </table>
+
+  {% if dmr_plot %}
+    <h3>DMR Plot</h3>
+    <img src="data:image/png;base64,{{ dmr_plot }}" />
+  {% endif %}
+
+  {% if corner_plot %}
+    <h3>Corner Plot</h3>
+    <img src="data:image/png;base64,{{ corner_plot }}" />
+  {% endif %}
+
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
 
 
 </div>

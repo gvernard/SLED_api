@@ -26,7 +26,8 @@ STATIC_LOCATION = 'static' # Not used
 
 DATABASE_FILE_LOCATION = '/files'
 MEDIA_URL = 'files/'
-MEDIA_ROOT = '/files'
+#MEDIA_ROOT = '/files'
+MEDIA_ROOT = '/Users/catherinehou/Desktop/SLED/init_SLED/files'
 DEFAULT_FILE_STORAGE = 'mysite.storage_backends.LocalStorage'
 
 

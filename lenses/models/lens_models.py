@@ -4,15 +4,17 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.apps import apps
 from django.urls import reverse
-from django.db.models import F
+#from django.db.models import 
+from django.core.files import File
 from django.core.files.storage import default_storage
-
+from django.core.files.base import ContentFile
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm,remove_perm
 from gm2m import GM2MField
 import simplejson as json
 from actstream import action
 from dirtyfields import DirtyFieldsMixin
+from django.core.files.base import ContentFile
 
 import inspect
 from itertools import groupby
@@ -86,10 +88,49 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
     def save(self,*args,**kwargs):
         if self._state.adding:
-            # Creating object for the first time, calling save first to create a primary key
-            super(LensModels,self).save(*args,**kwargs)
-            if self.access_level == "PUB":
-                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+            if self._state.adding and self.coolest_file:
+                # Step 1: Read content
+                upload = self.coolest_file
+                upload.seek(0)
+                content = upload.read()
+                print(f"Content length: {len(content)} bytes")
+                upload.seek(0)
+                
+                # Step 2: Save once to get PK
+                super().save(*args, **kwargs)
+
+                # Step 3: Build correct filename
+                extension = ".tar.gz"
+                sled_fname = os.path.join(self.coolest_file.field.upload_to, f"{self.pk}{extension}")
+
+                # Step 4: Save the content under new name
+                saved_path = default_storage.save(sled_fname, ContentFile(content))
+
+                # Step 5: Update field to point to new file
+                self.coolest_file = File(default_storage.open(saved_path, 'rb'), name=sled_fname)
+
+                super().save(update_fields=["coolest_file"])
+
+            # super(LensModels, self).save(*args, **kwargs)
+            # fname = self.coolest_file.name
+            # extension = ".tar.gz"
+            # upload = self.coolest_file
+            # upload.seek(0)
+            # content = upload.read()
+            # sled_fname = self.coolest_file.field.upload_to + "/" + str( self.pk ) + file_ext
+            # saved_path=default_storage.save(sled_fname,ContentFile(content))
+            # self.coolest_file=File(open(default_storage.path(saved_path), 'rb'))
+            # super(LensModels, self).save(update_fields=["coolest_file"])
+                
+            # if self.access_level == "PUB":
+            #     action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+            #     notify.send(sender=self.owner,
+            #                 recipient=self.lens.owner,
+            #                 verb='AddedLensModelOwnerNote',
+            #                 level='warning',
+            #                 timestamp=timezone.now(),
+            #                 action_object=self)
+
         else:
             # Updating object
             dirty = self.get_dirty_fields(verbose=True,check_relationship=True)
@@ -108,18 +149,40 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             if len(dirty) > 0 and self.access_level == "PUB":
                 action.send(self.owner,target=self.lens,verb='UpdateTargetLog',level='info',object_name=ref_name,fields=json.dumps(dirty,default=str))
 
-            super(LensModels,self).save(*args,**kwargs)
-                
-        fname = self.coolest_file.name
-        #name associated with file from form field
-        dum,file_ext = os.path.splitext(fname)
-        #split the string of the name at the dot -- left = file name without extension and right side is the extension
-        sled_fname = self.coolest_file.field.upload_to + "/" + str( self.pk ) + ".tar." + file_ext
+            super(LensModels, self).save(*args, **kwargs)
+       
+ 
+        # name = upload.name
+
+            #extension
+  
+            #base should contain the text without the .tar.gz
+            
+            
+
+        # fname = self.coolest_file.name
+        # sled_fname = self.coolest_file.field.upload_to + "/" + str( self.pk ) + extension
+        # print(sled_fname)
+        
+
         if fname != sled_fname:
-            default_storage.copy(fname,sled_fname)
-            self.coolest_file.name = sled_fname
-            super().save(*args, **kwargs)
-            default_storage.mydelete(fname)
+            
+            # Save the uploaded content to the new path with the correct name
+            
+            default_storage.copy(fname,sled_fname) #copies the copy from one name to the other #copy fname to sled_fname
+            self.coolest_file.name = sled_fname #changes file name of field to proper file name (just the file name)
+            
+            # saved_path = default_storage.save(sled_fname, ContentFile(content))
+            # self.coolest_file = File(open(default_storage.path(saved_path), 'rb'), name=sled_fname)
+            
+            super(LensModels,self).save(*args,**kwargs) #save the changes
+            default_storage.mydelete(fname) #delete the original named file
+
+             
+             
+        
+        
+        
 
     
 # Assign view permission to the owner of a new model
