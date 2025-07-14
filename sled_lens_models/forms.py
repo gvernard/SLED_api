@@ -31,24 +31,32 @@ class LensModelCreateFormModal(BSModalModelForm):
         super(LensModelCreateFormModal, self).__init__(*args, **kwargs)
         self.fields['description'].widget.attrs['placeholder'] = self.fields['description'].help_text
 
-    def clean_upload(self):
-        file = self.cleaned_data.get('form_file') #check file field for name
-        return file
+    # def clean_upload(self):
+    #     file = self.cleaned_data.get('form_file') #check file field for name
+    #     return file
 
     #must read clean_[form field name]
     def clean_coolest_file(self):
+        print(self.cleaned_data)
         upload = self.cleaned_data.get('coolest_file')
         check = self.user.check_all_limits(1,self._meta.model.__name__)
         #checks if the user can upload models
         if check["errors"]:
             for error in check["errors"]:
                 self.add_error('__all__',error)
+        print('a')
 
         if not upload:
             raise forms.ValidationError("No file was uploaded.")
+        print('b')
+
+        if upload.size==0:
+            raise forms.ValidationError("Uploaded file is empty")
+        print('c')
         
         if not upload.name.endswith('.tar.gz'):
             raise forms.ValidationError("File must be a .tar.gz archive.")
+        print('d')
         
         return upload
     

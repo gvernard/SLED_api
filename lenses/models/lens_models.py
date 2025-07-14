@@ -105,31 +105,23 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
                 # Step 4: Save the content under new name
                 saved_path = default_storage.save(sled_fname, ContentFile(content))
-
+                print("saved path", saved_path)
+                
                 # Step 5: Update field to point to new file
+                
                 self.coolest_file = File(default_storage.open(saved_path, 'rb'), name=sled_fname)
 
                 super().save(update_fields=["coolest_file"])
 
-            # super(LensModels, self).save(*args, **kwargs)
-            # fname = self.coolest_file.name
-            # extension = ".tar.gz"
-            # upload = self.coolest_file
-            # upload.seek(0)
-            # content = upload.read()
-            # sled_fname = self.coolest_file.field.upload_to + "/" + str( self.pk ) + file_ext
-            # saved_path=default_storage.save(sled_fname,ContentFile(content))
-            # self.coolest_file=File(open(default_storage.path(saved_path), 'rb'))
-            # super(LensModels, self).save(update_fields=["coolest_file"])
                 
-            # if self.access_level == "PUB":
-            #     action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
-            #     notify.send(sender=self.owner,
-            #                 recipient=self.lens.owner,
-            #                 verb='AddedLensModelOwnerNote',
-            #                 level='warning',
-            #                 timestamp=timezone.now(),
-            #                 action_object=self)
+            if self.access_level == "PUB":
+                action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
+                notify.send(sender=self.owner,
+                            recipient=self.lens.owner,
+                            verb='AddedLensModelOwnerNote',
+                            level='warning',
+                            timestamp=timezone.now(),
+                            action_object=self)
 
         else:
             # Updating object

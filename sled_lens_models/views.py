@@ -251,7 +251,6 @@ class LensModelDetailView(DetailView):
 
         if uploaded_file:
 
-
             extracted_values = self.extract_coolest_info(path)
             lensing_entities, source_light_model, r_eff_source, ein_rad, dmr_plot, corner_plot = extracted_values
             context.update({
@@ -345,6 +344,7 @@ class LensModelCreateView(BSModalCreateView):
         with tempfile.TemporaryDirectory() as tmpdir:
             if not os.path.isabs(tar_path):
                 tar_path = os.path.join(settings.MEDIA_ROOT, tar_path)
+                print("tar path is", tar_path)
         # Extract tar.gz contents
             with tarfile.open(tar_path, "r:gz") as tar:
                 #open the tarpath and read it in (r) as a gz file
@@ -357,12 +357,17 @@ class LensModelCreateView(BSModalCreateView):
                 #creates a path by joining the path of the directory and adding the name of directory created (there will be more than one file in the tar.gz usually)
                 
                 #if the tar.gz file opens into a directory, it creates a new list of things inside that directory. Otherwise, it keeps list
+                #find the names of every file in the archive, now in the temp directory
                 if os.path.isdir(extracted_items_path):
                     extracted_files = os.listdir(extracted_items_path)
                 else:
                     extracted_files = extracted_items
+                    
+                #says for every name in the names list, if the name ends with .json, add that name to the json_files list
                 json_files = [name for name in extracted_files if name.endswith('.json')]
                  #adds all files that end in .json
+                # if the file contains more than 1 .json file, return a error 
+            
                 if len(json_files) != 1:
                     return False, "Archive must contain exactly one .json file"
                     #posits that there is only one json file (otherwise there is an error)
@@ -372,18 +377,7 @@ class LensModelCreateView(BSModalCreateView):
                 #creates path for json file
                 extracted_json_no_extension = os.path.splitext(extracted_json_path)[0]
                 #separates the json file from it's extension because the coolest util requires there to just be a name with no extension
-                
-                #find the names of every file in the archive, now in the temp directory
-
-        # Find all .json files in the archive (thing files are stored in)
-            
-            #says for every name in the names list, if the name ends with .json, add that name to the json_files list
-
-        # if the file contains more than 1 .json file, return a error 
-            
-
-        # Build full path to the .json file: uses Path function to define the path of the temporary directory and adds on name of the json file
-             
+     
 
         # Try to load with COOLEST, and if it doesn't load, return error saying it is not in the correct format
             try:
@@ -437,10 +431,13 @@ class LensModelCreateView(BSModalCreateView):
                 return self.form_invalid(form)
                 #if the file fails the coolest test, return an error with an invalide form message
             finally:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
+                try:
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+                except Exception as cleanup_err:
+                    print(f"Cleanup failed: {cleanup_err}")
 
-            return super().form_valid(form)
+    
 
             # Save the object after successful validation
         
