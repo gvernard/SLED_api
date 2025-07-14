@@ -87,31 +87,33 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
 
     def save(self,*args,**kwargs):
-        if self._state.adding:
-            if self._state.adding and self.coolest_file:
-                # Step 1: Read content
-                upload = self.coolest_file
-                upload.seek(0)
-                content = upload.read()
-                print(f"Content length: {len(content)} bytes")
-                upload.seek(0)
-                
-                # Step 2: Save once to get PK
-                super().save(*args, **kwargs)
+        if self._state.adding and self.coolest_file:
+            # Step 1: Read content
+            upload = self.coolest_file
+            #name associated with lens model
+            upload.seek(0)
+            content = upload.read()
+            print(f"Content length: {len(content)} bytes")
+            upload.seek(0)
 
-                # Step 3: Build correct filename
-                extension = ".tar.gz"
-                sled_fname = os.path.join(self.coolest_file.field.upload_to, f"{self.pk}{extension}")
-
-                # Step 4: Save the content under new name
-                saved_path = default_storage.save(sled_fname, ContentFile(content))
-                print("saved path", saved_path)
-                
-                # Step 5: Update field to point to new file
-                
-                self.coolest_file = File(default_storage.open(saved_path, 'rb'), name=sled_fname)
-
+            
+            # Step 2: Save once to get PK
+            super().save(*args, **kwargs)
+            extension = ".tar.gz"
+            file_name = f"{self.pk}{extension}"
+            sled_fname = os.path.join(self.coolest_file.field.upload_to, file_name)
+            
+    
+            new_file = ContentFile(content)
+            new_file.name = sled_fname
+            #save the coolest file under the new file name and it's file content
+            self.coolest_file.save(file_name, new_file, save = False)
+        
+            try:
                 super().save(update_fields=["coolest_file"])
+            except Exception as e:
+                raise ValidationError(f"Failed to save uploaded file: {e}")
+            #print(f"Saved file name:{self.coolest_file.name}")
 
                 
             if self.access_level == "PUB":
@@ -152,25 +154,21 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             
             
 
-        # fname = self.coolest_file.name
-        # sled_fname = self.coolest_file.field.upload_to + "/" + str( self.pk ) + extension
-        # print(sled_fname)
-        
+        extension = ".tar.gz"
+        file_name = f"{self.pk}{extension}"
+        fname = self.coolest_file.name
+        sled_fname = os.path.join(self.coolest_file.field.upload_to, file_name)
 
         if fname != sled_fname:
-            
-            # Save the uploaded content to the new path with the correct name
-            
             default_storage.copy(fname,sled_fname) #copies the copy from one name to the other #copy fname to sled_fname
+            
             self.coolest_file.name = sled_fname #changes file name of field to proper file name (just the file name)
-            
-            # saved_path = default_storage.save(sled_fname, ContentFile(content))
-            # self.coolest_file = File(open(default_storage.path(saved_path), 'rb'), name=sled_fname)
-            
-            super(LensModels,self).save(*args,**kwargs) #save the changes
+            super(LensModels,self).save(*args,**kwargs) #save the 
+            print(f"After renaming, saved file name is: {coolest_file.name}")
             default_storage.mydelete(fname) #delete the original named file
 
-             
+
+            #put plot function here
              
         
         
