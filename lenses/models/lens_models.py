@@ -99,15 +99,20 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             
             # Step 2: Save once to get PK
             super().save(*args, **kwargs)
-            extension = ".tar.gz"
-            file_name = f"{self.pk}{extension}"
-            sled_fname = os.path.join(self.coolest_file.field.upload_to, file_name)
+
+            
+            # extension = ".tar.gz"
+            # file_name = f"{self.pk}{extension}"
+            # sled_fname = os.path.join(self.coolest_file.field.upload_to, file_name)
+
             
     
             new_file = ContentFile(content)
-            new_file.name = sled_fname
+            #new_file.name = sled_fname
+            temp_name = 'temp_name'
+            #new_file.name=temp_name
             #save the coolest file under the new file name and it's file content
-            self.coolest_file.save(file_name, new_file, save = False)
+            self.coolest_file.save(temp_name, new_file, save = False)
         
             try:
                 super().save(update_fields=["coolest_file"])
@@ -164,7 +169,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             
             self.coolest_file.name = sled_fname #changes file name of field to proper file name (just the file name)
             super(LensModels,self).save(*args,**kwargs) #save the 
-            print(f"After renaming, saved file name is: {coolest_file.name}")
+            print(f"After renaming, saved file name is: {self.coolest_file.name}")
             default_storage.mydelete(fname) #delete the original named file
 
 
