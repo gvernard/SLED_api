@@ -13,21 +13,23 @@
     <tr><td>Owned by:</td><td>{{ lens_model.owner.id|get_user_link|safe }}</td></tr>
     <tr><td>Name:</td><td>{{ lens_model.name }}</td></tr>
     <tr><td>Access level:</td><td>{{ lens_model.access_level }}</td></tr>
-    <tr><td>Date created:</td><td>{{ lens_model.date_created }}</td></tr>
     <tr><td>Description:</td><td>{{ lens_model.description|default:"-" }}</td></tr>
     <tr><td>Lensing Entities:</td><td>{{lensing_entities }}</td></tr>
     <tr><td>Effective Radius:</td><td>{{ r_eff }}</td></tr>
+    <tr><td>Einstein Radius:</td><td>{{ einstein_radius }}</td></tr>
     <tr><td>Source Entities:</td><td>{{ source_light_model}}</td></tr>
+    <tr><td>Free Parameters:</td><td>{{ free_parameters}}</td></tr>
+
   </table>
 
-  {% if dmr_plot %}
+  {% if object.dmr_plot_url %}
     <h3>DMR Plot</h3>
-    <img src="data:image/png;base64,{{ dmr_plot }}" />
+    <img src="{{ object.dmr_plot_url }}" alt="DMR Plot" />
   {% endif %}
 
-  {% if corner_plot %}
+  {% if object.corner_plot_url %}
     <h3>Corner Plot</h3>
-    <img src="data:image/png;base64,{{ corner_plot }}" />
+    <img src="{{ object.corner_plot_url }}" alt="Corner Plot" />
   {% endif %}
 
   {% if error %}

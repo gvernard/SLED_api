@@ -63,211 +63,17 @@ class LensModelDetailView(DetailView):
         return LensModels.accessible_objects.all(self.request.user)  #match model
 
 
-    def extract_coolest_info(self, tar_path):
-        with tempfile.TemporaryDirectory() as tmpdir:
-        # Extract tar.gz contents
-            with tarfile.open(tar_path, "r:gz") as tar:
-                #open the tarpath and read it in (r) as a gz file
-                tar.extractall(path=tmpdir)
-                #extract everything in the tarfile and put it in the tmpdir
-                 
-                extracted_items = os.listdir(tmpdir)
-                #this lists everything thaast was deposited in the temporary directory
-                extracted_items_path=os.path.join(tmpdir, extracted_items[0])
-                #creates a path by joining the path of the directory and adding the name of directory created (there will be more than one file in the tar.gz usually)
-                
-                #if the tar.gz file opens into a directory, it creates a new list of things inside that directory. Otherwise, it keeps list
-                if os.path.isdir(extracted_items_path):
-                    extracted_files = os.listdir(extracted_items_path)
-                else:
-                    extracted_files = extracted_items
-                json_files = [name for name in extracted_files if name.endswith('.json')]
-                 #adds all files that end in .json
-                json_file = json_files[0]
-                extracted_json_path = os.path.join(extracted_items_path, json_file)
-                #creates path for json file
-                target_path = os.path.splitext(extracted_json_path)[0]
-
-
-                #start extracting values
-                try:
-                    coolest_1 = util.get_coolest_object(target_path, verbose=False)
-                
-                except:
-                    print("Failed Validation -- file is not in COOLEST format")
-                    return None
-                
-                source_index = 2 #may be subject to change (gets source type)
-                lensing_entities = [type(le).__name__ for le in coolest_1.lensing_entities] #gets all lensing objects
-                source_light_model = [type(m).__name__ for m in coolest_1.lensing_entities[source_index].light_model] #gives source light model
-
-                #run necessary analysis on coolest_util
-                analysis = Analysis(coolest_1, target_path, supersampling=5)
-
-                #set up custom coordinates to evaluate light profiles consistently
-                coord_orig = util.get_coordinates(coolest_1)
-                x_orig, y_orig = coord_orig.pixel_coordinates
-                #print(coord_orig.plt_extent)
-
-                coord_src = coord_orig.create_new_coordinates(pixel_scale_factor=0.1, grid_shape=(1.42, 1.42))
-                x_src, y_src = coord_src.pixel_coordinates
-                #print(coord_src.plt_extent)
-
-                norm = Normalize(-0.005, 0.05) # LogNorm(2e-3, 5e-2)
-                fig, axes = plt.subplots(2, 2, figsize=(14, 5.5))
-
-
-                #gets the effective radius of source surface brightness
-                r_eff_source = analysis.effective_radius_light(center=(0, 0), coordinates=coord_src, 
-                                                outer_radius=1., entity_selection=[2])
-                
-                #gets the einstein radius of source surface brightness
-                ein_rad = analysis.effective_einstein_radius(entity_selection=[0, 1]) 
-
-                
-                
-                #plotting images 
-
-                #initialize the plotter
-                plotter = ModelPlotter(coolest_1, coolest_directory=os.path.dirname(target_path))
-                norm = Normalize(-0.005, 0.05) # LogNorm(2e-3, 5e-2)
-
-                #set up plotting 
-                splotter = ModelPlotter(coolest_1, coolest_directory=os.path.dirname(target_path))
-
-                splotter.plot_data_image(
-                    axes[0, 0],
-                    norm=norm
-                )
-                axes[0,0].set_title("Observed Data")
-                
-                splotter.plot_model_image(
-                    axes[0, 1],
-
-                    supersampling=5, convolved=True,
-                    kwargs_source=dict(entity_selection=[2]),
-                    kwargs_lens_mass=dict(entity_selection=[0, 1]),
-                    norm=norm
-                )
-                axes[0, 1].text(0.05, 0.05, r'$\theta_{\rm E}$ = '+f'{ein_rad:.2f}"', color='white', fontsize=12, alpha=0.8, 
-                                va='bottom', ha='left', transform=axes[0, 1].transAxes)
-                axes[0,1].set_title("Image Model")
-                
-                splotter.plot_model_residuals(
-                    axes[1, 0],
-                    #titles="Normalized residuals",
-                    supersampling=5, add_chi2_label=True, chi2_fontsize=12,
-                    kwargs_source=dict(entity_selection=[2]),
-                    kwargs_lens_mass=dict(entity_selection=[0, 1]),
-                )
-                axes[1, 0].set_title("Normalized Residuals")
-                
-            
-                res = splotter.plot_surface_brightness(
-                    axes[1, 1], 
-                    kwargs_light=dict(entity_selection=[2]),
-                    norm=norm,
-                    neg_values_as_bad=False,
-                    coordinates=coord_src,
-                )
-                axes[1, 1].text(0.05, 0.05, r'$\theta_{\rm eff}$ = '+f'{r_eff_source:.2f}"', color='white', fontsize=12, alpha=0.8, 
-                                va='bottom', ha='left', transform=axes[1, 1].transAxes)
-                        
-                axes[1, 0].set_xlabel(r"$x$ (arcsec)")
-                axes[1, 0].set_ylabel(r"$y$ (arcsec)")
-                axes[1, 1].set_title("Surface Brightness")
-                
-                fig.tight_layout()
-                #Bytes is like a file but stored in memory so it lets you write binary data like images like it were a file without creating a physical file on yoru disk
-                buf = io.BytesIO()
-                #save the figure to that RAM storage as a png file
-                plt.savefig(buf, format='png')
-                buf.seek(0)
-
-                # Convert to base64 -- creates a string and allows you to embed images as text
-                DMR_plot = base64.b64encode(buf.read()).decode('utf-8')
-                #you will return this image
-                plt.close() #avoids memory issues to close your figure
-
-
-                #plotting a corner plot
-
-                truth = coolest_1
-                tmp_free_pars = truth.lensing_entities.get_parameter_ids()
-                free_pars = tmp_free_pars[:-2] # Remove the last parameters that refer to the light of the source and the perturbations
-                #print("Removed parameter(s): ",tmp_free_pars[-2:])
-                
-                # Re-order parameters
-                reorder = [2,3,4,5,6,0,1]
-                pars = [free_pars[i] for i in reorder]
-                free_pars = pars
-                #pprint(free_pars)
-                #<ENTITY_INDEX>-<ENTITY_TYPE>-<COMPONENT_TYPE>-<COMPONENT_INDEX>-<MODEL_NAME>-<PARAM_NAME>
-                colors = ['#7FB6F5', '#E03424']
-
-                coolest_dir = os.path.dirname(target_path)
-                param_plotter = ParametersPlotter(
-                    free_pars, [truth],
-                    coolest_directories=[coolest_dir],          # <-- wrap in list
-                    coolest_names=["Smooth source"],    # <-- wrap in list
-                    ref_coolest_objects=[truth],
-                    colors=colors,
-                    )        
-                            
-                # initialize the GetDist plots
-                settings = {
-                    "ignore_rows": 0.0,
-                    "fine_bins_2D": 800,
-                    "smooth_scale_2D": 0.5,
-                    "mult_bias_correction_order": 5
-                }
-                param_plotter.init_getdist(settings_mcsamples=settings)
-                corner = param_plotter.plot_triangle_getdist(filled_contours=True, subplot_size=3)
-                buf = io.BytesIO()
-                #save the figure to that RAM storage as a png file
-                plt.savefig(buf, format='png', bbox_inches='tight')
-                buf.seek(0)
-
-                corner_plot = base64.b64encode(buf.read()).decode('utf-8')
-                plt.close()
-
-        #find plot range
-                return (
-                    [lensing_entities],
-                    [source_light_model],
-                    r_eff_source,
-                    ein_rad,
-                    DMR_plot,
-                    corner_plot
-                )
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        lens_model = self.get_object()
-        uploaded_file = lens_model.coolest_file
-        path = uploaded_file.path
-        print(path)
-
-        if uploaded_file:
-
-            extracted_values = self.extract_coolest_info(path)
-            lensing_entities, source_light_model, r_eff_source, ein_rad, dmr_plot, corner_plot = extracted_values
-            context.update({
-                                'lensing_entities': lensing_entities,
-                                'source_light_model': source_light_model,
-                                'r_eff': r_eff_source,
-                                'ein_rad': ein_rad,
-                                'dmr_plot': dmr_plot,
-                                'corner_plot': corner_plot,
-                            })         
-
-            # except Exception as e:
-            #         context['error'] = f"Failed to extract COOLEST info: {e}"
-                
-        else:
-            context['error'] = "No COOLEST file uploaded."
-
+        lens_model = self.get_object()        
+        context.update({
+            'lensing_entities': lens_model.lensing_entities,
+            'source_light_model': lens_model.source_light_model,
+            'r_eff': lens_model.r_eff_source,
+            'einstein_radius': lens_model.einstein_radius,
+            'free_parameters': lens_model.free_parameters
+        })
         return context
 
 
@@ -351,7 +157,9 @@ class LensModelCreateView(BSModalCreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('lenses:lens-detail', kwargs={'pk': self.object.lens.id})
+        if self.object.lens:
+            return reverse('lenses:lens-detail', kwargs={'pk': self.object.lens.id})
+        return reverse('sled_lens_models:lens-model-detail', kwargs={'pk': self.object.pk})
         
         
     #     def get_queryset(self):

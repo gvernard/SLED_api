@@ -24,7 +24,7 @@ class LensModelCreateFormModal(BSModalModelForm):
     class Meta:
         model = LensModels #inherits all form fields from lens models
         #this is the name of the class from lens_models.py
-        fields = '__all__'
+        fields = ('name', 'description', 'info', 'coolest_file', 'lens')
         widgets = {
             'info': forms.Textarea({'class':'jb-lens-info','rows':3,'cols':30}),
             #info field is a text area
@@ -56,7 +56,7 @@ class LensModelCreateFormModal(BSModalModelForm):
                 self.add_error('name', "A model with this name already exists.")
 
         return cleaned_data
-        
+
     def validate_coolest(self, tar_path):
         
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -144,7 +144,7 @@ class LensModelCreateFormModal(BSModalModelForm):
                 is_valid, error_message = self.validate_coolest(temp_path)
                 #run the coolest validation on the temporary path 
                 if not is_valid:
-                    #if the file is not valid, remove the path and return an error message to the file field
+                    #if the file is not valid, return an error message to the file field
                     raise forms.ValidationError(error_message)
 
             #if it fails, remove the temporary path and return a file error
