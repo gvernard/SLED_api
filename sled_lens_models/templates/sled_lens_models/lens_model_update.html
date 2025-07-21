@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-Add Lens Model?
+Update Lens Model?
 {% endblock title %}
 
 {% block content %}
@@ -21,8 +21,6 @@ Add Lens Model?
   <!--checks if form has any errors that are not tied to specific fields, and if there are, disply error container with errors as a list <li> -->
 		
   <div class="jb-modal-field jb-table-no-lines">
-    {{ form.owner }}
-    {{ form.lens }}
     <table>
       <tbody>
     <!--renders two fields called owner and lens-->
@@ -63,7 +61,7 @@ Add Lens Model?
 {% block action_button %}
 <button type="submit" class="jb-submit-button-1">
   <img src="{% static 'icons/plus.svg' %}" >
-  Create Lens Model
+  Update Lens Model
 </button>
 {% endblock action_button %}
 

@@ -345,8 +345,6 @@
 	<tr>
 	  <th>Name</th>
 	  <th>Description</th>
-	  <th>Category</th>
-	  <th>Info</th>
 	  <th>&nbsp;</th>
 	</tr>
       </thead>
@@ -354,11 +352,18 @@
 
 	{% for lens_model in lens_models %}
 	 <tr>
-            <td>{{ lens_model.name }}</td>
+            <td><a href="{{lens_model.get_absolute_url}}">{{ lens_model.name }}</a></td>
             <td>{{ lens_model.description }}</td>
-            <td>{{ lens_model.category }}</td>
-			<td>{{ lens_model.info}}</td>
-            <td><a href="{{lens_model.get_absolute_url}}">View</a></td>
+            <td>
+	    {% if lens_model.owner == user %}
+	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_lens_models:lens-model-update' lens_model.id %}">
+	      <img src="{% static 'icons/pencil.svg' %}" >
+	      Update
+	    </button>
+	    {% else %}
+	    {{ lens_model.owner }}
+	    {% endif %}
+	    </td>
 	</tr>
         {% endfor %}
       </tbody>

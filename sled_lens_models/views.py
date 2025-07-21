@@ -15,9 +15,8 @@ from django.db.models import Q
 from django.contrib import messages
 from django import forms
 from django.core.exceptions import ValidationError
-
-
-
+from django.core.files.storage import default_storage
+from django.core.files import File
 
 from guardian.shortcuts import get_objects_for_user, get_objects_for_group, get_users_with_perms, get_groups_with_perms
 
@@ -51,8 +50,6 @@ from matplotlib.colors import Normalize, LogNorm, TwoSlopeNorm
 import io
 import base64
 
-'''class LensModelSplitListView():'''
-
 
 class LensModelDetailView(DetailView):
     model = LensModels
@@ -61,7 +58,6 @@ class LensModelDetailView(DetailView):
 
     def get_queryset(self):
         return LensModels.accessible_objects.all(self.request.user)  #match model
-
 
 
     def get_context_data(self, **kwargs):
@@ -75,91 +71,35 @@ class LensModelDetailView(DetailView):
             'free_parameters': lens_model.free_parameters
         })
         return context
-
-
-
-
-
-
     
 
-    #def get_template_names(self):
-    #    model_name = self.kwargs.get('model')
-    #    return ['sled_lens_models/lens_model_detail.html']
-    #    #grab the correct template from the templates folder
-
-    #def get_context_data(self, **kwargs):
-        #context = super().get_context_data(**kwargs)
-        #lens_model = context['lens']
-
-        # Only get models for THIS lens
-        #context['lens'] = lens.lens_models.order_by('-date_created')  # uses related_name from ForeignKey
-        #context['lens_models'] = lens.lens_models.all()  # uses related_name from ForeignKey
-        #return context
-    
-
-
-
-class test(CreateView):
-    model = Lenses
-    template_name = 'sled_lens_models/test.html'
-    context_object_name = 'test'
-    test = 'hi does this work?'
-    #return test
-    #test.html must go inside of the templates folder in my app (move from lens directory)
-
-def print_info(coolest_object):
-    source_index = 2  # index of the source galaxy in the list of `lensing entities`
-    print("Lensing entities:", [type(le).__name__ for le in coolest_object.lensing_entities])
-    print("Source light model:", [type(m).__name__ for m in coolest_object.lensing_entities[source_index].light_model])
-    #from COOLEST website - prints name of lensing entities and source light model 
 
 class LensModelCreateView(BSModalCreateView):
     model = LensModels #must correspond to a class in the models.py file
     template_name = 'sled_lens_models/lens_model_create.html' #this links to the associated template html file
     form_class = LensModelCreateFormModal
-
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['lens_models'] = LensModels.objects.filter(lens=self.object)
-        return context
-        form_class = LensModelCreateForm
-
-    def get_template_names(self):
-        model_name = self.kwargs.get('model')
-        return ['sled_lens_models/lens_model_create.html']
-        #grab the correct template from the templates folder
+    success_message = 'Success: Lens Model was successfully added.'
 
     def get_initial(self):
         owner = self.request.user
         lens = Lenses.objects.get(id=self.kwargs.get('lens'))
         return {'owner': owner, 'lens': lens}
-        #populates certain fields automatically (user and lens in question)
+        #populates certain fields automatically (owner and lens in question)
     
     def get_form_kwargs(self):
-        kwargs = super(LensModelCreateView,self).get_form_kwargs() #LensModelsCreateView is from the view.py folder and is a class
+        # Get the kwargs, add the user submitting the model to the kwargs, return the new kwargs
+        kwargs = super(LensModelCreateView,self).get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
-        #when searching back for this lens, when finding its kwargs (which is information about it stored in a database), it can also find a user being the person who added the model
    
-    
-
-
-    
-    def form_invalid(self, form):
-        print("invalid return form")
-        return super().form_invalid(form)
-        
     def form_valid(self, form):
-        form.instance.owner = self.request.user
-        self.object = form.save()  # <-- This sets self.object
-        return super().form_valid(form)
-
+        self.request.FILES['coolest_file'].seek(0)        
+        self.object = form.save()
+        response = super(LensModelCreateView,self).form_valid(form)
+        return response
+    
     def get_success_url(self):
-        if self.object.lens:
-            return reverse('lenses:lens-detail', kwargs={'pk': self.object.lens.id})
-        return reverse('sled_lens_models:lens-model-detail', kwargs={'pk': self.object.pk})
+        return reverse('sled_lens_models:lens-model-detail', kwargs={'pk': self.object.id})
         
         
     #     def get_queryset(self):
@@ -168,17 +108,49 @@ class LensModelCreateView(BSModalCreateView):
     #     return model.accessible_objects.owned(self.request.user)
     #     #returns queryset based on what the editor can view (can be helpful for access level) (only needed when looking up existing set not creating new)
 
-    #     def get_form_class(self):
-    #     model_name = self.kwargs.get('model')
-    #     return forms.LensModelCreateFormModal
-    #     #displays the form to the user
 
-
-
-        #uncomment when success message is displayed
-    
-    #add a success message function when ready
-
-#class LensModelUpdate(BSModalUpdateView):
 
         
+
+@method_decorator(login_required,name='dispatch')
+class LensModelUpdateView(BSModalUpdateView):
+    model = LensModels
+    template_name = 'sled_lens_models/lens_model_update.html'
+    form_class = LensModelUpdateFormModal
+    success_message = 'Success: Lens Model was updated.'
+    
+    def get_queryset(self):
+        return LensModels.accessible_objects.owned(self.request.user)
+
+    def form_valid(self, form):
+        self.request.FILES['coolest_file'].seek(0)        
+        self.object = form.save()
+        response = super(LensModelUpdateView,self).form_valid(form)
+        return response
+
+    def get_success_url(self):
+        return reverse('sled_lens_models:lens-model-detail', kwargs={'pk': self.object.id})
+
+    
+
+@method_decorator(login_required,name='dispatch')
+class LensModelDeleteView(BSModalDeleteView):
+    model = LensModels
+    template_name = 'sled_lens_models/lens_model_delete.html'
+    form_class = LensModelDeleteForm
+    success_message = 'Success: Lens Model was deleted.'
+    #success_url = reverse_lazy('sled_lens_models:lens-list')
+    
+    #def get_queryset(self):
+    #    return Collection.accessible_objects.owned(self.request.user)
+
+    #def get_form_kwargs(self):
+    #    kwargs = super(CollectionDeleteView,self).get_form_kwargs()
+    #    kwargs['id'] = self.get_object().id
+    #    return kwargs
+
+    #def form_invalid(self,form):
+    #    mycollection = self.get_object()
+    #    list(messages.get_messages(self.request))
+    #    messages.add_message(self.request,messages.ERROR,"The collection is already in a CedeOwnership task.")
+    #    return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 

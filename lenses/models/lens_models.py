@@ -42,8 +42,10 @@ from guardian.shortcuts import (
     get_users_with_perms,
     remove_perm,
 )
-from django.conf import settings
+from notifications.signals import notify
+
 # Django core
+from django.conf import settings
 from django import forms
 from django.apps import apps
 from django.contrib import messages
@@ -105,28 +107,19 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                             unique=True,
                             validators=[validate_language],
                             )
-    description = models.CharField(max_length=250,
-                                   null=True,
-                                   blank=True,
-                                   help_text="A description for your lens model.",
-                                   validators=[validate_language],
-                                   )
-    category = models.CharField(max_length=100,
-                                verbose_name="Category",
-                                help_text="Lens Model Category Type.",
-                                validators=[validate_language])
-
+    
     lens = models.ForeignKey(Lenses,
                              null=True,
                              on_delete=models.SET_NULL,
-                             related_name='lens_models')
+                             related_name='lens_models'
+                             )
     
-    info = models.TextField(blank=True,
-                            null=True,
-                            default='',
-                            help_text="Description of any important aspects of the model.",
-                            validators=[validate_language],
-                            )
+    description = models.TextField(blank=True,
+                                   null=True,
+                                   default='',
+                                   help_text="Description of any important aspects of the model.",
+                                   validators=[validate_language],
+                                   )
     
     coolest_file = models.FileField(upload_to='lens_models/', blank=True, null=True)
 
@@ -361,38 +354,12 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     
 
     def save(self,*args,**kwargs):
-        if self._state.adding and self.coolest_file:
-            # Step 1: Read content
-            upload = self.coolest_file
-            #name associated with lens model
-            upload.seek(0)
-            content = upload.read()
-            print(f"Content length: {len(content)} bytes")
-            upload.seek(0)
+        if self._state.adding:
+            super(LensModels,self).save(*args, **kwargs)
 
+            png_dir_name = self.coolest_file.field.upload_to + str(self.pk) + "_pngs"
+            default_storage.create_dir(png_dir_name)
             
-            # Step 2: Save once to get PK
-            super().save(*args, **kwargs)
-
-            #makedirectory for png 
-            png_directory_name = f"{self.pk}_pngs"  # Just the folder name
-            full_path = os.path.join(settings.MEDIA_ROOT, 'lens_models', png_directory_name)
-            os.makedirs(full_path, exist_ok=True)
-
-    
-            new_file = ContentFile(content)
-            temp_name = 'temp_name' #forces the program to run through if statement
-             
-            #save the coolest file under the new file name and it's file content
-            self.coolest_file.save(temp_name, new_file, save = False)
-        
-            try:
-                super().save(update_fields=["coolest_file"])
-            except Exception as e:
-                raise ValidationError(f"Failed to save uploaded file: {e}")
-            #print(f"Saved file name:{self.coolest_file.name}")
-
-                
             if self.access_level == "PUB":
                 action.send(self.owner,target=self.lens,verb='AddedTargetLog',level='success',action_object=self)
                 notify.send(sender=self.owner,
@@ -423,28 +390,18 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             super(LensModels, self).save(*args, **kwargs)
        
  
-        # name = upload.name
-
-            #extension
-  
-            #base should contain the text without the .tar.gz
-            
-            
-
         extension = ".tar.gz"
         file_name = f"{self.pk}{extension}"
         fname = self.coolest_file.name
-        sled_fname = os.path.join(self.coolest_file.field.upload_to, file_name)
-    
-
+        sled_fname = os.path.join(self.coolest_file.field.upload_to,file_name)
+        
         if fname != sled_fname:
             default_storage.copy(fname,sled_fname) #copies the copy from one name to the other #copy fname to sled_fname
-            
             self.coolest_file.name = sled_fname #changes file name of field to proper file name (just the file name)
-            super(LensModels,self).save(*args,**kwargs) #save the 
+            super(LensModels,self).save(*args,**kwargs) #save the changes
             default_storage.mydelete(fname) #delete the original named file
 
-            
+            ### Make plots
             png_dir_path = self.coolest_file.path
             png_directory_name = f"{self.pk}_pngs"
             full_path = os.path.join(settings.MEDIA_ROOT, 'lens_models', png_directory_name)
@@ -457,15 +414,11 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 raise ValidationError(f"Failed to process COOLEST file: {e}")
 
             # Save updated fields
-            super().save(update_fields=[
-                "lensing_entities", "source_light_model",
-                "r_eff_source", "einstein_radius",
-                "free_parameters"
-            ])
-        
-
-
-            #put plot function here
+            #super().save(update_fields=[
+            #    "lensing_entities", "source_light_model",
+            #    "r_eff_source", "einstein_radius",
+            #    "free_parameters"
+            #])
              
         
         

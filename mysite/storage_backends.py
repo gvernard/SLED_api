@@ -90,6 +90,7 @@ class LocalStorage(Storage):
         #copies file
 
     def mydelete(self,fname):
+        #print("My delete: ",fname)
         if self.exists(fname):
             os.remove(self.location + fname)
         #deletes files

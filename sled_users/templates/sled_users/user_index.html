@@ -878,12 +878,10 @@
 		    {{ redshift.getUsersWithAccessNoOwner|join:"," }} - <em>{{ redshift.getGroupsWithAccessNoOwner|join:"," }}</em>
 		  </td>
 		  <td>
-		    {% if redshift.owner == user %}
 		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:redshift-update' redshift.id %}" data-sled-onload="set_modal_redshift_update">
 		      <img src="{% static 'icons/pencil.svg' %}">
 		      Update
 		    </button>	
-		    {% endif %}
 		  </td>
 		</tr>
 		{% endfor %}
@@ -1075,7 +1073,7 @@
 	</p>
 	{% else %}
 	
-	{% if generic_images|length == 0 %}
+	{% if lens_models|length == 0 %}
 	No Lens Models owned
 	{% else %}
 	<form id="lens-models-form" class="ids-form" method="POST">
@@ -1092,7 +1090,7 @@
 		  <th></th>
 		  <th>Lens</th>
 		  <th>Name</th>
-		  <th>Info</th>
+		  <th>Description</th>
 		  <th>Access level</th>
 		  <th>Accessible by</th>
 		  <th>&nbsp;</th>
@@ -1118,10 +1116,10 @@
 		    {% endif %}
 		  </td>
 		  <td>
-		    {{ lens_model.name }}
+		    <a href="{{ lens_model.get_absolute_url }}">{{ lens_model.name }}</a>
 		  </td>
 		  <td>
-		    {{ lens_model.info }}
+		    {{ lens_model.description }}
 		  </td>
 		  <td class="access-level">
 		    {{ lens_model.access_level }}
@@ -1130,12 +1128,10 @@
 		    {{ lens_model.getUsersWithAccessNoOwner|join:"," }} - <em>{{ lens_model.getGroupsWithAccessNoOwner|join:"," }}</em>
 		  </td>
 		  <td>
-		    {% if lens_model.owner == user %}
-		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_data:lens-model-update' generic_image.id %}">
-		      <img src="{% static 'icons/pencil.svg' %}">
+		    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_lens_models:lens-model-update' lens_model.id %}">
+		      <img src="{% static 'icons/pencil.svg' %}" >
 		      Update
-		    </button>	
-		    {% endif %}
+		    </button>
 		  </td>
 		</tr>
 		{% endfor %}
