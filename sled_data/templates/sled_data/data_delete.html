@@ -1,9 +1,8 @@
 {% extends "modal_base.html" %}
-{% load project_tags %}
 {% load static %}
 
 {% block title %}
-Delete {% singular_or_plural form.obj_type.value items|length %}?
+Delete {{ form.obj_type }}?
 {% endblock title %}
 
 {% block content %}
@@ -19,21 +18,12 @@ Delete {% singular_or_plural form.obj_type.value items|length %}?
   </div>
   {% endif %}
 
-  <div class="jb-modal-field jb-table-no-lines">
-    <table>
-      {% for item in items %}
-      <tr>
-	<td>
-          {{ item }}
-	</td>
-      </tr>
-      {% endfor %}
-    </table>
-  </div>
-  
-  {{ form.ids }}
-  {{ form.obj_type }}
-  
+  <p>
+    Are you sure you want to delete this <strong>{{ form.obj_type }}</strong>?
+    <br>
+    <span class="jb-important-text"><strong>ATTENTION</strong>: This action cannot be undone!</span>
+  </p>
+    
 </div>
 {% endblock content %}
 

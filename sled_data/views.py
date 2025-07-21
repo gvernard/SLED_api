@@ -11,6 +11,7 @@ from django.conf import settings
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.core.files.storage import default_storage
+from django.contrib.messages.views import SuccessMessageMixin
 
 from urllib.parse import urlparse
 
@@ -247,6 +248,37 @@ class DataUpdateView(BSModalUpdateView):
         model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
         return self.success_message % dict(obj_type=model._meta.verbose_name.title())
 
+
+    
+@method_decorator(login_required,name='dispatch')
+class DataDeleteView(SuccessMessageMixin,BSModalDeleteView):
+    template_name = 'sled_data/data_delete.html'
+    form_class = forms.DataDeleteForm
+    #success_message = "Success: %(obj_type)s was deleted successfully"
+
+    def get_queryset(self):
+        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+        return model.accessible_objects.owned(self.request.user)
+
+    def get_form_kwargs(self):
+        kwargs = super(DataDeleteView,self).get_form_kwargs()
+        kwargs['obj_type'] = self.kwargs.get('model')
+        kwargs['id'] = self.get_object().id
+        return kwargs
+        
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            self.object.save()
+        response = super().form_valid(form)
+        return response
+    
+    def get_success_url(self):
+        return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
+
+    def get_success_message(self,cleaned_data):
+        success_message = "Success: %(obj_type)s was deleted successfully"
+        model = apps.get_model(app_label='lenses',model_name=self.kwargs.get('model'))
+        return success_message % dict(obj_type=model._meta.verbose_name.title())
 
     
         

@@ -346,7 +346,24 @@ class DataDeleteManyForm(BSModalForm):
         tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks(obj_type,ids,task_types=task_list)
         if errors:
             for error in errors:
-                self.add_error('__all__',error)    
+                self.add_error('__all__',error)
+
+                
+class DataDeleteForm(BSModalForm):    
+    def __init__(self, *args, **kwargs):
+        self.obj_type = kwargs.pop('obj_type', None)
+        self.id = kwargs.pop('id', None)
+        super(DataDeleteForm, self).__init__(*args, **kwargs)
+    
+    def clean(self):
+        # Check for other tasks
+        task_list = ['CedeOwnership']
+        tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks(self.obj_type,[self.id],task_types=task_list)
+        if len(tasks_objects)>0 :
+            model = apps.get_model(app_label='lenses',model_name=self.obj_type)
+            raise ValidationError(model._meta.verbose_name.title() + ' is in an existing pending task!')
+        else:
+            return
 ##############################################################################
 
 
