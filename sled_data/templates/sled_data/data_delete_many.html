@@ -1,0 +1,24 @@
+{% extends "modal_base.html" %}
+{% load project_tags %}
+
+{% block title %}
+Delete {% singular_or_plural form.obj_type.value items|length %}?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-modal-field">
+  <ul>
+    {% for item in items %}
+    <li>{{ item }}</li>
+    {% endfor %}
+  </ul>
+</div>
+
+{{ form.ids }}
+{{ form.obj_type }}
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">Delete</button>
+{% endblock action_button %}

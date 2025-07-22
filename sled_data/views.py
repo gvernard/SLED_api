@@ -343,7 +343,7 @@ class ModalIdsBaseMixin(BSModalFormView):
 
 @method_decorator(login_required,name='dispatch')
 class DataDeleteManyView(ModalIdsBaseMixin):
-    template_name = 'sled_data/data_delete.html'
+    template_name = 'sled_data/data_delete_many.html'
     form_class = forms.DataDeleteManyForm
     success_url = reverse_lazy('sled_users:user-profile')
     
@@ -360,6 +360,8 @@ class DataDeleteManyView(ModalIdsBaseMixin):
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument=item.instrument.name)
                 elif obj_type == 'GenericImage':
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument='Generic Image')
+                elif obj_type == 'LensModels':
+                    action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument='Lens Model')
                 elif obj_type == 'Redshift':
                     action.send(item.owner,target=item.lens,verb='RemoveData',level='success',instrument='Redshift')
                 else:

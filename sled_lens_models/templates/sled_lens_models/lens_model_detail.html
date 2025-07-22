@@ -1,41 +1,47 @@
 {% extends "master_header.html" %}
+{% load static %}
 {% load project_tags %}
 
 {% block content %}
-<div class="jb-container jb-table-no-lines">
+<div class="jb-container">
 
-  <h2>
-    Temporary detail page for a Lens Model
-  </h2>
+  <h1 class="jb-heading-1">{{ lens_model.name }} - <a href="{{lens_model.lens.get_absolute_url}}">{{lens_model.lens}}</a></h1>
+  <p class="created-at">
+    Created at: {{ lens_model.created_at }}
+  </p>
 
+  <!-- Div with some information about the collection -->
+  <div>
+    <h1 class="jb-heading-2">Model Information</h1>
+    <table class="jb-table-no-lines">
+      <tr>
+        <th>Owner</th>
+        <th>Access level</th>
+        <th>Description</th>
+      </tr>
+      <tr>
+        <td>{{ lens_model.owner.id|get_user_link|safe }}</td>
+        <td>{{lens_model.access_level}}</td>
+        <td>{{lens_model.description}}</td>
+      </tr>
+    </table>
+  </div>
+
+  <h1>BUTTON TO DOWLOAD .tar.gz FILE SHOULD GO HERE</h1>
+
+
+  <div>
+    <img class="dmr_plot" src="{{ dmr_plot_url }}" alt="DMR Plot" />
+  </div>
+
+  <div>
+    <img class="corner_plot" src="{{ corner_plot_url }}" alt="Corner Plot" />
+  </div>
   
-  <table>
-    <tr><td>Owned by:</td><td>{{ lens_model.owner.id|get_user_link|safe }}</td></tr>
-    <tr><td>Name:</td><td>{{ lens_model.name }}</td></tr>
-    <tr><td>Access level:</td><td>{{ lens_model.access_level }}</td></tr>
-    <tr><td>Description:</td><td>{{ lens_model.description|default:"-" }}</td></tr>
-    <tr><td>Lensing Entities:</td><td>{{lensing_entities }}</td></tr>
-    <tr><td>Effective Radius:</td><td>{{ r_eff }}</td></tr>
-    <tr><td>Einstein Radius:</td><td>{{ einstein_radius }}</td></tr>
-    <tr><td>Source Entities:</td><td>{{ source_light_model}}</td></tr>
-    <tr><td>Free Parameters:</td><td>{{ free_parameters}}</td></tr>
-
-  </table>
-
-  {% if object.dmr_plot_url %}
-    <h3>DMR Plot</h3>
-    <img src="{{ object.dmr_plot_url }}" alt="DMR Plot" />
-  {% endif %}
-
-  {% if object.corner_plot_url %}
-    <h3>Corner Plot</h3>
-    <img src="{{ object.corner_plot_url }}" alt="Corner Plot" />
-  {% endif %}
-
-  {% if error %}
-    <p style="color:red;">{{ error }}</p>
-  {% endif %}
-
-
 </div>
 {% endblock content %}
+
+
+{% block extrastyles %}
+<link href="{% static 'sled_lens_models/css/lens_model_detail.css' %}" rel="stylesheet" />
+{% endblock extrastyles %}

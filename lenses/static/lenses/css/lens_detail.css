@@ -100,3 +100,13 @@
 .side-by-side {
     float:left;
 }
+
+
+.lens-models td:first-child {
+    width: 250px;
+    padding-right:15px;
+}
+.lens-models td:last-child {
+    width: 250px;
+    padding-left:15px;
+}

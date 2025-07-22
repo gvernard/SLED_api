@@ -280,7 +280,6 @@
   <!-- Div containing all the redshift measurements  -->
   <div id="redshift" class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Redshifts</h1>
-	<!--if redshift is not empty, this line sorts the redshift information -->
     {% if redshifts %}
     <table>
       <thead>
@@ -293,7 +292,6 @@
 	</tr>
       </thead>
       <tbody>
-		<!--this allows the user to put information in -->
 	{% for redshift in redshifts %}
 	<tr>
 	  <td class="padding-right">
@@ -350,7 +348,7 @@
   <div id="lensmodels" class="jb-section jb-table-no-lines">
     <h1 class="jb-heading-2">Lens Models</h1>
     {% if lens_models %}
-	<table>
+    <table class="lens-models">
       <thead>
 	<tr>
 	  <th>Name</th>
@@ -366,9 +364,13 @@
             <td>{{ lens_model.description }}</td>
             <td>
 	    {% if lens_model.owner == user %}
-	    <button type="button" class="sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_lens_models:lens-model-update' lens_model.id %}">
+	    <button type="button" class="side-by-side sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_lens_models:lens-model-update' lens_model.id %}">
 	      <img src="{% static 'icons/pencil.svg' %}" >
 	      Update
+	    </button>
+	    <button type="button" class="side-by-side sled-modal jb-overlay-button-1" data-form-url="{% url 'sled_lens_models:lens-model-delete' lens_model.id %}">
+	      <img src="{% static 'icons/trash.svg' %}">
+	      Delete
 	    </button>
 	    {% else %}
 	    {{ lens_model.owner }}

@@ -336,7 +336,6 @@ class DataDeleteManyForm(BSModalForm):
     obj_type = forms.CharField(widget=forms.HiddenInput())
     ids = forms.CharField(widget=forms.HiddenInput())
 
-
     def clean(self):
         obj_type = self.cleaned_data.get('obj_type')
         ids = [ int(id) for id in self.cleaned_data.get('ids').split(',') ]

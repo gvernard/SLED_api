@@ -54,21 +54,17 @@ import base64
 class LensModelDetailView(DetailView):
     model = LensModels
     template_name = 'sled_lens_models/lens_model_detail.html'
-    context_object_name = 'lens_model'  #getting all lens models
+    context_object_name = 'lens_model'
 
     def get_queryset(self):
         return LensModels.accessible_objects.all(self.request.user)  #match model
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        lens_model = self.get_object()        
+        lens_model = self.get_object()
         context.update({
-            'lensing_entities': lens_model.lensing_entities,
-            'source_light_model': lens_model.source_light_model,
-            'r_eff': lens_model.r_eff_source,
-            'einstein_radius': lens_model.einstein_radius,
-            'free_parameters': lens_model.free_parameters
+            'dmr_plot_url': lens_model.get_dmr_plot_url(),
+            'corner_plot_url': lens_model.get_corner_plot_url()
         })
         return context
     
@@ -141,16 +137,21 @@ class LensModelDeleteView(BSModalDeleteView):
     success_message = 'Success: Lens Model was deleted.'
     #success_url = reverse_lazy('sled_lens_models:lens-list')
     
-    #def get_queryset(self):
-    #    return Collection.accessible_objects.owned(self.request.user)
+    def get_queryset(self):
+        return LensModels.accessible_objects.owned(self.request.user)
 
-    #def get_form_kwargs(self):
-    #    kwargs = super(CollectionDeleteView,self).get_form_kwargs()
-    #    kwargs['id'] = self.get_object().id
-    #    return kwargs
+    def get_form_kwargs(self):
+        kwargs = super(LensModelDeleteView,self).get_form_kwargs()
+        kwargs['id'] = self.get_object().id
+        return kwargs
 
-    #def form_invalid(self,form):
-    #    mycollection = self.get_object()
-    #    list(messages.get_messages(self.request))
-    #    messages.add_message(self.request,messages.ERROR,"The collection is already in a CedeOwnership task.")
-    #    return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            self.object.save()
+        response = super().form_valid(form)
+        return response
+    
+    def get_success_url(self):
+        return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
+
+

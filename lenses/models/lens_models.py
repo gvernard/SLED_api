@@ -144,28 +144,15 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     
     def __str__(self):
         return self.name
-    #defines how object appears when converted to a string 
 
     def get_absolute_url(self):
         return reverse('sled_lens_models:lens-model-detail',kwargs={'pk':self.id})
-    #this does not exist yet(must code) - calls lens model detail view
-    #(?) first partis app and second part is view
 
-    def dmr_plot_url(self):
-        relative_path = f"lens_models/{self.pk}_pngs/{self.pk}_dmr_plot.png"
-        full_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+    def get_dmr_plot_url(self):
+        return settings.MEDIA_URL + self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_dmr_plot.png"
 
-        if os.path.exists(full_path):
-            return f"{settings.MEDIA_URL}{relative_path}"
-        return None
-
-    def corner_plot_url(self):
-        relative_path = f"lens_models/{self.pk}_pngs/{self.pk}_corner_plot.png"
-        full_path = os.path.join(settings.MEDIA_ROOT, relative_path)
-
-        if os.path.exists(full_path):
-            return f"{settings.MEDIA_URL}{relative_path}"
-        return None
+    def get_corner_plot_url(self):
+        return settings.MEDIA_URL + self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_corner_plot.png"
 
     def extract_coolest_info(self, tar_path, dmr_dir, corner_dir):
         with tempfile.TemporaryDirectory() as tmpdir:

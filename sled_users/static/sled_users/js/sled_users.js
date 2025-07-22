@@ -34,7 +34,7 @@ $(document).ready(function() {
     $(".ids-form").submit(function(e){
 	var checked_boxes = $(this).find('input[type="checkbox"]:checked');
 	if( checked_boxes.length == 0 ){
-	    alert('You must select at least one lens!');
+	    alert('You must select at least one item!');
 	    e.preventDefault();
 	}	
     });

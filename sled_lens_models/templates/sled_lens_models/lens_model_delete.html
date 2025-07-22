@@ -1,0 +1,36 @@
+{% extends "modal_base.html" %}
+{% load static %}
+
+{% block title %}
+Delete Lens Model?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container-modal">
+  
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <p>
+    Are you sure you want to delete this <strong>Lens Model</strong>?
+    <br>
+    <span class="jb-important-text"><strong>ATTENTION</strong>: This action cannot be undone!</span>
+  </p>
+    
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/trash.svg' %}" >
+  Delete
+</button>
+{% endblock action_button %}

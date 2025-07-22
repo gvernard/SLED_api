@@ -13,7 +13,7 @@ from coolest.api import util
 from bootstrap_modal_forms.forms import BSModalModelForm,BSModalForm
 from django.core.files.uploadedfile import UploadedFile
 
-from lenses.models.lens_models import LensModels
+from lenses.models import LensModels, ConfirmationTask
 
 
 class LensModelUpdateFormModal(BSModalModelForm):
@@ -57,7 +57,7 @@ class LensModelDeleteForm(forms.Form):
         task_list = ['CedeOwnership']
         tasks_objects,errors = ConfirmationTask.custom_manager.check_pending_tasks('LensModels',[self.id],task_types=task_list)
         if len(tasks_objects)>0 :
-            raise ValidationError('LensModel is in an existing pending task!')
+            raise ValidationError('Lens Model is in an existing pending task!')
         else:
             return
 
