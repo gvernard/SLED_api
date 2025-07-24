@@ -32,7 +32,6 @@ class DatabaseFileStorage(S3Boto3Storage):
             CopySource=self.bucket_name + "/" + self.location + from_path,
             Key=self.location + to_path)
 
-
     def mydelete(self,fname):
         #print(self.location + fname)
         delete_result = self.connection.meta.client.delete_object(
@@ -70,51 +69,36 @@ class LocalStorage(Storage):
     def _open(self,fname,mode='rb'):
         f = open(fname,mode)
         return f
-    # opens files
 
     def _save(self,fname,content):
         with open(self.location + fname,'wb') as writer:
             writer.write(content.read())
         return fname
-    #saves uploaded files
 
     def path(self,fname):
         return os.path.join(self.location, fname)
-        #returns the path of your file
    
-    # def path(self,fname):
-    #     return fname
-
     def copy(self,from_path,to_path):
         shutil.copyfile(self.location + from_path,self.location + to_path)
-        #copies file
 
     def mydelete(self,fname):
         #print("My delete: ",fname)
         if self.exists(fname):
             os.remove(self.location + fname)
-        #deletes files
 
     def create_dir(self,dname):
         if not os.path.exists(self.location + dname):
             os.makedirs(self.location + dname)
-        #creates directories
             
     def put_object(self,content,fname):
         with open(self.location + fname,'wb') as writer:
             writer.write(content)
-        #writes raw content
 
     def exists(self,fname):
         return os.path.isfile(self.location + fname)
-        #check if file exists
     
     def url(self,fname):
         return self.location + fname
-        #gets the url
 
     def get_size(self,fname):
         return os.path.getsize(self.location+fname) # in bytes
-        #gets the file size
-    
-    #all of these functions are called with .(function_name)

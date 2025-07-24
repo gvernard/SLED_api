@@ -123,7 +123,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     
     coolest_file = models.FileField(upload_to='lens_models/', blank=True, null=True)
 
-    lensing_entities = models.JSONField(blank=True, null=True)
+    lens_mass_model = models.JSONField(blank=True, null=True)
 
     source_light_model = models.JSONField(blank=True, null=True)
 
@@ -131,9 +131,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
     einstein_radius = models.FloatField(blank=True, null=True)
 
-    free_parameters= models.JSONField(blank=True, null=True)
-
-    #must define a place to put the files to upload
 
 
     class Meta():
@@ -163,7 +160,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 #extract everything in the tarfile and put it in the tmpdir
                  
                 extracted_items = os.listdir(tmpdir)
-                #this lists everything thaast was deposited in the temporary directory
+                #this lists everything that was deposited in the temporary directory
                 extracted_items_path=os.path.join(tmpdir, extracted_items[0])
                 #creates a path by joining the path of the directory and adding the name of directory created (there will be more than one file in the tar.gz usually)
                 
@@ -197,13 +194,12 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
                 
 
-
+                ################ Extracting COOLEST fields
                 #gets the effective radius of source surface brightness
-                self.r_eff_source = analysis.effective_radius_light(center=(0, 0), coordinates=coord_src, 
-                                                outer_radius=1., entity_selection=[2])
+                self.r_eff_source = analysis.effective_radius_light(center=(0,0),coordinates=coord_src,outer_radius=1.,entity_selection=[2])
                 
                 #gets the einstein radius of source surface brightness
-                self.einstein_radius = analysis.effective_einstein_radius(entity_selection=[0, 1]) 
+                self.einstein_radius = analysis.effective_einstein_radius(entity_selection=[0,1])
                 
                 source_index = 2 #may be subject to change (gets source type) - got from COOLEST page 
                 self.lensing_entities = [type(le).__name__ for le in coolest_1.lensing_entities] #gets all lensing objects
@@ -211,8 +207,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
                 
                 
-                #plotting images 
-
+                ################ Plotting DMR
                 #initialize the plotter
                 norm = Normalize(-0.005, 0.05) # LogNorm(2e-3, 5e-2)
                 fig, axes = plt.subplots(2, 2, figsize=(14, 5.5))
@@ -220,7 +215,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 #set up plotting 
                 splotter = ModelPlotter(coolest_1, coolest_directory=os.path.dirname(target_path))
 
-                ######################################################
 
                 splotter.plot_data_image(
                     axes[0, 0],
@@ -228,8 +222,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 )
                 axes[0,0].set_title("Observed Data")
 
-                ######################################################
-                
                 splotter.plot_model_image(
                     axes[0, 1],
 
@@ -242,7 +234,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                                 va='bottom', ha='left', transform=axes[0, 1].transAxes)
                 axes[0,1].set_title("Image Model")
 
-                ######################################################
                 
                 splotter.plot_model_residuals(
                     axes[1, 0],
@@ -253,7 +244,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 )
                 axes[1, 0].set_title("Normalized Residuals")
                 
-                ######################################################
             
                 splotter.plot_surface_brightness(
                     axes[1, 1], 
@@ -268,25 +258,13 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 axes[1, 0].set_xlabel(r"$x$ (arcsec)")
                 axes[1, 0].set_ylabel(r"$y$ (arcsec)")
                 axes[1, 1].set_title("Surface Brightness")
-                ######################################################
                 
                 fig.tight_layout()
-                #Bytes is like a file but stored in memory so it lets you write binary data like images like it were a file without creating a physical file on yoru disk
-                #buf = io.BytesIO()
-                #save the figure to that RAM storage as a png file
-                
-                #png_dir must be the path + the name of the file at the end defined when this function is called
                 plt.savefig(dmr_dir, format='png')
-                #buf.seek(0)
-
-                # Convert to base64 -- creates a string and allows you to embed images as text
-                #DMR_plot = base64.b64encode(buf.read()).decode('utf-8')
-                #you will return this image
-                plt.close() #avoids memory issues to close your figure
+                plt.close()
 
 
-                #plotting a corner plot
-
+                ################ Plotting corner plot
                 truth = coolest_1
                 tmp_free_pars = truth.lensing_entities.get_parameter_ids()
                 free_pars = tmp_free_pars[:-2] # Remove the last parameters that refer to the light of the source and the perturbations
@@ -296,9 +274,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 reorder = [2,3,4,5,6,0,1]
                 pars = [free_pars[i] for i in reorder]
                 self.free_parameters=pars
-            
                
-                #<ENTITY_INDEX>-<ENTITY_TYPE>-<COMPONENT_TYPE>-<COMPONENT_INDEX>-<MODEL_NAME>-<PARAM_NAME>
                 colors = ['#7FB6F5', '#E03424']
 
                 coolest_dir = os.path.dirname(target_path)
@@ -319,23 +295,10 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 }
                 param_plotter.init_getdist(settings_mcsamples=settings)
                 corner = param_plotter.plot_triangle_getdist(filled_contours=True, subplot_size=3)
-                #buf = io.BytesIO()
-                #save the figure to that RAM storage as a png file
-                plt.savefig(corner_dir, format='png', bbox_inches='tight')
-                #buf.seek(0)
 
-                #corner_plot = base64.b64encode(buf.read()).decode('utf-8')
+                plt.savefig(corner_dir, format='png', bbox_inches='tight')
                 plt.close()
 
-        #find plot range
-                # return (
-                #     [lensing_entities],
-                #     [source_light_model],
-                #     r_eff_source,
-                #     ein_rad,
-                #     DMR_plot,
-                #     corner_plot
-                # )
 
     
     
@@ -362,7 +325,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             dirty.pop("owner",None) # Do not report ownership changes
 
             ref_name = self.name
-            
             if "access_level" in dirty.keys():
                 # Report only when making public
                 if dirty["access_level"]["saved"] == "PRI" and dirty["access_level"]["current"] == "PUB":
@@ -385,8 +347,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
         if fname != sled_fname:
             default_storage.copy(fname,sled_fname) #copies the copy from one name to the other #copy fname to sled_fname
             self.coolest_file.name = sled_fname #changes file name of field to proper file name (just the file name)
-            super(LensModels,self).save(*args,**kwargs) #save the changes
-            default_storage.mydelete(fname) #delete the original named file
 
             ### Make plots
             png_dir_path = self.coolest_file.path
@@ -400,13 +360,9 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             except Exception as e:
                 raise ValidationError(f"Failed to process COOLEST file: {e}")
 
-            # Save updated fields
-            #super().save(update_fields=[
-            #    "lensing_entities", "source_light_model",
-            #    "r_eff_source", "einstein_radius",
-            #    "free_parameters"
-            #])
-             
+            super(LensModels,self).save(*args,**kwargs) #save the changes
+            default_storage.mydelete(fname) #delete the original named file
+
         
         
         

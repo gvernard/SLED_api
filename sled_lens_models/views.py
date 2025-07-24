@@ -17,6 +17,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.files import File
+from django.conf import settings
+from django.http import FileResponse
 
 from guardian.shortcuts import get_objects_for_user, get_objects_for_group, get_users_with_perms, get_groups_with_perms
 
@@ -154,4 +156,22 @@ class LensModelDeleteView(BSModalDeleteView):
     def get_success_url(self):
         return reverse('lenses:lens-detail',kwargs={'pk':self.get_object().lens.id})
 
+
+
+
+#@method_decorator(login_required,name='dispatch')
+@login_required
+def LensModelDownloadView(request):
+    lens_model_id = request.GET.get('lens_model_id')
+    qset = LensModels.accessible_objects.in_ids(request.user,[lens_model_id])
+
+    if qset:
+        lens_model = qset[0]
+        path = lens_model.coolest_file.url
+        filename = path.split('/')[-1]
+        response = FileResponse(open(path,'rb'))
+        response['Content-Disposition'] = 'inline; filename=' + filename
+        return response
+    else:
+        return TemplateResponse(request,'simple_message.html',context={'message':'This Lens Model does not exist.'})
 

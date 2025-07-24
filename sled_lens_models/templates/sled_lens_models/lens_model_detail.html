@@ -21,15 +21,20 @@
       </tr>
       <tr>
         <td>{{ lens_model.owner.id|get_user_link|safe }}</td>
-        <td>{{lens_model.access_level}}</td>
-        <td>{{lens_model.description}}</td>
+        <td>{{ lens_model.access_level }}</td>
+        <td>{{ lens_model.description }}</td>
       </tr>
     </table>
   </div>
 
-  <h1>BUTTON TO DOWLOAD .tar.gz FILE SHOULD GO HERE</h1>
-
-
+  <form id="myform" action="{% url 'sled_lens_models:lens-model-download' %}" method="GET">
+    <input name="lens_model_id" type="hidden" value="{{lens_model.id}}">
+  </form>
+  <button type="button" id="download" class="jb-submit-button-1" >
+    <img src="{% static 'icons/arrow-down-circle-fill.svg' %}">
+    Download
+  </button>
+  
   <div>
     <img class="dmr_plot" src="{{ dmr_plot_url }}" alt="DMR Plot" />
   </div>
@@ -45,3 +50,8 @@
 {% block extrastyles %}
 <link href="{% static 'sled_lens_models/css/lens_model_detail.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script type="text/javascript" src="{% static 'sled_lens_models/js/lens_model_detail.js' %}"></script>
+{% endblock extrascripts %}
