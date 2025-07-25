@@ -151,7 +151,11 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     def get_corner_plot_url(self):
         return settings.MEDIA_URL + self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_corner_plot.png"
 
-    def extract_coolest_info(self, tar_path, dmr_dir, corner_dir):
+    
+    def extract_coolest_info(self,tar_path):
+        dmr_fname = self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_dmr_plot.png"
+        corner_fname = self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_corner_plot.png"
+        
         with tempfile.TemporaryDirectory() as tmpdir:
         # Extract tar.gz contents
             with tarfile.open(tar_path, "r:gz") as tar:
@@ -258,9 +262,14 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 axes[1, 0].set_xlabel(r"$x$ (arcsec)")
                 axes[1, 0].set_ylabel(r"$y$ (arcsec)")
                 axes[1, 1].set_title("Surface Brightness")
+
+                #plt.savefig(dmr_dir,format='png',bbox_inches='tight')
+
+                buf = io.BytesIO()
+                plt.savefig(buf,format='png',bbox_inches='tight')
+                buf.seek(0)
+                default_storage.put_object(buf.read(),dmr_fname)
                 
-                fig.tight_layout()
-                plt.savefig(dmr_dir, format='png')
                 plt.close()
 
 
@@ -296,7 +305,13 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 param_plotter.init_getdist(settings_mcsamples=settings)
                 corner = param_plotter.plot_triangle_getdist(filled_contours=True, subplot_size=3)
 
-                plt.savefig(corner_dir, format='png', bbox_inches='tight')
+                #plt.savefig(corner_dir, format='png', bbox_inches='tight')
+
+                buf = io.BytesIO()
+                plt.savefig(buf,format='png',bbox_inches='tight')
+                buf.seek(0)
+                default_storage.put_object(buf.read(),corner_fname)
+                
                 plt.close()
 
 
@@ -349,14 +364,11 @@ class LensModels(SingleObject,DirtyFieldsMixin):
             self.coolest_file.name = sled_fname #changes file name of field to proper file name (just the file name)
 
             ### Make plots
-            png_dir_path = self.coolest_file.path
-            png_directory_name = f"{self.pk}_pngs"
-            full_path = os.path.join(settings.MEDIA_ROOT, 'lens_models', png_directory_name)
-            DMR_path = os.path.join(full_path, f"{self.pk}_dmr_plot.png")
-            corner_path = os.path.join(full_path, f"{self.pk}_corner_plot.png")
-
+            #png_dir_path = self.coolest_file.path
+            tar_path = settings.MEDIA_ROOT + "/" + self.coolest_file.name
+            
             try:
-                self.extract_coolest_info(png_dir_path,DMR_path, corner_path)
+                self.extract_coolest_info(tar_path)
             except Exception as e:
                 raise ValidationError(f"Failed to process COOLEST file: {e}")
 
