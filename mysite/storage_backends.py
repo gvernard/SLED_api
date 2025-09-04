@@ -1,6 +1,7 @@
 import os
 import shutil
 import tarfile
+from io import BytesIO
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.utils import clean_name
