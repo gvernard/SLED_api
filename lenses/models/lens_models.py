@@ -158,7 +158,9 @@ class LensModels(SingleObject,DirtyFieldsMixin):
         
         with tempfile.TemporaryDirectory() as tmpdir:
         # Extract tar.gz contents
-            with tarfile.open(tar_path, "r:gz") as tar:
+
+            #with tarfile.open(tar_path, "r:gz") as tar:
+            with default_storage.read_tar(tar_path) as tar:
                 #open the tarpath and read it in (r) as a gz file
                 tar.extractall(path=tmpdir)
                 #extract everything in the tarfile and put it in the tmpdir

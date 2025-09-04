@@ -1,5 +1,6 @@
 import os
 import shutil
+import tarfile
 from django.conf import settings
 from storages.backends.s3boto3 import S3Boto3Storage
 from storages.utils import clean_name
@@ -60,7 +61,19 @@ class DatabaseFileStorage(S3Boto3Storage):
         )
         size = response['ContentLength'] # in bytes
         return size
-        
+
+    def read_tar(self,fname):
+        response = self.connection.meta.client.get_object(
+            Bucket=self.bucket_name,
+            Key=self.location + fname
+        )
+        tar_content = response['Body'].read()
+
+        # Open the tar file from the in-memory content
+        # Use 'r:gz' for .tar.gz, 'r' for uncompressed .tar
+        f = tarfile.open(fileobj=BytesIO(tar_content),mode='r:gz')
+        return f
+    
 
 class LocalStorage(Storage):
     location = settings.MEDIA_ROOT + "/"
@@ -102,3 +115,7 @@ class LocalStorage(Storage):
 
     def get_size(self,fname):
         return os.path.getsize(self.location+fname) # in bytes
+
+    def read_tar(self,fname):
+        f = tarfile.open(fname,"r:gz")
+        return f
