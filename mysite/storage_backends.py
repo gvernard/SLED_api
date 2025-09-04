@@ -115,5 +115,6 @@ class LocalStorage(Storage):
         return os.path.getsize(self.location+fname) # in bytes
 
     def read_tar(self,fname):
-        f = tarfile.open(fname,"r:gz")
+        print("Storage: ",fname)
+        f = tarfile.open(self.location+fname,"r:gz")
         return f

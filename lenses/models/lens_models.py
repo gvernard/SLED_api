@@ -160,6 +160,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
         # Extract tar.gz contents
 
             #with tarfile.open(tar_path, "r:gz") as tar:
+            print("In: ",tar_path)
             with default_storage.read_tar(tar_path) as tar:
                 #open the tarpath and read it in (r) as a gz file
                 tar.extractall(path=tmpdir)
@@ -367,7 +368,8 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
             ### Make plots
             #png_dir_path = self.coolest_file.path
-            tar_path = settings.MEDIA_ROOT + "/" + self.coolest_file.name
+            #tar_path = settings.MEDIA_ROOT + "/" + self.coolest_file.name
+            tar_path = self.coolest_file.name
             
             try:
                 self.extract_coolest_info(tar_path)
