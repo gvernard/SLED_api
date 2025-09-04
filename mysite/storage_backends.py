@@ -63,14 +63,12 @@ class DatabaseFileStorage(S3Boto3Storage):
         return size
 
     def read_tar(self,fname):
+        print(self.location + fname)
         response = self.connection.meta.client.get_object(
             Bucket=self.bucket_name,
             Key=self.location + fname
         )
         tar_content = response['Body'].read()
-
-        # Open the tar file from the in-memory content
-        # Use 'r:gz' for .tar.gz, 'r' for uncompressed .tar
         f = tarfile.open(fileobj=BytesIO(tar_content),mode='r:gz')
         return f
     
