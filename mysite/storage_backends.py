@@ -71,7 +71,17 @@ class DatabaseFileStorage(S3Boto3Storage):
         tar_content = response['Body'].read()
         f = tarfile.open(fileobj=BytesIO(tar_content),mode='r:gz')
         return f
-    
+
+    def get_file_url(self,fname):
+        url = self.connection.meta.client.generate_presigned_url('get_object',
+                                                                 Params={
+                                                                     'Bucket': self.bucket_name,
+                                                                     'Key': self.location + fname,
+                                                                 },
+                                                                 ExpiresIn=3600
+        )
+        return url
+
 
 class LocalStorage(Storage):
     location = settings.MEDIA_ROOT + "/"
@@ -109,6 +119,9 @@ class LocalStorage(Storage):
         return os.path.isfile(self.location + fname)
     
     def url(self,fname):
+        return self.location + fname
+
+    def get_file_url(self,fname):
         return self.location + fname
 
     def get_size(self,fname):
