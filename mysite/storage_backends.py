@@ -64,7 +64,6 @@ class DatabaseFileStorage(S3Boto3Storage):
         return size
 
     def read_tar(self,fname):
-        print(self.location + fname)
         response = self.connection.meta.client.get_object(
             Bucket=self.bucket_name,
             Key=self.location + fname
@@ -116,6 +115,5 @@ class LocalStorage(Storage):
         return os.path.getsize(self.location+fname) # in bytes
 
     def read_tar(self,fname):
-        print("Storage: ",fname)
         f = tarfile.open(self.location+fname,"r:gz")
         return f

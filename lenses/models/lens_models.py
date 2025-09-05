@@ -146,7 +146,10 @@ class LensModels(SingleObject,DirtyFieldsMixin):
         return reverse('sled_lens_models:lens-model-detail',kwargs={'pk':self.id})
 
     def get_dmr_plot_url(self):
-        return settings.MEDIA_URL + self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_dmr_plot.png"
+        tmp = self.coolest_file.url.removesuffix(".tar.gz")
+        url = tmp + "_pngs/" + str(self.id) + "_dmr_plot.png"
+        return url
+        #return settings.MEDIA_URL + self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_dmr_plot.png"
 
     def get_corner_plot_url(self):
         return settings.MEDIA_URL + self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_corner_plot.png"
@@ -160,7 +163,6 @@ class LensModels(SingleObject,DirtyFieldsMixin):
         # Extract tar.gz contents
 
             #with tarfile.open(tar_path, "r:gz") as tar:
-            print("In: ",tar_path)
             with default_storage.read_tar(tar_path) as tar:
                 #open the tarpath and read it in (r) as a gz file
                 tar.extractall(path=tmpdir)
