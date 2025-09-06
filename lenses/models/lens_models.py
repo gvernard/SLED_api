@@ -188,13 +188,13 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
 
                 #start extracting values
-                coolest_1 = util.get_coolest_object(target_path, verbose=False)
+                coolest_obj = util.get_coolest_object(target_path, verbose=False)
             
                 #run necessary analysis on coolest_util
-                analysis = Analysis(coolest_1, target_path, supersampling=5)
+                analysis = Analysis(coolest_obj, target_path, supersampling=5)
 
                 #set up custom coordinates to evaluate light profiles consistently
-                coord_orig = util.get_coordinates(coolest_1)
+                coord_orig = util.get_coordinates(coolest_obj)
                 x_orig, y_orig = coord_orig.pixel_coordinates
                 #print(coord_orig.plt_extent)
 
@@ -205,100 +205,112 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                 
 
                 ################ Extracting COOLEST fields
-                #gets the effective radius of source surface brightness
-                self.r_eff_source = analysis.effective_radius_light(center=(0,0),coordinates=coord_src,outer_radius=1.,entity_selection=[2])
-                
-                #gets the einstein radius of source surface brightness
-                self.einstein_radius = analysis.effective_einstein_radius(entity_selection=[0,1])
-                
-                source_index = 2 #may be subject to change (gets source type) - got from COOLEST page 
-                self.lensing_entities = [type(le).__name__ for le in coolest_1.lensing_entities] #gets all lensing objects
-                self.source_light_model = [type(m).__name__ for m in coolest_1.lensing_entities[source_index].light_model] #gives source light model
+                reds = [ entity.redshift for entity in coolest_obj.lensing_entities ]
+                indices = numpy.argsort(numpy.array(reds))
+                source_index = indices[-1]
+                entity_list = indices[:-1]
+
+                norm = Normalize(-0.005, 0.05) # LogNorm(2e-3, 5e-2)
+                norm = Normalize(-0.005, 0.1) # LogNorm(2e-3, 5e-2)
+
+                self.r_eff_source = analysis.effective_radius_light(center=(0,0),coordinates=coord_src,outer_radius=1.,entity_selection=[source_index])
+                self.einstein_radius = analysis.effective_einstein_radius(entity_selection=entity_list)
+                self.lensing_entities = [type(le).__name__ for le in coolest_obj.lensing_entities] #gets all lensing objects
+                self.source_light_model = [type(m).__name__ for m in coolest_obj.lensing_entities[source_index].light_model] #gives source light model
 
                 
                 
                 ################ Plotting DMR
-                #initialize the plotter
-                norm = Normalize(-0.005, 0.05) # LogNorm(2e-3, 5e-2)
-                fig, axes = plt.subplots(2, 2, figsize=(14, 5.5))
-
-                #set up plotting 
-                splotter = ModelPlotter(coolest_1, coolest_directory=os.path.dirname(target_path))
-
-
-                splotter.plot_data_image(
-                    axes[0, 0],
-                    norm=norm
-                )
-                axes[0,0].set_title("Observed Data")
-
-                splotter.plot_model_image(
-                    axes[0, 1],
-
-                    supersampling=5, convolved=True,
-                    kwargs_source=dict(entity_selection=[2]),
-                    kwargs_lens_mass=dict(entity_selection=[0, 1]),
-                    norm=norm
-                )
-                axes[0, 1].text(0.05, 0.05, r'$\theta_{\rm E}$ = '+f'{self.einstein_radius:.2f}"', color='white', fontsize=12, alpha=0.8, 
-                                va='bottom', ha='left', transform=axes[0, 1].transAxes)
-                axes[0,1].set_title("Image Model")
+                fig, axes = plt.subplots(2,2,figsize=(12,10))
+                splotter = ModelPlotter(coolest_obj,coolest_directory=os.path.dirname(target_path))
 
                 
-                splotter.plot_model_residuals(
-                    axes[1, 0],
-                    #titles="Normalized residuals",
-                    supersampling=5, add_chi2_label=True, chi2_fontsize=12,
-                    kwargs_source=dict(entity_selection=[2]),
-                    kwargs_lens_mass=dict(entity_selection=[0, 1]),
+                ############ DATA
+                splotter.plot_data_image(
+                    axes[0,0],
+                    norm=norm
                 )
-                axes[1, 0].set_title("Normalized Residuals")
+                axes[0,0].set_xlabel(r"$x$ (arcsec)")
+                axes[0,0].set_ylabel(r"$y$ (arcsec)")
+                axes[0,0].set_title("Data")
+
+                
+                ############ MODEL
+                splotter.plot_model_image(
+                    axes[0,1],
+                    supersampling=5,
+                    convolved=True,
+                    kwargs_source=dict(entity_selection=[source_index]),
+                    kwargs_lens_mass=dict(entity_selection=entity_list),
+                    norm=norm
+                )
+                axes[0,1].text(0.05, 0.05, r'$\theta_{\rm E}$ = '+f'{self.einstein_radius:.2f}"', color='white', fontsize=12, alpha=0.8, 
+                                va='bottom', ha='left', transform=axes[0,1].transAxes)
+                axes[0,1].set_xlabel(r"$x$ (arcsec)")
+                axes[0,1].set_ylabel(r"$y$ (arcsec)")
+                axes[0,1].set_title("Model")
+
+        
+                ############ RESIDUALS
+                splotter.plot_model_residuals(
+                    axes[1,0],
+                    supersampling=5,
+                    add_chi2_label=True,
+                    chi2_fontsize=12,
+                    kwargs_source=dict(entity_selection=[source_index]),
+                    kwargs_lens_mass=dict(entity_selection=entity_list),
+                )
+                axes[1,0].set_xlabel(r"$x$ (arcsec)")
+                axes[1,0].set_ylabel(r"$y$ (arcsec)")
+                axes[1,0].set_title("Normalized Residuals")
                 
             
+                ############ SOURCE
                 splotter.plot_surface_brightness(
-                    axes[1, 1], 
-                    kwargs_light=dict(entity_selection=[2]),
-                    norm=norm,
+                    axes[1,1],
+                    kwargs_light=dict(entity_selection=[source_index]),
+                    #norm=norm,
                     neg_values_as_bad=False,
                     coordinates=coord_src,
                 )
-                axes[1, 1].text(0.05, 0.05, r'$\theta_{\rm eff}$ = '+f'{self.r_eff_source:.2f}"', color='white', fontsize=12, alpha=0.8, 
-                                va='bottom', ha='left', transform=axes[1, 1].transAxes)
-                        
-                axes[1, 0].set_xlabel(r"$x$ (arcsec)")
-                axes[1, 0].set_ylabel(r"$y$ (arcsec)")
-                axes[1, 1].set_title("Surface Brightness")
+                axes[1,1].text(0.05, 0.05, r'$\theta_{\rm eff}$ = '+f'{self.r_eff_source:.2f}"', color='white', fontsize=12, alpha=0.8, 
+                                va='bottom', ha='left', transform=axes[1,1].transAxes)                        
+                axes[1,1].set_xlabel(r"$x$ (arcsec)")
+                axes[1,1].set_ylabel(r"$y$ (arcsec)")
+                axes[1,1].set_title("Source")
 
-                #plt.savefig(dmr_dir,format='png',bbox_inches='tight')
+                
 
                 buf = io.BytesIO()
                 plt.savefig(buf,format='png',bbox_inches='tight')
                 buf.seek(0)
-                default_storage.put_object(buf.read(),dmr_fname)
-                
+                default_storage.put_object(buf.read(),dmr_fname)                
                 plt.close()
 
 
-                ################ Plotting corner plot
-                truth = coolest_1
-                tmp_free_pars = truth.lensing_entities.get_parameter_ids()
-                free_pars = tmp_free_pars[:-2] # Remove the last parameters that refer to the light of the source and the perturbations
-                #print("Removed parameter(s): ",tmp_free_pars[-2:])
-                
-                # Re-order parameters
-                reorder = [2,3,4,5,6,0,1]
-                pars = [free_pars[i] for i in reorder]
-                self.free_parameters=pars
-               
-                colors = ['#7FB6F5', '#E03424']
 
+                
+
+                ################ Plotting corner plot
+                free_pars = coolest_obj.lensing_entities.get_parameter_ids()
+                
+                ### Re-order parameters
+                free_pars = free_pars[:-1]
+                #free_pars = tmp_free_pars[:-2] # Remove the last parameters that refer to the light of the source and the perturbations
+                ##print("Removed parameter(s): ",tmp_free_pars[-2:])
+                #reorder = [2,3,4,5,6,0,1]
+                #free_pars = [free_pars[i] for i in reorder]
+                self.free_parameters = free_pars
+
+                
                 coolest_dir = os.path.dirname(target_path)
                 param_plotter = ParametersPlotter(
-                    pars, [truth],
+                    free_pars,
+                    [coolest_obj],
                     coolest_directories=[coolest_dir],          # <-- wrap in list
                     coolest_names=["Smooth source"],    # <-- wrap in list
-                    ref_coolest_objects=[truth],
-                    colors=colors,
+                    ref_coolest_objects=[coolest_obj],
+                    colors=['#7FB6F5'],
                     )        
                             
                 # initialize the GetDist plots
@@ -309,15 +321,13 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                     "mult_bias_correction_order": 5
                 }
                 param_plotter.init_getdist(settings_mcsamples=settings)
-                corner = param_plotter.plot_triangle_getdist(filled_contours=True, subplot_size=3)
+                corner = param_plotter.plot_triangle_getdist(filled_contours=True,subplot_size=3)
 
-                #plt.savefig(corner_dir, format='png', bbox_inches='tight')
 
                 buf = io.BytesIO()
                 plt.savefig(buf,format='png',bbox_inches='tight')
                 buf.seek(0)
-                default_storage.put_object(buf.read(),corner_fname)
-                
+                default_storage.put_object(buf.read(),corner_fname)              
                 plt.close()
 
 
