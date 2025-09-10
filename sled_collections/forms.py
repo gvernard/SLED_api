@@ -6,6 +6,28 @@ from django.core.exceptions import ValidationError
 from mysite.language_check import validate_language
 
 
+class CollectionCreateEmptyForm(BSModalModelForm):
+
+    class Meta:
+        model = Collection
+        fields = ['name', 'description', 'access_level', 'item_type']
+        widgets = {
+            'name': forms.TextInput(attrs={'placeholder': 'The name of your collection.'}),
+            'description': forms.Textarea(
+                attrs={'placeholder': 'Please provide a description for your collection.', 'rows': 3},
+            ),
+            'access_level': forms.Select(),
+            'item_type': forms.Select()
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(CollectionCreateEmptyForm, self).__init__(*args, **kwargs)
+
+
+
+
+
 class CollectionCreateForm(BSModalModelForm):
     ids = forms.CharField(widget=forms.HiddenInput())
 

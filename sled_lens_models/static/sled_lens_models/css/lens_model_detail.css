@@ -1,7 +1,27 @@
+.profiles td {
+    text-align: left;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.profiles th {
+    width: 200px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+
+
+.see-doc {
+    color: #ACACAC;
+    font-style: italic;
+}
+
 .dmr_plot {
+    margin-top: 40px;
     width: 100%;
 }
 
 .corner_plot {
+    margin-top: 40px;
     width: 100%;
 }

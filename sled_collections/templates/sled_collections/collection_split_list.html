@@ -35,6 +35,10 @@
     No collections to show
   </p>
   {% endif %}
+  <button id="sled-add-collection" type="button" class="jb-submit-button-1" data-form-url="{% url 'sled_collections:collection-create-empty' %}">
+    <img src="{% static 'icons/plus.svg' %}" >
+    Create Collection
+  </button>
 </div>
 
 
@@ -115,3 +119,10 @@
 {% block extrastyles %}
 <link href="{% static 'sled_collections/css/collection_list.css' %}" rel="stylesheet" />
 {% endblock extrastyles %}
+
+
+{% block extrascripts %}
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js" integrity="sha384-VHvPCCyXqtD5DqJeNxl2dtTyhF78xXNXdkwX1CZeRusQfRKp+tA7hAShOK/B/fQ2" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static 'js/jquery.bootstrap.modal.forms.js' %}"></script>
+<script type="text/javascript" src="{% static 'sled_collections/js/collection_split_list.js' %}"></script>
+{% endblock extrascripts %}

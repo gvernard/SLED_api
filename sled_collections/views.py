@@ -126,6 +126,33 @@ class CollectionCreateView(BSModalCreateView):
 
 
 @method_decorator(login_required,name='dispatch')
+class CollectionCreateEmptyView(BSModalCreateView):
+    template_name = 'sled_collections/collection_create_empty.html'
+    form_class = CollectionCreateEmptyForm
+    success_url = reverse_lazy('sled_collections:collections-list')
+
+    def get_form_kwargs(self):
+        kwargs = super(CollectionCreateEmptyView,self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+    
+    def form_valid(self,form):
+        if not is_ajax(self.request.META):
+            item_type = form.cleaned_data['item_type']
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            access_level = form.cleaned_data['access_level']
+            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type=item_type)
+            mycollection.save()
+            messages.add_message(self.request,messages.SUCCESS,"Collection <b>"+name+"</b> was successfully created!")
+            return HttpResponseRedirect(reverse('sled_collections:collections-detail',kwargs={'pk':mycollection.id})) 
+        else:
+            response = super().form_valid(form)
+            return response
+        
+
+
+@method_decorator(login_required,name='dispatch')
 class CollectionAskAccessView(BSModalUpdateView): # It would be a BSModalFormView, but the update view passes the object id automatically
     model = Collection
     template_name = 'sled_collections/collection_ask_access.html'

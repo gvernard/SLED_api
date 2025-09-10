@@ -27,7 +27,7 @@ class LensModelUpdateFormModal(BSModalModelForm):
         }
 
     def clean(self):
-        super(LensModelUpdateFormModal, self).clean()
+        super(LensModelUpdateFormModal,self).clean()
         if not self.has_changed():
             self.add_error('__all__',"No changes detected!")
         return
@@ -82,6 +82,7 @@ class LensModelCreateFormModal(BSModalModelForm):
         super(LensModelCreateFormModal, self).__init__(*args, **kwargs)
 
     def clean(self):
+        super(LensModelCreateFormModal,self).clean()
         check = self.user.check_all_limits(1,self._meta.model.__name__)
         #checks if the user can upload models
         if check["errors"]:

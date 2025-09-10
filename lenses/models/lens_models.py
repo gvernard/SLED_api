@@ -32,6 +32,7 @@ from coolest.api.plotting import (
     MultiModelPlotter,
     ParametersPlotter,
 )
+from coolest.template import info as coolest_info
 from dirtyfields import DirtyFieldsMixin
 from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import (
@@ -69,6 +70,7 @@ from guardian.shortcuts import assign_perm
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from multiselectfield import MultiSelectField
 
 from django.views.generic import (
     DetailView,
@@ -89,6 +91,15 @@ from . import AdminCollection, Lenses, SingleObject
 # Matplotlib tools
 from matplotlib.colors import LogNorm, Normalize, TwoSlopeNorm
 
+
+
+def get_mass_choices():
+    coolest_names = coolest_info.all_supported_choices['mass_profiles']
+    return zip(coolest_names,coolest_names) # Must return list of tuples to use in CharField.Choices
+
+def get_light_choices():
+    coolest_names = coolest_info.all_supported_choices['light_profiles']
+    return zip(coolest_names,coolest_names) # Must return list of tuples to use in CharField.Choices
 
 
 class LensModels(SingleObject,DirtyFieldsMixin):
@@ -122,10 +133,30 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                                    )
     
     coolest_file = models.FileField(upload_to='lens_models/', blank=True, null=True)
+    
+    lens_mass_model = MultiSelectField(max_length=40,
+                                       blank=True,
+                                       null=True,
+                                       verbose_name="Lens Mass Models",
+                                       help_text="The type of mass profiles that appear in the model.",
+                                       choices=get_mass_choices()
+                                       )
 
-    lens_mass_model = models.JSONField(blank=True, null=True)
-
-    source_light_model = models.JSONField(blank=True, null=True)
+    lens_light_model = MultiSelectField(max_length=40,
+                                        blank=True,
+                                        null=True,
+                                        verbose_name="Lens Light Models",
+                                        help_text="The type of lens light profiles that appear in the model.",
+                                        choices=get_light_choices()
+                                        )
+    
+    source_light_model = MultiSelectField(max_length=40,
+                                          blank=True,
+                                          null=True,
+                                          verbose_name="Source Light Models",
+                                          help_text="The type of source light profiles that appear in the model.",
+                                          choices=get_light_choices()
+                                          )
 
     r_eff_source = models.FloatField(blank=True, null=True)
 
@@ -215,10 +246,28 @@ class LensModels(SingleObject,DirtyFieldsMixin):
 
                 self.r_eff_source = analysis.effective_radius_light(center=(0,0),coordinates=coord_src,outer_radius=1.,entity_selection=[source_index])
                 self.einstein_radius = analysis.effective_einstein_radius(entity_selection=entity_list)
-                self.lensing_entities = [type(le).__name__ for le in coolest_obj.lensing_entities] #gets all lensing objects
-                self.source_light_model = [type(m).__name__ for m in coolest_obj.lensing_entities[source_index].light_model] #gives source light model
 
-                
+                current_masses = []
+                current_lights = []
+                for index in entity_list:
+                    tmp = coolest_obj.lensing_entities[index].mass_model
+                    for profile in tmp:
+                        current_masses.append(profile.type)
+                    if hasattr(coolest_obj.lensing_entities[index],'light_model'):
+                        tmp = coolest_obj.lensing_entities[index].light_model
+                        for profile in tmp:
+                            current_lights.append(profile.type)
+                self.lens_mass_model = current_masses
+                self.lens_light_model = current_lights
+
+                current_source = []
+                tmp_light_model = coolest_obj.lensing_entities[source_index].light_model
+                for profile in tmp_light_model:
+                    current_source.append(profile.type)
+                self.source_light_model = current_source
+
+
+
                 
                 ################ Plotting DMR
                 fig, axes = plt.subplots(2,2,figsize=(12,10))

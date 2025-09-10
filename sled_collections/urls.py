@@ -7,6 +7,7 @@ urlpatterns = [
     path('', views.CollectionSplitListView.as_view(), name='collections-list'),
     path('detail/', RedirectView.as_view(url='/sled_collections/',permanent=False), name='redirect-detail'),
     path('make-collection/<str:obj_type>',views.CollectionCreateView.as_view(),name='collection-create'),
+    path('make-collection-empty/',views.CollectionCreateEmptyView.as_view(),name='collection-create-empty'),
     path('add-items/<str:obj_type>', views.CollectionAddItemsView.as_view(), name='collection-add-items'),
     path('remove-items/<int:pk>', views.CollectionRemoveItemsView.as_view(), name='collection-remove-items'),
     path('detail/<int:pk>', views.CollectionDetailView.as_view(), name='collections-detail'),

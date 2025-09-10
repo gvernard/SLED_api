@@ -64,6 +64,9 @@ class LensModelDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         lens_model = self.get_object()
+        for prof in list(lens_model.lens_mass_model):
+            print(prof)
+            
         context.update({
             'dmr_plot_url': lens_model.get_dmr_plot_url(),
             'corner_plot_url': lens_model.get_corner_plot_url()

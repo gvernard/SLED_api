@@ -1,0 +1,64 @@
+{% extends "modal_base.html" %}
+{% load static %}
+
+{% block title %}
+Make a new empty collection?
+{% endblock title %}
+
+{% block content %}
+<div class="jb-container-modal">
+
+  {% if form.non_field_errors|length > 0 %}
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.non_field_errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+  
+  <div class="jb-modal-field jb-table-no-lines">
+    <p>
+      You are creating an empty collection. Make sure you populate it by adding items resulting from a query.
+    </p>
+  </div>
+
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.name.errors %}
+      <li>{{ error|safe }}</li>
+      {% endfor %}
+    </ul>
+    {{ form.name }}
+  </div>
+  
+  <div class="invalid jb-modal-field">
+    <ul>
+      {% for error in form.description.errors %}
+      <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+    {{ form.description }}
+  </div>
+  
+  <div class="jb-modal-field">
+    Select {{ form.item_type.label }}: &nbsp; &nbsp; {{ form.item_type }}
+  </div>
+  
+  <div class="jb-modal-field">
+    {{ form.access_level }}
+  </div>
+  
+
+
+</div>
+{% endblock content %}
+
+
+{% block action_button %}
+<button type="submit" class="jb-submit-button-1">
+  <img src="{% static 'icons/plus.svg' %}" >
+  Make collection
+</button>
+{% endblock action_button %}
