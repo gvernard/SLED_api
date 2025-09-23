@@ -124,10 +124,13 @@ class UploadPapers(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
+        print("before")
         serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
+        print("after")
         if serializer.is_valid():
+            print("VALID")
             validated_data = serializer.validated_data
-            
+            print("aaaa")
             paper_instances = []
             for i,paper in enumerate(validated_data):
                 lenses = paper.pop('lenses')
@@ -146,6 +149,7 @@ class UploadPapers(APIView):
             response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
             return Response(response)
         else:
+            print("NOT VALID")
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
 

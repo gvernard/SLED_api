@@ -141,7 +141,7 @@ class LensModels(SingleObject,DirtyFieldsMixin):
                                        help_text="The type of mass profiles that appear in the model.",
                                        choices=get_mass_choices()
                                        )
-
+    
     lens_light_model = MultiSelectField(max_length=40,
                                         blank=True,
                                         null=True,

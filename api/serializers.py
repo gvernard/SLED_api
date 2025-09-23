@@ -554,6 +554,7 @@ class PaperLensSerializer(serializers.Serializer):
     def validate(self,item):
         ra = item['ra']
         dec = item['dec']
+        print("individual lens validator: ",ra,dec)
         qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec)
         N = qset.count()
         if N == 0:
@@ -587,6 +588,7 @@ class PaperUploadSerializer(serializers.Serializer):
         check_radius = 16 # arcsec
         ras = []
         decs = []        
+        print("A")
         for i in range(0,len(data['lenses'])-1):
             ra1 = data['lenses'][i]['lens'].ra
             dec1 = data['lenses'][i]['lens'].dec
@@ -601,6 +603,7 @@ class PaperUploadSerializer(serializers.Serializer):
                     proximal_lenses.append(str(i)+' and '+str(j))
         ras.append(data['lenses'][-1]['lens'].ra)
         decs.append(data['lenses'][-1]['lens'].dec)
+        print("B")
 
         for pair in proximal_lenses:
             message = 'Lenses %s are too close to each other. This probably indicates a possible duplicate and submission is not allowed.' % pair
