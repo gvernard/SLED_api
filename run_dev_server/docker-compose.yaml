@@ -19,6 +19,19 @@ services:
       retries: 10
     volumes:
       - data:/var/lib/mysql
+
+      
+  redis:
+    image: redis:8.0.2
+    container_name: SLED_redis
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 3s
+      retries: 30
+
       
   backend:
     build: 
@@ -37,6 +50,25 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
 
+        
+  celery:
+    build:
+      context: .
+    container_name: SLED_celery
+    command: sh -c "pwd && ls && cd SLED_api/ && pwd && celery -A mysite worker --beat -l info"
+    volumes:
+      - <SLED_api>:/SLED/SLED_api
+      - <init_SLED>/files:/files
+    environment:
+      - DEBUG=1
+      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1 [::1]
+    depends_on:
+      - backend
+      - redis
+
+        
 volumes:
   data:

@@ -22,12 +22,11 @@ DATABASES = {
 FORCE_SCRIPT_NAME = '/'
 STATIC_URL = 'staticfiles/'
 STATIC_ROOT = '/static'
-STATIC_LOCATION = 'static' # Not used
+STATIC_LOCATION = 'static'
 
 DATABASE_FILE_LOCATION = '/files'
 MEDIA_URL = 'files/'
 MEDIA_ROOT = '/files'
-#MEDIA_ROOT = '/Users/catherinehou/Desktop/SLED/init_SLED/files' #for my local computer
 DEFAULT_FILE_STORAGE = 'mysite.storage_backends.LocalStorage'
 
 
