@@ -353,6 +353,7 @@ class CollectionLensSerializer(serializers.Serializer):
         user = self.context['request'].user
         ra = lens['ra']
         dec = lens['dec']
+        print("individual lens validator: ",ra,dec)
         qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,user=user)
         N = qset.count()
         if N == 0:

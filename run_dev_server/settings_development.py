@@ -34,3 +34,6 @@ DEFAULT_FILE_STORAGE = 'mysite.storage_backends.LocalStorage'
 # The following two variables are definted in settings_common but we need to extent them here
 CSP_STYLE_SRC_ELEM.append('http://fonts.googleapis.com')
 CSP_FONT_SRC.append('http://fonts.gstatic.com')
+
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
