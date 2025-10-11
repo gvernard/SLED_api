@@ -29,7 +29,7 @@
     <table class="profiles jb-table-no-lines">
       <tr>
         <th>Mass profiles:</th>
-        <td>{{ lens_model.lens_mass_model|join:" , " }}</td>
+        <td>{{ lens_model.lens_mass_model|join:" , "|default:"-" }}</td>
       </tr>
       <tr>
         <th>Lens light profiles:</th>
@@ -37,7 +37,7 @@
       </tr>
       <tr>
         <th>Source light profiles:</th>
-        <td>{{ lens_model.source_light_model|join:" , " }}</td>
+        <td>{{ lens_model.source_light_model|join:" , "|default:"-" }}</td>
       </tr>
     </table>
     <p class="see-doc">
@@ -54,11 +54,19 @@
   </button>
   
   <div>
+    {% if dmr_flag %}
     <img class="dmr_plot" src="{{ dmr_plot_url }}" alt="DMR Plot" />
+    {% else %}
+    <p class="message">{{ dmr_message }}</p>
+    {% endif %}
   </div>
 
   <div>
+    {% if corner_flag %}
     <img class="corner_plot" src="{{ corner_plot_url }}" alt="Corner Plot" />
+    {% else %}
+    <p class="message">{{ corner_message }}</p>
+    {% endif %}
   </div>
   
 </div>

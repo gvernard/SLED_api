@@ -15,10 +15,11 @@ from django.db.models import Q
 from django.contrib import messages
 from django import forms
 from django.core.exceptions import ValidationError
-from django.core.files.storage import default_storage
 from django.core.files import File
+from django.core.files.storage import default_storage
 from django.conf import settings
 from django.http import FileResponse
+from django.utils import timesince,timezone
 
 from guardian.shortcuts import get_objects_for_user, get_objects_for_group, get_users_with_perms, get_groups_with_perms
 
@@ -35,22 +36,30 @@ from lenses.forms import LensQueryForm,DownloadForm
 from lenses.query_utils import get_combined_qset
 from .forms import *
 from lenses.models import Collection, Lenses, ConfirmationTask, LensModels
-from urllib.parse import urlparse
-from random import randint
-import csv
-import os 
-import tarfile 
-import tempfile
-from pathlib import Path
-import numpy
-import coolest
-from coolest.api.analysis import Analysis
-from coolest.api.plotting import ModelPlotter, MultiModelPlotter, ParametersPlotter
-from coolest.api import util
-import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize, LogNorm, TwoSlopeNorm
-import io
-import base64
+
+import time
+from datetime import timedelta
+import requests
+
+
+
+def check_image_at_url(image_url):
+    """
+    Checks if an image exists at the given URL by performing a HEAD request.
+    Returns True if the URL points to an image, False otherwise.
+    """
+    image_formats = ("image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp")
+    try:
+        response = requests.head(image_url, timeout=5)  # Add a timeout to prevent hanging
+        response.raise_for_status()  # Raise an exception for bad status codes (4xx or 5xx)
+        print(response.headers["Content-Type"])
+        if "Content-Type" in response.headers and response.headers["Content-Type"] in image_formats:
+            return True
+    except requests.exceptions.RequestException:
+        # Handle network errors, timeouts, or invalid URLs
+        pass
+    return False
+
 
 
 class LensModelDetailView(DetailView):
@@ -64,13 +73,63 @@ class LensModelDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         lens_model = self.get_object()
-        for prof in list(lens_model.lens_mass_model):
-            print(prof)
-            
-        context.update({
-            'dmr_plot_url': lens_model.get_dmr_plot_url(),
-            'corner_plot_url': lens_model.get_corner_plot_url()
-        })
+
+        
+
+        #####################################
+        ### NOTE: The following checks should be replaced by properly querying the status of the Celery task that is generating the plots
+
+        most_recent = max(lens_model.created_at,lens_model.modified_at)
+        time_too_long = ((most_recent + timedelta(hours=1)) < timezone.now())
+
+        check_dmr = lens_model.dmr_plot_exists()
+        check_corner = lens_model.corner_plot_exists()
+        
+        if check_dmr:
+            context.update({
+                'dmr_flag': True,
+                'dmr_message': '',
+                'dmr_plot_url': lens_model.get_dmr_plot_url()
+            })
+        else:
+            if time_too_long:
+                # More than an hour has passed
+                context.update({
+                    'dmr_flag': False,
+                    'dmr_message': 'There was an error generating the plot, please contact the admins.',
+                    'dmr_plot_url': ''
+                })
+            else:
+                # Less than an hour has passed
+                context.update({
+                    'dmr_flag': False,
+                    'dmr_message': 'The Data-Model-Residual-Source plot is being generated. Please check again in a few minutes.',
+                    'dmr_plot_url': ''
+                })
+                
+        if check_corner:
+            context.update({
+                'corner_flag': True,
+                'corner_message': '',
+                'corner_plot_url': lens_model.get_corner_plot_url()
+            })
+        else:
+            if time_too_long:
+                # More than an hour has passed
+                context.update({
+                    'corner_flag': False,
+                    'corner_message': 'There was an error generating the plot, please contact the admins.',
+                    'corner_plot_url': ''
+                })
+            else:
+                # Less than an hour has passed
+                context.update({
+                    'corner_flag': False,
+                    'corner_message': 'The corner plot is being generated. Please check again in a few minutes.',
+                    'corner_plot_url': ''
+                })        
+        #####################################
+
         return context
     
 

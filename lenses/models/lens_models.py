@@ -165,6 +165,14 @@ class LensModels(SingleObject,DirtyFieldsMixin):
     def get_absolute_url(self):
         return reverse('sled_lens_models:lens-model-detail',kwargs={'pk':self.id})
 
+    def dmr_plot_exists(self):
+        fname = self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_dmr_plot.png"        
+        return default_storage.exists(fname)
+    
+    def corner_plot_exists(self):
+        fname = self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_corner_plot.png"
+        return default_storage.exists(fname)
+    
     def get_dmr_plot_url(self):
         fname = self.coolest_file.field.upload_to + str(self.id) + "_pngs/" + str(self.id) + "_dmr_plot.png"
         url = default_storage.get_file_url(fname)
