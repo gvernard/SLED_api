@@ -11,6 +11,11 @@ from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
+from django.core.mail import send_mail
+from django.template.loader import get_template
+from django.utils.html import strip_tags
+
+from actstream import action
 
 from sled_lens_models.utils import extract_coolest_info_2
 
@@ -68,6 +73,64 @@ def celery_save_lens_model(lens_model_id,tar_path):
     lens_model.save()
 
 
+@shared_task
+def celery_upload_papers(user_id,paper):
+    #from api.serializers import PapersSerializer, PaperUploadSerializer
+
+    ad_col_ref = apps.get_model(app_label='lenses',model_name='AdminCollection')
+    papers_ref = apps.get_model(app_label='lenses',model_name='Paper')
+    users_ref = apps.get_model(app_label='lenses',model_name='Users')
+    lenses_ref = apps.get_model(app_label='lenses',model_name='Lenses')
+    user = users_ref.objects.get(id=user_id)
+
+
+
+    # Match RA,DEC to lenses and check for duplicates/no matches
+    errors = []
+
+    lenses = paper.pop('lenses')
+    for i,lens in enumerate(lenses):
+        ra  = lenses[i].pop('ra')
+        dec = lenses[i].pop('dec')
+        qset = lenses_ref.proximate.get_DB_neighbours_anywhere(ra,dec)
+        N = qset.count()
+        if N == 0:
+            errors.append('RA,dec = (%f,%f) -- no lens found at these coordinates!' % (ra,dec))
+        elif N > 1: 
+            errors.append('RA,dec = (%f,%f) -- more than one lenses found at these coordinates!' % (ra,dec))
+        else:
+            lenses[i]["lens"] = qset[0]
+    
+
+    if len(errors) == 0:
+        paper["owner"] = user
+        paper["access_level"] = "PUB"
+        paper_obj = papers_ref.objects.create(**paper)
+                
+        for j in range(0,len(lenses)):
+            paper_obj.lenses_in_paper.add(lenses[j]['lens'],through_defaults=lenses[j]['flags'])
+                
+        ad_col = ad_col_ref.objects.create(item_type="Paper",myitems=[paper_obj])
+        action.send(user,target=users_ref.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
+    else:
+        # Email user with error
+        subject = 'SLED: Error while uploading papers'
+        from_email = 'sled-no-reply@sled.amnh.org'
+        html_message = get_template('emails/error_uploading_papers.html')
+        mycontext = {
+            'first_name': user.first_name,
+            'errors': errors
+        }
+        html_message = html_message.render(mycontext)
+        plain_message = strip_tags(html_message)
+        recipient_email = user.email
+        send_mail(subject,plain_message,from_email,[recipient_email],html_message=html_message)
+        #raise ValidationError(f"Failed to process uploaded paper: {serializer.errors}")
+
+    
+
+
+    
 
 
 

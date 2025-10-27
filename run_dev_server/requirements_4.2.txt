@@ -45,7 +45,8 @@ corner
 emcee
 dynesty
 scikit-image
-coolest
+coolest==0.1.9
 celery
 django-celery-results
 redis
+watchdog

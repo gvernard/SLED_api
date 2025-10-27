@@ -109,12 +109,13 @@ class LensModelCreateFormModal(BSModalModelForm):
     
 def validate_coolest(tar_path):
     with tempfile.TemporaryDirectory() as tmpdir:
-        if not os.path.isabs(tar_path):
-            tar_path = os.path.join(settings.MEDIA_ROOT, tar_path)
-            # print("tar path is", tar_path)
+        #if not os.path.isabs(tar_path):
+        #    tar_path = os.path.join(settings.MEDIA_ROOT, tar_path)
+        #    # print("tar path is", tar_path)
+
 
         # Extract tar.gz contents
-        with tarfile.open(tar_path, "r:gz") as tar:
+        with tarfile.open(tar_path,"r:gz") as tar:
             #open the tarpath and read it in (r) as a gz file
             tar.extractall(path=tmpdir)
             #extract everything in the tarfile and put it in the tmpdir
@@ -149,10 +150,9 @@ def validate_coolest(tar_path):
 
         # Try to load with COOLEST, and if it doesn't load, return error saying it is not in the correct format
         try:
-            coolest_obj = util.get_coolest_object(extracted_json_no_extension, verbose=False)
-            #runs validation
-        except Exception:
-            return False, "Incorrect Format, must match COOLEST Guidelines"
+            coolest_obj = util.get_coolest_object(extracted_json_no_extension, verbose=True, check_external_files=True)
+        except Exception as e:
+            return False, f"COOLEST error: {str(e)}"
 
         return True, None
 
@@ -172,7 +172,7 @@ def my_clean_coolest_file(upload):
             for chunk in upload.chunks():
                 tmp.write(chunk)
             temp_path = tmp.name
-        
+
             try:
                 is_valid, error_message = validate_coolest(temp_path)
                 if not is_valid:

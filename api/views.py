@@ -13,7 +13,8 @@ from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
 
-from .serializers import UsersSerializer, GroupsSerializer, PapersSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, GenericImageUploadSerializer, RedshiftUploadSerializer, PaperUploadSerializer, CollectionUploadSerializer
+from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, GenericImageUploadSerializer, RedshiftUploadSerializer, CollectionUploadSerializer
+from .serializers import PaperUploadSerializerSynchronous
 from .download_serializers import LensDownSerializer,LensDownSerializerAll
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Paper, GenericImage, Redshift
 from lenses import forms, query_utils
@@ -30,6 +31,7 @@ import base64
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 
+from mysite.celery import celery_upload_papers
 
 
 
@@ -124,34 +126,17 @@ class UploadPapers(APIView):
     permission_classes = [permissions.IsAuthenticated]
     
     def post(self,request):
-        print("before")
-        serializer = PaperUploadSerializer(data=request.data,context={'request':request},many=True)
-        print("after")
+        mydata = request.data
+        
+        serializer = PaperUploadSerializerSynchronous(data=mydata)
         if serializer.is_valid():
-            print("VALID")
-            validated_data = serializer.validated_data
-            print("aaaa")
-            paper_instances = []
-            for i,paper in enumerate(validated_data):
-                lenses = paper.pop('lenses')
-
-                paper["owner"] = request.user
-                paper["access_level"] = "PUB"
-                paper_obj = Paper.objects.create(**paper)
-
-                for j in range(0,len(lenses)):
-                    paper_obj.lenses_in_paper.add(lenses[j]['lens'],through_defaults=lenses[j]['flags'])
-                paper_instances.append(paper_obj)
-                
-            ad_col = AdminCollection.objects.create(item_type="Paper",myitems=paper_instances)
-            action.send(request.user,target=Users.getAdmin().first(),verb='AddHome',level='success',action_object=ad_col)
-                
-            response = "Success! Papers uploaded to the database successfully and will appear in your user profile!"
-            return Response(response)
+            celery_upload_papers.delay(request.user.id,serializer.validated_data)
+            response = "Success! Paper data uploaded to the database and are being processed."
         else:
-            print("NOT VALID")
-            return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
- 
+            response = serializer.errors
+            
+        return Response(response)
+
 
 class UploadCollection(APIView):
     authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]

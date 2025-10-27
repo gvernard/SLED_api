@@ -458,9 +458,66 @@ class LensesUpdateSerializer(serializers.ModelSerializer):
 
 ### Uploading papers
 ################################################################################
-class PaperUploadListSerializer(serializers.ListSerializer):
-    def validate(self,papers):
+class PaperLensSerializer(serializers.Serializer):
+    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
+    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
+    discovery = serializers.BooleanField()
+    classification = serializers.BooleanField()
+    model = serializers.BooleanField()
+    #redshift = serializers.BooleanField()
+
+    def validate(self,item):
+        # Restructuring of the returned item is required to use when adding a lens to a paper
+        ra = item['ra']
+        dec = item['dec']
+        flags = {
+            "discovery": item["discovery"],
+            "classification": item["classification"],
+            "model":item["model"]
+        }
+        return({'ra': ra,'dec': dec,'flags': flags})
+        
+
+
+class PaperUploadSerializerSynchronous(serializers.Serializer):
+    bibcode = serializers.CharField(max_length=19)
+    lenses = serializers.ListField(
+        child=PaperLensSerializer()
+    )
+    
+
+    def validate(self,paper):
+        papers = [paper]
+        
+        ################### LENSES
+        ### Check proximity of given lenses with each other
+        proximal_lenses = []
+        check_radius = 16 # arcsec
+        ras = []
+        decs = []        
+        for i in range(0,len(paper['lenses'])-1):
+            ra1 = paper['lenses'][i]['ra']
+            dec1 = paper['lenses'][i]['dec']
+            ras.append(ra1)
+            decs.append(dec1)
+            
+            for j in range(i+1,len(paper['lenses'])):
+                ra2 = paper['lenses'][j]['ra']
+                dec2 = paper['lenses'][j]['dec']
+
+                if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
+                    proximal_lenses.append(str(i)+' and '+str(j))
+
+        if proximal_lenses:
+            errors = []
+            for pair in proximal_lenses:
+                errors.append('Lenses %s are too close to each other. This probably indicates a possible duplicate and submission is not allowed.' % pair)
+            raise serializers.ValidationError(errors)
+
+
+        ################### BIBCODES
         bibcodes = [paper['bibcode'] for paper in papers]
+
 
         ## Check for duplicate bibcodes within the uploaded data
         seen = set()
@@ -539,76 +596,7 @@ class PaperUploadListSerializer(serializers.ListSerializer):
                 errors.append( 'These bibcodes already exist in SLED: '+label)
             raise serializers.ValidationError(errors)
 
-        return papers # This is passed to the calling API view
 
-
-
-
-class PaperLensSerializer(serializers.Serializer):
-    ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
-    dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
-    discovery = serializers.BooleanField()
-    classification = serializers.BooleanField()
-    model = serializers.BooleanField()
-    #redshift = serializers.BooleanField()
         
-    def validate(self,item):
-        ra = item['ra']
-        dec = item['dec']
-        print("individual lens validator: ",ra,dec)
-        qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec)
-        N = qset.count()
-        if N == 0:
-            raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any lens in the database!' % (ra,dec))
-        elif N > 1: 
-            raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
-        else:
-            flags = {
-                "discovery": item["discovery"],
-                "classification": item["classification"],
-                "model":item["model"]
-            }
-            return({'lens': qset[0],'flags': flags})
-        
-
-class PaperUploadSerializer(serializers.Serializer):
-    bibcode = serializers.CharField(max_length=19)
-    lenses = serializers.ListField(
-        child=PaperLensSerializer()
-    )
-    
-    class Meta():
-        list_serializer_class = PaperUploadListSerializer
-        
-    def create(self,validated_data):
-        return Papers(**validated_data)
-
-    def validate(self,data):
-        ### Check proximity of given lenses with each other
-        proximal_lenses = []
-        check_radius = 16 # arcsec
-        ras = []
-        decs = []        
-        print("A")
-        for i in range(0,len(data['lenses'])-1):
-            ra1 = data['lenses'][i]['lens'].ra
-            dec1 = data['lenses'][i]['lens'].dec
-            ras.append(ra1)
-            decs.append(dec1)
-            
-            for j in range(i+1,len(data['lenses'])):
-                ra2 = data['lenses'][j]['lens'].ra
-                dec2 = data['lenses'][j]['lens'].dec
-
-                if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
-                    proximal_lenses.append(str(i)+' and '+str(j))
-        ras.append(data['lenses'][-1]['lens'].ra)
-        decs.append(data['lenses'][-1]['lens'].dec)
-        print("B")
-
-        for pair in proximal_lenses:
-            message = 'Lenses %s are too close to each other. This probably indicates a possible duplicate and submission is not allowed.' % pair
-            raise serializers.ValidationError(message)
-
-        return data
+        return papers[0] # This is passed to the calling API view
 
