@@ -342,7 +342,7 @@ class ConfirmationResponse(models.Model):
     response = models.CharField(max_length=10000, help_text="The response of a given user to a given confirmation task.")
     #there is a strange bug where it complains about response_comment being too long (>100) even though the max length was 1000
     # so I have changed it to 1001 and forced the migration fixing the issue on my local server
-    response_comment = models.CharField(max_length=1001,
+    response_comment = models.CharField(max_length=10000,
                                         help_text="A comment (optional) from the recipient on the given response.",
                                         validators=[validate_language],
                                         )

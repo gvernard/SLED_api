@@ -178,8 +178,6 @@ class UploadLenses(APIView):
 
 
     def post(self, request):
-        print("API VIEW")
-        
         try:
             data = json.loads(request.body)
 
