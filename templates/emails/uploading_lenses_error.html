@@ -1,0 +1,34 @@
+Dear {{ first_name }}
+<br>
+<p>
+  something went wrong while processing your lens upload to SLED via the API.
+  If you think this is not an error, please contact the SLED administrators.
+  {% if errors|length > 1 %}
+  Here are the errors:
+  {% else %}
+  Here is the error:
+  {% endif %}
+</p>
+
+<ul>
+  {% for tag,error in errors.items %}
+  {% if tag == "non_form_errors" %}
+  <li>
+    {{ tag }} - {{ error }}
+  </li>
+  {% else %}
+  <li>
+    {{ tag }}:
+    <ul>
+    {% for field,suberror in error.items %}
+    <li>
+      {{ field }} - {{ suberror }}
+    </li>
+    {% endfor %}
+    </ul>
+  </li>
+  {% endif %}
+  {% endfor %}
+</ul>
+
+{% include "emails/signature.html" %}

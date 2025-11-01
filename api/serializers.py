@@ -387,7 +387,7 @@ class CollectionUploadSerializer(serializers.Serializer):
 
 
 
-    
+'''    
 ### Uploading lenses
 ################################################################################
 class LensesUploadListSerializer(serializers.ListSerializer):
@@ -443,7 +443,7 @@ class LensesUploadSerializer(serializers.ModelSerializer):
         
     def create(self,validated_data):
         return Lenses(**validated_data)
-
+'''
 
 class LensesUpdateSerializer(serializers.ModelSerializer):
     class Meta:

@@ -34,6 +34,15 @@ class DatabaseFileStorage(S3Boto3Storage):
             CopySource=self.bucket_name + "/" + self.location + from_path,
             Key=self.location + to_path)
 
+    def read(self,fname):
+        response = self.connection.meta.client.get_object(
+            Body='',
+            Bucket=self.bucket_name,
+            Key=os.path.join(self.location,fname,'')
+        )
+        object_content_bytes = response['Body'].read()
+        return object_content_bytes
+
     def mydelete(self,fname):
         #print(self.location + fname)
         delete_result = self.connection.meta.client.delete_object(
@@ -98,7 +107,12 @@ class LocalStorage(Storage):
 
     def path(self,fname):
         return os.path.join(self.location, fname)
-   
+
+    def read(self,fname):
+        with open(os.path.join(self.location, fname), "rb") as f:
+            all_bytes = f.read()
+            return all_bytes
+    
     def copy(self,from_path,to_path):
         shutil.copyfile(self.location + from_path,self.location + to_path)
 

@@ -1,0 +1,10 @@
+Dear {{ first_name }}
+<br>
+<p>
+  your lens upload to SLED via the API identified some duplicates!
+  Please inspect them here:
+</p>
+
+<a href="{{url}}">{{url}}</a>
+
+{% include "emails/signature.html" %}

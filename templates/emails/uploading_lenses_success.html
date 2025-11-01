@@ -1,0 +1,18 @@
+Dear {{ first_name }}
+<br>
+<p>
+  your lens upload to SLED via the API was processed successfully!
+</p>
+
+{% if N_pri > 0 %}
+<p>
+  {{ N_pri }} PRIVATE Lenses were successfully added to the database!
+</p>
+{% endif %}
+{% if N_pub > 0 %}
+<p>
+  An InspectImages task has been submitted for {{ N_pub }} PUBLIC Lenses!'
+</p>
+{% endif %}
+
+{% include "emails/signature.html" %}

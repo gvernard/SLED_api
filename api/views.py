@@ -13,7 +13,7 @@ from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
 
-from .serializers import UsersSerializer, GroupsSerializer, LensesUploadSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, GenericImageUploadSerializer, RedshiftUploadSerializer, CollectionUploadSerializer
+from .serializers import UsersSerializer, GroupsSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, GenericImageUploadSerializer, RedshiftUploadSerializer, CollectionUploadSerializer
 from .serializers import PaperUploadSerializerSynchronous
 from .download_serializers import LensDownSerializer,LensDownSerializerAll
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Paper, GenericImage, Redshift
@@ -22,6 +22,7 @@ from sled_data import forms as data_forms
 from guardian.shortcuts import assign_perm
 from actstream import action
 
+import os
 import json
 import numpy as np
 from itertools import chain
@@ -31,7 +32,7 @@ import base64
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 
-from mysite.celery import celery_upload_papers
+from mysite.celery import celery_upload_papers, celery_upload_lenses
 
 
 
@@ -163,30 +164,23 @@ class UploadCollection(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  
 
+
+
+
+
+
+
+
+        
 class UploadLenses(APIView):
     authentication_classes = [authentication.SessionAuthentication,authentication.BasicAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
 
     def post(self, request):
+        print("API VIEW")
+        
         try:
-            #The following is for help with testing, where the initial database 
-            # instance gives Cameron too many lenses and redshifts
-            """user = Users.objects.get(username='Giorgos')
-            user.limitsandroles.is_inspector = True
-            user.limitsandroles.save()
-            for lens in Lenses.objects.all():
-                lens.owner = user
-                lens.save()
-
-            for z in Redshift.objects.all():
-                z.owner = user
-                z.save()
-                
-            user = Users.objects.get(username='Cameron')
-            user.limitsandroles.limit_add_per_week = 1000
-            user.limitsandroles.save()"""
-            
             data = json.loads(request.body)
 
             # Create a formset similar to the one in LensAddView
@@ -194,20 +188,24 @@ class UploadLenses(APIView):
             
             # Prepare the data for the formset
             formatted_data = self.format_data_for_formset(data)
-            myformset = LensFormSet(data=formatted_data, files=self.prepare_files(data), instance=request.user)
-            #print(myformset.is_valid())
+            file_contents = self.prepare_files(data)
+            myformset = LensFormSet(data=formatted_data, files=file_contents, instance=request.user)
+            
             if myformset.is_valid():
-                instances = myformset.save(commit=False)
+                #instances = myformset.save(commit=False)
 
-                indices, neis = Lenses.proximate.get_DB_neighbours_many(instances,user=request.user)
-                #print(instances)
-                if len(indices) == 0:
-                    return self.save_lenses(instances, request.user)
-                else:
-                    return self.handle_duplicates(instances, request)
+                # Remove some fields and upload files to user's temporary directory
+                for i,lens in enumerate(data):
+                    myformset.cleaned_data[i].pop('owner')
+                    myformset.cleaned_data[i].pop('DELETE')
+                    tmp_fname = 'temporary/' + self.request.user.username + '/' + os.path.basename(lens["mugshot"])
+                    default_storage.put_object(file_contents[f'lenses_set-{i}-mugshot'].file.read(),tmp_fname)
+                    myformset.cleaned_data[i]['mugshot'] = tmp_fname
+                    
+                celery_upload_lenses.delay(request.user.id,myformset.cleaned_data)
+                response = "Success! Lens data uploaded to the database and are being processed."
+                return Response({"message": response}, status=status.HTTP_201_CREATED)
             else:
-                #print("Form errors:", myformset.errors)
-                #print("Non form errors:", myformset.non_form_errors())
                 errors = self.collect_formset_errors(myformset)
                 return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -216,11 +214,12 @@ class UploadLenses(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        
     def collect_formset_errors(self, formset):
         errors = {}
         for i, form in enumerate(formset.forms):
             if form.errors:
-                errors['lens-'+str(i)] = form.errors
+                errors['lens-'+str(i+1)] = form.errors
         if formset.non_form_errors():
             errors['non_form_errors'] = formset.non_form_errors()
         return errors
@@ -232,63 +231,23 @@ class UploadLenses(APIView):
             'lenses_set-MAX_NUM_FORMS': ''
         }
 
-        for i, lens in enumerate(data):
+        for i,lens in enumerate(data):
+            if not 'flag' in lens.keys():
+                lens['flag'] = 'CANDIDATE'
             for key, value in lens.items():
                 formatted_data[f'lenses_set-{i}-{key}'] = value
-                
-        #print("Formatted data:", formatted_data)  # Debug print
         return formatted_data
 
     def prepare_files(self, data):
         files = {}
-        for i, lens in enumerate(data):
+        for i,lens in enumerate(data):
             if 'mugshot' in lens:
                 files[f'lenses_set-{i}-mugshot'] = ContentFile(
-                    base64.b64decode(lens['mugshot']), 
-                    name=lens.get('imagename', f'image_{i}.jpg')
+                    base64.b64decode(lens['mugshot_data']), 
+                    name=lens.get('mugshot')
                 )
         return files
     
-    def save_lenses(self, instances, user):
-        messages = ['Lenses successfully added to the database!']
-        pri = []
-        pub = []
-
-        for lens in instances:
-            lens.owner = user
-            if lens.access_level == 'PRI':
-                pri.append(lens)
-            else:
-                lens.access_level = 'PRI'
-                pub.append(lens)
-            lens.save()
-
-        assign_perm('view_lenses', user, instances)
-
-        if pub:
-            object_type = pub[0]._meta.model.__name__
-            cargo = {
-                'object_type': object_type,
-                'object_ids': [lens.id for lens in pub],
-            }
-            receiver = Users.selectRandomInspector()
-            mytask = ConfirmationTask.create_task(user, receiver, 'InspectImages', cargo)
-            messages.append("An InspectImages task has been submitted!")
-
-        return Response({"message": ' '.join(messages)}, status=status.HTTP_201_CREATED)
-
-    def handle_duplicates(self, instances, request):
-        for lens in instances:
-            tmp_fname = f'temporary/{request.user.username}/{lens.mugshot.name}'
-            default_storage.put_object(lens.mugshot.read(), tmp_fname)
-            lens.mugshot.name = tmp_fname
-
-        cargo = {'mode': 'add', 'objects': serializers.serialize('json', instances)}
-        receiver = Users.objects.filter(id=request.user.id)
-        mytask = ConfirmationTask.create_task(request.user, receiver, 'ResolveDuplicates', cargo)
-        
-        url = request.build_absolute_uri(reverse('lenses:resolve-duplicates', kwargs={'pk': mytask.id}))
-        return Response({"message": "Duplicates found", "url": url}, status=status.HTTP_409_CONFLICT)
 
         
 class GlobalSearch(APIView):

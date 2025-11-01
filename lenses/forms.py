@@ -28,7 +28,7 @@ class BaseLensForm(forms.ModelForm):
         for field_name,field in zip(self.fields,self.fields.values()):
             if field_name not in ['info','lens_type','source_type','image_conf','contaminant_type','access_level','mugshot']:
                 field.widget.attrs.update({'class': 'jb-add-update-lenses-number'})
-    
+
     def clean_mugshot(self):
         mugshot = self.cleaned_data["mugshot"]
         if 'mugshot' in self.changed_data:
