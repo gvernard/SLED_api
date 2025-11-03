@@ -349,24 +349,10 @@ class CollectionLensSerializer(serializers.Serializer):
     ra = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=0,max_value=360)
     dec = serializers.DecimalField(max_digits=10,decimal_places=6,min_value=-90,max_value=90)
         
-    def validate(self,lens):
-        user = self.context['request'].user
-        ra = lens['ra']
-        dec = lens['dec']
-        print("individual lens validator: ",ra,dec)
-        qset = Lenses.proximate.get_DB_neighbours_anywhere(ra,dec,user=user)
-        N = qset.count()
-        if N == 0:
-            raise serializers.ValidationError('The given RA,dec = (%f,%f) do not correspond to any lens in the database!' % (ra,dec))
-        elif N > 1: 
-            raise serializers.ValidationError('There are more than one lenses at the given RA,dec = (%f,%f)!' % (ra,dec))
-        else:
-            return qset[0]
-
 
 class CollectionUploadSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=50)
-    description = serializers.CharField(max_length=250)
+    description = serializers.CharField(max_length=2000)
     access_level = serializers.CharField(max_length=3)
     lenses = serializers.ListField(
         child=CollectionLensSerializer()
@@ -381,69 +367,29 @@ class CollectionUploadSerializer(serializers.Serializer):
             raise serializers.ValidationError("Name already exists!")
         return value
 
-    def validate(self,data):
-        data['lenses_in_collection'] = [ lens.id for lens in data['lenses'] ]
-        return data
-
-
-
-'''    
-### Uploading lenses
-################################################################################
-class LensesUploadListSerializer(serializers.ListSerializer):
-
-    def validate(self,attrs):
-
-        ### Check proximity here
-        check_radius = 16 # arcsec
+    def validate(self,collection):
+        ### Check proximity of given lenses with each other
         proximal_lenses = []
-        for i in range(0,len(attrs)-1):
-            lens1 = attrs[i]
-            ra1 = lens1.get('ra')
-            dec1 = lens1.get('dec')
-
-            for j in range(i+1,len(attrs)):
-                lens2 = attrs[j]
-                ra2 = lens2.get('ra')
-                dec2 = lens2.get('dec')
+        check_radius = 16 # arcsec
+        for i in range(0,len(collection['lenses'])-1):
+            ra1 = collection['lenses'][i]['ra']
+            dec1 = collection['lenses'][i]['dec']
+            
+            for j in range(i+1,len(collection['lenses'])):
+                ra2 = collection['lenses'][j]['ra']
+                dec2 = collection['lenses'][j]['dec']
 
                 if Lenses.distance_on_sky(ra1,dec1,ra2,dec2) < check_radius:
-                    proximal_lenses.append(j)
+                    proximal_lenses.append(str(i)+' and '+str(j))
 
-        if len(proximal_lenses) > 0:
-            message = 'Some lenses are too close to each other. This probably indicates a possible duplicate and submission through the API is not allowed.'+str(proximal_lenses)
-            raise serializers.ValidationError(message)
+        if proximal_lenses:
+            errors = []
+            for pair in proximal_lenses:
+                errors.append('Lenses %s are too close to each other. This probably indicates a possible duplicate and submission is not allowed.' % pair)
+            raise serializers.ValidationError(errors)
 
-        ### Check that no two files are the same
-        duplicate_files = []
-        for i in range(0,len(attrs)-1):
-            lens1 = attrs[i]
-            file1 = lens1.get('mugshot').name
-            size1 = lens1.get('mugshot').size
+        return collection
 
-            for j in range(i+1,len(attrs)):
-                lens2 = attrs[j]
-                file2 = lens2.get('mugshot').name
-                size2 = lens1.get('mugshot').size
-
-                if file1 == file2 and size1 == size2:
-                    duplicate_files.append(file1)
-                    
-        if len(duplicate_files) > 0:
-            raise serializers.ValidationError('More than one files have the same name and size which could indicate duplicates!')
-
-        return attrs
-
-
-class LensesUploadSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Lenses
-        exclude = ['id','owner','created_at','modified_at']
-        list_serializer_class = LensesUploadListSerializer
-        
-    def create(self,validated_data):
-        return Lenses(**validated_data)
-'''
 
 class LensesUpdateSerializer(serializers.ModelSerializer):
     class Meta:

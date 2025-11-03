@@ -1,0 +1,32 @@
+Dear {{ first_name }}
+<br>
+<p>
+  your collection "{{collection.name}}" uploaded to SLED via the API was processed.
+</p>
+
+<p>
+  {% if collection.myitems.all|length == original_N %}
+  All {{collection.myitems.all|length}} {{collection.item_type}} were added to <a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a>.
+  {% elif collection.myitems.all|length == 0 %}
+  The collection was not created because:
+  {% else %}
+  {{collection.myitems.all|length}} out of {{original_N}} {{collection.item_type}} were added to <a href="{{ collection.get_absolute_url }}">{{ collection.name }}</a>.
+  {% endif %}
+</p>
+
+{% if duplicates_msg|length > 0 %}
+<p>
+  Multiple {{collection.item_type}} were identified at some RA,DEC and added to <a href="{{ dupl_collection.get_absolute_url }}">{{ dupl_collection.name }}</a>.
+</p>
+{% endif %}
+
+{% if missing|length > 0 %}
+<ol>
+  {% for missed in missing %}
+  <li>{{missed}}</li>
+  {% endfor %}
+</ol>
+{% endif %}
+
+
+{% include "emails/signature.html" %}

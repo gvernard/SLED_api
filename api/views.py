@@ -32,7 +32,7 @@ import base64
 from django.core.files.base import ContentFile
 from django.contrib.contenttypes.models import ContentType
 
-from mysite.celery import celery_upload_papers, celery_upload_lenses
+from mysite.celery import celery_upload_papers, celery_upload_lenses, celery_upload_collections
 
 
 
@@ -146,20 +146,9 @@ class UploadCollection(APIView):
     def post(self,request):
         serializer = CollectionUploadSerializer(data=request.data, context={'request':request})
         if serializer.is_valid():
-            validated_data = serializer.validated_data
-            lens_ids     = validated_data["lenses_in_collection"]
-            access_level = validated_data["access_level"]
-            name         = validated_data["name"]
-            description  = validated_data["description"]
-
-            mycollection = Collection(owner=self.request.user,name=name,access_level=access_level,description=description,item_type='Lenses')
-            mycollection.save()
-            lenses = Lenses.accessible_objects.in_ids(self.request.user,lens_ids)
-            mycollection.myitems = lenses
-            mycollection.save()            
-            
-            response = "Success! Collection uploaded!"
-            return Response(response)
+            celery_upload_collections.delay(request.user.id,serializer.validated_data)
+            response = "Success! Collection data uploaded to the database and are being processed."
+            return Response({"message": response}, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
  

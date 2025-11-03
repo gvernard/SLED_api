@@ -31,12 +31,12 @@ class Collection(SingleObject, DirtyFieldsMixin):
         item_type (`str`): A choice of primary object type.
         myitems (): A generic many-to-many field
     """
-    name = models.CharField(max_length=30,
+    name = models.CharField(max_length=50,
                             help_text="A name for your collection.",
                             unique=True,
                             validators=[validate_language],
                             )
-    description = models.CharField(max_length=250,
+    description = models.CharField(max_length=2000,
                                    null=True,
                                    blank=True,
                                    help_text="A description for your collection.",

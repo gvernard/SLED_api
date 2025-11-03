@@ -51,7 +51,90 @@ def my_periodic_task(arg1, arg2):
     print(f"Running periodic task with args: {arg1}, {arg2}")
     # Add your task logic here
 
- 
+
+@shared_task
+def celery_upload_collections(user_id,data):
+    users_ref = apps.get_model(app_label='lenses',model_name='Users')
+    lenses_ref = apps.get_model(app_label='lenses',model_name='Lenses')
+    col_ref = apps.get_model(app_label='lenses',model_name='Collection')
+    user = users_ref.objects.get(id=user_id)
+
+    subject = 'SLED: uploading collection "%s" was processed' % data['name']
+    from_email = 'sled-no-reply@sled.amnh.org'
+    html_message = get_template('emails/uploading_collection.html')
+    recipient_email = user.email
+
+    
+    duplicates = []
+    duplicates_msg = []
+    missing = []
+    lens_objs = []
+    print(len(data["lenses"]))
+    for i,lens in enumerate(data["lenses"]):
+        ra  = lens['ra']
+        dec = lens['dec']
+        qset = lenses_ref.proximate.get_DB_neighbours_anywhere(ra,dec)
+        N = qset.count()
+        if N == 0:
+            missing.append('RA,DEC = (%f,%f) -- no lens found at these coordinates!' % (ra,dec))
+        elif N > 1: 
+            duplicates_msg.append('RA,DEC = (%f,%f) -- more than one lenses found at these coordinates!' % (ra,dec))
+            for dupl in qset:
+                duplicates.append(dupl)
+        else:
+            lens_objs.append(qset[0])
+
+
+    # Create a separate collection with the duplicates
+    dupl_col = None
+    if len(duplicates) > 0:
+        dupl_description = f"This is a temporary collection that stores duplicates from the {data['name']} collection, which was created after a call to the SLED API. Once the lenses from this collection that should be added to the original one are identified, this collection can be deleted"
+        dupl_col = col_ref(owner=user,name=data["name"]+"_duplex",access_level='PRI',description=dupl_description,item_type='Lenses')
+        dupl_col.save()
+        dupl_col.myitems = duplicates
+        dupl_col.save()
+
+            
+    if len(lens_objs) == 0:
+        # Email user
+        mycontext = {
+            'first_name': user.first_name,
+            'duplicates_msg': duplicates_msg,
+            'missing': missing
+        }
+        html_message = html_message.render(mycontext)
+        plain_message = strip_tags(html_message)
+        send_mail(subject,plain_message,from_email,[recipient_email],html_message=html_message)
+
+    else:
+        # Create collection without the duplicates
+        access_level = data["access_level"]
+        name         = data["name"]
+        description  = data["description"]
+        col = col_ref(owner=user,name=name,access_level=access_level,description=description,item_type='Lenses')
+        col.save()
+        col.myitems = lens_objs
+        col.save()
+
+        # Email user
+        mycontext = {
+            'first_name': user.first_name,
+            'original_N': len(data["lenses"]),
+            'collection': col,
+            'dupl_collection': dupl_col,
+            'duplicates_msg': duplicates_msg,
+            'missing': missing
+        }
+        html_message = html_message.render(mycontext)
+        plain_message = strip_tags(html_message)
+        send_mail(subject,plain_message,from_email,[recipient_email],html_message=html_message)
+    
+    
+
+
+
+
+        
 @shared_task
 def celery_save_lens_model(lens_model_id,tar_path):
     model_ref = apps.get_model(app_label='lenses',model_name='LensModels')
@@ -75,10 +158,6 @@ def celery_save_lens_model(lens_model_id,tar_path):
         raise ValidationError(f"Failed to process COOLEST file: {e}")
     
     lens_model.save()
-
-
-
-
 
 
     
@@ -185,9 +264,9 @@ def celery_upload_papers(user_id,paper):
         qset = lenses_ref.proximate.get_DB_neighbours_anywhere(ra,dec)
         N = qset.count()
         if N == 0:
-            errors.append('RA,dec = (%f,%f) -- no lens found at these coordinates!' % (ra,dec))
+            errors.append('RA,DEC = (%f,%f) -- no lens found at these coordinates!' % (ra,dec))
         elif N > 1: 
-            errors.append('RA,dec = (%f,%f) -- more than one lenses found at these coordinates!' % (ra,dec))
+            errors.append('RA,DEC = (%f,%f) -- more than one lenses found at these coordinates!' % (ra,dec))
         else:
             lenses[i]["lens"] = qset[0]
     
