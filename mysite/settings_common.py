@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'sled_limits',
     'sled_guide',
     'sled_lens_models',
+    'sled_visualise',
     'lenses.apps.LensesConfig',
     'sled_groups.apps.GroupsConfig',
     'sled_home.apps.HomeConfig',

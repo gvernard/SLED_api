@@ -8,6 +8,7 @@ urlpatterns = [
     path('',TemplateView.as_view(template_name='lenses/lens_index.html'), name='lens-index'),
     path('export/',views.ExportToCSV.as_view(),name='export-csv'),
     path('query/',views.LensQueryView.as_view(),name='lens-query'),
+    path('query-all-ids/',views.query_all_ids,name='lens-query-all-ids'),
     path('add/',views.LensAddView.as_view(),name='lens-add'),
     path('update/',views.LensUpdateView.as_view(),name='lens-update'),
     path('update-modal/<int:pk>',views.LensUpdateModalView.as_view(),name='lens-update-modal'),
