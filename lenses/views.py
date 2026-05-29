@@ -973,8 +973,6 @@ class LensCollageView(ListView):
         return TemplateResponse(request,'simple_message.html',context={'message':'You are accessing this page in an unauthorized way.'})
 
 
-
-
 # View for lens queries
 @method_decorator(login_required,name='dispatch')
 class LensQueryView(TemplateView):
@@ -1054,9 +1052,32 @@ class LensQueryView(TemplateView):
         context = self.my_response(merged_request,request.user)
 
         return self.render_to_response(context)
-        
 
-        
+
+@login_required
+def query_all_ids(request):
+    """Return the ids of every accessible lens matching the posted query form,
+    across all pages. Used by the 'select all' button on the query page so that
+    actions can operate on the entire result set rather than the current page."""
+    if request.method != 'POST':
+        return JsonResponse({'ids': [], 'count': 0, 'error': 'POST required'}, status=400)
+    user = request.user
+    data = request.POST
+    lens_form = forms.LensQueryForm(data, prefix="lens")
+    redshift_form = forms.RedshiftQueryForm(data, prefix="redshift")
+    imaging_form = forms.ImagingQueryForm(data, prefix="imaging")
+    spectrum_form = forms.SpectrumQueryForm(data, prefix="spectrum")
+    catalogue_form = forms.CatalogueQueryForm(data, prefix="catalogue")
+    management_form = forms.ManagementQueryForm(data, prefix="management", user=user)
+    all_forms = [lens_form, redshift_form, imaging_form, spectrum_form, catalogue_form, management_form]
+    if not all(f.is_valid() for f in all_forms):
+        return JsonResponse({'ids': [], 'count': 0, 'error': 'Invalid query parameters'}, status=400)
+    qset = query_utils.combined_query(lens_form.cleaned_data, redshift_form.cleaned_data, imaging_form.cleaned_data,
+                                      spectrum_form.cleaned_data, catalogue_form.cleaned_data, management_form.cleaned_data, user)
+    ids = list(qset.values_list('id', flat=True).distinct())
+    return JsonResponse({'ids': ids, 'count': len(ids)})
+
+
 #=============================================================================================================================
 ### END: Non-modal views
 #=============================================================================================================================

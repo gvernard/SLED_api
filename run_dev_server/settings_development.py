@@ -36,3 +36,8 @@ CSP_FONT_SRC.append('http://fonts.gstatic.com')
 
 CELERY_BROKER_URL = 'redis://redis:6379'
 CELERY_RESULT_BACKEND = 'redis://redis:6379'
+
+# django-axes: relax login lockout for local development
+AXES_COOLOFF_TIME = 0.25      # auto-unlock after 15 minutes
+AXES_FAILURE_LIMIT = 10       # allow more attempts before locking
+AXES_RESET_ON_SUCCESS = True  # clear the counter on a successful login

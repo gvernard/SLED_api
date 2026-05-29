@@ -35,27 +35,84 @@
 </div>
 
 <script nonce="{{request.csp_nonce}}">
-  var toggle = function(e) {
-    checkboxes = document.getElementsByName('ids');
-    var new_status = e.currentTarget.getAttribute('value');
-    if (new_status == "select") {
-      for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].checked = true;
-      }
-      e.currentTarget.setAttribute('value', 'unselect');
-    } else {
-      for (var i = 0; i < checkboxes.length; i++) {
-        checkboxes[i].checked = false;
-      }
-      e.currentTarget.setAttribute('value', 'select');
-    }
-  }
-  document.getElementById("toggle_all").addEventListener("click", toggle, true);
+  // Ids of every lens matching the current query, across all pages.
+  // null = "select all" is not active (only the visible checkboxes count).
+  var allPagesIds = null;
+  var toggleBtn = document.getElementById("toggle_all");
 
+  var setVisibleChecked = function(checked) {
+    var checkboxes = document.getElementsByName('ids');
+    for (var i = 0; i < checkboxes.length; i++) { checkboxes[i].checked = checked; }
+  };
+
+  var clearAllPages = function() {
+    allPagesIds = null;
+    toggleBtn.setAttribute('value', 'select');
+    toggleBtn.textContent = 'Toggle select all';
+  };
+
+  var toggle = function(e) {
+    var btn = e.currentTarget;
+    if (btn.getAttribute('value') == "select") {
+      // Activate "select all": fetch every matching id across all pages.
+      var form = document.getElementById('lens-query');
+      btn.disabled = true;
+      fetch("{% url 'lenses:lens-query-all-ids' %}", {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {'X-Requested-With': 'XMLHttpRequest'}
+      })
+        .then(function(r) { if (!r.ok) { throw new Error('bad status'); } return r.json(); })
+        .then(function(d) {
+          allPagesIds = d.ids || [];
+          setVisibleChecked(true);
+          btn.setAttribute('value', 'unselect');
+          btn.textContent = 'Unselect all (' + allPagesIds.length + ' across all pages)';
+          btn.disabled = false;
+        })
+        .catch(function() {
+          btn.disabled = false;
+          alert('Could not select all results. Please try again.');
+        });
+    } else {
+      setVisibleChecked(false);
+      clearAllPages();
+    }
+  };
+  toggleBtn.addEventListener("click", toggle, true);
+
+  // If the user hand-edits any checkbox, drop "select all" mode so the
+  // selection reflects exactly what is checked.
+  document.getElementById("exe_summary").addEventListener("change", function(e) {
+    if (allPagesIds !== null && e.target && e.target.name === 'ids') {
+      clearAllPages();
+    }
+  }, false);
+
+  // Before submitting, if "select all" is active, add a hidden ids input for
+  // every off-page lens so the action operates on the whole result set.
+  var injectAllPageIds = function() {
+    var form = document.getElementById('ids-form');
+    var prev = form.querySelectorAll('input.all-page-id');
+    for (var i = 0; i < prev.length; i++) { prev[i].remove(); }
+    if (allPagesIds === null) { return; }
+    var visible = {};
+    var boxes = document.querySelectorAll('#exe_summary input[name="ids"]');
+    for (var j = 0; j < boxes.length; j++) { visible[boxes[j].value] = true; }
+    for (var k = 0; k < allPagesIds.length; k++) {
+      var id = String(allPagesIds[k]);
+      if (!visible[id]) {
+        var inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'ids'; inp.value = id; inp.className = 'all-page-id';
+        form.appendChild(inp);
+      }
+    }
+  };
+  document.getElementById("ids-form").addEventListener("submit", injectAllPageIds, false);
 
   var min_checked = function(e) {
     var checked_boxes = document.querySelectorAll('#exe_summary input[type="checkbox"]:checked');
-    if (checked_boxes.length == 0) {
+    if (checked_boxes.length == 0 && allPagesIds === null) {
       //alert('You must select at least one lens!');
       e.preventDefault();
     }

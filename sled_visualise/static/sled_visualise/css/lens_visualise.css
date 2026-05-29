@@ -1,0 +1,519 @@
+/* SLED dashboard theme: light page chrome matching the main SLED site
+   (basic-sans / Adobe Typekit, #EFEFEF background, #6F73DD brand purple).
+   The sky-map canvas is also light (white plot area with a thin outline),
+   matching the redshift plot and the rest of the page. */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'basic-sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #EFEFEF;
+    color: #1a1a1a;
+    overflow: hidden;
+}
+
+#container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#header {
+    padding: 14px 20px;
+    background: #ffffff;
+    border-bottom: 3px solid #6F73DD;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.sled-logo {
+    height: 46px;
+    width: auto;
+}
+
+#header h1 {
+    font-size: 24px;
+    color: #1a1a1a;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+#header p {
+    font-size: 13px;
+    color: #666;
+}
+
+#controls {
+    padding: 12px 20px;
+    background: #ffffff;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+    border-bottom: 1px solid #dcdce4;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.control-group label {
+    font-size: 13px;
+    color: #555;
+    font-weight: 500;
+}
+
+select, input[type="range"] {
+    background: #ffffff;
+    color: #1a1a1a;
+    border: 1px solid #b9b9c8;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+input[type="range"] {
+    width: 150px;
+    accent-color: #6F73DD;
+}
+
+.ctrl-toggle-btn {
+    background: #ffffff;
+    color: #333;
+    border: 1px solid #b9b9c8;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.ctrl-toggle-btn:hover {
+    background: #f0f0f8;
+}
+
+.ctrl-toggle-btn.active {
+    background: #6F73DD;
+    color: #ffffff;
+    border-color: #6F73DD;
+}
+
+.overlay-toggle {
+    display: inline-flex;
+    align-items: center;
+}
+
+.ov-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+}
+
+.ov-des { background: #FF7B00; }
+.ov-sdss { background: #F2C200; }
+.ov-euclid { background: #B26CFF; }
+.ov-galactic { background: #FF4DA6; }
+
+canvas {
+    display: block;
+    cursor: grab;
+}
+
+canvas:active {
+    cursor: grabbing;
+}
+
+#tooltip {
+    position: fixed;
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 15px;
+    border-radius: 8px;
+    pointer-events: auto;
+    display: none;
+    max-width: 400px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    border: 1px solid #d6d6e0;
+    z-index: 1000;
+}
+
+#tooltip.pinned {
+    border: 2px solid #6F73DD;
+}
+
+#tooltip .close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #6F73DD;
+    color: #fff;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: none;
+}
+
+#tooltip.pinned .close-btn {
+    display: block;
+}
+
+#tooltip .close-btn:hover {
+    background: #5a5ec9;
+}
+
+#tooltip h3 {
+    margin: 0 0 10px 0;
+    color: #6F73DD;
+    font-size: 16px;
+    border-bottom: 1px solid #e2e2ea;
+    padding-bottom: 8px;
+}
+
+#tooltip .info-row {
+    margin: 6px 0;
+    font-size: 13px;
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 10px;
+}
+
+#tooltip .info-label {
+    color: #888;
+    font-weight: 500;
+}
+
+#tooltip .info-value {
+    color: #1a1a1a;
+}
+
+#tooltip a {
+    color: #6F73DD;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+#tooltip a:hover {
+    color: #4a4ea8;
+    text-decoration: underline;
+}
+
+#loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #666;
+    font-size: 18px;
+}
+
+.spinner {
+    border: 4px solid rgba(111, 115, 221, 0.2);
+    border-top: 4px solid #6F73DD;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+#stats {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #333;
+    border: 1px solid #c7c7d4;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.reset-zoom-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #6F73DD;
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.reset-zoom-btn:hover {
+    background: #5a5ec9;
+}
+
+#colorbar {
+    background: transparent;
+    padding: 0;
+    border: none;
+    min-width: auto;
+}
+
+#instructions {
+    position: absolute;
+    top: 45px;
+    right: 15px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #d6d6e0;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+}
+
+#instructions h3 {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: #6F73DD;
+    border-bottom: 1px solid #e2e2ea;
+    padding-bottom: 8px;
+}
+
+#instructions .instr-subhead {
+    color: #4a4ea8;
+    font-size: 13px;
+    margin: 12px 0 8px 0;
+}
+
+#instructions ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: none;
+}
+
+#instructions li {
+    margin: 10px 0;
+    font-size: 13px;
+    color: #444;
+    line-height: 1.5;
+    position: relative;
+}
+
+#instructions li:before {
+    content: "▸";
+    color: #6F73DD;
+    position: absolute;
+    left: -15px;
+}
+
+#instructions .toggle-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #6F73DD;
+    color: #fff;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+}
+
+#instructions .toggle-btn:hover {
+    background: #5a5ec9;
+}
+
+#instructions.collapsed {
+    padding: 15px;
+}
+
+#instructions.collapsed h3,
+#instructions.collapsed h4,
+#instructions.collapsed ul {
+    display: none;
+}
+
+#instructions.collapsed .toggle-btn {
+    position: static;
+}
+
+#colorbar h4 {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    color: #6F73DD;
+    font-weight: 600;
+}
+
+#colorbar .legend-hint {
+    font-size: 10px;
+    color: #999;
+    font-weight: 400;
+}
+
+.legend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    margin: 6px 0;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.legend-item:hover {
+    background-color: rgba(111, 115, 221, 0.12);
+}
+
+.legend-item.active {
+    background-color: rgba(111, 115, 221, 0.2);
+    border: 1px solid #6F73DD;
+}
+
+.legend-item canvas {
+    border: 1px solid #c7c7d4;
+    border-radius: 4px;
+}
+
+.legend-item .legend-label {
+    margin-left: 12px;
+}
+
+.legend-gradient {
+    height: 20px;
+    border-radius: 4px;
+    margin: 8px 0;
+    border: 1px solid #c7c7d4;
+    background: linear-gradient(to right,
+        hsl(240, 70%, 60%),
+        hsl(180, 70%, 60%),
+        hsl(120, 70%, 60%),
+        hsl(60, 70%, 60%),
+        hsl(0, 70%, 60%));
+}
+
+.legend-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 420px);
+    grid-template-rows: 1fr;
+    gap: 10px;
+    flex: 1;
+    padding: 10px;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.chart-panel {
+    background: #ffffff;
+    border: 1px solid #d6d6e0;
+    border-radius: 6px;
+    padding: 15px;
+    padding-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.chart-panel canvas {
+    flex: 1;
+    min-height: 0;
+}
+
+.chart-panel.skymap-large {
+    grid-column: 1;
+}
+
+.info-column {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.chart-panel.redshift-panel {
+    flex: 0 0 340px;
+}
+
+/* Narrow windows: stack the sky map full-width on top so it never collapses,
+   with the redshift plot and legend sharing the row below. */
+@media (max-width: 1100px) {
+    .charts-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: minmax(0, 1.6fr) minmax(0, 1fr);
+    }
+    .chart-panel.skymap-large {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .info-column {
+        grid-column: 1;
+        grid-row: 2;
+        flex-direction: row;
+        overflow: hidden;
+    }
+    .chart-panel.redshift-panel {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+    .info-panel {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow-y: auto;
+    }
+}
+
+.info-panel {
+    background: #ffffff;
+    border: 1px solid #d6d6e0;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.chart-title {
+    color: #6F73DD;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    flex-shrink: 0;
+}

@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selected Gravitational Lenses — Interactive Sky Map</title>
+    <link rel="stylesheet" href="https://use.typekit.net/pkl4bli.css">
+    <link rel="stylesheet" href="{% static 'sled_visualise/css/lens_visualise.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <img class="sled-logo" src="{% static 'images/JB_Master Header_Logo.png' %}" alt="SLED">
+            <div class="header-text">
+                <h1>Selected Gravitational Lenses — Interactive Sky Map</h1>
+                <p>Visualisation of the lenses you selected in the SLED query</p>
+            </div>
+        </div>
+
+        <div id="controls">
+            <div class="control-group">
+                <label for="pointSize">Point Size:</label>
+                <input type="range" id="pointSize" min="0.5" max="10" value="4" step="0.5">
+                <span id="pointSizeValue">4</span>
+            </div>
+
+            <div class="control-group">
+                <label for="colorScheme">Colour by:</label>
+                <select id="colorScheme">
+                    <option value="type">Source Type</option>
+                    <option value="lenstype">Deflector Type</option>
+                    <option value="source_z">Source Redshift</option>
+                    <option value="lens_z">Deflector Redshift</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>RA/Dec Labels:</label>
+                <button id="toggleAxisLabels" class="ctrl-toggle-btn" title="Toggle RA/Dec labels">Off</button>
+            </div>
+
+            <div class="control-group">
+                <label>Map centre:</label>
+                <button id="centerToggle" class="ctrl-toggle-btn" title="Toggle map centre: off = RA=0 at the left edge; on = centred on RA=0">Centre on RA=0</button>
+            </div>
+
+            <div class="control-group">
+                <label>Overlays:</label>
+                <button id="overlayDES" class="ctrl-toggle-btn overlay-toggle" title="Toggle DES footprint (approximate)"><span class="ov-dot ov-des"></span>DES</button>
+                <button id="overlaySDSS" class="ctrl-toggle-btn overlay-toggle" title="Toggle SDSS footprint (approximate)"><span class="ov-dot ov-sdss"></span>SDSS</button>
+                <button id="overlayEuclid" class="ctrl-toggle-btn overlay-toggle" title="Toggle approximate Euclid Wide Survey region (|ecliptic latitude| > 10°, |galactic latitude| > 25°)"><span class="ov-dot ov-euclid"></span>Euclid</button>
+                <button id="overlayGalactic" class="ctrl-toggle-btn overlay-toggle" title="Toggle Milky Way galactic plane"><span class="ov-dot ov-galactic"></span>Galactic plane</button>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <!-- Left column: large sky map -->
+            <div class="chart-panel skymap-large" id="skymap-panel">
+                <div class="chart-title">All-Sky Map</div>
+                <canvas id="skymap"></canvas>
+                <div id="loading">
+                    <div class="spinner"></div>
+                    <div>Loading lens data...</div>
+                </div>
+                <div id="tooltip">
+                    <button class="close-btn" id="closeTooltip">×</button>
+                </div>
+                <div id="stats"></div>
+                <div id="instructions">
+                    <button class="toggle-btn" id="toggleInstructions">−</button>
+                    <h3>How to Use</h3>
+                    <h4 class="instr-subhead">Sky Map (center)</h4>
+                    <ul>
+                        <li><strong>Hover</strong> over any point to view system details</li>
+                        <li><strong>Scroll</strong> to zoom in/out, <strong>drag</strong> to pan</li>
+                        <li>Use <strong>controls</strong> to change point size, color scheme, and axis labels</li>
+                        <li><strong>Click</strong> a point to pin the tooltip (click × to close)</li>
+                        <li><strong>Click</strong> a legend item to highlight that subset</li>
+                        <li>Use <strong>Overlays</strong> to toggle approximate survey footprints (DES, SDSS, Euclid) and the Milky Way galactic plane</li>
+                    </ul>
+                    <h4 class="instr-subhead">Redshift Plot (left)</h4>
+                    <ul>
+                        <li><strong>Drag</strong> to select a region to zoom into</li>
+                        <li><strong>Pan</strong> by dragging when zoomed in</li>
+                        <li>Click <strong>"Reset"</strong> to restore the original view</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right column: redshift scatter on top of the legend -->
+            <div class="info-column">
+                <div class="chart-panel redshift-panel">
+                    <div class="chart-title">z<sub>source</sub> vs z<sub>deflector</sub></div>
+                    <button id="resetRedshiftZoom" class="reset-zoom-btn" title="Reset zoom">Reset</button>
+                    <canvas id="redshiftChart"></canvas>
+                </div>
+                <div class="info-panel">
+                    <div id="colorbar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ lens_data|json_script:"lens-data" }}
+    <script src="{% static 'sled_visualise/footprints/_coords.js' %}"></script>
+    <script src="{% static 'sled_visualise/footprints/galactic.js' %}"></script>
+    <script src="{% static 'sled_visualise/footprints/euclid.js' %}"></script>
+    <script src="{% static 'sled_visualise/footprints/des.js' %}"></script>
+    <script src="{% static 'sled_visualise/footprints/sdss.js' %}"></script>
+    <script src="{% static 'sled_visualise/js/lens_visualise.js' %}"></script>
+</body>
+</html>
