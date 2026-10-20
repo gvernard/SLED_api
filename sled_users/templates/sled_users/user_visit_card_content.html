@@ -32,7 +32,7 @@
 	  Change limits and roles
 	</button>
 
-	{% with N_attempts=request.user.is_locked_out %}
+	{% with N_attempts=sled_user.is_locked_out %}
 	{% if N_attempts == 0 %}
 	Good user!
 	{% elif N_attempts < 3 %}
