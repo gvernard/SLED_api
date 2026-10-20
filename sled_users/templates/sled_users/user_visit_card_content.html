@@ -14,19 +14,41 @@
 	<p>
 	  Joined on {{ sled_user.date_joined }}, last login {{ sled_user.last_login|timesince }} ago
 	</p>
+      </td>
+      <td valign="bottom" align="right" rowspan="2">
+	<img src="{{ sled_user.avatar }}" loading="lazy" width="100" alt="" class="jb-avatar" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+	
 	<span class="jb-important-text roles">
 	  {{ sled_user.get_roles }}
 	</span>
-
+	
 	{% if request.user.limitsandroles.is_super_admin %}
 	<button type="button" class="sled-modal jb-submit-button-1" data-form-url="{% url 'sled_limits:limits-and-roles-update' sled_user.pk %}">
 	  <img src="{% static 'icons/cloud-arrow-down-fill.svg' %}">
 	  Change limits and roles
 	</button>
+
+	{% with N_attempts=request.user.is_locked_out %}
+	{% if N_attempts == 0 %}
+	Good user!
+	{% elif N_attempts < 3 %}
+	{{ N_attempts }} blocked
+	{% else %}
+	<form action="{% url 'sled_users:reset-axes' sled_user.pk %}">
+	  <button type="submit" class="jb-submit-button-1"> 
+            <img src="{% static 'icons/arrow-clockwise.svg' %}">
+	    Reset Axes ({{N_attempts}} blocked)
+	  </button>
+	</form>	
 	{% endif %}
-      </td>
-      <td valign="bottom" align="right">
-	<img src="{{ sled_user.avatar }}" loading="lazy" width="100" alt="" class="jb-avatar" />
+	{% endwith %}
+	
+	{% endif %}
+	
       </td>
     </tr>
   </table>

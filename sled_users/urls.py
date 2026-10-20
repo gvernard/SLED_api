@@ -11,4 +11,5 @@ urlpatterns = [
     path('following/',views.UserFollowingView.as_view(),name='user-following'),
     path('admin/', views.UserAdminView.as_view(),name='user-admin'),
     path('admin/<str:hash>', views.UserAdminView.as_view(),name='user-admin'),
+    path('reset-axes/<int:user_id>', views.AdminResetAxesView.as_view(),name='reset-axes'),
 ]

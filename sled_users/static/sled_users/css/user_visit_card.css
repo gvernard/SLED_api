@@ -4,9 +4,13 @@
 
 .roles {
     font-weight: bold;
-    font-size: 40px;
+    font-size: 20px;
 }
 
 .slack-display-name {
     width: 250px;
+}
+
+form {
+    display: inline-block;
 }

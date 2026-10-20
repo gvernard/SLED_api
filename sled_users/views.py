@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib import messages
 from django.forms import inlineformset_factory
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView,DetailView
@@ -10,6 +11,7 @@ from django.http import Http404
 from django.utils.translation import gettext as _
 from django.db.models import Q
 
+from axes.utils import reset
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
     BSModalUpdateView,
@@ -334,7 +336,16 @@ class UserUpdateView(BSModalUpdateView):
 
 
 
-
+@method_decorator(admin_access_only,name='dispatch')
+@method_decorator(login_required,name='dispatch')
+class AdminResetAxesView(TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        user = Users.objects.get(id=user_id)
+        reset(username=user.username)
+        messages.add_message(self.request,messages.SUCCESS,"Axes for user <b>"+user.username+"</b> was reset successfully!")
+        return redirect(request.META.get('HTTP_REFERER'))
 
 
 @method_decorator(admin_access_only,name='dispatch')

@@ -12,6 +12,7 @@ from guardian.shortcuts import assign_perm, remove_perm, get_objects_for_group, 
 from notifications.signals import notify
 from actstream import action
 from actstream.actions import unfollow
+from axes.models import AccessAttempt
 
 from operator import itemgetter
 from itertools import groupby
@@ -644,7 +645,10 @@ class Users(AbstractUser,GuardianUserMixin):
         return remaining
         
 
-
+    def is_locked_out(self):
+        return AccessAttempt.objects.filter(username=self.username).count()
+        
+    
         
     # def deactivateUser(self,user):
     #     # See django documentation for is_active for login and permissions
