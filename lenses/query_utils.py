@@ -9,9 +9,9 @@ def get_combined_qset(request,user): # Must be self.request.GET or self.request.
     spectrum_form = SpectrumQueryForm(request,prefix="spectrum")
     catalogue_form = CatalogueQueryForm(request,prefix="catalogue")
     management_form = ManagementQueryForm(request,prefix="management",user=user)
-    for form in [lens_form,imaging_form,spectrum_form,catalogue_form]:
+    for form in [lens_form,redshift_form,imaging_form,spectrum_form,catalogue_form,management_form]:
         form.is_valid()
-    qset = combined_query(lens_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,management_form.cleaned_data,user)
+    qset = combined_query(lens_form.cleaned_data,redshift_form.cleaned_data,imaging_form.cleaned_data,spectrum_form.cleaned_data,catalogue_form.cleaned_data,management_form.cleaned_data,user)
     ids = [str(x) for x in qset.values_list('id',flat=True)]
     return ids
 
