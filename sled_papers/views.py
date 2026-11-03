@@ -33,7 +33,7 @@ class PaperQueryView(TemplateView):
         search_term = cleaned_data['search_term']
         year_min = cleaned_data['year_min']
         year_max = cleaned_data['year_max']
-        print(cleaned_data)
+        #print(cleaned_data)
         #I've changed this because it was not what I thought it would do
         #and I want to keep it consistent with how the lens query max min fields work
         if year_min and year_max:

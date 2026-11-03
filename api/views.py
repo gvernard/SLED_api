@@ -13,7 +13,7 @@ from rest_framework import authentication, permissions, status
 from rest_framework.parsers import  MultiPartParser, FormParser
 from rest_framework.renderers import JSONRenderer
 
-from .serializers import UsersSerializer, GroupsSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, GenericImageUploadSerializer, RedshiftUploadSerializer, CollectionUploadSerializer
+from .serializers import UsersSerializer, GroupsSerializer, LensesUpdateSerializer, ImagingDataUploadSerializer, SpectrumDataUploadSerializer, CatalogueDataUploadSerializer, GenericImageUploadSerializer, RedshiftUploadSerializer, CollectionUploadSerializer, PapersSerializer
 from .serializers import PaperUploadSerializerSynchronous
 from .download_serializers import LensDownSerializer,LensDownSerializerAll
 from lenses.models import Users, SledGroup, Lenses, ConfirmationTask, Collection, AdminCollection, Imaging, Spectrum, Catalogue, Paper, GenericImage, Redshift
