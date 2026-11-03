@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.forms import inlineformset_factory
@@ -7,11 +7,13 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView,DetailView
 from django.core.paginator import Paginator
 from django.utils.decorators import method_decorator
-from django.http import Http404
 from django.utils.translation import gettext as _
-from django.db.models import Q
+from django.utils import timezone
+from django.db.models import FilteredRelation, Q, F, OuterRef, Subquery, Count
+
 
 from axes.utils import reset
+from axes.models import AccessAttempt
 from bootstrap_modal_forms.generic import (
     BSModalFormView,
     BSModalUpdateView,
@@ -382,7 +384,13 @@ class UserAdminView(TemplateView):
         # All admin collections are public
         owned_objects = admin.getOwnedObjects()
         qset_cols = owned_objects["Collection"]
-        
+        N_cols = qset_cols.count()
+
+        # Blocked users       
+        attempt_subquery = AccessAttempt.objects.filter( Q(username=OuterRef('username')) & Q(failures_since_start__gte=0) ).values('failures_since_start')
+        blocked_users = Users.objects.annotate( attempts=Subquery(attempt_subquery) ).filter(attempts__gt=0)
+        N_blocked = blocked_users.count()
+                
         # Get bands and instruments (all of them, they are few anyway
         bands = Band.objects.all().order_by('wavelength')
         instruments = Instrument.objects.all()
@@ -399,6 +407,9 @@ class UserAdminView(TemplateView):
                  'unread_notifications':unread_notifications,
                  'N_note_unread': N_note_unread,
                  'collections': qset_cols,
+                 'N_cols': N_cols,
+                 'N_blocked': N_blocked,
+                 'blocked': blocked_users,
                  'bands':bands,
                  'instruments':instruments,
                  'valid_messages': valid_messages,

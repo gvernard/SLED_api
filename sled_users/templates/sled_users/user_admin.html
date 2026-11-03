@@ -1,5 +1,6 @@
 {% extends 'master_header.html' %}
 {% load static %}
+{% load project_tags %}
 
 
 {% block content %}
@@ -72,7 +73,53 @@
       </div>
     </div>
 
+
     
+    <div class="c c-admin">
+      <input class="accordion-checkbox" type="checkbox" id="admin-6">
+      <h1 class="jb-heading-2">
+	<label for="admin-6">
+	  Blocked users ({{N_blocked}})
+	</label>
+      </h1>
+      <div class="p">
+	<br>
+	{% if N_blocked %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Name</th>
+	      <th>Attempts</th>
+	      <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in blocked %}
+            <tr>
+	      <td>{{ u.id|get_user_link|safe }}</td>
+	      <td>{{ u.attempts }}</td>
+	      <td>
+		<form action="{% url 'sled_users:reset-axes' u.pk %}">
+		  <button type="submit" class="jb-submit-button-1"> 
+		    <img src="{% static 'icons/arrow-clockwise.svg' %}">
+		    Reset Axes
+		  </button>
+		</form>
+	      </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No blocked users</p>
+	{% endif %}
+	<br>
+	<br>
+      </div>
+    </div>
+
+
+	
 
     <div class="c c-admin">
       <input class="accordion-checkbox" type="checkbox" id="instruments">
@@ -126,6 +173,8 @@
 	<br>
       </div>
     </div>
+
+    
 
     <div class="c c-admin">
       <input class="accordion-checkbox" type="checkbox" id="bands">
@@ -222,11 +271,33 @@
       <input class="accordion-checkbox" type="checkbox" id="admin-4">
       <h1 class="jb-heading-2">
 	<label for="admin-4">
-	  Admin collections
+	  Admin collections ({{N_cols}})
 	</label>
       </h1>
       <div class="p">
-	Dyo
+	<br>
+	{% if N_cols %}
+	<table>
+          <thead>
+            <tr>
+	      <th>Name</th>
+	      <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for col in collections %}
+            <tr>
+	      <td><a href="{{ col.get_absolute_url }}">{{col.name}}</td>
+	      <td>{{col.description}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+	</table>
+	{% else %}
+	<p class="jb-paragraph-2">No collections to display</p>
+	{% endif %}
+	<br>
+	<br>
       </div>
     </div>
 
