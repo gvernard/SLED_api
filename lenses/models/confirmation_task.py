@@ -247,6 +247,10 @@ class ConfirmationTask(SingleObject):
         from_email = 'sled-no-reply@sled.amnh.org'
         
         for user in users:
+            if user.username == 'admin':
+                from . import Users
+                user = Users.getSuperAdmin().first()
+            
             html_message = get_template('emails/task_notification.html')
             mycontext = {
                 'first_name': user.first_name,
