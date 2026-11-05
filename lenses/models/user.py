@@ -569,6 +569,12 @@ class Users(AbstractUser,GuardianUserMixin):
         return Users.objects.filter(is_superuser=True) # This refers to the django user 'admin'
     
 
+    def getSuperAdmin():
+        user_id = Users.objects.filter(limitsandroles__is_super_admin=True).first().id
+        qset = Users.objects.filter(id=user_id)
+        return qset
+
+
     def selectRandomAdmin(exclude_usernames=None):
         # Returns a queryset
         if exclude_usernames is None:

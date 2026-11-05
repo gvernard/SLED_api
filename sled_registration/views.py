@@ -59,7 +59,7 @@ def register(response):
             cargo['object_type'] = 'Users'
             cargo['object_ids'] = [candidate_user.id]
             cargo['user_admin'] = Users.selectRandomAdmin()[0].username
-            ConfirmationTask.create_task(candidate_user,Users.getAdmin(),'AcceptNewUser',cargo)
+            ConfirmationTask.create_task(candidate_user,Users.getSuperAdmin(),'AcceptNewUser',cargo)
             message = "The admins have been notified and will soon process your registration!"
             #messages.add_message(response,messages.SUCCESS,message)
             #return HttpResponseRedirect("../login/")
